@@ -44,18 +44,21 @@ Este projeto visa desenvolver uma solução que permite:
 ### Configuração Inicial
 
 1. **Clone o repositório**
+
    ```bash
    git clone <repository-url>
    cd sienge
    ```
 
 2. **Configure as variáveis de ambiente**
+
    ```bash
    cp .env.example .env
    # Edite o arquivo .env com suas configurações
    ```
 
 3. **Inicie os serviços**
+
    ```bash
    docker-compose up -d
    ```
@@ -92,26 +95,28 @@ Após a configuração inicial, os dados estarão disponíveis no PostgreSQL:
 SELECT * FROM customers ORDER BY name;
 
 -- Contar registros por entidade
-SELECT 
+SELECT
   'customers' as entity, COUNT(*) as total FROM customers
 UNION ALL
-SELECT 
+SELECT
   'companies' as entity, COUNT(*) as total FROM companies;
 
 -- Verificar última sincronização
-SELECT entity, sync_started_at, records_processed, status 
-FROM sync_logs 
+SELECT entity, sync_started_at, records_processed, status
+FROM sync_logs
 ORDER BY sync_started_at DESC;
 ```
 
 ## 🔄 Sincronização
 
 ### Automática
+
 - **Frequência**: Diária às 2:00 AM
 - **Configuração**: Via variável `SYNC_SCHEDULE` no .env
 - **Logs**: Disponíveis no dashboard e tabela `sync_logs`
 
 ### Manual
+
 - Acesse o dashboard em http://localhost:3000
 - Clique em "Sincronizar Agora"
 - Monitore o progresso em tempo real
@@ -119,12 +124,14 @@ ORDER BY sync_started_at DESC;
 ## 📈 Monitoramento
 
 ### Dashboard
+
 - Status da última sincronização
 - Contadores de registros por entidade
 - Logs de erro e alertas
 - Conectividade com API Sienge
 
 ### Logs
+
 - Histórico completo de sincronizações
 - Detalhes de erros e falhas
 - Métricas de performance
