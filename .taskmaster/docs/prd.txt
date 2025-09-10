@@ -1,0 +1,578 @@
+<context>
+# Overview
+O projeto visa desenvolver uma aplicação containerizada (Docker-Compose) para automatizar a extração de dados da plataforma Sienge e torná-los acessíveis localmente através de um banco PostgreSQL. A solução permite que usuários configurem credenciais de API do Sienge através de uma interface web simples (React/Next.js) e mantenham dados sincronizados automaticamente uma vez por dia, eliminando a necessidade de acesso manual à plataforma Sienge para consultas básicas.
+
+## Problema Resolvido
+- Dificuldade de acesso offline aos dados do Sienge
+- Dependência de conexão constante com a plataforma
+- Falta de integração nativa com ferramentas de BI e análise
+- Limitações de quota da API Sienge (100 chamadas/dia no plano gratuito)
+- Necessidade de credenciais específicas de API que não são as mesmas do login padrão
+
+## Usuários Alvo
+- Administradores e gestores que precisam analisar dados do Sienge
+- Analistas de BI que precisam conectar ferramentas externas
+- Desenvolvedores que precisam integrar dados do Sienge em outros sistemas
+- Empresas que usam Sienge como ERP principal
+
+## Valor Proposto
+- Acesso offline e instantâneo aos dados principais do Sienge
+- Integração simplificada com ferramentas de análise (Power BI, Tableau, etc.)
+- Automação completa da sincronização de dados
+- Interface intuitiva para configuração inicial
+- Solução containerizada de fácil deployment
+
+# Core Features
+
+## 1. Configuração de Credenciais de API
+**O que faz:** Interface web para configuração segura das credenciais da API Sienge
+**Por que é importante:** As credenciais específicas de API são necessárias para autenticação e não são as mesmas do login padrão do Sienge
+**Como funciona:**
+- Formulário web com campos para subdomínio, usuário API e senha
+- Validação em tempo real das credenciais através de chamada de teste
+- Armazenamento seguro criptografado no banco de dados
+- Feedback visual sobre status da configuração
+
+## 2. Extração Automática de Dados
+**O que faz:** Busca programada de dados das principais entidades do Sienge
+**Por que é importante:** Mantém dados sempre atualizados sem intervenção manual
+**Como funciona:**
+- Scheduler diário configurado para executar às 2:00 AM
+- Busca de entidades principais: clientes, empresas, fornecedores, projetos
+- Tratamento automático de paginação (até 200 registros por requisição)
+- Controle de taxa para respeitar limites da API (200 req/minuto)
+
+## 3. Armazenamento Estruturado
+**O que faz:** Persistência organizada dos dados em PostgreSQL relacional
+**Por que é importante:** Permite consultas eficientes e integração com ferramentas externas
+**Como funciona:**
+- Schema relacional com tabelas para cada entidade
+- Mapeamento direto dos campos da API para colunas do banco
+- Suporte a relacionamentos entre entidades
+- Índices otimizados para consultas frequentes
+
+## 4. Interface de Monitoramento
+**O que faz:** Dashboard simples para acompanhar status da sincronização
+**Por que é importante:** Transparência sobre o funcionamento do sistema
+**Como funciona:**
+- Visualização da última sincronização por entidade
+- Contadores de registros processados
+- Status de conectividade com API Sienge
+- Logs de erro e alertas
+
+## 5. Acesso Externo ao Banco
+**O que faz:** Exposição do PostgreSQL na porta 5432 para conexões externas
+**Por que é importante:** Permite integração com ferramentas de BI e análise
+**Como funciona:**
+- Mapeamento direto da porta do container
+- Credenciais de acesso ao banco documentadas
+- Suporte a múltiplas conexões simultâneas
+- Isolamento de rede para segurança
+
+# User Experience
+
+## User Personas
+### Administrador de Sistema
+- Responsável por configurar e manter o sistema funcionando
+- Precisa de interface simples para configuração inicial
+- Quer visibilidade sobre o status das sincronizações
+- Prioriza confiabilidade e automação
+
+### Analista de Dados
+- Usa ferramentas de BI para análise
+- Precisa acesso direto aos dados estruturados
+- Quer dados sempre atualizados automaticamente
+- Foca na qualidade e completude das informações
+
+## Key User Flows
+
+### Fluxo de Configuração Inicial
+1. Usuário acessa interface web (localhost:3000)
+2. Preenche subdomínio do Sienge
+3. Insere credenciais de API (usuário e senha específicos)
+4. Sistema valida credenciais com chamada de teste
+5. Credenciais são armazenadas de forma segura
+6. Usuário é redirecionado para dashboard de status
+
+### Fluxo de Monitoramento
+1. Usuário acessa dashboard principal
+2. Visualiza status da última sincronização
+3. Verifica contadores de registros por entidade
+4. Consulta logs de erro se necessário
+5. Pode acionar sincronização manual se desejado
+
+### Fluxo de Uso dos Dados
+1. Usuário conecta ferramenta externa (Power BI, PGAdmin, etc.)
+2. Usa credenciais do banco PostgreSQL
+3. Executa consultas SQL diretas nas tabelas
+4. Dados estão disponíveis offline e atualizados
+
+## UI/UX Considerations
+- Interface minimalista focada na funcionalidade
+- Design responsivo para diferentes tamanhos de tela
+- Feedback visual claro para ações do usuário
+- Tratamento de erros amigável
+- Loading states durante operações assíncronas
+</context>
+
+<PRD>
+# Technical Architecture
+
+## System Components
+
+### Frontend Layer (Next.js)
+- **Framework:** Next.js 13+ com App Router
+- **UI Library:** React com hooks modernos
+- **Styling:** CSS Modules ou Tailwind CSS
+- **State Management:** React Context para estado global
+- **Routing:** Next.js App Router para navegação
+
+### Backend Layer (Next.js API Routes)
+- **Runtime:** Node.js integrado ao Next.js
+- **API Client:** Axios ou Fetch para chamadas HTTP
+- **Authentication:** Basic Auth para API Sienge
+- **Scheduler:** node-cron para sincronização diária
+- **Database ORM:** Prisma para mapeamento objeto-relacional
+
+### Database Layer (PostgreSQL)
+- **Engine:** PostgreSQL 15+
+- **Container:** Docker oficial postgres:15-alpine
+- **Persistence:** Docker volumes para dados
+- **Access:** Porta 5432 exposta externamente
+
+### Infrastructure Layer (Docker-Compose)
+- **Orchestration:** Docker-Compose v3.8+
+- **Networking:** Rede interna para comunicação entre containers
+- **Volumes:** Persistência de dados PostgreSQL
+- **Environment:** Variáveis de ambiente para configuração
+
+## Data Models
+
+### Tabelas Principais
+```sql
+-- Credenciais de API (armazenamento seguro)
+CREATE TABLE api_credentials (
+  id SERIAL PRIMARY KEY,
+  subdomain VARCHAR(255) NOT NULL,
+  api_user VARCHAR(255) NOT NULL,
+  api_password_hash TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Logs de sincronização
+CREATE TABLE sync_logs (
+  id SERIAL PRIMARY KEY,
+  entity VARCHAR(100) NOT NULL,
+  records_processed INTEGER DEFAULT 0,
+  status VARCHAR(50) NOT NULL,
+  error_message TEXT,
+  sync_started_at TIMESTAMP NOT NULL,
+  sync_completed_at TIMESTAMP
+);
+
+-- Entidades principais do Sienge
+CREATE TABLE customers (
+  id VARCHAR(50) PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  document VARCHAR(50),
+  email VARCHAR(255),
+  phone VARCHAR(50),
+  created_at TIMESTAMP,
+  updated_at TIMESTAMP,
+  last_sync TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE companies (
+  id VARCHAR(50) PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  document VARCHAR(50),
+  email VARCHAR(255),
+  created_at TIMESTAMP,
+  updated_at TIMESTAMP,
+  last_sync TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE suppliers (
+  id VARCHAR(50) PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  document VARCHAR(50),
+  email VARCHAR(255),
+  phone VARCHAR(50),
+  created_at TIMESTAMP,
+  updated_at TIMESTAMP,
+  last_sync TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE projects (
+  id VARCHAR(50) PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  description TEXT,
+  status VARCHAR(50),
+  start_date DATE,
+  end_date DATE,
+  created_at TIMESTAMP,
+  updated_at TIMESTAMP,
+  last_sync TIMESTAMP DEFAULT NOW()
+);
+```
+
+## APIs and Integrations
+
+### API Sienge Endpoints
+- **Base URL:** `https://api.sienge.com.br/{subdomain}/public/api/v1/`
+- **Authentication:** Basic Auth com credenciais específicas
+- **Rate Limits:** 200 requests/minute, quotas diárias
+- **Pagination:** Até 200 registros por requisição
+- **Endpoints Principais:**
+  - `/customers` - Lista de clientes
+  - `/companies` - Lista de empresas
+  - `/creditors` - Lista de fornecedores
+  - `/projects` - Lista de projetos
+  - `/cost-centers` - Centros de custo
+  - `/accounting-accounts` - Plano de contas
+
+### Internal APIs (Next.js Routes)
+- **POST** `/api/config` - Salvar credenciais
+- **GET** `/api/config` - Verificar configuração
+- **POST** `/api/sync` - Acionar sincronização manual
+- **GET** `/api/status` - Status das sincronizações
+- **GET** `/api/logs` - Logs de sincronização
+
+## Infrastructure Requirements
+
+### Hardware Requirements
+- **CPU:** 2 cores mínimo (recomendado 4+)
+- **RAM:** 4GB mínimo (recomendado 8GB+)
+- **Storage:** 10GB disponível para dados e containers
+- **Network:** Conexão estável para chamadas à API Sienge
+
+### Software Requirements
+- **Docker:** Versão 20.10+ com Docker-Compose
+- **Node.js:** 18+ (para desenvolvimento local)
+- **PostgreSQL Client:** Para conexões externas (opcional)
+
+### Environment Variables
+```bash
+# API Sienge
+SIENGE_SUBDOMAIN=minhaempresa
+SIENGE_API_USER=api_user
+SIENGE_API_PASSWORD=api_password
+
+# Database
+DB_HOST=db
+DB_PORT=5432
+DB_USER=sienge_app
+DB_PASSWORD=secure_password
+DB_NAME=sienge_data
+
+# Application
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+SYNC_SCHEDULE=0 2 * * *  # 2:00 AM daily
+```
+
+# Development Roadmap
+
+## Phase 1: MVP (Foundation)
+### Core Infrastructure Setup
+- Configurar Docker-Compose com PostgreSQL e Next.js
+- Criar estrutura básica do projeto Next.js
+- Implementar schema inicial do banco de dados
+- Configurar variáveis de ambiente
+
+### Basic Frontend
+- Página de configuração de credenciais
+- Formulário com validação básica
+- Layout responsivo simples
+- Feedback de loading e erro
+
+### Basic Backend Integration
+- API route para salvar credenciais (criptografadas)
+- Conexão básica com PostgreSQL usando Prisma
+- Estrutura para chamadas à API Sienge
+- Logs básicos de operação
+
+### Single Entity Sync
+- Implementar sincronização para uma entidade (ex: customers)
+- Tratamento de paginação básico
+- Inserção/atualização no banco
+- Teste manual da sincronização
+
+## Phase 2: Core Features
+### Enhanced Integration
+- Implementar sincronização para todas as entidades principais
+- Sistema completo de paginação
+- Tratamento robusto de erros da API
+- Controle de rate limits
+
+### Advanced Backend
+- Scheduler automático com node-cron
+- Sistema de logs detalhado
+- Validação de credenciais
+- Monitoramento de saúde da API
+
+### Improved Frontend
+- Dashboard de status das sincronizações
+- Visualização de logs de erro
+- Interface para sincronização manual
+- Indicadores de progresso
+
+### Security Enhancements
+- Criptografia de credenciais no banco
+- Validação de entrada de dados
+- Sanitização de dados da API
+- Controle de acesso básico
+
+## Phase 3: Production Ready
+### Performance Optimization
+- Otimização de queries SQL
+- Cache para reduzir chamadas desnecessárias
+- Compressão de respostas da API
+- Índices otimizados no banco
+
+### Monitoring & Alerting
+- Métricas de performance da sincronização
+- Alertas para falhas de API
+- Dashboard de monitoramento avançado
+- Logs estruturados para análise
+
+### Advanced Features
+- Suporte a múltiplos subdomínios Sienge
+- Configuração de frequência de sincronização
+- Backup automático do banco
+- API para integração com outros sistemas
+
+### Documentation & Testing
+- Documentação completa da API
+- Testes automatizados das integrações
+- Guias de uso para usuários finais
+- Scripts de deployment automatizado
+
+# Logical Dependency Chain
+
+## Foundation Layer (Must be built first)
+1. **Docker-Compose Infrastructure**
+   - PostgreSQL container with proper networking
+   - Next.js container with volume mounts
+   - Environment configuration
+   - Network isolation for security
+
+2. **Database Schema**
+   - Core tables for entities
+   - API credentials storage
+   - Sync logs and monitoring
+   - Indexes for performance
+
+3. **Basic Authentication System**
+   - Secure credential storage
+   - Basic auth implementation
+   - Credential validation
+   - Error handling
+
+## Core Functionality Layer
+4. **Single Entity Integration**
+   - API client setup
+   - Basic pagination handling
+   - Data transformation
+   - Database insertion logic
+
+5. **Frontend Configuration Interface**
+   - Credential input form
+   - Basic validation
+   - Status feedback
+   - Error messaging
+
+6. **Sync Management System**
+   - Manual sync trigger
+   - Basic status tracking
+   - Simple logging
+   - Error recovery
+
+## Enhancement Layer (Can be built incrementally)
+7. **Multi-Entity Support**
+   - Expand to all Sienge entities
+   - Optimized batch processing
+   - Advanced error handling
+   - Performance monitoring
+
+8. **Automated Scheduling**
+   - Cron job implementation
+   - Schedule configuration
+   - Automated retry logic
+   - Health checks
+
+9. **Advanced Monitoring**
+   - Detailed sync metrics
+   - Performance dashboards
+   - Alert system
+   - Historical analysis
+
+10. **Production Features**
+    - Security hardening
+    - Backup systems
+    - Multi-environment support
+    - Advanced configuration options
+
+# Risks and Mitigations
+
+## Technical Challenges
+
+### API Sienge Integration
+**Risk:** Mudanças na API do Sienge podem quebrar a integração
+**Mitigation:**
+- Implementar testes automatizados das chamadas
+- Monitorar documentação oficial regularmente
+- Usar versionamento de API específico
+- Ter plano de contingência com fallbacks
+
+### Rate Limiting
+**Risk:** Exceder limites da API (200 req/min, quotas diárias)
+**Mitigation:**
+- Implementar controle de taxa rigoroso
+- Adicionar delays entre chamadas
+- Monitorar uso em tempo real
+- Alertas para proximidade de limites
+
+### Data Volume
+**Risk:** Grandes volumes de dados impactam performance
+**Mitigation:**
+- Implementar paginação eficiente
+- Usar processamento em lotes
+- Otimizar queries de inserção
+- Monitorar performance do banco
+
+### Security of Credentials
+**Risk:** Credenciais de API expostas ou comprometidas
+**Mitigation:**
+- Criptografia de credenciais no banco
+- Validação rigorosa de entrada
+- Logs sem exposição de senhas
+- Isolamento de rede do container
+
+## Operational Risks
+
+### Network Connectivity
+**Risk:** Falhas de rede durante sincronização
+**Mitigation:**
+- Implementar retry logic com backoff
+- Sincronização idempotente
+- Status tracking detalhado
+- Notificações de falha
+
+### Database Corruption
+**Risk:** Dados corrompidos durante sincronização
+**Mitigation:**
+- Transações ACID no PostgreSQL
+- Backup automático antes de sync
+- Validação de integridade de dados
+- Recovery procedures documentadas
+
+## Business Risks
+
+### API Quota Limitations
+**Risk:** Plano gratuito limitado a 100 chamadas/dia
+**Mitigation:**
+- Otimizar para usar apenas dados essenciais
+- Sincronização diária otimizada
+- Monitoramento de uso da quota
+- Plano de upgrade para cliente
+
+### Data Staleness
+**Risk:** Dados desatualizados entre sincronizações
+**Mitigation:**
+- Comunicação clara sobre frequência de atualização
+- Possibilidade de sync manual quando necessário
+- Indicadores visuais de "freshness" dos dados
+- Documentação sobre limitações
+
+# Appendix
+
+## Research Findings
+
+### API Sienge Documentation Analysis
+- Autenticação Basic Auth obrigatória
+- Subdomínios únicos por cliente
+- Limites bem documentados (200 req/min)
+- Paginação padrão de 200 registros
+- Endpoints REST e Bulk disponíveis
+
+### PostgreSQL Integration Best Practices
+- Uso de SERIAL para chaves primárias
+- Índices em campos de busca frequente
+- Transações para garantir consistência
+- Connection pooling para performance
+
+### Docker-Compose Optimization
+- Redes isoladas para segurança
+- Volumes para persistência
+- Health checks para containers
+- Resource limits para estabilidade
+
+## Technical Specifications
+
+### API Response Formats
+```json
+{
+  "data": [
+    {
+      "id": "string",
+      "name": "string",
+      "created_at": "2023-01-01T00:00:00Z",
+      "updated_at": "2023-01-01T00:00:00Z"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 200,
+    "total": 1500,
+    "has_next": true
+  }
+}
+```
+
+### Environment Configuration
+```yaml
+# docker-compose.yml
+version: '3.8'
+services:
+  app:
+    build: ./app
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://user:password@db:5432/sienge_data
+      - SIENGE_API_BASE_URL=https://api.sienge.com.br
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=sienge_app
+      - POSTGRES_PASSWORD=secure_password
+      - POSTGRES_DB=sienge_data
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  dbdata:
+```
+
+### Performance Benchmarks
+- **Sync Time Target:** < 30 minutos para 1000 registros por entidade
+- **Memory Usage:** < 512MB durante sincronização normal
+- **Database Growth:** ~1GB por 100k registros (estimativa)
+- **API Call Efficiency:** < 100 chamadas para entidades pequenas
+
+## Deployment Checklist
+- [ ] Docker e Docker-Compose instalados
+- [ ] Porta 5432 disponível
+- [ ] Porta 3000 disponível
+- [ ] Credenciais de API Sienge obtidas
+- [ ] Subdomínio do cliente identificado
+- [ ] Espaço em disco suficiente (10GB+)
+- [ ] Conexão de internet estável
+- [ ] Firewall permite conexões HTTPS de saída
+</PRD>
