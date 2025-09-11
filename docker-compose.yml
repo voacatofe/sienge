@@ -48,10 +48,7 @@ services:
   app:
     build:
       context: .
-      dockerfile: Dockerfile
-      args:
-        NODE_ENV: production
-        BUILD_TARGET: production
+      dockerfile: Dockerfile.prod
     container_name: sienge-app
     restart: unless-stopped
     environment:
@@ -97,8 +94,52 @@ services:
         max-size: "10m"
         max-file: "3"
 
+  # pgAdmin - Administração do Banco de Dados (Produção)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: sienge-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@sienge.local}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-senha_forte_pgadmin}
+      PGADMIN_CONFIG_SERVER_MODE: 'True'
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'True'
+    ports:
+      - '${PGADMIN_PORT_EXTERNAL:-8080}:80'
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - sienge-network
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:80']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    # Configurações de segurança e recursos (Produção)
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+    # Configurações de logging (Produção)
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
 volumes:
   postgres-data:
+    driver: local
+  pgadmin-data:
     driver: local
 
 networks:

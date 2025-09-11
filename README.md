@@ -19,6 +19,7 @@ Este projeto visa desenvolver uma solução que permite:
 - **Frontend**: Next.js 13+ com App Router e React
 - **Backend**: API Routes integradas ao Next.js
 - **Banco de Dados**: PostgreSQL 15+ com Prisma ORM
+- **Administração DB**: pgAdmin para gerenciamento visual
 - **Containerização**: Docker-Compose para orquestração
 - **Scheduler**: node-cron para sincronização automática
 
@@ -38,6 +39,7 @@ Este projeto visa desenvolver uma solução que permite:
 - Docker e Docker-Compose instalados
 - Porta 3000 disponível (frontend)
 - Porta 5432 disponível (PostgreSQL)
+- Porta 8080 disponível (pgAdmin)
 - Credenciais de API do Sienge
 - Conexão de internet estável
 
@@ -66,6 +68,7 @@ Este projeto visa desenvolver uma solução que permite:
 4. **Acesse a aplicação**
    - Frontend: http://localhost:3000
    - PostgreSQL: localhost:5432
+   - pgAdmin: http://localhost:8080
 
 ### Configuração da API Sienge
 
@@ -77,6 +80,26 @@ Este projeto visa desenvolver uma solução que permite:
 3. O sistema validará as credenciais automaticamente
 
 ## 📊 Uso dos Dados
+
+### Acesso via pgAdmin (Recomendado)
+
+Para visualização e gerenciamento dos dados, use o pgAdmin:
+
+1. **Acesse**: http://localhost:8080
+2. **Login**: Use as credenciais configuradas no `.env`
+3. **Conecte ao banco**: Configure a conexão com PostgreSQL
+4. **Explore os dados**: Visualize tabelas, execute queries, monitore performance
+
+**Scripts de acesso rápido:**
+```bash
+# Acesso via script principal
+./scripts/sienge.sh pgadmin-dev   # Desenvolvimento
+./scripts/sienge.sh pgadmin-prod  # Produção
+
+# Ou diretamente
+./scripts/pgadmin.sh dev
+./scripts/pgadmin.sh prod
+```
 
 ### Acesso Direto ao PostgreSQL
 

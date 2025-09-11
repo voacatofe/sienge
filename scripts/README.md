@@ -2,6 +2,49 @@
 
 Esta pasta contém todos os scripts para gerenciar os ambientes de desenvolvimento e produção do projeto Sienge.
 
+## 🔧 Scripts de Schema Setup Automatizado
+
+### `docker-entrypoint.sh`
+Script de entrypoint que automatiza a inicialização do schema Prisma:
+- Aguarda banco de dados estar disponível
+- Executa migrações automaticamente
+- Gera cliente Prisma
+- Inicia aplicação Next.js
+
+**Funcionalidades:**
+- ✅ Verificação de conectividade com banco
+- ✅ Execução automática de migrações
+- ✅ Geração do cliente Prisma
+- ✅ Logs detalhados com timestamp
+- ✅ Tratamento de erros robusto
+
+### `test-schema-setup.sh` / `test-schema-setup.ps1`
+Scripts para testar a automação do schema setup localmente:
+
+**Linux/Mac:**
+```bash
+./scripts/test-schema-setup.sh
+```
+
+**Windows:**
+```powershell
+.\scripts\test-schema-setup.ps1
+```
+
+## 🐳 Dockerfiles Especializados
+
+### `Dockerfile.dev`
+Dockerfile otimizado para desenvolvimento com schema setup automatizado:
+- Instala todas as dependências (incluindo devDependencies)
+- Usa entrypoint personalizado
+- Configurado para hot reload
+
+### `Dockerfile.prod`
+Dockerfile otimizado para produção com schema setup automatizado:
+- Instala apenas dependências de produção
+- Usa entrypoint personalizado
+- Build otimizado para produção
+
 ## 🚀 Script Principal
 
 ### `sienge.sh` (Linux/Mac)
@@ -165,6 +208,15 @@ Restaura backup do banco de dados:
 ./scripts/sienge.sh backup-prod
 ```
 
+### Banco de Dados
+```bash
+# Acessar pgAdmin (desenvolvimento)
+./scripts/sienge.sh pgadmin-dev
+
+# Acessar pgAdmin (produção)
+./scripts/sienge.sh pgadmin-prod
+```
+
 ### Utilitários
 ```bash
 # Ver status de todos os ambientes
@@ -181,20 +233,26 @@ Restaura backup do banco de dados:
 
 ```
 scripts/
-├── sienge.sh           # Script principal (Linux/Mac)
-├── init-dev.sh         # Iniciar desenvolvimento (Linux/Mac)
-├── init-dev.ps1        # Iniciar desenvolvimento (Windows)
-├── init-prod.sh        # Iniciar produção (Linux/Mac)
-├── init-prod.ps1       # Iniciar produção (Windows)
-├── stop-dev.sh         # Parar desenvolvimento (Linux/Mac)
-├── stop-dev.ps1        # Parar desenvolvimento (Windows)
-├── stop-prod.sh        # Parar produção (Linux/Mac)
-├── stop-prod.ps1       # Parar produção (Windows)
-├── logs-dev.sh         # Logs desenvolvimento
-├── logs-prod.sh        # Logs produção
-├── backup-db.sh        # Backup banco de dados
-├── restore-db.sh       # Restaurar backup
-└── README.md           # Este arquivo
+├── docker-entrypoint.sh    # Entrypoint para automação do schema
+├── test-schema-setup.sh    # Teste da automação (Linux/Mac)
+├── test-schema-setup.ps1   # Teste da automação (Windows)
+├── sienge.sh               # Script principal (Linux/Mac)
+├── pgadmin.sh              # Acesso ao pgAdmin
+├── init-dev.sh             # Iniciar desenvolvimento (Linux/Mac)
+├── init-dev.ps1            # Iniciar desenvolvimento (Windows)
+├── init-prod.sh            # Iniciar produção (Linux/Mac)
+├── init-prod.ps1           # Iniciar produção (Windows)
+├── stop-dev.sh             # Parar desenvolvimento (Linux/Mac)
+├── stop-dev.ps1            # Parar desenvolvimento (Windows)
+├── stop-prod.sh            # Parar produção (Linux/Mac)
+├── stop-prod.ps1            # Parar produção (Windows)
+├── logs-dev.sh             # Logs desenvolvimento
+├── logs-prod.sh            # Logs produção
+├── backup-db.sh            # Backup banco de dados
+├── restore-db.sh           # Restaurar backup
+├── test-indexes.ps1        # Teste de índices (Windows)
+├── test-indexes.sql        # Scripts SQL de teste
+└── README.md               # Este arquivo
 ```
 
 ## 🆘 Troubleshooting

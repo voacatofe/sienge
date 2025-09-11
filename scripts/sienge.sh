@@ -87,6 +87,15 @@ show_help() {
     print_description "Restaura backup no banco sienge_data"
     echo ""
     
+    echo -e "${YELLOW}🗄️  Banco de Dados:${NC}"
+    print_command "pgadmin-dev" "Abrir pgAdmin (desenvolvimento)"
+    print_description "Abre pgAdmin para gerenciar banco de desenvolvimento"
+    echo ""
+    
+    print_command "pgadmin-prod" "Abrir pgAdmin (produção)"
+    print_description "Abre pgAdmin para gerenciar banco de produção"
+    echo ""
+    
     echo -e "${YELLOW}🔧 Utilitários:${NC}"
     print_command "status" "Verificar status dos ambientes"
     print_description "Mostra status de todos os containers"
@@ -119,6 +128,11 @@ show_status() {
     if docker-compose -f docker-compose-dev.yml ps | grep -q "Up"; then
         echo -e "  ${GREEN}✅ Rodando${NC}"
         docker-compose -f docker-compose-dev.yml ps --format "table {{.Name}}\t{{.Status}}\t{{.Ports}}"
+        echo ""
+        echo -e "  ${CYAN}🌐 Acessos:${NC}"
+        echo -e "    ${GREEN}App:${NC} http://localhost:3000"
+        echo -e "    ${GREEN}pgAdmin:${NC} http://localhost:8080"
+        echo -e "    ${GREEN}PostgreSQL:${NC} localhost:5433"
     else
         echo -e "  ${RED}❌ Parado${NC}"
     fi
@@ -128,6 +142,11 @@ show_status() {
     if docker-compose ps | grep -q "Up"; then
         echo -e "  ${GREEN}✅ Rodando${NC}"
         docker-compose ps --format "table {{.Name}}\t{{.Status}}\t{{.Ports}}"
+        echo ""
+        echo -e "  ${CYAN}🌐 Acessos:${NC}"
+        echo -e "    ${GREEN}App:${NC} http://localhost:3000"
+        echo -e "    ${GREEN}pgAdmin:${NC} http://localhost:8080"
+        echo -e "    ${GREEN}PostgreSQL:${NC} localhost:5432"
     else
         echo -e "  ${RED}❌ Parado${NC}"
     fi
@@ -195,6 +214,12 @@ case "$1" in
             exit 1
         fi
         ./scripts/restore-db.sh prod "$2"
+        ;;
+    "pgadmin-dev")
+        ./scripts/pgadmin.sh dev
+        ;;
+    "pgadmin-prod")
+        ./scripts/pgadmin.sh prod
         ;;
     "status")
         show_status

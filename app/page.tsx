@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { StatusIndicator } from './components/StatusIndicator';
 
 export default function Home() {
   return (
@@ -14,6 +15,9 @@ export default function Home() {
             com PostgreSQL
           </p>
         </header>
+
+        {/* Status Indicator */}
+        <StatusIndicator />
 
         {/* Status Cards */}
         <div className="grid md:grid-cols-3 gap-6 mb-12">

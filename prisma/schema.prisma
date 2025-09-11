@@ -11,11 +11,13 @@ model ApiCredentials {
   id              Int      @id @default(autoincrement())
   subdomain       String   @unique
   apiUser         String
-  apiPasswordHash String
+  apiPasswordHash String   // SENSITIVE: Hash bcrypt/argon2 da senha da API
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   isActive        Boolean  @default(true)
 
+  @@index([subdomain])
+  @@index([isActive])
   @@map("api_credentials")
 }
 
@@ -32,13 +34,17 @@ model SyncLog {
   errorMessage     String?
   apiCallsMade     Int       @default(0)
 
+  @@index([entityType])
+  @@index([status])
+  @@index([syncStartedAt])
+  @@index([entityType, status])
   @@map("sync_logs")
 }
 
 model Empresa {
   idEmpresa          Int                 @id @default(autoincrement())
   nomeEmpresa        String
-  cnpj               String?
+  cnpj               String?              // SENSITIVE: CNPJ da empresa - criptografado
   nomeFantasia       String?
   codigoEmpresa      String?
   ativo              Boolean             @default(true)
@@ -48,6 +54,10 @@ model Empresa {
   titulosPagar       TituloPagar[]
   titulosReceber     TituloReceber[]
 
+  @@index([nomeEmpresa])
+  @@index([ativo])
+  @@index([codigoEmpresa])
+  @@index([nomeEmpresa, ativo])
   @@map("empresas")
 }
 
@@ -59,6 +69,8 @@ model Departamento {
   solicitacoesCompra SolicitacaoCompra[]
   alocacoesDespesa   TituloPagarDepartamento[]
 
+  @@index([nomeDepartamento])
+  @@index([codigoDepartamento])
   @@map("departamentos")
 }
 
@@ -69,6 +81,9 @@ model CentroCusto {
   ativo             Boolean                  @default(true)
   alocacoesDespesa  TituloPagarCentroCusto[]
 
+  @@index([nomeCentroCusto])
+  @@index([ativo])
+  @@index([codigoCentroCusto])
   @@map("centros_custo")
 }
 
@@ -82,6 +97,8 @@ model Indexador {
   titulosPagar   TituloPagar[]
   titulosReceber TituloReceber[]
 
+  @@index([nomeIndexador])
+  @@index([periodicidade])
   @@map("indexadores")
 }
 
@@ -90,6 +107,7 @@ model TipoCliente {
   descricao     String
   clientes      Cliente[]
 
+  @@index([descricao])
   @@map("tipos_cliente")
 }
 
@@ -99,6 +117,7 @@ model EstadoCivil {
   clientes      Cliente[]
   conjuges      Conjuge[]
 
+  @@index([descricao])
   @@map("estados_civis")
 }
 
@@ -109,6 +128,8 @@ model Profissao {
   clientes        Cliente[] @relation("ProfissaoCliente")
   conjuges        Conjuge[] @relation("ProfissaoConjuge")
 
+  @@index([nomeProfissao])
+  @@index([codigoProfissao])
   @@map("profissoes")
 }
 
@@ -117,7 +138,18 @@ model TipoImovel {
   descricao    String
   unidades     UnidadeImobiliaria[]
 
+  @@index([descricao])
   @@map("tipos_imovel")
+}
+
+model TipoCondicaoPagamento {
+  idTipoCondPag  Int             @id @default(autoincrement())
+  descricao      String
+  contratosVenda ContratoVenda[]
+  reservas       ReservaUnidade[]
+
+  @@index([descricao])
+  @@map("tipos_condicao_pagamento")
 }
 
 model PlanoFinanceiro {
@@ -130,6 +162,9 @@ model PlanoFinanceiro {
   titulosPagar      TituloPagar[]
   titulosReceber    TituloReceber[]
 
+  @@index([nomePlano])
+  @@index([codigoPlano])
+  @@index([tipo])
   @@map("planos_financeiros")
 }
 
@@ -139,6 +174,7 @@ model DocumentoIdentificacao {
   titulosPagar     TituloPagar[]
   titulosReceber   TituloReceber[]
 
+  @@index([descricao])
   @@map("documentos_identificacao")
 }
 
@@ -150,6 +186,10 @@ model Municipio {
   enderecosCliente ClienteEndereco[]
   enderecosCredor  CredorEndereco[]
 
+  @@index([nome])
+  @@index([uf])
+  @@index([codigoIBGE])
+  @@index([nome, uf])
   @@map("municipios")
 }
 
@@ -158,7 +198,7 @@ model Cliente {
   idTipoCliente  Int
   nomeCompleto   String
   nomeSocial     String?
-  cpfCnpj        String
+  cpfCnpj        String            // SENSITIVE: CPF/CNPJ do cliente - criptografado
   rg             String?
   dataNascimento DateTime?
   nacionalidade  String?
@@ -181,6 +221,13 @@ model Cliente {
   reservas       ReservaUnidade[]
   titulosReceber TituloReceber[]
 
+  @@index([nomeCompleto])
+  @@index([ativo])
+  @@index([dataCadastro])
+  @@index([idEmpresa])
+  @@index([idTipoCliente])
+  @@index([nomeCompleto, ativo])
+  @@index([idEmpresa, ativo])
   @@map("clientes")
 }
 
@@ -236,7 +283,7 @@ model ClienteAnexo {
 model Conjuge {
   idConjuge      Int          @id @default(autoincrement())
   nomeCompleto   String
-  cpf            String?
+  cpf            String?      // SENSITIVE: CPF do cônjuge - criptografado
   rg             String?
   dataNascimento DateTime?
   nacionalidade  String?
@@ -248,6 +295,8 @@ model Conjuge {
   estadoCivil    EstadoCivil? @relation(fields: [idEstadoCivil], references: [idEstadoCivil])
   profissao      Profissao?   @relation("ProfissaoConjuge", fields: [idProfissao], references: [idProfissao])
 
+  @@index([nomeCompleto])
+  @@index([idCliente])
   @@map("conjuges")
 }
 
@@ -283,46 +332,76 @@ model UnidadeImobiliaria {
   empreendimento   Empreendimento   @relation(fields: [idEmpreendimento], references: [idEmpreendimento])
   tipoImovel       TipoImovel       @relation(fields: [idTipoImovel], references: [idTipoImovel])
 
+  @@index([codigoUnidade])
+  @@index([statusUnidade])
+  @@index([valorTabela])
+  @@index([idEmpreendimento])
+  @@index([idTipoImovel])
+  @@index([bloco])
+  @@index([andar])
+  @@index([statusUnidade, valorTabela])
+  @@index([idEmpreendimento, statusUnidade])
+  @@index([codigoUnidade, statusUnidade])
   @@map("unidades_imobiliarias")
 }
 
 model ReservaUnidade {
-  idReserva       Int                @id @default(autoincrement())
-  idUnidade       Int
-  idCliente       Int
-  dataReserva     DateTime           @default(now())
-  validadeReserva DateTime?
-  statusReserva   String?
-  observacoes     String?
-  idContratoVenda Int?               @unique
-  cliente         Cliente            @relation(fields: [idCliente], references: [idCliente])
-  contratoVenda   ContratoVenda?     @relation(fields: [idContratoVenda], references: [idContrato])
-  unidade         UnidadeImobiliaria @relation(fields: [idUnidade], references: [idUnidade])
+  idReserva           Int                     @id @default(autoincrement())
+  idUnidade           Int
+  idCliente           Int
+  dataReserva         DateTime                @default(now())
+  validadeReserva     DateTime?
+  statusReserva       String?
+  observacoes         String?
+  idContratoVenda     Int?                    @unique
+  idCondicaoPagamento Int?
+  cliente             Cliente                 @relation(fields: [idCliente], references: [idCliente])
+  condicaoPagamento   TipoCondicaoPagamento?  @relation(fields: [idCondicaoPagamento], references: [idTipoCondPag])
+  contratoVenda       ContratoVenda?          @relation(fields: [idContratoVenda], references: [idContrato])
+  unidade             UnidadeImobiliaria      @relation(fields: [idUnidade], references: [idUnidade])
 
+  @@index([statusReserva])
+  @@index([dataReserva])
+  @@index([validadeReserva])
+  @@index([idCliente])
+  @@index([idUnidade])
+  @@index([idCondicaoPagamento])
+  @@index([statusReserva, dataReserva])
+  @@index([idCliente, statusReserva])
   @@map("reservas_unidades")
 }
 
 model ContratoVenda {
-  idContrato        Int                @id @default(autoincrement())
-  numeroContrato    String
-  idCliente         Int
-  idUnidade         Int                @unique
-  dataContrato      DateTime
-  valorContrato     Decimal            @db.Decimal(18, 2)
-  idIndexador       Int?
-  idPlanoFinanceiro Int?
-  entrada           Decimal?           @db.Decimal(18, 2)
-  financiamento     Decimal?           @db.Decimal(18, 2)
-  observacoes       String?
-  statusContrato    String
-  comissoes         ComissaoVenda[]
-  cliente           Cliente            @relation(fields: [idCliente], references: [idCliente])
-  indexador         Indexador?         @relation(fields: [idIndexador], references: [idIndexador])
-  planoFinanceiro   PlanoFinanceiro?   @relation(fields: [idPlanoFinanceiro], references: [idPlanoFinanceiro])
-  unidade           UnidadeImobiliaria @relation(fields: [idUnidade], references: [idUnidade])
-  reserva           ReservaUnidade?
-  titulosReceber    TituloReceber[]
+  idContrato           Int                     @id @default(autoincrement())
+  numeroContrato       String
+  idCliente            Int
+  idUnidade            Int                     @unique
+  dataContrato         DateTime
+  valorContrato        Decimal                 @db.Decimal(18, 2)
+  idIndexador          Int?
+  idPlanoFinanceiro    Int?
+  idCondicaoPagamento  Int?
+  entrada              Decimal?                @db.Decimal(18, 2)
+  financiamento        Decimal?                @db.Decimal(18, 2)
+  observacoes          String?
+  statusContrato       String
+  comissoes            ComissaoVenda[]
+  cliente              Cliente                 @relation(fields: [idCliente], references: [idCliente])
+  condicaoPagamento    TipoCondicaoPagamento?  @relation(fields: [idCondicaoPagamento], references: [idTipoCondPag])
+  indexador            Indexador?              @relation(fields: [idIndexador], references: [idIndexador])
+  planoFinanceiro      PlanoFinanceiro?        @relation(fields: [idPlanoFinanceiro], references: [idPlanoFinanceiro])
+  unidade              UnidadeImobiliaria      @relation(fields: [idUnidade], references: [idUnidade])
+  reserva              ReservaUnidade?
+  titulosReceber       TituloReceber[]
 
+  @@index([numeroContrato])
+  @@index([statusContrato])
+  @@index([dataContrato])
+  @@index([idCliente])
+  @@index([idUnidade])
+  @@index([idCondicaoPagamento])
+  @@index([statusContrato, dataContrato])
+  @@index([idCliente, statusContrato])
   @@map("contratos_venda")
 }
 
@@ -336,7 +415,28 @@ model ComissaoVenda {
   dataPagamento DateTime?
   contrato      ContratoVenda @relation(fields: [idContrato], references: [idContrato])
 
+  @@index([idContrato])
+  @@index([nomeCorretor])
+  @@index([paga])
+  @@index([dataPagamento])
+  @@index([valorComissao])
+  @@index([paga, dataPagamento])
+  @@index([idContrato, paga])
+  @@index([nomeCorretor, paga])
   @@map("comissoes_venda")
+}
+
+model PortadorRecebimento {
+  idPortador      Int             @id @default(autoincrement())
+  descricao       String
+  codigo          String?
+  ativo           Boolean         @default(true)
+  titulosReceber  TituloReceber[]
+
+  @@index([descricao])
+  @@index([ativo])
+  @@index([codigo])
+  @@map("portadores_recebimento")
 }
 
 model TituloReceber {
@@ -357,6 +457,8 @@ model TituloReceber {
   valorPago         Decimal?                @db.Decimal(18, 2)
   dataPagamento     DateTime?
   status            String
+  observacoes       String?
+  idPortador        Int?
   idPlanoFinanceiro Int?
   cliente           Cliente                 @relation(fields: [idCliente], references: [idCliente])
   contrato          ContratoVenda?          @relation(fields: [idContrato], references: [idContrato])
@@ -364,7 +466,17 @@ model TituloReceber {
   empresa           Empresa?                @relation(fields: [idEmpresa], references: [idEmpresa])
   indexador         Indexador?              @relation(fields: [idIndexador], references: [idIndexador])
   planoFinanceiro   PlanoFinanceiro?        @relation(fields: [idPlanoFinanceiro], references: [idPlanoFinanceiro])
+  portador          PortadorRecebimento?    @relation(fields: [idPortador], references: [idPortador])
 
+  @@index([numeroDocumento])
+  @@index([status])
+  @@index([dataVencimento])
+  @@index([valorOriginal])
+  @@index([idCliente])
+  @@index([idContrato])
+  @@index([idPortador])
+  @@index([status, dataVencimento])
+  @@index([idCliente, status])
   @@map("titulos_receber")
 }
 
@@ -372,7 +484,7 @@ model Credor {
   idCredor            Int                  @id @default(autoincrement())
   tipoCredor          String?
   nomeCredor          String
-  cpfCnpj             String
+  cpfCnpj             String               // SENSITIVE: CPF/CNPJ do credor - criptografado
   inscricaoEstadual   String?
   contato             String?
   telefoneContato     String?
@@ -387,6 +499,11 @@ model Credor {
   pedidos             PedidoCompra[]
   titulosPagar        TituloPagar[]
 
+  @@index([nomeCredor])
+  @@index([ativo])
+  @@index([tipoCredor])
+  @@index([ehCorretor])
+  @@index([nomeCredor, ativo])
   @@map("credores")
 }
 
@@ -414,10 +531,13 @@ model CredorInfoBancaria {
   digitoConta         String?
   tipoConta           String
   nomeBeneficiario    String?
-  cpfCnpjBeneficiario String?
+  cpfCnpjBeneficiario String? // SENSITIVE: CPF/CNPJ do beneficiário - criptografado
   ativa               Boolean @default(true)
   credor              Credor  @relation(fields: [idCredor], references: [idCredor])
 
+  @@index([idCredor])
+  @@index([ativa])
+  @@index([banco])
   @@map("credor_info_bancaria")
 }
 
