@@ -153,4 +153,7 @@ playwright/.cache/
 
 # Misc
 *.tgz
-*.tar.gz 
+*.tar.gz
+
+# Cursor configuration (contains API keys)
+.cursor/ 
