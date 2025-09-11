@@ -24,7 +24,9 @@
             "id": 2,
             "title": "Configure .gitignore for Node.js, Next.js, and Docker",
             "description": "Create a .gitignore file that excludes node_modules, .env files, Docker volumes, and build artifacts specific to Node.js, Next.js, and Docker.",
-            "dependencies": ["1.1"],
+            "dependencies": [
+              "1.1"
+            ],
             "details": "Add patterns to .gitignore to exclude node_modules, .env, .next, dist, coverage, Docker-related files (such as volumes and build cache), and any other generated or sensitive files. Use community templates as a reference.",
             "status": "done",
             "testStrategy": "Add and remove ignored files, then run 'git status' to confirm they are not tracked by Git."
@@ -33,7 +35,9 @@
             "id": 3,
             "title": "Initialize README.md with Project Overview",
             "description": "Create a README.md file that provides a clear overview of the project, including its purpose, setup instructions, and key features.",
-            "dependencies": ["1.1"],
+            "dependencies": [
+              "1.1"
+            ],
             "details": "Draft a concise README.md with sections for project description, installation steps, usage, and contribution guidelines. Ensure it is informative for new contributors and users.",
             "status": "done",
             "testStrategy": "Open README.md in a markdown viewer and confirm all sections render correctly and provide the intended information."
@@ -42,7 +46,9 @@
             "id": 4,
             "title": "Set Up Husky Pre-commit Hooks for Linting and Formatting",
             "description": "Install and configure Husky (v8+) to enforce linting and formatting checks on pre-commit using tools like ESLint and Prettier.",
-            "dependencies": ["1.1"],
+            "dependencies": [
+              "1.1"
+            ],
             "details": "Add Husky as a dev dependency, initialize Husky hooks, and configure pre-commit scripts to run linting and formatting commands. Ensure scripts fail the commit if checks do not pass.",
             "status": "done",
             "testStrategy": "Attempt to commit code with lint or formatting errors and verify that the commit is blocked until issues are resolved."
@@ -51,7 +57,11 @@
             "id": 5,
             "title": "Verify Repository Initialization and Version Control Setup",
             "description": "Test the repository setup to ensure .gitignore works, README.md is present, and Husky pre-commit hooks function as intended.",
-            "dependencies": ["1.2", "1.3", "1.4"],
+            "dependencies": [
+              "1.2",
+              "1.3",
+              "1.4"
+            ],
             "details": "Perform a dry run by adding ignored files, editing README.md, and making a commit with intentional lint errors to confirm all configurations are effective.",
             "status": "done",
             "testStrategy": "Check that ignored files are not tracked, README.md is visible in the repository, and pre-commit hooks prevent non-compliant commits."
@@ -65,8 +75,10 @@
         "details": "Write docker-compose.yml (v3.8+) with services for app (Next.js, Node.js 18+) and db (postgres:15-alpine). Expose ports 3000 (app) and 5432 (db). Use Docker named volumes for db persistence. Set up internal network. Add healthchecks for both services. Reference official Docker and Compose best practices for security and resource limits.",
         "testStrategy": "Run 'docker-compose up' and verify both containers start, are networked, and healthchecks pass. Confirm data persists after container restart.",
         "priority": "high",
-        "dependencies": [1],
-        "status": "pending",
+        "dependencies": [
+          1
+        ],
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -74,43 +86,54 @@
             "description": "Specify services for the Next.js app (Node.js 18+) and PostgreSQL 15+ in a docker-compose.yml file (version 3.8+), including image selection, container names, and restart policies.",
             "dependencies": [],
             "details": "Set up the docker-compose.yml with two services: one for the Next.js app using a Node.js 18+ base image, and one for the database using postgres:15-alpine. Assign clear container names and configure restart policies for reliability.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Verify that 'docker-compose up' starts both containers with the correct images and names."
           },
           {
             "id": 2,
             "title": "Configure Networking and Port Exposure",
             "description": "Establish an internal Docker network for service communication and expose required ports for external access.",
-            "dependencies": ["2.1"],
+            "dependencies": [
+              "2.1"
+            ],
             "details": "Define a custom Docker network in the compose file. Ensure the Next.js app is accessible on port 3000 and PostgreSQL on port 5432. Limit external exposure to only necessary ports.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Confirm both services are reachable on their respective ports and can communicate internally via the Docker network."
           },
           {
             "id": 3,
             "title": "Set Up Volumes for Database Persistence",
             "description": "Create and attach a named Docker volume to the PostgreSQL service to persist data across container restarts.",
-            "dependencies": ["2.1"],
+            "dependencies": [
+              "2.1"
+            ],
             "details": "Define a named volume (e.g., postgres_data) in the compose file and mount it to /var/lib/postgresql/data in the db service.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Insert data into the database, restart the db container, and verify data persists."
           },
           {
             "id": 4,
             "title": "Configure Environment Variables and Healthchecks",
             "description": "Set environment variables for both services and implement healthchecks to monitor service readiness.",
-            "dependencies": ["2.1"],
+            "dependencies": [
+              "2.1"
+            ],
             "details": "Provide environment variables for database credentials and app configuration. Add healthcheck definitions for both services using official Docker Compose syntax.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Check that containers only report 'healthy' when services are ready, and environment variables are correctly set inside containers."
           },
           {
             "id": 5,
             "title": "Apply Security and Resource Best Practices",
             "description": "Integrate Docker and Compose best practices for security and resource limits, referencing official documentation.",
-            "dependencies": ["2.1", "2.2", "2.3", "2.4"],
+            "dependencies": [
+              "2.1",
+              "2.2",
+              "2.3",
+              "2.4"
+            ],
             "details": "Set resource constraints (CPU, memory) for each service. Avoid running containers as root where possible. Use .env files for sensitive data. Follow Compose and Docker security guidelines.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Review docker-compose.yml for compliance with best practices. Attempt to exceed resource limits and verify enforcement."
           }
         ]
@@ -122,41 +145,49 @@
         "details": "Use Prisma (v5+) for schema definition. Model tables for api_credentials, sync_logs, customers, companies, suppliers, projects as per PRD. Generate and run initial migration. Use Docker entrypoint scripts for initial schema setup if needed. Ensure indices on frequent query fields. Store sensitive fields (api_password_hash) securely using bcrypt or argon2.",
         "testStrategy": "Run Prisma migrate in the container, inspect tables via psql or Prisma Studio, and verify schema matches PRD. Test password hash is not stored in plaintext.",
         "priority": "high",
-        "dependencies": [2],
-        "status": "pending",
+        "dependencies": [
+          2
+        ],
+        "status": "in-progress",
         "subtasks": [
           {
             "id": 1,
             "title": "Define Prisma Schema for All Entities",
             "description": "Create and configure the Prisma schema file to model tables for api_credentials, sync_logs, customers, companies, suppliers, and projects according to the PRD specifications.",
             "dependencies": [],
-            "details": "Specify all required fields, relationships, and constraints in schema.prisma. Include secure fields such as api_password_hash and ensure proper data types and relations.",
-            "status": "pending",
+            "details": "Specify all required fields, relationships, and constraints in schema.prisma. Include secure fields such as api_password_hash and ensure proper data types and relations.\n<info added on 2025-09-11T21:19:59.189Z>\nSchema Prisma criado com sucesso baseado no mapeamento completo da API Sienge. Implementadas todas as entidades principais incluindo configuração e credenciais (ApiCredentials, SyncLog), cadastros gerais (Empresa, Departamento, CentroCusto, etc.), clientes e vendas (Cliente com sub-recursos, Conjuge, Empreendimento, etc.), contas a receber (TituloReceber), fornecedores e compras (Credor, SolicitacaoCompra, etc.), e contas a pagar (TituloPagar com parcelas e impostos). Schema configurado com campos em português, tipos de dados apropriados (Decimal com precisão), relacionamentos corretos, mapeamento de tabelas com @@map, e campos de auditoria onde necessário.\n</info added on 2025-09-11T21:19:59.189Z>",
+            "status": "done",
             "testStrategy": "Review schema.prisma for completeness and correctness. Validate against PRD requirements."
           },
           {
             "id": 2,
             "title": "Configure Database Connection and Environment",
             "description": "Set up the PostgreSQL datasource in Prisma using environment variables and ensure connectivity from the development environment.",
-            "dependencies": ["3.1"],
-            "details": "Define the datasource block in schema.prisma with provider set to 'postgresql' and url referencing the environment variable. Confirm database access from Prisma CLI.",
-            "status": "pending",
+            "dependencies": [
+              "3.1"
+            ],
+            "details": "Define the datasource block in schema.prisma with provider set to 'postgresql' and url referencing the environment variable. Confirm database access from Prisma CLI.\n<info added on 2025-09-11T21:23:41.274Z>\nDATABASE CONNECTION SUCCESSFULLY CONFIGURED\n\nEnvironment variables set up in .env and .env.dev files with proper PostgreSQL connection string format. Prisma client installed (v6.16.1) and generated successfully. Schema validation completed without syntax errors. Database connection configuration is ready for migration implementation.\n</info added on 2025-09-11T21:23:41.274Z>",
+            "status": "done",
             "testStrategy": "Run Prisma commands to verify connection. Check for successful schema introspection."
           },
           {
             "id": 3,
             "title": "Implement Initial Migration and Schema Application",
             "description": "Generate and apply the initial migration to create all tables and relations in the PostgreSQL database using Prisma Migrate.",
-            "dependencies": ["3.2"],
-            "details": "Use 'npx prisma migrate dev --name init' to generate migration files and apply them. Ensure all tables and indices are created as defined.",
-            "status": "pending",
+            "dependencies": [
+              "3.2"
+            ],
+            "details": "Use 'npx prisma migrate dev --name init' to generate migration files and apply them. Ensure all tables and indices are created as defined.\n<info added on 2025-09-11T21:25:50.719Z>\n✅ MIGRAÇÃO INICIAL IMPLEMENTADA COM SUCESSO\n\n**PROGRESSO REALIZADO:**\n\n1. **Banco PostgreSQL Iniciado:**\n   - Container PostgreSQL rodando na porta 5433 (evitando conflito com porta 5432)\n   - Banco `sienge_dev` criado e funcionando\n   - Credenciais: usuário `sienge_dev`, senha `dev_password`\n\n2. **Migração Inicial Criada e Aplicada:**\n   - Comando `npx prisma migrate dev --name init` executado com sucesso\n   - Arquivo de migração criado: `prisma/migrations/20250911212521_init/migration.sql`\n   - **42 tabelas criadas** conforme schema Prisma\n\n3. **Tabelas Criadas com Sucesso:**\n   - ✅ Tabelas de configuração: `api_credentials`, `sync_logs`\n   - ✅ Cadastros gerais: `empresas`, `departamentos`, `centros_custo`, `indexadores`, etc.\n   - ✅ Clientes e vendas: `clientes`, `conjuges`, `empreendimentos`, `unidades_imobiliarias`, etc.\n   - ✅ Contas a receber: `titulos_receber`\n   - ✅ Fornecedores e compras: `credores`, `solicitacoes_compra`, `pedidos_compra`, etc.\n   - ✅ Contas a pagar: `titulos_pagar`, `parcelas_titulo_pagar`, `titulo_pagar_impostos`, etc.\n\n4. **Validação Completa:**\n   - Comando `npx prisma db pull` confirmou todas as 42 tabelas\n   - Schema sincronizado com o banco de dados\n   - Cliente Prisma regenerado com sucesso\n\n**PRÓXIMOS PASSOS:**\n- Implementar scripts de inicialização automática no Docker\n- Configurar segurança e índices conforme especificado\n- Testar conexão e operações básicas\n\nA migração inicial está completa e todas as entidades do mapeamento da API Sienge foram implementadas no banco PostgreSQL.\n</info added on 2025-09-11T21:25:50.719Z>",
+            "status": "done",
             "testStrategy": "Inspect database tables via psql or Prisma Studio. Confirm schema matches PRD and all indices exist."
           },
           {
             "id": 4,
             "title": "Automate Schema Setup with Docker Entrypoint Scripts",
             "description": "Integrate schema initialization into Docker entrypoint scripts to ensure the database is correctly set up during container startup.",
-            "dependencies": ["3.3"],
+            "dependencies": [
+              "3.3"
+            ],
             "details": "Modify Docker entrypoint scripts to run Prisma migrate commands automatically. Handle environment variable loading and error reporting.",
             "status": "pending",
             "testStrategy": "Start container and verify schema setup is performed automatically. Check logs for migration success or errors."
@@ -165,7 +196,9 @@
             "id": 5,
             "title": "Secure Sensitive Fields and Index Frequent Query Columns",
             "description": "Ensure api_password_hash is stored securely using bcrypt or argon2, and add indices to fields frequently queried for performance optimization.",
-            "dependencies": ["3.4"],
+            "dependencies": [
+              "3.4"
+            ],
             "details": "Configure Prisma schema to hash sensitive fields before storage. Define indices on columns used in frequent queries. Validate hashing and indexing.",
             "status": "pending",
             "testStrategy": "Test password hashing by inspecting stored values. Use EXPLAIN in psql to verify indices. Confirm no plaintext passwords are stored."
@@ -179,7 +212,9 @@
         "details": "Use create-next-app with TypeScript. Enable App Router. Configure for Docker deployment (multi-stage Dockerfile). Set up environment variable loading (dotenv). Integrate Tailwind CSS for styling. Add React Context for global state management. Ensure hot reload works in Docker dev mode.",
         "testStrategy": "Start app in Docker, verify landing page loads at localhost:3000, and hot reload functions. Confirm environment variables are accessible in both server and client contexts.",
         "priority": "high",
-        "dependencies": [2],
+        "dependencies": [
+          2
+        ],
         "status": "pending",
         "subtasks": [
           {
@@ -195,7 +230,9 @@
             "id": 2,
             "title": "Integrate Tailwind CSS for Styling",
             "description": "Add Tailwind CSS to the Next.js project for utility-first styling.",
-            "dependencies": ["4.1"],
+            "dependencies": [
+              "4.1"
+            ],
             "details": "Install Tailwind CSS and its dependencies. Run `npx tailwindcss init -p`. Configure tailwind.config.js and add Tailwind directives to global CSS.",
             "status": "pending",
             "testStrategy": "Add a sample styled component and verify Tailwind classes render correctly in the browser."
@@ -204,7 +241,9 @@
             "id": 3,
             "title": "Configure Environment Variable Loading with dotenv",
             "description": "Set up dotenv to load environment variables for both server and client contexts.",
-            "dependencies": ["4.1"],
+            "dependencies": [
+              "4.1"
+            ],
             "details": "Install dotenv and configure Next.js to load .env files. Ensure variables are accessible via process.env and NEXT_PUBLIC_ prefix for client-side usage.",
             "status": "pending",
             "testStrategy": "Create a .env file, reference variables in code, and verify correct values are loaded in both server and client."
@@ -213,7 +252,11 @@
             "id": 4,
             "title": "Set Up Multi-Stage Dockerfile for Containerized Deployment",
             "description": "Create a multi-stage Dockerfile to build and run the Next.js app efficiently, supporting both development (hot reload) and production modes.",
-            "dependencies": ["4.1", "4.2", "4.3"],
+            "dependencies": [
+              "4.1",
+              "4.2",
+              "4.3"
+            ],
             "details": "Write a Dockerfile with separate build and runtime stages. Configure for hot reload in development using bind mounts and appropriate entrypoints. Ensure environment variables are loaded in the container.",
             "status": "pending",
             "testStrategy": "Build and run the container in both dev and prod modes. Verify hot reload works and environment variables are accessible."
@@ -222,7 +265,9 @@
             "id": 5,
             "title": "Integrate React Context for Global State Management",
             "description": "Add a React Context provider to manage global state across the application.",
-            "dependencies": ["4.1"],
+            "dependencies": [
+              "4.1"
+            ],
             "details": "Create a context file, implement provider and consumer components, and wrap the app's root layout with the provider.",
             "status": "pending",
             "testStrategy": "Add a sample state value and update it from multiple components to verify global state propagation."
@@ -236,7 +281,9 @@
         "details": "Build React form (Next.js App Router) with fields for subdomain, API user, and password. Use React Hook Form (v7+) for validation. On submit, POST to /api/config. Show loading, error, and success states. Use HTTPS for all API calls. Mask password input. Provide clear feedback on credential status.",
         "testStrategy": "Test form validation, error handling, and successful credential submission. Attempt invalid inputs and verify errors are shown. Confirm UI is responsive and accessible.",
         "priority": "high",
-        "dependencies": [4],
+        "dependencies": [
+          4
+        ],
         "status": "pending",
         "subtasks": [
           {
@@ -252,7 +299,9 @@
             "id": 2,
             "title": "Implement Real-Time Validation with React Hook Form",
             "description": "Integrate React Hook Form (v7+) to provide real-time validation for all input fields, displaying clear error messages for invalid entries.",
-            "dependencies": ["5.1"],
+            "dependencies": [
+              "5.1"
+            ],
             "details": "Configure validation rules for subdomain, API user, and password fields. Display inline error messages and prevent submission on validation failure.",
             "status": "pending",
             "testStrategy": "Test with valid and invalid inputs to ensure errors are shown appropriately and form submission is blocked when validation fails."
@@ -261,7 +310,9 @@
             "id": 3,
             "title": "Handle Secure Form Submission and API Integration",
             "description": "On successful validation, POST credentials to /api/config using HTTPS, showing loading, error, and success states in the UI.",
-            "dependencies": ["5.2"],
+            "dependencies": [
+              "5.2"
+            ],
             "details": "Implement secure API call logic, handle asynchronous states, and ensure credentials are transmitted only over HTTPS. Mask sensitive data in transit.",
             "status": "pending",
             "testStrategy": "Simulate API responses (success, error, network failure) and verify correct UI feedback and secure transmission."
@@ -270,7 +321,9 @@
             "id": 4,
             "title": "Integrate Secure Storage for Credentials",
             "description": "Ensure credentials are securely stored on the backend, following best practices for encryption and sensitive data handling.",
-            "dependencies": ["5.3"],
+            "dependencies": [
+              "5.3"
+            ],
             "details": "Coordinate with backend to verify credentials are encrypted at rest and not logged. Update UI to reflect secure storage status if needed.",
             "status": "pending",
             "testStrategy": "Review backend storage implementation, attempt to retrieve stored credentials, and confirm encryption. Check logs for absence of sensitive data."
@@ -279,7 +332,9 @@
             "id": 5,
             "title": "Provide Clear Credential Status and Feedback",
             "description": "Display real-time feedback to users on the status of their credentials, including success, error, and loading indicators.",
-            "dependencies": ["5.3"],
+            "dependencies": [
+              "5.3"
+            ],
             "details": "Implement UI components for status messages and ensure feedback is accessible and unambiguous. Update feedback based on API responses.",
             "status": "pending",
             "testStrategy": "Trigger all possible states (loading, error, success) and verify that users receive clear, actionable feedback."
@@ -293,7 +348,10 @@
         "details": "Implement /api/config (POST, GET) using Next.js API routes. On POST, hash password with bcrypt (v5+) before storing. Validate credentials by making a test call to Sienge API using Axios (v1.6+). Store credentials in api_credentials table. Never log or expose raw passwords. Use Prisma for DB access. Sanitize and validate all inputs.",
         "testStrategy": "Unit test API endpoints for correct validation, hashing, and error handling. Attempt SQL injection and verify sanitization. Confirm credentials are encrypted in DB.",
         "priority": "high",
-        "dependencies": [3, 5],
+        "dependencies": [
+          3,
+          5
+        ],
         "status": "pending",
         "subtasks": [
           {
@@ -309,7 +367,9 @@
             "id": 2,
             "title": "Implement Secure Credential Storage with Hashing",
             "description": "On POST, hash the provided password using bcrypt (v5+) before storing credentials in the api_credentials table via Prisma.",
-            "dependencies": ["6.1"],
+            "dependencies": [
+              "6.1"
+            ],
             "details": "Integrate bcrypt for password hashing, ensuring the raw password is never logged or exposed. Use Prisma ORM to insert or update the hashed credentials in the database, following best practices for secure storage.",
             "status": "pending",
             "testStrategy": "Verify that the password is hashed before storage, inspect the database to confirm no plaintext passwords are present, and ensure no sensitive data is logged."
@@ -318,7 +378,9 @@
             "id": 3,
             "title": "Implement Credential Retrieval Endpoint",
             "description": "Develop the GET handler for /api/config to retrieve stored credentials (excluding sensitive fields like raw password or hash) using Prisma.",
-            "dependencies": ["6.2"],
+            "dependencies": [
+              "6.2"
+            ],
             "details": "Ensure the endpoint only returns non-sensitive credential metadata (e.g., username, last updated) and never exposes password hashes or secrets in the response.",
             "status": "pending",
             "testStrategy": "Request the GET endpoint and confirm that only allowed fields are returned; attempt to access sensitive fields and verify they are omitted."
@@ -327,7 +389,9 @@
             "id": 4,
             "title": "Validate Credentials Against Sienge API",
             "description": "On POST, after hashing and before storing, make a test call to the Sienge API using Axios (v1.6+) to validate the provided credentials.",
-            "dependencies": ["6.2"],
+            "dependencies": [
+              "6.2"
+            ],
             "details": "Implement logic to perform a minimal, non-destructive API call to Sienge using the provided credentials. Only store credentials if validation succeeds; return an error otherwise.",
             "status": "pending",
             "testStrategy": "Submit valid and invalid credentials and verify that only valid ones are accepted and stored; mock Sienge API responses to test error handling."
@@ -336,7 +400,11 @@
             "id": 5,
             "title": "Enforce Security Best Practices and Error Handling",
             "description": "Ensure no raw passwords or secrets are logged or exposed, handle all errors securely, and implement comprehensive error responses for all failure cases.",
-            "dependencies": ["6.2", "6.3", "6.4"],
+            "dependencies": [
+              "6.2",
+              "6.3",
+              "6.4"
+            ],
             "details": "Audit all code paths for potential leaks of sensitive data, implement structured error handling, and ensure all error responses are generic and do not reveal implementation details.",
             "status": "pending",
             "testStrategy": "Review logs and error responses for any leakage of sensitive information; simulate various error scenarios and confirm secure, user-friendly error messages."
@@ -350,7 +418,10 @@
         "details": "Install Prisma (v5+), set up schema.prisma, and generate client. Configure connection pooling (pgBouncer or Prisma built-in). Use environment variables for DB connection. Generate TypeScript types for all models. Test connection from both API and UI containers.",
         "testStrategy": "Run Prisma generate and verify types. Test DB queries from API routes. Simulate high concurrency and ensure pooling works.",
         "priority": "high",
-        "dependencies": [3, 4],
+        "dependencies": [
+          3,
+          4
+        ],
         "status": "pending",
         "subtasks": [
           {
@@ -366,7 +437,9 @@
             "id": 2,
             "title": "Configure PostgreSQL Connection and Environment Variables",
             "description": "Set up the datasource block in schema.prisma to use PostgreSQL and configure environment variables for connection URLs, including pooling and non-pooling connections.",
-            "dependencies": ["7.1"],
+            "dependencies": [
+              "7.1"
+            ],
             "details": "Edit schema.prisma to use 'provider = \"postgresql\"' and set 'url' and 'directUrl' to environment variables (e.g., POSTGRES_PRISMA_URL and POSTGRES_URL_NON_POOLING). Ensure .env contains the correct connection strings.",
             "status": "pending",
             "testStrategy": "Check that environment variables are loaded correctly and Prisma can connect to the database using both pooled and direct URLs."
@@ -375,7 +448,9 @@
             "id": 3,
             "title": "Define Data Models and Generate Prisma Client",
             "description": "Define all required data models in schema.prisma and run Prisma generate to create the type-safe client and TypeScript types.",
-            "dependencies": ["7.2"],
+            "dependencies": [
+              "7.2"
+            ],
             "details": "Add model definitions for all entities in schema.prisma. Run 'npx prisma generate' to produce the Prisma Client and TypeScript types for all models.",
             "status": "pending",
             "testStrategy": "Verify that the generated client and types are available in node_modules/.prisma/client and can be imported in TypeScript code."
@@ -384,7 +459,9 @@
             "id": 4,
             "title": "Enable and Configure Database Connection Pooling",
             "description": "Set up connection pooling for PostgreSQL using either pgBouncer or Prisma's built-in pooling, and update environment/configuration accordingly.",
-            "dependencies": ["7.2"],
+            "dependencies": [
+              "7.2"
+            ],
             "details": "If using pgBouncer, deploy and configure it as a sidecar or external service; update Prisma connection URLs to point to the pooler. If using Prisma's built-in pooling, ensure the connection string uses the correct protocol (e.g., 'prisma://').",
             "status": "pending",
             "testStrategy": "Simulate high concurrency by running multiple parallel queries and monitor connection usage to confirm pooling is active and effective."
@@ -393,7 +470,10 @@
             "id": 5,
             "title": "Test Database Access from API and UI Containers",
             "description": "Verify that both API and UI containers can connect to the database via Prisma, perform queries, and handle pooled connections.",
-            "dependencies": ["7.3", "7.4"],
+            "dependencies": [
+              "7.3",
+              "7.4"
+            ],
             "details": "Deploy both containers, ensure environment variables are correctly passed, and run test queries from each container to the database.",
             "status": "pending",
             "testStrategy": "Run integration tests or manual queries from both containers, confirm successful data access, and check for connection pooling behavior under load."
@@ -407,7 +487,10 @@
         "details": "Use Axios (v1.6+) with axios-retry for transient error handling. Implement Basic Auth using stored credentials. Handle pagination (200 records/request) and aggregate results. Enforce rate limits (200 req/min) using Bottleneck (v2.19+) or similar. Log API usage and errors. Use API versioning in endpoints.",
         "testStrategy": "Mock Sienge API and test client for correct pagination, rate limiting, and error handling. Simulate quota exhaustion and verify graceful degradation.",
         "priority": "high",
-        "dependencies": [6, 7],
+        "dependencies": [
+          6,
+          7
+        ],
         "status": "pending",
         "subtasks": [
           {
@@ -423,7 +506,9 @@
             "id": 2,
             "title": "Implement Pagination and Result Aggregation",
             "description": "Design logic to handle paginated API responses, fetching up to 200 records per request and aggregating results across multiple pages until all data is retrieved.",
-            "dependencies": ["8.1"],
+            "dependencies": [
+              "8.1"
+            ],
             "details": "Iteratively request paginated data, aggregating results into a single collection. Handle edge cases such as incomplete pages and empty responses.",
             "status": "pending",
             "testStrategy": "Mock paginated API responses and verify that all records are aggregated correctly. Test with varying page sizes and total record counts."
@@ -432,7 +517,9 @@
             "id": 3,
             "title": "Integrate Rate Limiting Using Bottleneck",
             "description": "Apply Bottleneck (v2.19+) or similar library to enforce a maximum of 200 requests per minute, ensuring compliance with Sienge API rate limits.",
-            "dependencies": ["8.1"],
+            "dependencies": [
+              "8.1"
+            ],
             "details": "Configure Bottleneck to throttle outgoing requests. Queue requests as needed to prevent exceeding the rate limit. Handle rate limit errors gracefully.",
             "status": "pending",
             "testStrategy": "Simulate high request volumes and verify that rate limiting is enforced. Test behavior when approaching and exceeding the quota."
@@ -441,7 +528,9 @@
             "id": 4,
             "title": "Add Transient Error Handling with axios-retry",
             "description": "Integrate axios-retry to automatically retry transient errors (e.g., network issues, 5xx responses) according to best practices for API resilience.",
-            "dependencies": ["8.1"],
+            "dependencies": [
+              "8.1"
+            ],
             "details": "Configure retry logic for transient errors, with exponential backoff and maximum retry count. Ensure retries do not violate rate limits.",
             "status": "pending",
             "testStrategy": "Simulate transient errors and verify that requests are retried appropriately. Confirm that retries respect rate limiting and do not cause duplicate data aggregation."
@@ -450,7 +539,11 @@
             "id": 5,
             "title": "Implement Logging for API Usage and Errors",
             "description": "Develop logging mechanisms to record API usage statistics and error events, supporting monitoring and troubleshooting.",
-            "dependencies": ["8.2", "8.3", "8.4"],
+            "dependencies": [
+              "8.2",
+              "8.3",
+              "8.4"
+            ],
             "details": "Log each API request, response status, and error details. Aggregate usage metrics such as request counts and rate limit events. Ensure logs are accessible for monitoring.",
             "status": "pending",
             "testStrategy": "Trigger various API interactions and errors, then verify that logs capture all relevant events and metrics. Test log retrieval and error traceability."
@@ -464,7 +557,9 @@
         "details": "Create /api/sync endpoint (POST) to trigger sync. Use Sienge API client to fetch all customers, handle pagination, and upsert into customers table using Prisma upsert. Log sync status and errors in sync_logs. Ensure idempotency and transactional integrity. Validate data mapping against schema.",
         "testStrategy": "Trigger sync manually, verify all customer records are upserted, and logs are written. Test with partial failures and ensure rollback or partial sync is handled.",
         "priority": "high",
-        "dependencies": [8],
+        "dependencies": [
+          8
+        ],
         "status": "pending",
         "subtasks": [
           {
@@ -480,7 +575,9 @@
             "id": 2,
             "title": "Fetch and Paginate Customers from Sienge API",
             "description": "Implement logic to fetch all 'customers' from the Sienge API, handling pagination as required by the API.",
-            "dependencies": ["9.1"],
+            "dependencies": [
+              "9.1"
+            ],
             "details": "Use the Sienge API client to retrieve customer data. Implement pagination handling to ensure all records are fetched, regardless of API page size limits. Handle API errors and rate limits gracefully.",
             "status": "pending",
             "testStrategy": "Mock Sienge API responses with multiple pages and verify all customer records are retrieved."
@@ -489,7 +586,9 @@
             "id": 3,
             "title": "Transform and Validate Customer Data",
             "description": "Map and validate the fetched customer data against the PostgreSQL 'customers' schema.",
-            "dependencies": ["9.2"],
+            "dependencies": [
+              "9.2"
+            ],
             "details": "Define transformation logic to match Sienge API fields to the local schema. Validate data types, required fields, and handle missing or malformed data. Prepare data for upsert operations.",
             "status": "pending",
             "testStrategy": "Test with sample payloads containing valid, missing, and invalid fields. Ensure only valid data proceeds to upsert."
@@ -498,7 +597,9 @@
             "id": 4,
             "title": "Upsert Customers into PostgreSQL with Transactional Integrity",
             "description": "Upsert transformed customer records into the PostgreSQL 'customers' table using Prisma, ensuring idempotency and transactional integrity.",
-            "dependencies": ["9.3"],
+            "dependencies": [
+              "9.3"
+            ],
             "details": "Use Prisma's upsert functionality to insert or update records as needed. Wrap the operation in a transaction to ensure all-or-nothing behavior. Implement idempotency to prevent duplicate or inconsistent records.",
             "status": "pending",
             "testStrategy": "Run sync with new, updated, and duplicate records. Simulate failures and verify rollback or partial sync handling."
@@ -507,7 +608,9 @@
             "id": 5,
             "title": "Log Synchronization Status and Errors",
             "description": "Record the status and any errors of the sync process in the 'sync_logs' table for auditing and troubleshooting.",
-            "dependencies": ["9.4"],
+            "dependencies": [
+              "9.4"
+            ],
             "details": "Implement logging of sync start, completion, and error events. Store relevant metadata such as timestamps, record counts, and error messages. Ensure sensitive data is not logged.",
             "status": "pending",
             "testStrategy": "Trigger syncs under normal and error conditions. Verify logs are written with correct details and no sensitive information."
@@ -521,7 +624,9 @@
         "details": "Extend sync logic to fetch and upsert companies, suppliers, and projects. Use Promise.allSettled for parallel entity syncs. Optimize batch inserts/updates. Handle entity-specific fields and relationships. Update sync_logs for each entity. Monitor API quota usage and abort if near limit.",
         "testStrategy": "Run full sync, verify all entities are updated, and logs reflect per-entity status. Test with large datasets for performance and quota adherence.",
         "priority": "high",
-        "dependencies": [9],
+        "dependencies": [
+          9
+        ],
         "status": "pending",
         "subtasks": [
           {
@@ -537,7 +642,9 @@
             "id": 2,
             "title": "Implement Parallel Entity Synchronization Using Promise.allSettled",
             "description": "Develop logic to fetch and upsert companies, suppliers, and projects in parallel, leveraging Promise.allSettled for efficient batch processing.",
-            "dependencies": ["10.1"],
+            "dependencies": [
+              "10.1"
+            ],
             "details": "Write asynchronous functions for each entity sync. Use Promise.allSettled to execute syncs concurrently and handle partial failures gracefully.",
             "status": "pending",
             "testStrategy": "Trigger parallel sync and verify that all entities are processed. Confirm that failures in one entity do not block others and that error states are logged."
@@ -546,7 +653,9 @@
             "id": 3,
             "title": "Optimize Batch Inserts and Updates for Large Datasets",
             "description": "Enhance database operations to efficiently handle bulk upserts for companies, suppliers, and projects, minimizing latency and resource usage.",
-            "dependencies": ["10.2"],
+            "dependencies": [
+              "10.2"
+            ],
             "details": "Implement batch processing techniques for inserts/updates. Tune database queries and leverage bulk operations where supported. Ensure transactional integrity and idempotency.",
             "status": "pending",
             "testStrategy": "Run sync with large datasets and measure performance. Validate that all records are upserted correctly and no duplicates or data loss occur."
@@ -555,7 +664,9 @@
             "id": 4,
             "title": "Update Sync Logs and Monitor API Quota Usage",
             "description": "Extend logging to capture per-entity sync status and implement monitoring for API quota consumption, aborting sync if limits are approached.",
-            "dependencies": ["10.2"],
+            "dependencies": [
+              "10.2"
+            ],
             "details": "Log sync outcomes for each entity, including success, failure, and error details. Track API usage during sync and implement logic to halt operations if quota thresholds are near.",
             "status": "pending",
             "testStrategy": "Verify that sync_logs reflect accurate status for each entity. Simulate quota exhaustion and confirm sync aborts gracefully with appropriate log entries."
@@ -564,7 +675,10 @@
             "id": 5,
             "title": "Handle Entity-Specific Fields, Relationships, and Error Recovery",
             "description": "Implement logic to process unique fields and relationships for each entity and robust error handling with retries and logging.",
-            "dependencies": ["10.1", "10.2"],
+            "dependencies": [
+              "10.1",
+              "10.2"
+            ],
             "details": "Map and transform entity-specific fields. Manage relationships (e.g., foreign keys) during upsert. Add error handling to retry failed syncs and log errors for review.",
             "status": "pending",
             "testStrategy": "Test sync with entities containing complex relationships and custom fields. Induce errors and verify retry logic and comprehensive error logging."
@@ -578,7 +692,9 @@
         "details": "Install node-cron (v3.0+). Read SYNC_SCHEDULE from env. Schedule sync job to call internal sync logic. Implement retry with exponential backoff on failure. Log all scheduled runs and errors. Allow manual override via API.",
         "testStrategy": "Set schedule to short interval for testing, verify sync triggers at correct times, and logs are written. Simulate failures and confirm retries.",
         "priority": "medium",
-        "dependencies": [10],
+        "dependencies": [
+          10
+        ],
         "status": "pending",
         "subtasks": [
           {
@@ -594,7 +710,9 @@
             "id": 2,
             "title": "Read and Validate SYNC_SCHEDULE from Environment",
             "description": "Read the SYNC_SCHEDULE cron expression from environment variables and validate its format.",
-            "dependencies": ["11.1"],
+            "dependencies": [
+              "11.1"
+            ],
             "details": "Access process.env.SYNC_SCHEDULE and use node-cron's validate method to ensure the cron expression is correct.",
             "status": "pending",
             "testStrategy": "Set various valid and invalid cron expressions in the environment and verify validation logic."
@@ -603,7 +721,9 @@
             "id": 3,
             "title": "Schedule Data Synchronization Job",
             "description": "Use node-cron to schedule the data synchronization job at the time specified by SYNC_SCHEDULE, calling the internal sync logic.",
-            "dependencies": ["11.2"],
+            "dependencies": [
+              "11.2"
+            ],
             "details": "Implement cron.schedule with the validated SYNC_SCHEDULE value to trigger the sync function.",
             "status": "pending",
             "testStrategy": "Set SYNC_SCHEDULE to a short interval for testing and verify the sync logic is triggered at correct times."
@@ -612,7 +732,9 @@
             "id": 4,
             "title": "Implement Retry with Exponential Backoff and Logging",
             "description": "Add retry logic with exponential backoff for failed sync attempts and log all scheduled runs and errors.",
-            "dependencies": ["11.3"],
+            "dependencies": [
+              "11.3"
+            ],
             "details": "On sync failure, retry with increasing delays (e.g., 1min, 2min, 4min, up to a max). Log each run, retry, and error to a persistent log or database.",
             "status": "pending",
             "testStrategy": "Simulate sync failures, verify retries occur with correct delays, and confirm all events are logged."
@@ -621,7 +743,9 @@
             "id": 5,
             "title": "Expose Manual Sync Trigger via API",
             "description": "Implement an API endpoint to allow manual triggering of the sync job, bypassing the schedule.",
-            "dependencies": ["11.3"],
+            "dependencies": [
+              "11.3"
+            ],
             "details": "Create an authenticated API route that invokes the same internal sync logic as the scheduled job, and logs manual runs.",
             "status": "pending",
             "testStrategy": "Call the API endpoint and verify sync is triggered immediately and logged as a manual run."
@@ -635,7 +759,10 @@
         "details": "Create dashboard page in Next.js. Fetch status from /api/status and logs from /api/logs. Display last sync time, per-entity record counts, API connectivity status, and recent errors. Use Tailwind CSS for responsive layout. Show loading and error states. Allow manual sync trigger from UI.",
         "testStrategy": "Verify dashboard displays accurate, real-time data. Test with simulated sync failures and large logs. Confirm UI updates after manual sync.",
         "priority": "medium",
-        "dependencies": [11, 5],
+        "dependencies": [
+          11,
+          5
+        ],
         "status": "pending",
         "subtasks": [
           {
@@ -651,7 +778,9 @@
             "id": 2,
             "title": "Implement Data Fetching for Status and Logs",
             "description": "Develop logic to fetch sync status from /api/status and error logs from /api/logs, handling loading and error states.",
-            "dependencies": ["12.1"],
+            "dependencies": [
+              "12.1"
+            ],
             "details": "Use React hooks (e.g., useEffect, useState) to asynchronously fetch data from the APIs. Display loading indicators and error messages as appropriate. Ensure data is refreshed after manual sync.",
             "status": "pending",
             "testStrategy": "Simulate API responses, including failures, and confirm correct UI updates for loading, success, and error states."
@@ -660,7 +789,9 @@
             "id": 3,
             "title": "Display Sync Status, Record Counts, Connectivity, and Error Logs",
             "description": "Render the fetched data in the dashboard, showing last sync time, per-entity record counts, API connectivity status, and recent error logs.",
-            "dependencies": ["12.2"],
+            "dependencies": [
+              "12.2"
+            ],
             "details": "Design and implement UI components for each data type using Tailwind CSS. Ensure information is clearly presented and responsive. Use tables or cards for record counts and logs.",
             "status": "pending",
             "testStrategy": "Verify that all required data points are displayed accurately and update in real time as data changes."
@@ -669,7 +800,9 @@
             "id": 4,
             "title": "Implement Manual Sync Trigger Functionality",
             "description": "Add a UI control to allow users to manually trigger a sync operation, updating the dashboard upon completion.",
-            "dependencies": ["12.3"],
+            "dependencies": [
+              "12.3"
+            ],
             "details": "Create a button or similar control that calls the sync API endpoint. Show loading state during sync and refresh dashboard data after completion. Handle and display any errors from the sync operation.",
             "status": "pending",
             "testStrategy": "Test manual sync under normal and failure conditions, ensuring UI feedback and data refresh work as expected."
@@ -678,7 +811,9 @@
             "id": 5,
             "title": "Finalize Responsive Design and Accessibility",
             "description": "Polish the dashboard UI for full responsiveness and accessibility, ensuring usability across devices and for all users.",
-            "dependencies": ["12.4"],
+            "dependencies": [
+              "12.4"
+            ],
             "details": "Refine Tailwind CSS layouts for mobile, tablet, and desktop. Add ARIA labels and keyboard navigation support. Test with screen readers and various device sizes.",
             "status": "pending",
             "testStrategy": "Validate responsive behavior on multiple devices and browsers. Use accessibility tools to confirm compliance with WCAG standards."
@@ -692,7 +827,10 @@
         "details": "Expose 5432 in docker-compose.yml. Document DB credentials and connection string. Restrict access to trusted networks using Docker network settings and firewall rules. Enable SSL in PostgreSQL for encrypted connections. Support multiple concurrent connections. Test with Power BI and PGAdmin.",
         "testStrategy": "Connect from external client (e.g., PGAdmin) using documented credentials. Attempt unauthorized access and verify rejection. Confirm SSL is enforced.",
         "priority": "medium",
-        "dependencies": [2, 3],
+        "dependencies": [
+          2,
+          3
+        ],
         "status": "pending",
         "subtasks": [
           {
@@ -708,7 +846,9 @@
             "id": 2,
             "title": "Restrict Network Access and Configure Firewall",
             "description": "Limit external access to PostgreSQL by restricting Docker network settings and applying firewall rules.",
-            "dependencies": ["13.1"],
+            "dependencies": [
+              "13.1"
+            ],
             "details": "Configure Docker to allow connections only from specific trusted networks. Set up host firewall rules to permit inbound traffic on port 5432 exclusively from whitelisted IP addresses.",
             "status": "pending",
             "testStrategy": "Attempt connections from both trusted and untrusted networks to confirm only authorized sources can access the database."
@@ -717,7 +857,9 @@
             "id": 3,
             "title": "Enable and Enforce SSL Encryption in PostgreSQL",
             "description": "Configure PostgreSQL to require SSL for all external connections to ensure encrypted data transmission.",
-            "dependencies": ["13.1"],
+            "dependencies": [
+              "13.1"
+            ],
             "details": "Generate or provide SSL certificates, update postgresql.conf to enable SSL, and adjust pg_hba.conf to require SSL for all host connections.",
             "status": "pending",
             "testStrategy": "Connect using a client with SSL enabled and verify that non-SSL connections are rejected."
@@ -726,7 +868,10 @@
             "id": 4,
             "title": "Document Database Credentials and Connection Strings",
             "description": "Create clear documentation for database credentials, connection strings, and SSL usage for BI tool integration.",
-            "dependencies": ["13.1", "13.3"],
+            "dependencies": [
+              "13.1",
+              "13.3"
+            ],
             "details": "Document the username, password, host, port, and SSL parameters required for external BI tools. Include example connection strings for Power BI and PGAdmin.",
             "status": "pending",
             "testStrategy": "Review documentation for completeness and accuracy; have a team member connect using only the provided instructions."
@@ -735,7 +880,11 @@
             "id": 5,
             "title": "Test External Connections and Concurrent Access",
             "description": "Validate secure external connectivity and concurrent access from BI tools such as Power BI and PGAdmin.",
-            "dependencies": ["13.2", "13.3", "13.4"],
+            "dependencies": [
+              "13.2",
+              "13.3",
+              "13.4"
+            ],
             "details": "Test connections from external clients using documented credentials and SSL. Simulate multiple concurrent connections to ensure stability and performance. Attempt unauthorized access to confirm security controls.",
             "status": "pending",
             "testStrategy": "Connect from Power BI and PGAdmin using SSL; verify multiple sessions work; attempt unauthorized access and confirm rejection."
@@ -749,7 +898,10 @@
         "details": "Encrypt sensitive data at rest (use pgcrypto or Prisma field encryption). Sanitize all API inputs using Zod (v3+) or Joi. Ensure no secrets are logged. Harden Docker containers (non-root user, minimal images). Restrict inter-container communication. Regularly update dependencies for CVE patches.",
         "testStrategy": "Run security audit tools (npm audit, Trivy for containers). Attempt common attacks (SQLi, XSS, privilege escalation). Verify encrypted fields and container isolation.",
         "priority": "high",
-        "dependencies": [6, 13],
+        "dependencies": [
+          6,
+          13
+        ],
         "status": "pending",
         "subtasks": [
           {
@@ -806,7 +958,10 @@
         "details": "Use Jest (v29+) and React Testing Library for frontend, Supertest for API routes, and Prisma test utilities for DB. Write tests for all critical flows (credential config, sync, dashboard). Create deployment scripts (Docker Compose, .env templates). Document setup, usage, and troubleshooting in README.",
         "testStrategy": "Run CI pipeline to execute all tests. Verify code coverage >90%. Deploy to test environment using scripts and validate full workflow.",
         "priority": "medium",
-        "dependencies": [12, 14],
+        "dependencies": [
+          12,
+          14
+        ],
         "status": "pending",
         "subtasks": [
           {
@@ -822,7 +977,9 @@
             "id": 2,
             "title": "Implement Integration Tests for Frontend and API",
             "description": "Create integration tests that validate interactions between React components and API routes, ensuring end-to-end data flow and UI updates.",
-            "dependencies": ["15.1"],
+            "dependencies": [
+              "15.1"
+            ],
             "details": "Use React Testing Library and Supertest to simulate user actions and API calls. Test flows such as credential configuration, data sync, and dashboard updates. Mock external dependencies as needed.",
             "status": "pending",
             "testStrategy": "Run integration tests in CI. Verify that user actions trigger correct API requests and UI updates. Ensure all critical flows are covered."
@@ -831,7 +988,9 @@
             "id": 3,
             "title": "Write Unit and Integration Tests for API and Database",
             "description": "Develop unit and integration tests for API routes using Supertest and Prisma test utilities, covering all database interactions and business logic.",
-            "dependencies": ["15.2"],
+            "dependencies": [
+              "15.2"
+            ],
             "details": "Test API endpoints for credential management, sync logic, and dashboard data retrieval. Validate DB operations, input sanitization, and error handling. Use test database instances for isolation.",
             "status": "pending",
             "testStrategy": "Execute tests to confirm API routes handle requests correctly, interact with the database as expected, and enforce security measures."
@@ -840,7 +999,9 @@
             "id": 4,
             "title": "Create Automated Deployment Scripts",
             "description": "Develop scripts for automated deployment using Docker Compose and .env templates, enabling reproducible environment setup and service orchestration.",
-            "dependencies": ["15.3"],
+            "dependencies": [
+              "15.3"
+            ],
             "details": "Write Docker Compose files for all services. Provide .env templates for configuration. Ensure scripts handle build, start, and teardown processes. Validate compatibility with CI/CD pipelines.",
             "status": "pending",
             "testStrategy": "Deploy to a test environment using the scripts. Confirm all services start correctly and environment variables are loaded. Validate full workflow from deployment to application readiness."
@@ -849,7 +1010,9 @@
             "id": 5,
             "title": "Document Test and Deployment Setup in README",
             "description": "Write comprehensive documentation in README covering test execution, deployment steps, environment configuration, and troubleshooting.",
-            "dependencies": ["15.4"],
+            "dependencies": [
+              "15.4"
+            ],
             "details": "Include instructions for running unit, integration, and end-to-end tests. Document deployment script usage, environment variable setup, and common issues. Ensure clarity for new contributors.",
             "status": "pending",
             "testStrategy": "Review documentation for completeness and accuracy. Have a team member follow the README to set up and validate the project from scratch."
@@ -859,7 +1022,7 @@
     ],
     "metadata": {
       "created": "2025-09-10T02:38:01.454Z",
-      "updated": "2025-09-10T03:10:20.635Z",
+      "updated": "2025-09-11T21:25:52.629Z",
       "description": "Tasks for master context"
     }
   }

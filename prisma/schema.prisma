@@ -1,0 +1,650 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model ApiCredentials {
+  id              Int      @id @default(autoincrement())
+  subdomain       String   @unique
+  apiUser         String
+  apiPasswordHash String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  isActive        Boolean  @default(true)
+
+  @@map("api_credentials")
+}
+
+model SyncLog {
+  id               Int       @id @default(autoincrement())
+  entityType       String
+  syncStartedAt    DateTime  @default(now())
+  syncCompletedAt  DateTime?
+  recordsProcessed Int       @default(0)
+  recordsInserted  Int       @default(0)
+  recordsUpdated   Int       @default(0)
+  recordsErrors    Int       @default(0)
+  status           String
+  errorMessage     String?
+  apiCallsMade     Int       @default(0)
+
+  @@map("sync_logs")
+}
+
+model Empresa {
+  idEmpresa          Int                 @id @default(autoincrement())
+  nomeEmpresa        String
+  cnpj               String?
+  nomeFantasia       String?
+  codigoEmpresa      String?
+  ativo              Boolean             @default(true)
+  clientes           Cliente[]
+  empreendimentos    Empreendimento[]
+  solicitacoesCompra SolicitacaoCompra[]
+  titulosPagar       TituloPagar[]
+  titulosReceber     TituloReceber[]
+
+  @@map("empresas")
+}
+
+model Departamento {
+  idDepartamento     Int                       @id @default(autoincrement())
+  nomeDepartamento   String
+  codigoDepartamento String?
+  pedidosCompra      PedidoCompra[]
+  solicitacoesCompra SolicitacaoCompra[]
+  alocacoesDespesa   TituloPagarDepartamento[]
+
+  @@map("departamentos")
+}
+
+model CentroCusto {
+  idCentroCusto     Int                      @id @default(autoincrement())
+  nomeCentroCusto   String
+  codigoCentroCusto String?
+  ativo             Boolean                  @default(true)
+  alocacoesDespesa  TituloPagarCentroCusto[]
+
+  @@map("centros_custo")
+}
+
+model Indexador {
+  idIndexador    Int             @id @default(autoincrement())
+  nomeIndexador  String
+  descricao      String?
+  periodicidade  String?
+  valorAtual     Decimal?        @db.Decimal(18, 6)
+  contratosVenda ContratoVenda[]
+  titulosPagar   TituloPagar[]
+  titulosReceber TituloReceber[]
+
+  @@map("indexadores")
+}
+
+model TipoCliente {
+  idTipoCliente Int       @id @default(autoincrement())
+  descricao     String
+  clientes      Cliente[]
+
+  @@map("tipos_cliente")
+}
+
+model EstadoCivil {
+  idEstadoCivil Int       @id @default(autoincrement())
+  descricao     String
+  clientes      Cliente[]
+  conjuges      Conjuge[]
+
+  @@map("estados_civis")
+}
+
+model Profissao {
+  idProfissao     Int       @id @default(autoincrement())
+  nomeProfissao   String
+  codigoProfissao String?
+  clientes        Cliente[] @relation("ProfissaoCliente")
+  conjuges        Conjuge[] @relation("ProfissaoConjuge")
+
+  @@map("profissoes")
+}
+
+model TipoImovel {
+  idTipoImovel Int                  @id @default(autoincrement())
+  descricao    String
+  unidades     UnidadeImobiliaria[]
+
+  @@map("tipos_imovel")
+}
+
+model PlanoFinanceiro {
+  idPlanoFinanceiro Int                      @id @default(autoincrement())
+  nomePlano         String
+  codigoPlano       String?
+  tipo              String?
+  contratosVenda    ContratoVenda[]
+  alocacoesCCusto   TituloPagarCentroCusto[]
+  titulosPagar      TituloPagar[]
+  titulosReceber    TituloReceber[]
+
+  @@map("planos_financeiros")
+}
+
+model DocumentoIdentificacao {
+  idDocumentoIdent String          @id
+  descricao        String?
+  titulosPagar     TituloPagar[]
+  titulosReceber   TituloReceber[]
+
+  @@map("documentos_identificacao")
+}
+
+model Municipio {
+  idMunicipio      Int               @id @default(autoincrement())
+  nome             String
+  uf               String
+  codigoIBGE       String?
+  enderecosCliente ClienteEndereco[]
+  enderecosCredor  CredorEndereco[]
+
+  @@map("municipios")
+}
+
+model Cliente {
+  idCliente      Int               @id @default(autoincrement())
+  idTipoCliente  Int
+  nomeCompleto   String
+  nomeSocial     String?
+  cpfCnpj        String
+  rg             String?
+  dataNascimento DateTime?
+  nacionalidade  String?
+  email          String?
+  idEstadoCivil  Int?
+  idProfissao    Int?
+  ativo          Boolean           @default(true)
+  dataCadastro   DateTime          @default(now())
+  idEmpresa      Int?
+  anexos         ClienteAnexo[]
+  enderecos      ClienteEndereco[]
+  rendas         ClienteRenda[]
+  telefones      ClienteTelefone[]
+  empresa        Empresa?          @relation(fields: [idEmpresa], references: [idEmpresa])
+  estadoCivil    EstadoCivil?      @relation(fields: [idEstadoCivil], references: [idEstadoCivil])
+  profissao      Profissao?        @relation("ProfissaoCliente", fields: [idProfissao], references: [idProfissao])
+  tipoCliente    TipoCliente       @relation(fields: [idTipoCliente], references: [idTipoCliente])
+  conjuge        Conjuge?
+  contratosVenda ContratoVenda[]
+  reservas       ReservaUnidade[]
+  titulosReceber TituloReceber[]
+
+  @@map("clientes")
+}
+
+model ClienteTelefone {
+  idTelefone Int     @id @default(autoincrement())
+  numero     String
+  tipo       String?
+  observacao String?
+  idCliente  Int
+  cliente    Cliente @relation(fields: [idCliente], references: [idCliente])
+
+  @@map("cliente_telefones")
+}
+
+model ClienteEndereco {
+  idEndereco   Int        @id @default(autoincrement())
+  logradouro   String
+  numero       String
+  complemento  String?
+  bairro       String?
+  cep          String?
+  tipoEndereco String?
+  idMunicipio  Int?
+  idCliente    Int
+  cliente      Cliente    @relation(fields: [idCliente], references: [idCliente])
+  municipio    Municipio? @relation(fields: [idMunicipio], references: [idMunicipio])
+
+  @@map("cliente_enderecos")
+}
+
+model ClienteRenda {
+  idRenda        Int      @id @default(autoincrement())
+  descricaoRenda String
+  valorMensal    Decimal  @db.Decimal(18, 2)
+  moeda          String?  @default("BRL")
+  comprovada     Boolean?
+  idCliente      Int
+  cliente        Cliente  @relation(fields: [idCliente], references: [idCliente])
+
+  @@map("cliente_rendas")
+}
+
+model ClienteAnexo {
+  idAnexo       Int     @id @default(autoincrement())
+  tipoDocumento String
+  urlArquivo    String?
+  idCliente     Int
+  cliente       Cliente @relation(fields: [idCliente], references: [idCliente])
+
+  @@map("cliente_anexos")
+}
+
+model Conjuge {
+  idConjuge      Int          @id @default(autoincrement())
+  nomeCompleto   String
+  cpf            String?
+  rg             String?
+  dataNascimento DateTime?
+  nacionalidade  String?
+  email          String?
+  idEstadoCivil  Int?
+  idProfissao    Int?
+  idCliente      Int?         @unique
+  cliente        Cliente?     @relation(fields: [idCliente], references: [idCliente])
+  estadoCivil    EstadoCivil? @relation(fields: [idEstadoCivil], references: [idEstadoCivil])
+  profissao      Profissao?   @relation("ProfissaoConjuge", fields: [idProfissao], references: [idProfissao])
+
+  @@map("conjuges")
+}
+
+model Empreendimento {
+  idEmpreendimento    Int                  @id @default(autoincrement())
+  nome                String
+  codigo              String?
+  descricao           String?
+  idEmpresa           Int?
+  cidade              String?
+  contratosSuprimento ContratoSuprimento[]
+  empresa             Empresa?             @relation(fields: [idEmpresa], references: [idEmpresa])
+  pedidosCompra       PedidoCompra[]
+  unidades            UnidadeImobiliaria[]
+
+  @@map("empreendimentos")
+}
+
+model UnidadeImobiliaria {
+  idUnidade        Int              @id @default(autoincrement())
+  codigoUnidade    String
+  idEmpreendimento Int
+  idTipoImovel     Int
+  bloco            String?
+  andar            Int?
+  areaPrivativa    Decimal?         @db.Decimal(10, 2)
+  areaTotal        Decimal?         @db.Decimal(10, 2)
+  valorTabela      Decimal          @db.Decimal(18, 2)
+  valorMinimo      Decimal?         @db.Decimal(18, 2)
+  statusUnidade    String
+  contratoVenda    ContratoVenda?
+  reservas         ReservaUnidade[]
+  empreendimento   Empreendimento   @relation(fields: [idEmpreendimento], references: [idEmpreendimento])
+  tipoImovel       TipoImovel       @relation(fields: [idTipoImovel], references: [idTipoImovel])
+
+  @@map("unidades_imobiliarias")
+}
+
+model ReservaUnidade {
+  idReserva       Int                @id @default(autoincrement())
+  idUnidade       Int
+  idCliente       Int
+  dataReserva     DateTime           @default(now())
+  validadeReserva DateTime?
+  statusReserva   String?
+  observacoes     String?
+  idContratoVenda Int?               @unique
+  cliente         Cliente            @relation(fields: [idCliente], references: [idCliente])
+  contratoVenda   ContratoVenda?     @relation(fields: [idContratoVenda], references: [idContrato])
+  unidade         UnidadeImobiliaria @relation(fields: [idUnidade], references: [idUnidade])
+
+  @@map("reservas_unidades")
+}
+
+model ContratoVenda {
+  idContrato        Int                @id @default(autoincrement())
+  numeroContrato    String
+  idCliente         Int
+  idUnidade         Int                @unique
+  dataContrato      DateTime
+  valorContrato     Decimal            @db.Decimal(18, 2)
+  idIndexador       Int?
+  idPlanoFinanceiro Int?
+  entrada           Decimal?           @db.Decimal(18, 2)
+  financiamento     Decimal?           @db.Decimal(18, 2)
+  observacoes       String?
+  statusContrato    String
+  comissoes         ComissaoVenda[]
+  cliente           Cliente            @relation(fields: [idCliente], references: [idCliente])
+  indexador         Indexador?         @relation(fields: [idIndexador], references: [idIndexador])
+  planoFinanceiro   PlanoFinanceiro?   @relation(fields: [idPlanoFinanceiro], references: [idPlanoFinanceiro])
+  unidade           UnidadeImobiliaria @relation(fields: [idUnidade], references: [idUnidade])
+  reserva           ReservaUnidade?
+  titulosReceber    TituloReceber[]
+
+  @@map("contratos_venda")
+}
+
+model ComissaoVenda {
+  idComissao    Int           @id @default(autoincrement())
+  idContrato    Int
+  nomeCorretor  String
+  percentual    Decimal?      @db.Decimal(5, 2)
+  valorComissao Decimal       @db.Decimal(18, 2)
+  paga          Boolean       @default(false)
+  dataPagamento DateTime?
+  contrato      ContratoVenda @relation(fields: [idContrato], references: [idContrato])
+
+  @@map("comissoes_venda")
+}
+
+model TituloReceber {
+  idTituloReceber   Int                     @id @default(autoincrement())
+  idContrato        Int?
+  idCliente         Int
+  idEmpresa         Int?
+  numeroDocumento   String
+  idDocumentoIdent  String?
+  dataEmissao       DateTime
+  dataVencimento    DateTime
+  valorOriginal     Decimal                 @db.Decimal(18, 2)
+  valorAtualizado   Decimal?                @db.Decimal(18, 2)
+  idIndexador       Int?
+  juros             Decimal?                @db.Decimal(18, 2)
+  multa             Decimal?                @db.Decimal(18, 2)
+  descontoConcedido Decimal?                @db.Decimal(18, 2)
+  valorPago         Decimal?                @db.Decimal(18, 2)
+  dataPagamento     DateTime?
+  status            String
+  idPlanoFinanceiro Int?
+  cliente           Cliente                 @relation(fields: [idCliente], references: [idCliente])
+  contrato          ContratoVenda?          @relation(fields: [idContrato], references: [idContrato])
+  documentoIdent    DocumentoIdentificacao? @relation(fields: [idDocumentoIdent], references: [idDocumentoIdent])
+  empresa           Empresa?                @relation(fields: [idEmpresa], references: [idEmpresa])
+  indexador         Indexador?              @relation(fields: [idIndexador], references: [idIndexador])
+  planoFinanceiro   PlanoFinanceiro?        @relation(fields: [idPlanoFinanceiro], references: [idPlanoFinanceiro])
+
+  @@map("titulos_receber")
+}
+
+model Credor {
+  idCredor            Int                  @id @default(autoincrement())
+  tipoCredor          String?
+  nomeCredor          String
+  cpfCnpj             String
+  inscricaoEstadual   String?
+  contato             String?
+  telefoneContato     String?
+  emailContato        String?
+  ativo               Boolean              @default(true)
+  ehCorretor          Boolean              @default(false)
+  contratosSuprimento ContratoSuprimento[]
+  cotacoes            CotacaoPreco[]
+  enderecos           CredorEndereco[]
+  contasBancarias     CredorInfoBancaria[]
+  notasFiscais        NotaFiscalCompra[]
+  pedidos             PedidoCompra[]
+  titulosPagar        TituloPagar[]
+
+  @@map("credores")
+}
+
+model CredorEndereco {
+  idEndereco  Int        @id @default(autoincrement())
+  logradouro  String
+  numero      String
+  complemento String?
+  bairro      String?
+  cep         String?
+  idMunicipio Int?
+  idCredor    Int
+  credor      Credor     @relation(fields: [idCredor], references: [idCredor])
+  municipio   Municipio? @relation(fields: [idMunicipio], references: [idMunicipio])
+
+  @@map("credor_enderecos")
+}
+
+model CredorInfoBancaria {
+  idInfoBancaria      Int     @id @default(autoincrement())
+  idCredor            Int
+  banco               String
+  agencia             String
+  conta               String
+  digitoConta         String?
+  tipoConta           String
+  nomeBeneficiario    String?
+  cpfCnpjBeneficiario String?
+  ativa               Boolean @default(true)
+  credor              Credor  @relation(fields: [idCredor], references: [idCredor])
+
+  @@map("credor_info_bancaria")
+}
+
+model SolicitacaoCompra {
+  idSolicitacao     Int               @id @default(autoincrement())
+  numeroSolicitacao String
+  idEmpresa         Int?
+  idDepartamento    Int?
+  solicitante       String
+  dataSolicitacao   DateTime          @default(now())
+  descricao         String?
+  status            String
+  cotacoes          CotacaoPreco[]
+  pedido            PedidoCompra?
+  itens             SolicitacaoItem[]
+  departamento      Departamento?     @relation(fields: [idDepartamento], references: [idDepartamento])
+  empresa           Empresa?          @relation(fields: [idEmpresa], references: [idEmpresa])
+
+  @@map("solicitacoes_compra")
+}
+
+model SolicitacaoItem {
+  idSolicitacaoItem Int               @id @default(autoincrement())
+  idSolicitacao     Int
+  descricaoItem     String
+  quantidade        Decimal           @db.Decimal(18, 4)
+  unidade           String
+  justificativa     String?
+  solicitacao       SolicitacaoCompra @relation(fields: [idSolicitacao], references: [idSolicitacao])
+
+  @@map("solicitacao_itens")
+}
+
+model PedidoCompra {
+  idPedido            Int                @id @default(autoincrement())
+  numeroPedido        String
+  idSolicitacao       Int?               @unique
+  idCredor            Int
+  dataPedido          DateTime
+  dataEntregaPrevista DateTime?
+  idEmpreendimento    Int?
+  idDepartamento      Int?
+  valorTotal          Decimal            @db.Decimal(18, 2)
+  status              String
+  notasFiscais        NotaFiscalCompra[]
+  itens               PedidoItem[]
+  credor              Credor             @relation(fields: [idCredor], references: [idCredor])
+  departamento        Departamento?      @relation(fields: [idDepartamento], references: [idDepartamento])
+  empreendimento      Empreendimento?    @relation(fields: [idEmpreendimento], references: [idEmpreendimento])
+  solicitacao         SolicitacaoCompra? @relation(fields: [idSolicitacao], references: [idSolicitacao])
+
+  @@map("pedidos_compra")
+}
+
+model PedidoItem {
+  idPedidoItem   Int          @id @default(autoincrement())
+  idPedido       Int
+  descricaoItem  String
+  quantidade     Decimal      @db.Decimal(18, 4)
+  unidade        String
+  precoUnitario  Decimal      @db.Decimal(18, 4)
+  valorTotalItem Decimal      @db.Decimal(18, 2)
+  pedido         PedidoCompra @relation(fields: [idPedido], references: [idPedido])
+
+  @@map("pedido_itens")
+}
+
+model ContratoSuprimento {
+  idContratoSuprimento Int                @id @default(autoincrement())
+  numeroContrato       String
+  idCredor             Int
+  idEmpreendimento     Int?
+  dataInicio           DateTime
+  dataFim              DateTime?
+  objeto               String?
+  valorContrato        Decimal            @db.Decimal(18, 2)
+  status               String
+  credor               Credor             @relation(fields: [idCredor], references: [idCredor])
+  empreendimento       Empreendimento?    @relation(fields: [idEmpreendimento], references: [idEmpreendimento])
+  medicoes             MedicaoContrato[]
+  notasFiscais         NotaFiscalCompra[]
+  titulosPagar         TituloPagar[]
+
+  @@map("contratos_suprimento")
+}
+
+model MedicaoContrato {
+  idMedicao            Int                @id @default(autoincrement())
+  idContratoSuprimento Int
+  numeroMedicao        Int
+  dataMedicao          DateTime
+  percentualExecutado  Decimal?           @db.Decimal(5, 2)
+  valorMedicao         Decimal            @db.Decimal(18, 2)
+  aprovada             Boolean            @default(false)
+  contrato             ContratoSuprimento @relation(fields: [idContratoSuprimento], references: [idContratoSuprimento])
+
+  @@map("medicoes_contrato")
+}
+
+model CotacaoPreco {
+  idCotacao        Int               @id @default(autoincrement())
+  idSolicitacao    Int
+  idCredor         Int
+  dataCotacao      DateTime
+  validaAte        DateTime?
+  valorTotalCotado Decimal           @db.Decimal(18, 2)
+  condicoes        String?
+  escolhida        Boolean           @default(false)
+  itens            CotacaoItem[]
+  credor           Credor            @relation(fields: [idCredor], references: [idCredor])
+  solicitacao      SolicitacaoCompra @relation(fields: [idSolicitacao], references: [idSolicitacao])
+
+  @@map("cotacoes_preco")
+}
+
+model CotacaoItem {
+  idCotacaoItem  Int          @id @default(autoincrement())
+  idCotacao      Int
+  descricaoItem  String
+  quantidade     Decimal      @db.Decimal(18, 4)
+  unidade        String
+  precoUnitario  Decimal      @db.Decimal(18, 4)
+  valorTotalItem Decimal      @db.Decimal(18, 2)
+  cotacao        CotacaoPreco @relation(fields: [idCotacao], references: [idCotacao])
+
+  @@map("cotacao_itens")
+}
+
+model NotaFiscalCompra {
+  idNotaFiscal         Int                 @id @default(autoincrement())
+  idCredor             Int
+  numeroNota           String
+  serie                String?
+  chaveAcesso          String?
+  dataEmissao          DateTime
+  valorTotal           Decimal             @db.Decimal(18, 2)
+  idPedido             Int?
+  idContratoSuprimento Int?
+  status               String
+  contratoSuprimento   ContratoSuprimento? @relation(fields: [idContratoSuprimento], references: [idContratoSuprimento])
+  credor               Credor              @relation(fields: [idCredor], references: [idCredor])
+  pedido               PedidoCompra?       @relation(fields: [idPedido], references: [idPedido])
+
+  @@map("notas_fiscais_compra")
+}
+
+model TituloPagar {
+  idTituloPagar         Int                       @id @default(autoincrement())
+  idCredor              Int
+  idEmpresaDevedora     Int?
+  numeroDocumento       String
+  idDocumentoIdent      String?
+  dataEmissao           DateTime
+  dataVencimento        DateTime
+  valorOriginal         Decimal                   @db.Decimal(18, 2)
+  valorAtualizado       Decimal?                  @db.Decimal(18, 2)
+  idIndexador           Int?
+  idPlanoFinanceiro     Int?
+  observacao            String?
+  descontoObtido        Decimal?                  @db.Decimal(18, 2)
+  valorPago             Decimal?                  @db.Decimal(18, 2)
+  dataPagamento         DateTime?
+  status                String
+  idContratoSuprimento  Int?
+  parcelas              ParcelaTituloPagar[]
+  alocacoesCentroCusto  TituloPagarCentroCusto[]
+  alocacoesDepartamento TituloPagarDepartamento[]
+  impostos              TituloPagarImposto[]
+  contratoSuprimento    ContratoSuprimento?       @relation(fields: [idContratoSuprimento], references: [idContratoSuprimento])
+  credor                Credor                    @relation(fields: [idCredor], references: [idCredor])
+  documentoIdent        DocumentoIdentificacao?   @relation(fields: [idDocumentoIdent], references: [idDocumentoIdent])
+  empresaDevedora       Empresa?                  @relation(fields: [idEmpresaDevedora], references: [idEmpresa])
+  indexador             Indexador?                @relation(fields: [idIndexador], references: [idIndexador])
+  planoFinanceiro       PlanoFinanceiro?          @relation(fields: [idPlanoFinanceiro], references: [idPlanoFinanceiro])
+
+  @@map("titulos_pagar")
+}
+
+model ParcelaTituloPagar {
+  idParcela             Int         @id @default(autoincrement())
+  idTituloPagar         Int
+  numeroParcela         Int
+  dataVencimentoParcela DateTime
+  valorParcela          Decimal     @db.Decimal(18, 2)
+  valorPagoParcela      Decimal?    @db.Decimal(18, 2)
+  dataPagamentoParcela  DateTime?
+  statusParcela         String
+  tituloPai             TituloPagar @relation(fields: [idTituloPagar], references: [idTituloPagar])
+
+  @@map("parcelas_titulo_pagar")
+}
+
+model TituloPagarImposto {
+  idImposto     Int         @id @default(autoincrement())
+  idTituloPagar Int
+  tipoImposto   String
+  baseCalculo   Decimal     @db.Decimal(18, 2)
+  aliquota      Decimal     @db.Decimal(5, 2)
+  valorImposto  Decimal     @db.Decimal(18, 2)
+  retido        Boolean
+  titulo        TituloPagar @relation(fields: [idTituloPagar], references: [idTituloPagar])
+
+  @@map("titulo_pagar_impostos")
+}
+
+model TituloPagarCentroCusto {
+  idTituloPagar     Int
+  idCentroCusto     Int
+  idPlanoFinanceiro Int
+  percentual        Decimal?        @db.Decimal(5, 2)
+  valor             Decimal?        @db.Decimal(18, 2)
+  centro            CentroCusto     @relation(fields: [idCentroCusto], references: [idCentroCusto])
+  plano             PlanoFinanceiro @relation(fields: [idPlanoFinanceiro], references: [idPlanoFinanceiro])
+  titulo            TituloPagar     @relation(fields: [idTituloPagar], references: [idTituloPagar])
+
+  @@id([idTituloPagar, idCentroCusto, idPlanoFinanceiro])
+  @@map("titulo_pagar_centro_custo")
+}
+
+model TituloPagarDepartamento {
+  idTituloPagar  Int
+  idDepartamento Int
+  percentual     Decimal?     @db.Decimal(5, 2)
+  valor          Decimal?     @db.Decimal(18, 2)
+  departamento   Departamento @relation(fields: [idDepartamento], references: [idDepartamento])
+  titulo         TituloPagar  @relation(fields: [idTituloPagar], references: [idTituloPagar])
+
+  @@id([idTituloPagar, idDepartamento])
+  @@map("titulo_pagar_departamento")
+}

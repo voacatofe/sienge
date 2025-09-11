@@ -1,0 +1,112 @@
+version: '3.8'
+
+services:
+  # Banco de dados PostgreSQL (Desenvolvimento)
+  db:
+    image: postgres:15-alpine
+    container_name: sienge-db-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-sienge_dev}
+      POSTGRES_USER: ${POSTGRES_USER:-sienge_dev}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dev_password}
+    ports:
+      - '${DB_PORT_EXTERNAL:-5432}:${DB_PORT_INTERNAL:-5432}'
+    volumes:
+      - postgres-dev-data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - sienge-dev-network
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'pg_isready -U ${POSTGRES_USER:-sienge_dev} -d ${POSTGRES_DB:-sienge_dev}',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    # Configurações de segurança e recursos (Desenvolvimento)
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+    # Configurações de logging (Desenvolvimento)
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+  # Aplicação Next.js (Desenvolvimento)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NODE_ENV: development
+        BUILD_TARGET: development
+    container_name: sienge-app-dev
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sienge_dev}:${POSTGRES_PASSWORD:-dev_password}@${POSTGRES_HOST:-db}:${POSTGRES_PORT:-5432}/${POSTGRES_DB:-sienge_dev}
+      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+      - SIENGE_SUBDOMAIN=${SIENGE_SUBDOMAIN}
+      - SIENGE_USERNAME=${SIENGE_USERNAME}
+      - SIENGE_PASSWORD=${SIENGE_PASSWORD}
+      - SYNC_SCHEDULE=${SYNC_SCHEDULE:-0 2 * * *}
+      - SYNC_BATCH_SIZE=${SYNC_BATCH_SIZE:-50}
+      - SYNC_MAX_RETRIES=${SYNC_MAX_RETRIES:-3}
+      - EXTERNAL_DB_URL=postgresql://${POSTGRES_USER:-sienge_dev}:${POSTGRES_PASSWORD:-dev_password}@localhost:${DB_PORT_EXTERNAL:-5432}/${POSTGRES_DB:-sienge_dev}
+    ports:
+      - '${APP_PORT_EXTERNAL:-3000}:${APP_PORT_INTERNAL:-3000}'
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - sienge-dev-network
+    volumes:
+      - ./logs:/app/logs
+      - ./app:/app/app
+      - ./public:/app/public
+      - ./package.json:/app/package.json
+      - ./package-lock.json:/app/package-lock.json
+      - /app/node_modules
+      - /app/.next
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/api/health']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    # Configurações de segurança e recursos (Desenvolvimento)
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+    # Configurações de logging (Desenvolvimento)
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+volumes:
+  postgres-dev-data:
+    driver: local
+
+networks:
+  sienge-dev-network:
+    driver: bridge

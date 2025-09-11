@@ -157,3 +157,7 @@ playwright/.cache/
 
 # Cursor configuration (contains API keys)
 .cursor/ 
+
+# Task files
+# tasks.json
+# tasks/ 
