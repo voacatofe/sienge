@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  # Banco de dados PostgreSQL
+  db:
+    image: postgres:15-alpine
+    container_name: sienge-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-sienge_data}
+      POSTGRES_USER: ${POSTGRES_USER:-sienge_app}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-senha_forte}
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - sienge-network
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'pg_isready -U ${POSTGRES_USER:-sienge_app} -d ${POSTGRES_DB:-sienge_data}',
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Aplicação Next.js
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sienge-app
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sienge_app}:${POSTGRES_PASSWORD:-senha_forte}@db:5432/${POSTGRES_DB:-sienge_data}
+      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+      - SIENGE_SUBDOMAIN=${SIENGE_SUBDOMAIN}
+      - SIENGE_USERNAME=${SIENGE_USERNAME}
+      - SIENGE_PASSWORD=${SIENGE_PASSWORD}
+      - SYNC_SCHEDULE=${SYNC_SCHEDULE:-0 2 * * *}
+      - SYNC_BATCH_SIZE=${SYNC_BATCH_SIZE:-200}
+      - SYNC_MAX_RETRIES=${SYNC_MAX_RETRIES:-3}
+    ports:
+      - '3000:3000'
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - sienge-network
+    volumes:
+      - ./logs:/app/logs
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/api/health']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  postgres-data:
+    driver: local
+
+networks:
+  sienge-network:
+    driver: bridge
