@@ -46,11 +46,11 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        NODE_ENV: ${NODE_ENV:-production}
-        BUILD_TARGET: ${BUILD_TARGET:-production}
+        NODE_ENV: ${NODE_ENV:-development}
+        BUILD_TARGET: ${BUILD_TARGET:-development}
     restart: unless-stopped
     environment:
-      - NODE_ENV=${NODE_ENV:-production}
+      - NODE_ENV=${NODE_ENV:-development}
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sienge_app}:${POSTGRES_PASSWORD:-senha_forte}@${POSTGRES_HOST:-db}:${POSTGRES_PORT:-5432}/${POSTGRES_DB:-sienge_data}
       - POSTGRES_HOST=${POSTGRES_HOST:-db}
       - POSTGRES_PORT=${POSTGRES_PORT:-5432}
