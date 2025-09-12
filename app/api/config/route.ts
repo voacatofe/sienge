@@ -81,7 +81,11 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Erro ao salvar credenciais:', error);
+    // Log error for debugging (remove in production)
+    if (process.env.NODE_ENV === 'development') {
+      // eslint-disable-next-line no-console
+      console.error('Erro ao salvar credenciais:', error);
+    }
     
     return NextResponse.json(
       { 
@@ -114,7 +118,11 @@ export async function GET() {
     });
 
   } catch (error) {
-    console.error('Erro ao buscar credenciais:', error);
+    // Log error for debugging (remove in production)
+    if (process.env.NODE_ENV === 'development') {
+      // eslint-disable-next-line no-console
+      console.error('Erro ao buscar credenciais:', error);
+    }
     
     return NextResponse.json(
       { 
