@@ -31,7 +31,11 @@ COPY . .
 RUN npx prisma generate
 
 # Build apenas para produção
-RUN if [ "$BUILD_TARGET" = "production" ]; then npm run build; fi
+RUN if [ "$BUILD_TARGET" = "production" ]; then \
+        npm run build; \
+    else \
+        echo "Skipping build for development mode"; \
+    fi
 
 # Stage 3: Runtime
 FROM base AS runner
@@ -68,10 +72,3 @@ ENV NODE_ENV=${NODE_ENV}
 
 # Definir entrypoint personalizado
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
-
-# Comando baseado no ambiente
-CMD if [ "$NODE_ENV" = "development" ]; then \
-        npm run dev; \
-    else \
-        npm start; \
-    fi

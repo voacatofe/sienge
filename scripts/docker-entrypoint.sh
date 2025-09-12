@@ -111,8 +111,14 @@ main() {
     log "✅ Inicialização concluída com sucesso!"
     log "🚀 Iniciando aplicação Next.js..."
     
-    # Executar comando original passado como argumento
-    exec "$@"
+    # Detectar se existe build de produção
+    if [ -d ".next" ] && [ -f ".next/BUILD_ID" ]; then
+        log "📦 Build de produção detectado, iniciando em modo produção..."
+        exec npm start
+    else
+        log "🔧 Build de produção não encontrado, iniciando em modo desenvolvimento..."
+        exec npm run dev
+    fi
 }
 
 # Executar função principal com todos os argumentos passados
