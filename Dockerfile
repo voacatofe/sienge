@@ -30,12 +30,8 @@ COPY . .
 # Gerar cliente Prisma
 RUN npx prisma generate
 
-# Build apenas para produção
-RUN if [ "$BUILD_TARGET" = "production" ]; then \
-        npm run build; \
-    else \
-        echo "Skipping build for development mode"; \
-    fi
+# Build sempre para produção (EasyPanel)
+RUN npm run build
 
 # Stage 3: Runtime
 FROM base AS runner
@@ -45,6 +41,10 @@ COPY --from=deps /app/node_modules ./node_modules
 
 # Copiar código fonte
 COPY . .
+
+# Copiar build de produção
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
 
 # Copiar script de entrypoint
 COPY scripts/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh

@@ -116,8 +116,10 @@ main() {
         log "📦 Build de produção detectado, iniciando em modo produção..."
         exec npm start
     else
-        log "🔧 Build de produção não encontrado, iniciando em modo desenvolvimento..."
-        exec npm run dev
+        log "🔨 Build de produção não encontrado, fazendo build..."
+        npm run build
+        log "📦 Build concluído, iniciando em modo produção..."
+        exec npm start
     fi
 }
 
