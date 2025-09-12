@@ -173,7 +173,10 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Remover armazenamento temporário - não usar em produção
+    // IMPLEMENTAÇÃO TEMPORÁRIA: Salvar senha em variável de ambiente de runtime
+    // EM PRODUÇÃO: usar AWS Secrets Manager, Azure Key Vault, etc.
+    const envKey = `SIENGE_PASSWORD_${sanitizedSubdomain.toUpperCase()}`;
+    process.env[envKey] = sanitizedPassword;
 
     return NextResponse.json({
       success: true,

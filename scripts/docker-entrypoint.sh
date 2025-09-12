@@ -39,17 +39,25 @@ wait_for_db() {
 run_migrations() {
     log "🔄 Executando migrações do Prisma..."
     
+    # Debug: verificar se migrações existem
+    if [ -d "prisma/migrations" ]; then
+        log "📁 Pasta de migrações encontrada: $(ls prisma/migrations/ | wc -l) migrações"
+        ls -la prisma/migrations/
+    else
+        log "⚠️ Pasta de migrações não encontrada!"
+    fi
+    
     # Primeiro, tentar aplicar migrações diretamente
     log "🔄 Aplicando migrações do Prisma..."
     if npx prisma migrate deploy; then
         log "✅ Migrações aplicadas com sucesso!"
     else
-        log "⚠️ Erro ao aplicar migrações, tentando reset..."
-        # Se falhar, tentar reset e aplicar novamente
-        if npx prisma migrate reset --force; then
-            log "✅ Reset e migrações aplicadas com sucesso!"
+        log "⚠️ Erro ao aplicar migrações, tentando db push como fallback..."
+        # Se falhar, usar db push que aplica o schema diretamente
+        if npx prisma db push --force-reset; then
+            log "✅ Schema aplicado com sucesso via db push!"
         else
-            log "❌ Erro crítico ao aplicar migrações"
+            log "❌ Erro crítico ao aplicar schema"
             return 1
         fi
     fi

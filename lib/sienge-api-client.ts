@@ -112,29 +112,52 @@ export class SiengeApiClient {
         };
       }
 
-      // Em produção, as credenciais devem vir de um sistema seguro
-      // Por enquanto, retornar erro indicando que precisa configurar
+      // Carregar credenciais do banco de dados
       const credentials = await prisma.apiCredentials.findFirst({
         where: { isActive: true },
         select: {
           subdomain: true,
           apiUser: true,
+          apiPasswordHash: true,
         },
       });
 
       if (!credentials) {
-        throw new Error('Nenhuma credencial configurada');
+        throw new Error('Nenhuma credencial configurada. Acesse /config para configurar as credenciais da API Sienge.');
       }
 
-      // Em produção, implemente uma solução segura para obter a senha
-      // Opções: AWS Secrets Manager, Azure Key Vault, variáveis de ambiente criptografadas, etc.
-      throw new Error(
-        'Sistema de credenciais não configurado. Configure SIENGE_SUBDOMAIN, SIENGE_USERNAME e SIENGE_PASSWORD nas variáveis de ambiente.'
-      );
+      // AVISO: Em um sistema real, você não deveria armazenar senhas em texto plano
+      // Esta é uma implementação simplificada para demonstração
+      // Para produção, considere usar um sistema de gerenciamento de segredos
+      
+      // Como a senha foi hasheada com bcrypt, precisamos recuperar a senha original
+      // Por segurança, vamos usar uma abordagem temporária onde salvamos a senha
+      // em uma variável de ambiente temporária durante a configuração
+      const plainPassword = await this.getPasswordFromSecureStorage(credentials.subdomain);
+      
+      if (!plainPassword) {
+        throw new Error('Senha não encontrada. Reconfigure as credenciais em /config');
+      }
+
+      return {
+        subdomain: credentials.subdomain,
+        username: credentials.apiUser,
+        password: plainPassword,
+      };
     } catch (error) {
       console.error('Erro ao carregar credenciais:', error);
       throw error;
     }
+  }
+
+  // Método temporário para recuperar senha - SUBSTITUIR POR SOLUÇÃO SEGURA EM PRODUÇÃO
+  private async getPasswordFromSecureStorage(subdomain: string): Promise<string | null> {
+    // IMPLEMENTAÇÃO TEMPORÁRIA: usar cache em memória
+    // EM PRODUÇÃO: usar AWS Secrets Manager, Azure Key Vault, etc.
+    
+    // Procurar por uma variável de ambiente específica do subdomínio
+    const envKey = `SIENGE_PASSWORD_${subdomain.toUpperCase()}`;
+    return process.env[envKey] || null;
   }
 
   // Configurar lógica de retry
