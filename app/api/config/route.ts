@@ -156,6 +156,7 @@ export async function POST(request: NextRequest) {
         data: {
           apiUser: sanitizedUsername,
           apiPasswordHash: hashedPassword,
+          isActive: true,
           updatedAt: new Date()
         }
       });
@@ -168,7 +169,8 @@ export async function POST(request: NextRequest) {
         data: {
           subdomain: sanitizedSubdomain,
           apiUser: sanitizedUsername,
-          apiPasswordHash: hashedPassword
+          apiPasswordHash: hashedPassword,
+          isActive: true
         }
       });
     }

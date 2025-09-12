@@ -79,7 +79,12 @@ export async function POST(request: NextRequest) {
         }
 
         // Buscar dados usando o cliente API
+        console.log(`[Sync API] Buscando dados para entidade: ${entity} no endpoint: ${endpoint}`);
         const data = await siengeApiClient.fetchPaginatedData(endpoint);
+        console.log(`[Sync API] Dados obtidos para ${entity}:`, {
+          count: data.length,
+          sampleData: data.length > 0 ? data[0] : null
+        });
 
         results.push({
           entity,
@@ -91,6 +96,7 @@ export async function POST(request: NextRequest) {
         totalProcessed += data.length;
 
         // TODO: Implementar salvamento no banco de dados
+        console.log(`[Sync API] TODO: Implementar salvamento no banco para ${entity}`);
 
       } catch (error) {
         totalErrors++;

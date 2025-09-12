@@ -26,6 +26,10 @@ export interface SiengeApiResponse<T = any> {
   page?: number;
   limit?: number;
   hasMore?: boolean;
+  has_more?: boolean;
+  items?: T[];
+  results?: T[];
+  [key: string]: any; // Permitir propriedades dinâmicas
 }
 
 export interface SiengeApiError {
@@ -103,16 +107,8 @@ export class SiengeApiClient {
   // Carregar credenciais do banco de dados
   private async loadCredentials(): Promise<SiengeCredentials | null> {
     try {
-      // Para desenvolvimento/testes, usar variáveis de ambiente se disponíveis
-      if (process.env.SIENGE_SUBDOMAIN && process.env.SIENGE_USERNAME && process.env.SIENGE_PASSWORD) {
-        return {
-          subdomain: process.env.SIENGE_SUBDOMAIN,
-          username: process.env.SIENGE_USERNAME,
-          password: process.env.SIENGE_PASSWORD,
-        };
-      }
-
-      // Carregar credenciais do banco de dados
+      // SEMPRE buscar credenciais do banco de dados primeiro
+      // As variáveis de ambiente do .env são apenas para desenvolvimento/testes
       const credentials = await prisma.apiCredentials.findFirst({
         where: { isActive: true },
         select: {
@@ -123,6 +119,16 @@ export class SiengeApiClient {
       });
 
       if (!credentials) {
+        // Fallback para desenvolvimento: usar variáveis de ambiente se disponíveis
+        if (process.env.SIENGE_SUBDOMAIN && process.env.SIENGE_USERNAME && process.env.SIENGE_PASSWORD) {
+          console.warn('[Sienge API] Usando credenciais do .env como fallback (desenvolvimento)');
+          return {
+            subdomain: process.env.SIENGE_SUBDOMAIN,
+            username: process.env.SIENGE_USERNAME,
+            password: process.env.SIENGE_PASSWORD,
+          };
+        }
+        
         throw new Error('Nenhuma credencial configurada. Acesse /config para configurar as credenciais da API Sienge.');
       }
 
@@ -271,6 +277,8 @@ export class SiengeApiClient {
     let page = 1;
     let hasMore = true;
 
+    console.log(`[Sienge API] Iniciando busca em ${endpoint} com parâmetros:`, params);
+
     while (hasMore) {
       try {
         const response = await this.makeRequest<SiengeApiResponse<T>>({
@@ -283,17 +291,64 @@ export class SiengeApiClient {
           },
         });
 
-        const { data, hasMore: responseHasMore } = response.data;
-        
-        if (Array.isArray(data)) {
-          allData.push(...data);
+        console.log(`[Sienge API] Resposta da página ${page}:`, {
+          status: response.status,
+          dataKeys: Object.keys(response.data || {}),
+          dataType: Array.isArray(response.data) ? 'array' : typeof response.data,
+          dataLength: Array.isArray(response.data) ? response.data.length : 'N/A'
+        });
+
+        // Verificar diferentes estruturas de resposta possíveis
+        let responseData: T[] = [];
+        let responseHasMore = false;
+
+        if (Array.isArray(response.data)) {
+          // Resposta é um array direto
+          responseData = response.data;
+          responseHasMore = false; // Se é array direto, não há paginação
+        } else if (response.data && typeof response.data === 'object') {
+          const responseObj = response.data as any; // Type assertion para flexibilidade
+          
+          // Resposta é um objeto com propriedades
+          if (Array.isArray(responseObj.data)) {
+            // Estrutura: { data: [...], hasMore: boolean }
+            responseData = responseObj.data;
+            responseHasMore = responseObj.hasMore || false;
+          } else if (Array.isArray(responseObj.items)) {
+            // Estrutura: { items: [...], hasMore: boolean }
+            responseData = responseObj.items;
+            responseHasMore = responseObj.hasMore || false;
+          } else if (Array.isArray(responseObj.results)) {
+            // Estrutura: { results: [...], hasMore: boolean }
+            responseData = responseObj.results;
+            responseHasMore = responseObj.hasMore || false;
+          } else {
+            // Tentar encontrar qualquer propriedade que seja um array
+            const arrayProps = Object.keys(responseObj).filter(key => 
+              Array.isArray(responseObj[key])
+            );
+            if (arrayProps.length > 0) {
+              console.log(`[Sienge API] Encontrada propriedade array: ${arrayProps[0]}`);
+              responseData = responseObj[arrayProps[0]];
+              responseHasMore = responseObj.hasMore || responseObj.has_more || false;
+            }
+          }
         }
 
-        hasMore = responseHasMore || false;
+        if (Array.isArray(responseData)) {
+          allData.push(...responseData);
+        }
+
+        hasMore = responseHasMore;
         page++;
 
         // Log do progresso
-        console.log(`[Sienge API] Página ${page - 1}: ${data?.length || 0} registros`);
+        console.log(`[Sienge API] Página ${page - 1}: ${responseData?.length || 0} registros`);
+        
+        // Se não há mais dados ou se a resposta está vazia, parar
+        if (!responseHasMore || (responseData?.length || 0) === 0) {
+          hasMore = false;
+        }
       } catch (error) {
         console.error(`[Sienge API] Erro na página ${page}:`, error);
         throw error;
