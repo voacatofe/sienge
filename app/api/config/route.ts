@@ -3,9 +3,11 @@ import { z } from 'zod';
 import bcrypt from 'bcryptjs';
 import axios from 'axios';
 import { prisma } from '@/lib/prisma';
+import { validateCredentialsWithCache, credentialsCache } from '@/lib/cache/credentials-cache';
+import { checkRateLimit, credentialsRateLimiter, createRateLimitHeaders } from '@/lib/rate-limiter';
 
-// Função para validar credenciais contra a API Sienge
-async function validateSiengeCredentials(subdomain: string, username: string, password: string): Promise<boolean> {
+// Função para validar credenciais contra a API Sienge (sem cache)
+async function validateSiengeCredentialsDirect(subdomain: string, username: string, password: string): Promise<boolean> {
   try {
     const baseURL = `https://${subdomain}.sienge.com.br/api/v1`;
     
@@ -17,7 +19,8 @@ async function validateSiengeCredentials(subdomain: string, username: string, pa
       params: {
         limit: 1 // Chamada mínima para validação
       },
-      timeout: 10000 // 10 segundos de timeout
+      timeout: 5000, // Reduzido para 5 segundos
+      // Desabilitar retry automático do axios
     });
 
     return response.status === 200;
@@ -26,7 +29,11 @@ async function validateSiengeCredentials(subdomain: string, username: string, pa
       // Log apenas o código de status, nunca as credenciais
       if (process.env.NODE_ENV === 'development') {
         // eslint-disable-next-line no-console
-        console.error('Erro na validação Sienge API:', error.response?.status);
+        console.error('Erro na validação Sienge API:', {
+          status: error.response?.status,
+          message: error.message,
+          subdomain: subdomain, // Log apenas o subdomínio, não as credenciais
+        });
       }
       
       // Retorna false para códigos de erro de autenticação/autorização
@@ -36,6 +43,16 @@ async function validateSiengeCredentials(subdomain: string, username: string, pa
     // Para outros tipos de erro, assume que as credenciais são inválidas
     return false;
   }
+}
+
+// Função para validar credenciais com cache
+async function validateSiengeCredentials(subdomain: string, username: string, password: string): Promise<boolean> {
+  return validateCredentialsWithCache(
+    subdomain,
+    username,
+    password,
+    validateSiengeCredentialsDirect
+  );
 }
 
 // Função para sanitizar dados de entrada
@@ -61,6 +78,29 @@ const credentialsSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    // Verificar rate limiting
+    const rateLimitResult = checkRateLimit(request, credentialsRateLimiter);
+    
+    if (!rateLimitResult.allowed) {
+      const headers = createRateLimitHeaders(
+        rateLimitResult.allowed,
+        rateLimitResult.remaining,
+        rateLimitResult.resetTime
+      );
+      
+      return NextResponse.json(
+        { 
+          success: false, 
+          message: 'Muitas tentativas. Tente novamente mais tarde.',
+          retryAfter: Math.ceil((rateLimitResult.resetTime - Date.now()) / 1000)
+        },
+        { 
+          status: 429,
+          headers
+        }
+      );
+    }
+
     const body = await request.json();
     
     // Validar dados de entrada
@@ -119,6 +159,9 @@ export async function POST(request: NextRequest) {
           updatedAt: new Date()
         }
       });
+      
+      // Invalidar cache para este subdomínio
+      credentialsCache.invalidateBySubdomain(sanitizedSubdomain);
     } else {
       // Criar novas credenciais
       await prisma.apiCredentials.create({
@@ -133,6 +176,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: 'Credenciais salvas com sucesso'
+    }, {
+      headers: createRateLimitHeaders(
+        rateLimitResult.allowed,
+        rateLimitResult.remaining,
+        rateLimitResult.resetTime
+      )
     });
 
   } catch (error) {

@@ -4,6 +4,15 @@ import Bottleneck from 'bottleneck';
 import { prisma } from '@/lib/prisma';
 import { apiLogger, logApiRequest, logApiError, logRateLimitHit } from '@/lib/logger/api-logger';
 
+// Extensão de tipos para Axios
+declare module 'axios' {
+  interface AxiosRequestConfig {
+    metadata?: {
+      startTime: number;
+    };
+  }
+}
+
 // Tipos para a API Sienge
 export interface SiengeCredentials {
   subdomain: string;
@@ -131,7 +140,9 @@ export class SiengeApiClient {
         // Retry em erros de rede e 5xx
         return (
           axiosRetry.isNetworkOrIdempotentRequestError(error) ||
-          (error.response?.status ? error.response.status >= 500 && error.response.status < 600 : false)
+          (error.response?.status !== undefined && 
+           error.response.status >= 500 && 
+           error.response.status < 600)
         );
       },
     });
@@ -143,7 +154,7 @@ export class SiengeApiClient {
     this.axiosInstance.interceptors.request.use(
       (config) => {
         const startTime = Date.now();
-        (config as any).metadata = { startTime };
+        config.metadata = { startTime };
         
         logApiRequest({
           method: config.method?.toUpperCase() || 'UNKNOWN',
@@ -168,7 +179,7 @@ export class SiengeApiClient {
     this.axiosInstance.interceptors.response.use(
       (response) => {
         const endTime = Date.now();
-        const startTime = (response.config as any).metadata?.startTime || endTime;
+        const startTime = response.config.metadata?.startTime || endTime;
         const responseTime = endTime - startTime;
         
         logApiRequest({

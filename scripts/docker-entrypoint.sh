@@ -39,13 +39,19 @@ wait_for_db() {
 run_migrations() {
     log "🔄 Executando migrações do Prisma..."
     
-    # Verificar se existem migrações pendentes
-    if npx prisma migrate status | grep -q "Database schema is up to date"; then
-        log "✅ Schema do banco já está atualizado"
-    else
-        log "🔄 Aplicando migrações pendentes..."
-        npx prisma migrate deploy
+    # Primeiro, tentar aplicar migrações diretamente
+    log "🔄 Aplicando migrações do Prisma..."
+    if npx prisma migrate deploy; then
         log "✅ Migrações aplicadas com sucesso!"
+    else
+        log "⚠️ Erro ao aplicar migrações, tentando reset..."
+        # Se falhar, tentar reset e aplicar novamente
+        if npx prisma migrate reset --force; then
+            log "✅ Reset e migrações aplicadas com sucesso!"
+        else
+            log "❌ Erro crítico ao aplicar migrações"
+            return 1
+        fi
     fi
 }
 
