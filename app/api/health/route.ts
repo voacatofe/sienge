@@ -1,15 +1,16 @@
 import { NextResponse } from 'next/server';
+import { checkDatabaseHealth } from '@/lib/prisma';
 
 export async function GET() {
   try {
     // Verificar conectividade com o banco de dados
-    const dbStatus = await checkDatabaseConnection();
+    const dbStatus = await checkDatabaseHealth();
 
     // Verificar conectividade com a API Sienge
     const apiStatus = await checkSiengeAPI();
 
     const health = {
-      status: 'healthy',
+      status: dbStatus.status === 'healthy' ? 'healthy' : 'unhealthy',
       timestamp: new Date().toISOString(),
       services: {
         database: dbStatus,
@@ -27,23 +28,6 @@ export async function GET() {
       },
       { status: 500 }
     );
-  }
-}
-
-async function checkDatabaseConnection() {
-  try {
-    // Aqui você implementaria a verificação real da conexão com PostgreSQL
-    // Por enquanto, retornamos um status simulado
-    return {
-      status: 'connected',
-      message: 'Database connection successful',
-    };
-  } catch (error) {
-    return {
-      status: 'disconnected',
-      message:
-        error instanceof Error ? error.message : 'Database connection failed',
-    };
   }
 }
 

@@ -40,6 +40,64 @@ services:
         max-size: "${DB_LOG_MAX_SIZE:-10m}"
         max-file: "${DB_LOG_MAX_FILES:-3}"
 
+  # pgBouncer - Connection Pooler
+  pgbouncer:
+    image: pgbouncer/pgbouncer:latest
+    restart: unless-stopped
+    environment:
+      DATABASES_HOST: ${POSTGRES_HOST:-db}
+      DATABASES_PORT: ${POSTGRES_PORT:-5432}
+      DATABASES_USER: ${POSTGRES_USER:-sienge_app}
+      DATABASES_PASSWORD: ${POSTGRES_PASSWORD:-senha_forte}
+      DATABASES_DBNAME: ${POSTGRES_DB:-sienge_data}
+      POOL_MODE: transaction
+      MAX_CLIENT_CONN: 100
+      DEFAULT_POOL_SIZE: 20
+      RESERVE_POOL_SIZE: 5
+      RESERVE_POOL_TIMEOUT: 5
+      MAX_DB_CONNECTIONS: 0
+      MAX_USER_CONNECTIONS: 0
+      SERVER_RESET_QUERY: DISCARD ALL
+      LISTEN_PORT: 6432
+      LISTEN_ADDR: 0.0.0.0
+      AUTH_TYPE: md5
+      AUTH_FILE: /etc/pgbouncer/userlist.txt
+      LOG_CONNECTIONS: 1
+      LOG_DISCONNECTIONS: 1
+      LOG_POOLER_ERRORS: 1
+    ports:
+      - '${PGBOUNCER_PORT_EXTERNAL:-6432}:6432'
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - sienge-network
+    volumes:
+      - ./scripts/pgbouncer/userlist.txt:/etc/pgbouncer/userlist.txt:ro
+      - ./scripts/pgbouncer/pgbouncer.ini:/etc/pgbouncer/pgbouncer.ini:ro
+    healthcheck:
+      test: ['CMD', 'pg_isready', '-h', 'localhost', '-p', '6432', '-U', '${POSTGRES_USER:-sienge_app}']
+      interval: ${PGBOUNCER_HEALTH_INTERVAL:-30s}
+      timeout: ${PGBOUNCER_HEALTH_TIMEOUT:-10s}
+      retries: 3
+    # Configurações de segurança e recursos
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          memory: ${PGBOUNCER_MEMORY_LIMIT:-256M}
+          cpus: '${PGBOUNCER_CPU_LIMIT:-0.5}'
+        reservations:
+          memory: ${PGBOUNCER_MEMORY_RESERVATION:-128M}
+          cpus: '${PGBOUNCER_CPU_RESERVATION:-0.25}'
+    # Configurações de logging
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "${PGBOUNCER_LOG_MAX_SIZE:-5m}"
+        max-file: "${PGBOUNCER_LOG_MAX_FILES:-3}"
+
   # Aplicação Next.js
   app:
     build:
@@ -51,12 +109,15 @@ services:
     restart: unless-stopped
     environment:
       - NODE_ENV=${NODE_ENV:-development}
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sienge_app}:${POSTGRES_PASSWORD:-senha_forte}@${POSTGRES_HOST:-db}:${POSTGRES_PORT:-5432}/${POSTGRES_DB:-sienge_data}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sienge_app}:${POSTGRES_PASSWORD:-senha_forte}@${PGBOUNCER_HOST:-pgbouncer}:${PGBOUNCER_PORT:-6432}/${POSTGRES_DB:-sienge_data}?schema=public
+      - DATABASE_URL_DIRECT=postgresql://${POSTGRES_USER:-sienge_app}:${POSTGRES_PASSWORD:-senha_forte}@${POSTGRES_HOST:-db}:${POSTGRES_PORT:-5432}/${POSTGRES_DB:-sienge_data}?schema=public
       - POSTGRES_HOST=${POSTGRES_HOST:-db}
       - POSTGRES_PORT=${POSTGRES_PORT:-5432}
       - POSTGRES_USER=${POSTGRES_USER:-sienge_app}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-senha_forte}
       - POSTGRES_DB=${POSTGRES_DB:-sienge_data}
+      - PGBOUNCER_HOST=${PGBOUNCER_HOST:-pgbouncer}
+      - PGBOUNCER_PORT=${PGBOUNCER_PORT:-6432}
       - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
       - SIENGE_SUBDOMAIN=${SIENGE_SUBDOMAIN}
       - SIENGE_USERNAME=${SIENGE_USERNAME}
@@ -69,6 +130,8 @@ services:
       - '${APP_PORT_EXTERNAL:-3000}:${APP_PORT_INTERNAL:-3000}'
     depends_on:
       db:
+        condition: service_healthy
+      pgbouncer:
         condition: service_healthy
     networks:
       - sienge-network
