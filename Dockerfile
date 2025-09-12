@@ -39,11 +39,14 @@ FROM base AS runner
 # Copiar dependências
 COPY --from=deps /app/node_modules ./node_modules
 
-# Copiar código fonte
+# Copiar código fonte INCLUINDO prisma/schema.prisma
 COPY . .
 
 # Copiar build de produção
 COPY --from=builder /app/.next ./.next
+
+# Garantir que o Prisma CLI está disponível
+RUN npm install -g prisma@latest
 
 # Copiar script de entrypoint
 COPY scripts/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
