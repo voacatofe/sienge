@@ -44,7 +44,6 @@ COPY . .
 
 # Copiar build de produção
 COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/public ./public
 
 # Copiar script de entrypoint
 COPY scripts/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
