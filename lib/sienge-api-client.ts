@@ -131,7 +131,7 @@ export class SiengeApiClient {
         // Retry em erros de rede e 5xx
         return (
           axiosRetry.isNetworkOrIdempotentRequestError(error) ||
-          (error.response?.status >= 500 && error.response?.status < 600)
+          (error.response?.status ? error.response.status >= 500 && error.response.status < 600 : false)
         );
       },
     });
@@ -143,7 +143,7 @@ export class SiengeApiClient {
     this.axiosInstance.interceptors.request.use(
       (config) => {
         const startTime = Date.now();
-        config.metadata = { startTime };
+        (config as any).metadata = { startTime };
         
         logApiRequest({
           method: config.method?.toUpperCase() || 'UNKNOWN',
@@ -168,7 +168,7 @@ export class SiengeApiClient {
     this.axiosInstance.interceptors.response.use(
       (response) => {
         const endTime = Date.now();
-        const startTime = response.config.metadata?.startTime || endTime;
+        const startTime = (response.config as any).metadata?.startTime || endTime;
         const responseTime = endTime - startTime;
         
         logApiRequest({
@@ -337,7 +337,7 @@ export class SiengeApiClient {
       queued: this.rateLimiter.queued(),
       running: this.rateLimiter.running(),
       done: this.rateLimiter.done(),
-      reservoir: this.rateLimiter.reservoir,
+      reservoir: (this.rateLimiter as any).reservoir || 0,
     };
   }
 }

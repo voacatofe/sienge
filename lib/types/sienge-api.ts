@@ -108,8 +108,7 @@ export type SiengeEndpoint =
   | '/cost-centers'
   | '/customer-financial-statements'
   | '/projects'
-  | '/contracts'
-  | '/financial-statements';
+  | '/contracts';
 
 // Tipos para métodos HTTP suportados
 export type SiengeHttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';

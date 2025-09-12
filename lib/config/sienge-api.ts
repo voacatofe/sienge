@@ -1,4 +1,4 @@
-import { SyncConfig, SiengeEndpoint } from './types/sienge-api';
+import { SyncConfig, SiengeEndpoint } from '../types/sienge-api';
 
 // Configurações dos endpoints da API Sienge
 export const SIENGE_ENDPOINTS = {
