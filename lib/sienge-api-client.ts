@@ -197,10 +197,10 @@ export class SiengeApiClient {
   private setupRetryLogic(): void {
     axiosRetry(this.axiosInstance, {
       retries: SIENGE_API_CONFIG.RETRY_ATTEMPTS,
-      retryDelay: retryCount => {
+      retryDelay: (retryCount: number) => {
         return Math.pow(2, retryCount) * SIENGE_API_CONFIG.RETRY_DELAY;
       },
-      retryCondition: error => {
+      retryCondition: (error: any) => {
         // Retry em erros de rede e 5xx
         return (
           axiosRetry.isNetworkOrIdempotentRequestError(error) ||

@@ -170,7 +170,7 @@ export function SyncStatus({ onSyncComplete }: SyncStatusProps) {
           Status da Sincronização
         </h3>
         <div className="flex items-center space-x-2">
-          <StatusIndicator status={getStatusColor(syncStatus.status)} />
+          <StatusIndicator />
           <span className="text-sm font-medium text-gray-700">
             {getStatusText(syncStatus.status)}
           </span>

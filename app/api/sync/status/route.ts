@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
         entityType: 'batch_sync',
       },
       orderBy: {
-        createdAt: 'desc',
+        syncStartedAt: 'desc',
       },
     });
 
@@ -46,17 +46,17 @@ export async function GET(request: NextRequest) {
         recordsUpdated: latestSync.recordsUpdated,
         recordsErrors: latestSync.recordsErrors,
         apiCallsMade: latestSync.apiCallsMade,
-        startedAt: latestSync.createdAt,
+        startedAt: latestSync.syncStartedAt,
         completedAt: latestSync.syncCompletedAt,
         duration: latestSync.syncCompletedAt
           ? Math.round(
               (latestSync.syncCompletedAt.getTime() -
-                latestSync.createdAt.getTime()) /
+                latestSync.syncStartedAt.getTime()) /
                 1000 /
                 60
             )
           : Math.round(
-              (Date.now() - latestSync.createdAt.getTime()) / 1000 / 60
+              (Date.now() - latestSync.syncStartedAt.getTime()) / 1000 / 60
             ),
       },
     });
@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
           status: 'in_progress',
         },
         orderBy: {
-          createdAt: 'desc',
+          syncStartedAt: 'desc',
         },
       });
 
