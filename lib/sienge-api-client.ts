@@ -2,7 +2,12 @@ import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import axiosRetry from 'axios-retry';
 import Bottleneck from 'bottleneck';
 import { prisma } from '@/lib/prisma';
-import { apiLogger, logApiRequest, logApiError, logRateLimitHit } from '@/lib/logger/api-logger';
+import {
+  apiLogger,
+  logApiRequest,
+  logApiError,
+  logRateLimitHit,
+} from '@/lib/logger/api-logger';
 
 // Extensão de tipos para Axios
 declare module 'axios' {
@@ -103,7 +108,9 @@ export class SiengeApiClient {
         password: credentials.password,
       };
 
-      console.log(`Cliente Sienge API inicializado para: ${credentials.subdomain}`);
+      console.log(
+        `Cliente Sienge API inicializado para: ${credentials.subdomain}`
+      );
     } catch (error) {
       console.error('Erro ao inicializar cliente Sienge API:', error);
       throw error;
@@ -126,29 +133,41 @@ export class SiengeApiClient {
 
       if (!credentials) {
         // Fallback para desenvolvimento: usar variáveis de ambiente se disponíveis
-        if (process.env.SIENGE_SUBDOMAIN && process.env.SIENGE_USERNAME && process.env.SIENGE_PASSWORD) {
-          console.warn('[Sienge API] Usando credenciais do .env como fallback (desenvolvimento)');
+        if (
+          process.env.SIENGE_SUBDOMAIN &&
+          process.env.SIENGE_USERNAME &&
+          process.env.SIENGE_PASSWORD
+        ) {
+          console.warn(
+            '[Sienge API] Usando credenciais do .env como fallback (desenvolvimento)'
+          );
           return {
             subdomain: process.env.SIENGE_SUBDOMAIN,
             username: process.env.SIENGE_USERNAME,
             password: process.env.SIENGE_PASSWORD,
           };
         }
-        
-        throw new Error('Nenhuma credencial configurada. Acesse /config para configurar as credenciais da API Sienge.');
+
+        throw new Error(
+          'Nenhuma credencial configurada. Acesse /config para configurar as credenciais da API Sienge.'
+        );
       }
 
       // AVISO: Em um sistema real, você não deveria armazenar senhas em texto plano
       // Esta é uma implementação simplificada para demonstração
       // Para produção, considere usar um sistema de gerenciamento de segredos
-      
+
       // Como a senha foi hasheada com bcrypt, precisamos recuperar a senha original
       // Por segurança, vamos usar uma abordagem temporária onde salvamos a senha
       // em uma variável de ambiente temporária durante a configuração
-      const plainPassword = await this.getPasswordFromSecureStorage(credentials.subdomain);
-      
+      const plainPassword = await this.getPasswordFromSecureStorage(
+        credentials.subdomain
+      );
+
       if (!plainPassword) {
-        throw new Error('Senha não encontrada. Reconfigure as credenciais em /config');
+        throw new Error(
+          'Senha não encontrada. Reconfigure as credenciais em /config'
+        );
       }
 
       return {
@@ -163,10 +182,12 @@ export class SiengeApiClient {
   }
 
   // Método temporário para recuperar senha - SUBSTITUIR POR SOLUÇÃO SEGURA EM PRODUÇÃO
-  private async getPasswordFromSecureStorage(subdomain: string): Promise<string | null> {
+  private async getPasswordFromSecureStorage(
+    subdomain: string
+  ): Promise<string | null> {
     // IMPLEMENTAÇÃO TEMPORÁRIA: usar cache em memória
     // EM PRODUÇÃO: usar AWS Secrets Manager, Azure Key Vault, etc.
-    
+
     // Procurar por uma variável de ambiente específica do subdomínio
     const envKey = `SIENGE_PASSWORD_${subdomain.toUpperCase()}`;
     return process.env[envKey] || null;
@@ -176,16 +197,16 @@ export class SiengeApiClient {
   private setupRetryLogic(): void {
     axiosRetry(this.axiosInstance, {
       retries: SIENGE_API_CONFIG.RETRY_ATTEMPTS,
-      retryDelay: (retryCount) => {
+      retryDelay: retryCount => {
         return Math.pow(2, retryCount) * SIENGE_API_CONFIG.RETRY_DELAY;
       },
-      retryCondition: (error) => {
+      retryCondition: error => {
         // Retry em erros de rede e 5xx
         return (
           axiosRetry.isNetworkOrIdempotentRequestError(error) ||
-          (error.response?.status !== undefined && 
-           error.response.status >= 500 && 
-           error.response.status < 600)
+          (error.response?.status !== undefined &&
+            error.response.status >= 500 &&
+            error.response.status < 600)
         );
       },
     });
@@ -195,19 +216,19 @@ export class SiengeApiClient {
   private setupInterceptors(): void {
     // Request interceptor
     this.axiosInstance.interceptors.request.use(
-      (config) => {
+      config => {
         const startTime = Date.now();
         config.metadata = { startTime };
-        
+
         logApiRequest({
           method: config.method?.toUpperCase() || 'UNKNOWN',
           url: config.url || '',
           requestSize: JSON.stringify(config.data || {}).length,
         });
-        
+
         return config;
       },
-      (error) => {
+      error => {
         logApiError({
           method: error.config?.method?.toUpperCase() || 'UNKNOWN',
           url: error.config?.url || '',
@@ -220,11 +241,11 @@ export class SiengeApiClient {
 
     // Response interceptor
     this.axiosInstance.interceptors.response.use(
-      (response) => {
+      response => {
         const endTime = Date.now();
         const startTime = response.config.metadata?.startTime || endTime;
         const responseTime = endTime - startTime;
-        
+
         logApiRequest({
           method: response.config.method?.toUpperCase() || 'UNKNOWN',
           url: response.config.url || '',
@@ -232,14 +253,14 @@ export class SiengeApiClient {
           responseTime,
           responseSize: JSON.stringify(response.data || {}).length,
         });
-        
+
         return response;
       },
-      (error) => {
+      error => {
         const endTime = Date.now();
         const startTime = error.config?.metadata?.startTime || endTime;
         const responseTime = endTime - startTime;
-        
+
         logApiError({
           method: error.config?.method?.toUpperCase() || 'UNKNOWN',
           url: error.config?.url || '',
@@ -247,7 +268,7 @@ export class SiengeApiClient {
           responseTime,
           errorMessage: error.message,
         });
-        
+
         return Promise.reject(error);
       }
     );
@@ -277,16 +298,57 @@ export class SiengeApiClient {
   // Método genérico para buscar dados paginados
   async fetchPaginatedData<T = any>(
     endpoint: string,
-    params: Record<string, any> = {}
+    params: Record<string, any> = {},
+    options: {
+      maxPages?: number;
+      maxRecords?: number;
+      timeoutMs?: number;
+    } = {}
   ): Promise<T[]> {
     const allData: T[] = [];
     let page = 1;
     let hasMore = true;
+    const startTime = Date.now();
 
-    console.log(`[Sienge API] Iniciando busca em ${endpoint} com parâmetros:`, params);
+    // Configurações de segurança para evitar loops infinitos
+    const maxPages = options.maxPages || 1000; // Máximo 1000 páginas por padrão
+    const maxRecords = options.maxRecords || 200000; // Máximo 200k registros por padrão
+    const timeoutMs = options.timeoutMs || 30 * 60 * 1000; // 30 minutos por padrão
+
+    console.log(
+      `[Sienge API] Iniciando busca em ${endpoint} com parâmetros:`,
+      params
+    );
+    console.log(
+      `[Sienge API] Limites: máx ${maxPages} páginas, máx ${maxRecords} registros, timeout ${timeoutMs / 1000 / 60}min`
+    );
 
     while (hasMore) {
       try {
+        // Verificar timeout
+        if (Date.now() - startTime > timeoutMs) {
+          console.warn(
+            `[Sienge API] Timeout atingido após ${timeoutMs / 1000 / 60} minutos. Parando sincronização.`
+          );
+          break;
+        }
+
+        // Verificar limite de páginas
+        if (page > maxPages) {
+          console.warn(
+            `[Sienge API] Limite de páginas atingido (${maxPages}). Parando sincronização.`
+          );
+          break;
+        }
+
+        // Verificar limite de registros
+        if (allData.length >= maxRecords) {
+          console.warn(
+            `[Sienge API] Limite de registros atingido (${maxRecords}). Parando sincronização.`
+          );
+          break;
+        }
+
         const response = await this.makeRequest<SiengeApiResponse<T>>({
           method: 'GET',
           url: endpoint,
@@ -300,8 +362,12 @@ export class SiengeApiClient {
         console.log(`[Sienge API] Resposta da página ${page}:`, {
           status: response.status,
           dataKeys: Object.keys(response.data || {}),
-          dataType: Array.isArray(response.data) ? 'array' : typeof response.data,
-          dataLength: Array.isArray(response.data) ? response.data.length : 'N/A'
+          dataType: Array.isArray(response.data)
+            ? 'array'
+            : typeof response.data,
+          dataLength: Array.isArray(response.data)
+            ? response.data.length
+            : 'N/A',
         });
 
         // Verificar diferentes estruturas de resposta possíveis
@@ -314,26 +380,49 @@ export class SiengeApiClient {
         if (Array.isArray(responseDataObj?.results)) {
           // Estrutura real da API Sienge: { results: [...], resultSetMetadata: {...} }
           responseData = responseDataObj.results;
-          responseHasMore = responseDataObj.resultSetMetadata ? 
-            (responseDataObj.resultSetMetadata.offset + responseDataObj.resultSetMetadata.limit) < responseDataObj.resultSetMetadata.count : false;
+
+          // Log da metadata para debug
+          if (responseDataObj.resultSetMetadata) {
+            const metadata = responseDataObj.resultSetMetadata;
+            console.log(`[Sienge API] Metadata página ${page}:`, {
+              totalRecords: metadata.count || metadata.totalRecords,
+              currentOffset: metadata.offset,
+              limit: metadata.limit,
+              hasMore:
+                metadata.offset + metadata.limit <
+                (metadata.count || metadata.totalRecords),
+            });
+
+            responseHasMore =
+              metadata.offset + metadata.limit <
+              (metadata.count || metadata.totalRecords);
+          } else {
+            responseHasMore = false;
+          }
         } else if (Array.isArray(responseDataObj?.records)) {
           // Fallback para estrutura com records
           responseData = responseDataObj.records;
-          responseHasMore = responseDataObj.resultSetMetadata ? 
-            (responseDataObj.resultSetMetadata.offset + responseDataObj.resultSetMetadata.limit) < responseDataObj.resultSetMetadata.totalRecords : false;
+          responseHasMore = responseDataObj.resultSetMetadata
+            ? responseDataObj.resultSetMetadata.offset +
+                responseDataObj.resultSetMetadata.limit <
+              responseDataObj.resultSetMetadata.totalRecords
+            : false;
         } else if (Array.isArray(response.data)) {
           // Resposta é um array direto
           responseData = response.data;
           responseHasMore = false; // Se é array direto, não há paginação
         } else if (response.data && typeof response.data === 'object') {
           const responseObj = response.data as any; // Type assertion para flexibilidade
-          
+
           // Resposta é um objeto com propriedades
           if (Array.isArray(responseObj.records)) {
             // Estrutura: { data: { records: [...], resultSetMetadata: {...} } }
             responseData = responseObj.records;
-            responseHasMore = responseObj.resultSetMetadata ? 
-              (responseObj.resultSetMetadata.offset + responseObj.resultSetMetadata.limit) < responseObj.resultSetMetadata.totalRecords : false;
+            responseHasMore = responseObj.resultSetMetadata
+              ? responseObj.resultSetMetadata.offset +
+                  responseObj.resultSetMetadata.limit <
+                responseObj.resultSetMetadata.totalRecords
+              : false;
           } else if (Array.isArray(responseObj.data)) {
             // Estrutura: { data: [...], hasMore: boolean }
             responseData = responseObj.data;
@@ -348,13 +437,16 @@ export class SiengeApiClient {
             responseHasMore = responseObj.hasMore || false;
           } else {
             // Tentar encontrar qualquer propriedade que seja um array
-            const arrayProps = Object.keys(responseObj).filter(key => 
+            const arrayProps = Object.keys(responseObj).filter(key =>
               Array.isArray(responseObj[key])
             );
             if (arrayProps.length > 0) {
-              console.log(`[Sienge API] Encontrada propriedade array: ${arrayProps[0]}`);
+              console.log(
+                `[Sienge API] Encontrada propriedade array: ${arrayProps[0]}`
+              );
               responseData = responseObj[arrayProps[0]];
-              responseHasMore = responseObj.hasMore || responseObj.has_more || false;
+              responseHasMore =
+                responseObj.hasMore || responseObj.has_more || false;
             }
           }
         }
@@ -363,23 +455,31 @@ export class SiengeApiClient {
           allData.push(...responseData);
         }
 
-        hasMore = responseHasMore;
-        page++;
+        // Log do progresso com mais detalhes
+        const elapsedMinutes = Math.round((Date.now() - startTime) / 1000 / 60);
+        console.log(
+          `[Sienge API] Página ${page}: ${responseData?.length || 0} registros | Total: ${allData.length} | Tempo: ${elapsedMinutes}min | HasMore: ${responseHasMore}`
+        );
 
-        // Log do progresso
-        console.log(`[Sienge API] Página ${page - 1}: ${responseData?.length || 0} registros`);
-        
         // Se não há mais dados ou se a resposta está vazia, parar
         if (!responseHasMore || (responseData?.length || 0) === 0) {
           hasMore = false;
+          console.log(
+            `[Sienge API] Paginação finalizada na página ${page}. Motivo: ${!responseHasMore ? 'hasMore=false' : 'dados vazios'}`
+          );
         }
+
+        page++;
       } catch (error) {
         console.error(`[Sienge API] Erro na página ${page}:`, error);
         throw error;
       }
     }
 
-    console.log(`[Sienge API] Total de registros obtidos: ${allData.length}`);
+    const totalTimeMinutes = Math.round((Date.now() - startTime) / 1000 / 60);
+    console.log(
+      `[Sienge API] Sincronização finalizada: ${allData.length} registros em ${totalTimeMinutes} minutos (${page - 1} páginas)`
+    );
     return allData;
   }
 
@@ -398,10 +498,7 @@ export class SiengeApiClient {
   }
 
   // Método para criar dados
-  async createData<T = any>(
-    endpoint: string,
-    data: any
-  ): Promise<T> {
+  async createData<T = any>(endpoint: string, data: any): Promise<T> {
     const response = await this.makeRequest<T>({
       method: 'POST',
       url: endpoint,
@@ -412,10 +509,7 @@ export class SiengeApiClient {
   }
 
   // Método para atualizar dados
-  async updateData<T = any>(
-    endpoint: string,
-    data: any
-  ): Promise<T> {
+  async updateData<T = any>(endpoint: string, data: any): Promise<T> {
     const response = await this.makeRequest<T>({
       method: 'PUT',
       url: endpoint,
@@ -426,9 +520,7 @@ export class SiengeApiClient {
   }
 
   // Método para deletar dados
-  async deleteData<T = any>(
-    endpoint: string
-  ): Promise<T> {
+  async deleteData<T = any>(endpoint: string): Promise<T> {
     const response = await this.makeRequest<T>({
       method: 'DELETE',
       url: endpoint,
