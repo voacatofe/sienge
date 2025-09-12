@@ -12,11 +12,11 @@ datasource db {
 model ApiCredentials {
   id              Int      @id @default(autoincrement())
   subdomain       String   @unique
-  apiUser         String
-  apiPasswordHash String   // SENSITIVE: Hash bcrypt/argon2 da senha da API
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  isActive        Boolean  @default(true)
+  apiUser         String   @map("api_user")
+  apiPasswordHash String   @map("api_password_hash") // SENSITIVE: Hash bcrypt/argon2 da senha da API
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  isActive        Boolean  @default(true) @map("is_active")
 
   @@index([subdomain])
   @@index([isActive])

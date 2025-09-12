@@ -30,18 +30,6 @@ export interface SiengeCostCenter {
   dataAtualizacao?: string;
 }
 
-export interface SiengeFinancialStatement {
-  id: number;
-  idCliente: number;
-  tipo: string;
-  valor: number;
-  dataVencimento: string;
-  status: string;
-  observacoes?: string;
-  dataCadastro: string;
-  dataAtualizacao?: string;
-}
-
 export interface SiengeProject {
   id: number;
   nome: string;
@@ -106,7 +94,6 @@ export interface SiengeQueryParams {
 export type SiengeEndpoint = 
   | '/customers'
   | '/cost-centers'
-  | '/customer-financial-statements'
   | '/projects'
   | '/contracts';
 

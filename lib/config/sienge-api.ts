@@ -4,7 +4,6 @@ import { SyncConfig, SiengeEndpoint } from '../types/sienge-api';
 export const SIENGE_ENDPOINTS = {
   CUSTOMERS: '/customers' as SiengeEndpoint,
   COST_CENTERS: '/cost-centers' as SiengeEndpoint,
-  FINANCIAL_STATEMENTS: '/customer-financial-statements' as SiengeEndpoint,
   PROJECTS: '/projects' as SiengeEndpoint,
   CONTRACTS: '/contracts' as SiengeEndpoint,
 } as const;
@@ -20,13 +19,6 @@ export const SYNC_CONFIGS: Record<SiengeEndpoint, SyncConfig> = {
   },
   '/cost-centers': {
     endpoint: '/cost-centers',
-    batchSize: 200,
-    maxRetries: 3,
-    retryDelay: 1000,
-    enabled: true,
-  },
-  '/customer-financial-statements': {
-    endpoint: '/customer-financial-statements',
     batchSize: 200,
     maxRetries: 3,
     retryDelay: 1000,
@@ -52,7 +44,6 @@ export const SYNC_CONFIGS: Record<SiengeEndpoint, SyncConfig> = {
 export const ENDPOINT_TO_ENTITY: Record<SiengeEndpoint, string> = {
   '/customers': 'customers',
   '/cost-centers': 'cost_centers',
-  '/customer-financial-statements': 'financial_statements',
   '/projects': 'projects',
   '/contracts': 'contracts',
 };
@@ -61,7 +52,6 @@ export const ENDPOINT_TO_ENTITY: Record<SiengeEndpoint, string> = {
 export const ENTITY_TO_ENDPOINT: Record<string, SiengeEndpoint> = {
   customers: '/customers',
   cost_centers: '/cost-centers',
-  financial_statements: '/customer-financial-statements',
   projects: '/projects',
   contracts: '/contracts',
 };

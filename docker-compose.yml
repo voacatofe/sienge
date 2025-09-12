@@ -4,207 +4,75 @@ services:
     image: postgres:15-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-sienge_data}
+      POSTGRES_DB: ${POSTGRES_DB:-sienge_dev}
       POSTGRES_USER: ${POSTGRES_USER:-sienge_app}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-senha_forte}
     ports:
-      - '${DB_PORT_EXTERNAL:-5432}:${DB_PORT_INTERNAL:-5432}'
+      - '${DB_PORT_EXTERNAL:-5432}:5432'
     volumes:
       - postgres-data:/var/lib/postgresql/data
     networks:
       - sienge-network
     healthcheck:
-      test:
-        [
-          'CMD-SHELL',
-          'pg_isready -U ${POSTGRES_USER:-sienge_app} -d ${POSTGRES_DB:-sienge_data}',
-        ]
-      interval: ${DB_HEALTH_INTERVAL:-30s}
-      timeout: ${DB_HEALTH_TIMEOUT:-10s}
+      test: pg_isready -U ${POSTGRES_USER:-sienge_app} -d ${POSTGRES_DB:-sienge_dev}
+      interval: 30s
+      timeout: 10s
       retries: 3
-    # Configurações de segurança e recursos
-    security_opt:
-      - no-new-privileges:true
-    deploy:
-      resources:
-        limits:
-          memory: ${DB_MEMORY_LIMIT:-1G}
-          cpus: '${DB_CPU_LIMIT:-1.0}'
-        reservations:
-          memory: ${DB_MEMORY_RESERVATION:-512M}
-          cpus: '${DB_CPU_RESERVATION:-0.5}'
-    # Configurações de logging
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "${DB_LOG_MAX_SIZE:-10m}"
-        max-file: "${DB_LOG_MAX_FILES:-3}"
-
-  # pgBouncer - Connection Pooler
-  pgbouncer:
-    image: pgbouncer/pgbouncer:latest
-    restart: unless-stopped
-    environment:
-      DATABASES_HOST: ${POSTGRES_HOST:-db}
-      DATABASES_PORT: ${POSTGRES_PORT:-5432}
-      DATABASES_USER: ${POSTGRES_USER:-sienge_app}
-      DATABASES_PASSWORD: ${POSTGRES_PASSWORD:-senha_forte}
-      DATABASES_DBNAME: ${POSTGRES_DB:-sienge_data}
-      POOL_MODE: transaction
-      MAX_CLIENT_CONN: 100
-      DEFAULT_POOL_SIZE: 20
-      RESERVE_POOL_SIZE: 5
-      RESERVE_POOL_TIMEOUT: 5
-      MAX_DB_CONNECTIONS: 0
-      MAX_USER_CONNECTIONS: 0
-      SERVER_RESET_QUERY: DISCARD ALL
-      LISTEN_PORT: 6432
-      LISTEN_ADDR: 0.0.0.0
-      AUTH_TYPE: md5
-      AUTH_FILE: /etc/pgbouncer/userlist.txt
-      LOG_CONNECTIONS: 1
-      LOG_DISCONNECTIONS: 1
-      LOG_POOLER_ERRORS: 1
-    ports:
-      - '${PGBOUNCER_PORT_EXTERNAL:-6432}:6432'
-    depends_on:
-      db:
-        condition: service_healthy
-    networks:
-      - sienge-network
-    volumes:
-      - ./scripts/pgbouncer/userlist.txt:/etc/pgbouncer/userlist.txt:ro
-      - ./scripts/pgbouncer/pgbouncer.ini:/etc/pgbouncer/pgbouncer.ini:ro
-    healthcheck:
-      test: ['CMD', 'pg_isready', '-h', 'localhost', '-p', '6432', '-U', '${POSTGRES_USER:-sienge_app}']
-      interval: ${PGBOUNCER_HEALTH_INTERVAL:-30s}
-      timeout: ${PGBOUNCER_HEALTH_TIMEOUT:-10s}
-      retries: 3
-    # Configurações de segurança e recursos
-    security_opt:
-      - no-new-privileges:true
-    deploy:
-      resources:
-        limits:
-          memory: ${PGBOUNCER_MEMORY_LIMIT:-256M}
-          cpus: '${PGBOUNCER_CPU_LIMIT:-0.5}'
-        reservations:
-          memory: ${PGBOUNCER_MEMORY_RESERVATION:-128M}
-          cpus: '${PGBOUNCER_CPU_RESERVATION:-0.25}'
-    # Configurações de logging
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "${PGBOUNCER_LOG_MAX_SIZE:-5m}"
-        max-file: "${PGBOUNCER_LOG_MAX_FILES:-3}"
 
   # Aplicação Next.js
   app:
     build:
       context: .
       dockerfile: Dockerfile
-      args:
-        NODE_ENV: ${NODE_ENV:-development}
-        BUILD_TARGET: ${BUILD_TARGET:-development}
     restart: unless-stopped
     environment:
-      - NODE_ENV=${NODE_ENV:-development}
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sienge_app}:${POSTGRES_PASSWORD:-senha_forte}@${PGBOUNCER_HOST:-pgbouncer}:${PGBOUNCER_PORT:-6432}/${POSTGRES_DB:-sienge_data}?schema=public
-      - DATABASE_URL_DIRECT=postgresql://${POSTGRES_USER:-sienge_app}:${POSTGRES_PASSWORD:-senha_forte}@${POSTGRES_HOST:-db}:${POSTGRES_PORT:-5432}/${POSTGRES_DB:-sienge_data}?schema=public
-      - POSTGRES_HOST=${POSTGRES_HOST:-db}
-      - POSTGRES_PORT=${POSTGRES_PORT:-5432}
-      - POSTGRES_USER=${POSTGRES_USER:-sienge_app}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-senha_forte}
-      - POSTGRES_DB=${POSTGRES_DB:-sienge_data}
-      - PGBOUNCER_HOST=${PGBOUNCER_HOST:-pgbouncer}
-      - PGBOUNCER_PORT=${PGBOUNCER_PORT:-6432}
-      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
-      - SIENGE_SUBDOMAIN=${SIENGE_SUBDOMAIN}
-      - SIENGE_USERNAME=${SIENGE_USERNAME}
-      - SIENGE_PASSWORD=${SIENGE_PASSWORD}
-      - SYNC_SCHEDULE=${SYNC_SCHEDULE:-0 2 * * *}
-      - SYNC_BATCH_SIZE=${SYNC_BATCH_SIZE:-200}
-      - SYNC_MAX_RETRIES=${SYNC_MAX_RETRIES:-3}
-      - EXTERNAL_DB_URL=postgresql://${POSTGRES_USER:-sienge_app}:${POSTGRES_PASSWORD:-senha_forte}@${POSTGRES_HOST_EXTERNAL:-localhost}:${DB_PORT_EXTERNAL:-5432}/${POSTGRES_DB:-sienge_data}
+      # Banco de dados
+      DATABASE_URL: ${DATABASE_URL:-postgresql://${POSTGRES_USER:-sienge_app}:${POSTGRES_PASSWORD:-senha_forte}@${POSTGRES_HOST:-db}:${POSTGRES_PORT:-5432}/${POSTGRES_DB:-sienge_dev}?schema=public}
+      POSTGRES_HOST: ${POSTGRES_HOST:-db}
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+      POSTGRES_USER: ${POSTGRES_USER:-sienge_app}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-senha_forte}
+      POSTGRES_DB: ${POSTGRES_DB:-sienge_dev}
+      
+      # API Sienge
+      SIENGE_SUBDOMAIN: ${SIENGE_SUBDOMAIN}
+      SIENGE_USERNAME: ${SIENGE_USERNAME}
+      SIENGE_PASSWORD: ${SIENGE_PASSWORD}
+      
+      # Aplicação
+      NODE_ENV: ${NODE_ENV:-production}
+      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+      NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:3000}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      
+      # Segurança
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+      JWT_SECRET: ${JWT_SECRET}
+      
+      # Sistema
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      SYNC_BATCH_SIZE: ${SYNC_BATCH_SIZE:-50}
+      SYNC_MAX_RETRIES: ${SYNC_MAX_RETRIES:-3}
+      RATE_LIMIT_CREDENTIALS_MAX: ${RATE_LIMIT_CREDENTIALS_MAX:-10}
+      RATE_LIMIT_CREDENTIALS_WINDOW: ${RATE_LIMIT_CREDENTIALS_WINDOW:-300000}
+      DATABASE_CONNECTION_LIMIT: ${DATABASE_CONNECTION_LIMIT:-10}
     ports:
-      - '${APP_PORT_EXTERNAL:-3000}:${APP_PORT_INTERNAL:-3000}'
+      - '${APP_PORT_EXTERNAL:-3000}:3000'
     depends_on:
       db:
-        condition: service_healthy
-      pgbouncer:
         condition: service_healthy
     networks:
       - sienge-network
     volumes:
       - ./logs:/app/logs
     healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:3000/api/health']
-      interval: ${APP_HEALTH_INTERVAL:-30s}
-      timeout: ${APP_HEALTH_TIMEOUT:-10s}
+      test: ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:3000/api/health']
+      interval: 30s
+      timeout: 10s
       retries: 3
-    # Configurações de segurança e recursos
-    security_opt:
-      - no-new-privileges:true
-    deploy:
-      resources:
-        limits:
-          memory: ${APP_MEMORY_LIMIT:-2G}
-          cpus: '${APP_CPU_LIMIT:-2.0}'
-        reservations:
-          memory: ${APP_MEMORY_RESERVATION:-1G}
-          cpus: '${APP_CPU_RESERVATION:-1.0}'
-    # Configurações de logging
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "${APP_LOG_MAX_SIZE:-10m}"
-        max-file: "${APP_LOG_MAX_FILES:-3}"
-
-  # pgAdmin - Administração do Banco de Dados
-  pgadmin:
-    image: dpage/pgadmin4:latest
-    restart: unless-stopped
-    environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@sienge.local}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-senha_forte_pgadmin}
-      PGADMIN_CONFIG_SERVER_MODE: ${PGADMIN_SERVER_MODE:-True}
-      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: ${PGADMIN_MASTER_PASSWORD_REQUIRED:-True}
-    ports:
-      - '${PGADMIN_PORT_EXTERNAL:-8080}:80'
-    depends_on:
-      db:
-        condition: service_healthy
-    networks:
-      - sienge-network
-    volumes:
-      - pgadmin-data:/var/lib/pgadmin
-    healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:80']
-      interval: ${PGADMIN_HEALTH_INTERVAL:-30s}
-      timeout: ${PGADMIN_HEALTH_TIMEOUT:-10s}
-      retries: 3
-    # Configurações de segurança e recursos
-    security_opt:
-      - no-new-privileges:true
-    deploy:
-      resources:
-        limits:
-          memory: ${PGADMIN_MEMORY_LIMIT:-1G}
-          cpus: '${PGADMIN_CPU_LIMIT:-1.0}'
-        reservations:
-          memory: ${PGADMIN_MEMORY_RESERVATION:-512M}
-          cpus: '${PGADMIN_CPU_RESERVATION:-0.5}'
-    # Configurações de logging
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "${PGADMIN_LOG_MAX_SIZE:-10m}"
-        max-file: "${PGADMIN_LOG_MAX_FILES:-3}"
 
 volumes:
   postgres-data:
-    driver: local
-  pgadmin-data:
     driver: local
 
 networks:

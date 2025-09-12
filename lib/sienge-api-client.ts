@@ -36,7 +36,7 @@ export interface SiengeApiError {
 
 // Configurações da API Sienge
 export const SIENGE_API_CONFIG = {
-  BASE_URL_TEMPLATE: 'https://{subdomain}.sienge.com.br/api/v1',
+  BASE_URL_TEMPLATE: 'https://api.sienge.com.br/{subdomain}/public/api/v1',
   DEFAULT_PAGE_SIZE: 200,
   MAX_PAGE_SIZE: 200,
   RATE_LIMIT_PER_MINUTE: 200,
@@ -103,29 +103,37 @@ export class SiengeApiClient {
   // Carregar credenciais do banco de dados
   private async loadCredentials(): Promise<SiengeCredentials | null> {
     try {
+      // Para desenvolvimento/testes, usar variáveis de ambiente se disponíveis
+      if (process.env.SIENGE_SUBDOMAIN && process.env.SIENGE_USERNAME && process.env.SIENGE_PASSWORD) {
+        return {
+          subdomain: process.env.SIENGE_SUBDOMAIN,
+          username: process.env.SIENGE_USERNAME,
+          password: process.env.SIENGE_PASSWORD,
+        };
+      }
+
+      // Em produção, as credenciais devem vir de um sistema seguro
+      // Por enquanto, retornar erro indicando que precisa configurar
       const credentials = await prisma.apiCredentials.findFirst({
         where: { isActive: true },
         select: {
           subdomain: true,
           apiUser: true,
-          apiPasswordHash: true,
         },
       });
 
       if (!credentials) {
-        return null;
+        throw new Error('Nenhuma credencial configurada');
       }
 
-      // Para desenvolvimento, vamos usar uma senha temporária
-      // Em produção, você precisaria descriptografar o hash
-      return {
-        subdomain: credentials.subdomain,
-        username: credentials.apiUser,
-        password: 'senha_temporaria', // TODO: Implementar descriptografia
-      };
+      // Em produção, implemente uma solução segura para obter a senha
+      // Opções: AWS Secrets Manager, Azure Key Vault, variáveis de ambiente criptografadas, etc.
+      throw new Error(
+        'Sistema de credenciais não configurado. Configure SIENGE_SUBDOMAIN, SIENGE_USERNAME e SIENGE_PASSWORD nas variáveis de ambiente.'
+      );
     } catch (error) {
       console.error('Erro ao carregar credenciais:', error);
-      return null;
+      throw error;
     }
   }
 

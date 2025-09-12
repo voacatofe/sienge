@@ -1,3 +1,0 @@
-# pgBouncer User List
-# Format: "username" "password"
-"sienge_app" "md5$(echo -n 'senha_forte' | md5sum | cut -d' ' -f1)"

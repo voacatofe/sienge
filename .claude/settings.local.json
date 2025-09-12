@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker-compose up:*)",
+      "Bash(docker-compose:*)",
+      "Bash(curl:*)",
+      "Bash(docker cp:*)",
+      "Bash(rm:*)"
+    ],
+    "deny": []
+  }
+}

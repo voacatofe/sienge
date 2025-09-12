@@ -22,6 +22,11 @@ function buildDatabaseUrl(): string {
     throw new Error('DATABASE_URL environment variable is required');
   }
 
+  // Em desenvolvimento, usar conexão direta para migrações
+  if (process.env.NODE_ENV === 'development' && process.env.DATABASE_URL_DIRECT) {
+    return process.env.DATABASE_URL_DIRECT;
+  }
+
   // Adicionar parâmetros de pooling se não estiverem presentes
   const url = new URL(baseUrl);
   

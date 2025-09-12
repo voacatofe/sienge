@@ -9,7 +9,7 @@ import { checkRateLimit, credentialsRateLimiter, createRateLimitHeaders } from '
 // Função para validar credenciais contra a API Sienge (sem cache)
 async function validateSiengeCredentialsDirect(subdomain: string, username: string, password: string): Promise<boolean> {
   try {
-    const baseURL = `https://${subdomain}.sienge.com.br/api/v1`;
+    const baseURL = `https://api.sienge.com.br/${subdomain}/public/api/v1`;
     
     const response = await axios.get(`${baseURL}/customers`, {
       auth: {
@@ -172,6 +172,8 @@ export async function POST(request: NextRequest) {
         }
       });
     }
+
+    // Remover armazenamento temporário - não usar em produção
 
     return NextResponse.json({
       success: true,
