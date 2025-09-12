@@ -308,11 +308,16 @@ export class SiengeApiClient {
         let responseData: T[] = [];
         let responseHasMore = false;
 
-        // Baseado na documentação da API Sienge, a estrutura padrão é:
-        // { records: [...], resultSetMetadata: { totalRecords, offset, limit } }
+        // Baseado nos testes, a estrutura real da API Sienge é:
+        // { results: [...], resultSetMetadata: { count, offset, limit } }
         const responseDataObj = response.data as any;
-        if (Array.isArray(responseDataObj?.records)) {
-          // Estrutura padrão da API Sienge: { records: [...], resultSetMetadata: {...} }
+        if (Array.isArray(responseDataObj?.results)) {
+          // Estrutura real da API Sienge: { results: [...], resultSetMetadata: {...} }
+          responseData = responseDataObj.results;
+          responseHasMore = responseDataObj.resultSetMetadata ? 
+            (responseDataObj.resultSetMetadata.offset + responseDataObj.resultSetMetadata.limit) < responseDataObj.resultSetMetadata.count : false;
+        } else if (Array.isArray(responseDataObj?.records)) {
+          // Fallback para estrutura com records
           responseData = responseDataObj.records;
           responseHasMore = responseDataObj.resultSetMetadata ? 
             (responseDataObj.resultSetMetadata.offset + responseDataObj.resultSetMetadata.limit) < responseDataObj.resultSetMetadata.totalRecords : false;
