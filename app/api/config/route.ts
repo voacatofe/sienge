@@ -44,16 +44,22 @@ export async function POST(request: NextRequest) {
     const saltRounds = 12;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    // Verificar se já existem credenciais
-    const existingCredentials = await prisma.apiCredentials.findFirst();
-    
+    // Verificar se já existem credenciais para este subdomínio
+    const existingCredentials = await prisma.apiCredentials.findUnique({
+      where: { subdomain },
+      select: {
+        id: true,
+        apiUser: true,
+        apiPasswordHash: true
+      }
+    });
+
     if (existingCredentials) {
       // Atualizar credenciais existentes
       await prisma.apiCredentials.update({
-        where: { idApiCredential: existingCredentials.idApiCredential },
+        where: { id: existingCredentials.id },
         data: {
-          subdomain,
-          username,
+          apiUser: username,
           apiPasswordHash: hashedPassword,
           updatedAt: new Date()
         }
@@ -63,10 +69,8 @@ export async function POST(request: NextRequest) {
       await prisma.apiCredentials.create({
         data: {
           subdomain,
-          username,
-          apiPasswordHash: hashedPassword,
-          createdAt: new Date(),
-          updatedAt: new Date()
+          apiUser: username,
+          apiPasswordHash: hashedPassword
         }
       });
     }
@@ -95,9 +99,9 @@ export async function GET() {
   try {
     const credentials = await prisma.apiCredentials.findFirst({
       select: {
-        idApiCredential: true,
+        id: true,
         subdomain: true,
-        username: true,
+        apiUser: true,
         createdAt: true,
         updatedAt: true
         // Não incluir apiPasswordHash por segurança

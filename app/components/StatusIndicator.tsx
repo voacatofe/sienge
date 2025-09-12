@@ -15,10 +15,9 @@ export function StatusIndicator() {
     setSyncStatus({ isRunning: true, progress: 0 })
     
     const interval = setInterval(() => {
-      setSyncStatus(prev => ({
-        ...prev,
-        progress: Math.min((prev?.progress || 0) + 10, 100)
-      }))
+      setSyncStatus({
+        progress: Math.min((syncStatus.progress || 0) + 10, 100)
+      })
     }, 200)
 
     setTimeout(() => {
