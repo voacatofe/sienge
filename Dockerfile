@@ -19,7 +19,7 @@ FROM base AS deps
 RUN if [ "$BUILD_TARGET" = "development" ]; then \
         npm ci --ignore-scripts && npm cache clean --force; \
     else \
-        npm ci --only=production --ignore-scripts && npm cache clean --force; \
+        npm ci --ignore-scripts && npm cache clean --force; \
     fi
 
 # Stage 2: Build da aplicação (apenas para produção)
