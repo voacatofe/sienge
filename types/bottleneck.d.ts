@@ -10,6 +10,8 @@ declare module 'bottleneck' {
     timeout?: number;
     Promise?: typeof Promise;
     reservoir?: number;
+    reservoirRefreshAmount?: number;
+    reservoirRefreshInterval?: number;
   }
 
   class Bottleneck {
