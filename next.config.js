@@ -25,10 +25,6 @@ const nextConfig = {
       },
     ]
   },
-  // Configuração para desenvolvimento
-  experimental: {
-    allowedDevOrigins: ['sienge-app.hvlihi.easypanel.host'],
-  },
 }
 
 module.exports = nextConfig
