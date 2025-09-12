@@ -31,14 +31,21 @@ export async function GET(request: NextRequest) {
           isArray: Array.isArray(response)
         });
         
-      } catch (error) {
-        results[endpoint] = {
-          success: false,
-          error: error instanceof Error ? error.message : 'Erro desconhecido'
-        };
-        
-        console.error(`[Test API] Erro em ${endpoint}:`, error);
-      }
+       } catch (error) {
+         const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+         const isPermissionError = errorMessage.includes('403');
+         
+         results[endpoint] = {
+           success: false,
+           error: errorMessage,
+           isPermissionError,
+           suggestion: isPermissionError ? 
+             'Verifique as permissões do usuário da API no painel Sienge para este endpoint' : 
+             'Verifique se o endpoint está correto e se as credenciais são válidas'
+         };
+         
+         console.error(`[Test API] Erro em ${endpoint}:`, error);
+       }
     }
     
     return NextResponse.json({

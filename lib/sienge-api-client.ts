@@ -21,7 +21,13 @@ export interface SiengeCredentials {
 }
 
 export interface SiengeApiResponse<T = any> {
-  data: T[];
+  data?: T[] | any;
+  records?: T[];
+  resultSetMetadata?: {
+    totalRecords: number;
+    offset: number;
+    limit: number;
+  };
   total?: number;
   page?: number;
   limit?: number;
@@ -302,7 +308,15 @@ export class SiengeApiClient {
         let responseData: T[] = [];
         let responseHasMore = false;
 
-        if (Array.isArray(response.data)) {
+        // Baseado na documentação da API Sienge, a estrutura padrão é:
+        // { records: [...], resultSetMetadata: { totalRecords, offset, limit } }
+        const responseDataObj = response.data as any;
+        if (Array.isArray(responseDataObj?.records)) {
+          // Estrutura padrão da API Sienge: { records: [...], resultSetMetadata: {...} }
+          responseData = responseDataObj.records;
+          responseHasMore = responseDataObj.resultSetMetadata ? 
+            (responseDataObj.resultSetMetadata.offset + responseDataObj.resultSetMetadata.limit) < responseDataObj.resultSetMetadata.totalRecords : false;
+        } else if (Array.isArray(response.data)) {
           // Resposta é um array direto
           responseData = response.data;
           responseHasMore = false; // Se é array direto, não há paginação
@@ -310,7 +324,12 @@ export class SiengeApiClient {
           const responseObj = response.data as any; // Type assertion para flexibilidade
           
           // Resposta é um objeto com propriedades
-          if (Array.isArray(responseObj.data)) {
+          if (Array.isArray(responseObj.records)) {
+            // Estrutura: { data: { records: [...], resultSetMetadata: {...} } }
+            responseData = responseObj.records;
+            responseHasMore = responseObj.resultSetMetadata ? 
+              (responseObj.resultSetMetadata.offset + responseObj.resultSetMetadata.limit) < responseObj.resultSetMetadata.totalRecords : false;
+          } else if (Array.isArray(responseObj.data)) {
             // Estrutura: { data: [...], hasMore: boolean }
             responseData = responseObj.data;
             responseHasMore = responseObj.hasMore || false;

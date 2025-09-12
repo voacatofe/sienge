@@ -100,10 +100,22 @@ export async function POST(request: NextRequest) {
 
       } catch (error) {
         totalErrors++;
+        
+        // Tratamento específico para erro 403 (permissão negada)
+        let errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+        let isPermissionError = false;
+        
+        if (error instanceof Error && error.message.includes('403')) {
+          errorMessage = `Permissão negada para acessar ${entity}. Verifique as permissões do usuário da API no painel Sienge.`;
+          isPermissionError = true;
+        }
+        
         results.push({
           entity,
           success: false,
-          error: error instanceof Error ? error.message : 'Erro desconhecido'
+          count: 0,
+          message: errorMessage,
+          isPermissionError
         });
       }
     }
