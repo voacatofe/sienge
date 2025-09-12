@@ -97,52 +97,52 @@ services:
         max-size: '${APP_LOG_MAX_SIZE:-10m}'
         max-file: '${APP_LOG_MAX_FILES:-3}'
 
-  # pgAdmin - Administração do Banco de Dados
-  pgadmin:
-    image: dpage/pgadmin4:latest
-    restart: unless-stopped
-    environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@sienge.local}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-senha_forte_pgadmin}
-      PGADMIN_CONFIG_SERVER_MODE: ${PGADMIN_SERVER_MODE:-True}
-      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: ${PGADMIN_MASTER_PASSWORD_REQUIRED:-True}
-    ports:
-      - '${PGADMIN_PORT_EXTERNAL:-8080}:80'
-    depends_on:
-      db:
-        condition: service_healthy
-    networks:
-      - sienge-network
-    volumes:
-      - pgadmin-data:/var/lib/pgadmin
-    healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:80']
-      interval: ${PGADMIN_HEALTH_INTERVAL:-30s}
-      timeout: ${PGADMIN_HEALTH_TIMEOUT:-10s}
-      retries: 3
-    # Configurações de segurança e recursos
-    security_opt:
-      - no-new-privileges:true
-    deploy:
-      resources:
-        limits:
-          memory: ${PGADMIN_MEMORY_LIMIT:-1G}
-          cpus: '${PGADMIN_CPU_LIMIT:-1.0}'
-        reservations:
-          memory: ${PGADMIN_MEMORY_RESERVATION:-512M}
-          cpus: '${PGADMIN_CPU_RESERVATION:-0.5}'
-    # Configurações de logging
-    logging:
-      driver: 'json-file'
-      options:
-        max-size: '${PGADMIN_LOG_MAX_SIZE:-10m}'
-        max-file: '${PGADMIN_LOG_MAX_FILES:-3}'
+  # pgAdmin - Administração do Banco de Dados (DESABILITADO - usando DbVisualizer)
+  # pgadmin:
+  #   image: dpage/pgadmin4:latest
+  #   restart: unless-stopped
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@sienge.local}
+  #     PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-senha_forte_pgadmin}
+  #     PGADMIN_CONFIG_SERVER_MODE: ${PGADMIN_SERVER_MODE:-True}
+  #     PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: ${PGADMIN_MASTER_PASSWORD_REQUIRED:-True}
+  #   ports:
+  #     - '${PGADMIN_PORT_EXTERNAL:-8080}:80'
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
+  #   networks:
+  #     - sienge-network
+  #   volumes:
+  #     - pgadmin-data:/var/lib/pgadmin
+  #   healthcheck:
+  #     test: ['CMD', 'curl', '-f', 'http://localhost:80']
+  #     interval: ${PGADMIN_HEALTH_INTERVAL:-30s}
+  #     timeout: ${PGADMIN_HEALTH_TIMEOUT:-10s}
+  #     retries: 3
+  #   # Configurações de segurança e recursos
+  #   security_opt:
+  #     - no-new-privileges:true
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         memory: ${PGADMIN_MEMORY_LIMIT:-1G}
+  #         cpus: '${PGADMIN_CPU_LIMIT:-1.0}'
+  #       reservations:
+  #         memory: ${PGADMIN_MEMORY_RESERVATION:-512M}
+  #         cpus: '${PGADMIN_CPU_RESERVATION:-0.5}'
+  #   # Configurações de logging
+  #   logging:
+  #     driver: 'json-file'
+  #     options:
+  #       max-size: '${PGADMIN_LOG_MAX_SIZE:-10m}'
+  #       max-file: '${PGADMIN_LOG_MAX_FILES:-3}'
 
 volumes:
   postgres-data:
     driver: local
-  pgadmin-data:
-    driver: local
+  # pgadmin-data: (comentado - usando DbVisualizer)
+  #   driver: local
 
 networks:
   sienge-network:
