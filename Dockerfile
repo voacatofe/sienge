@@ -42,9 +42,6 @@ COPY --from=deps /app/node_modules ./node_modules
 # Copiar código fonte
 COPY . .
 
-# Copiar build de produção se existir
-COPY --from=builder /app/.next ./.next
-
 # Copiar script de entrypoint
 COPY scripts/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
