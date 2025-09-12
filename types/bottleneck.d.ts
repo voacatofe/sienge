@@ -41,6 +41,7 @@ declare module 'bottleneck' {
 
     stop(): Promise<void>;
     updateSettings(options: Partial<BottleneckOptions>): void;
+    done(): Promise<void>;
   }
 
   export = Bottleneck;
