@@ -284,60 +284,34 @@
         "dependencies": [
           4
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
-            "title": "Design Responsive Credentials Input Form",
-            "description": "Create a responsive React form using Next.js App Router with fields for subdomain, API user, and password, ensuring accessibility and mobile compatibility.",
+            "title": "Design and Implement Responsive Credentials Form",
+            "description": "Create a responsive React form using Next.js App Router and React Hook Form (v7+) with fields for subdomain, API user, and password. Ensure password input is masked and provide real-time validation feedback for all fields.",
             "dependencies": [],
-            "details": "Implement the form layout and structure, using semantic HTML and Tailwind CSS for responsiveness. Ensure the password field is masked and all fields are clearly labeled.",
-            "status": "pending",
-            "testStrategy": "Verify the form renders correctly on various devices and screen sizes. Check that all fields are accessible via keyboard and screen readers."
+            "details": "The form should adapt to different screen sizes, use React Hook Form for efficient state management and validation, and display validation errors as the user types. Password input must be masked for security. Use accessible components and ensure the UI is user-friendly.",
+            "status": "done",
+            "testStrategy": ""
           },
           {
             "id": 2,
-            "title": "Implement Real-Time Validation with React Hook Form",
-            "description": "Integrate React Hook Form (v7+) to provide real-time validation for all input fields, displaying clear error messages for invalid entries.",
-            "dependencies": [
-              "5.1"
-            ],
-            "details": "Configure validation rules for subdomain, API user, and password fields. Display inline error messages and prevent submission on validation failure.",
-            "status": "pending",
-            "testStrategy": "Test with valid and invalid inputs to ensure errors are shown appropriately and form submission is blocked when validation fails."
+            "title": "Implement Secure Submission and Feedback Handling",
+            "description": "On form submission, POST credentials to /api/config using HTTPS. Show loading, error, and success states. Provide clear feedback to the user about the credential status.",
+            "dependencies": [],
+            "details": "Ensure all API calls use HTTPS. Display a loading indicator during submission, and show appropriate error or success messages based on the API response. Prevent duplicate submissions and handle edge cases such as network failures.",
+            "status": "done",
+            "testStrategy": ""
           },
           {
             "id": 3,
-            "title": "Handle Secure Form Submission and API Integration",
-            "description": "On successful validation, POST credentials to /api/config using HTTPS, showing loading, error, and success states in the UI.",
-            "dependencies": [
-              "5.2"
-            ],
-            "details": "Implement secure API call logic, handle asynchronous states, and ensure credentials are transmitted only over HTTPS. Mask sensitive data in transit.",
-            "status": "pending",
-            "testStrategy": "Simulate API responses (success, error, network failure) and verify correct UI feedback and secure transmission."
-          },
-          {
-            "id": 4,
-            "title": "Integrate Secure Storage for Credentials",
-            "description": "Ensure credentials are securely stored on the backend, following best practices for encryption and sensitive data handling.",
-            "dependencies": [
-              "5.3"
-            ],
-            "details": "Coordinate with backend to verify credentials are encrypted at rest and not logged. Update UI to reflect secure storage status if needed.",
-            "status": "pending",
-            "testStrategy": "Review backend storage implementation, attempt to retrieve stored credentials, and confirm encryption. Check logs for absence of sensitive data."
-          },
-          {
-            "id": 5,
-            "title": "Provide Clear Credential Status and Feedback",
-            "description": "Display real-time feedback to users on the status of their credentials, including success, error, and loading indicators.",
-            "dependencies": [
-              "5.3"
-            ],
-            "details": "Implement UI components for status messages and ensure feedback is accessible and unambiguous. Update feedback based on API responses.",
-            "status": "pending",
-            "testStrategy": "Trigger all possible states (loading, error, success) and verify that users receive clear, actionable feedback."
+            "title": "Integrate Secure Storage and Authentication System",
+            "description": "Encrypt sensitive credential data before storage and integrate with the authentication system to ensure only authorized users can configure or access API credentials.",
+            "dependencies": [],
+            "details": "Use strong encryption (e.g., Argon2 or bcrypt for passwords) before storing credentials. Ensure the backend API route (/api/config) verifies user authentication and authorization before accepting or returning credentials. Follow best practices for secure credential handling and storage.",
+            "status": "done",
+            "testStrategy": ""
           }
         ]
       },
@@ -1022,7 +996,7 @@
     ],
     "metadata": {
       "created": "2025-09-10T02:38:01.454Z",
-      "updated": "2025-09-12T12:46:23.091Z",
+      "updated": "2025-09-12T12:50:05.698Z",
       "description": "Tasks for master context"
     }
   }

@@ -17,9 +17,9 @@ COPY package*.json ./
 # Stage 1: Instalar dependências baseado no ambiente
 FROM base AS deps
 RUN if [ "$BUILD_TARGET" = "development" ]; then \
-        npm ci && npm cache clean --force; \
+        npm ci --ignore-scripts && npm cache clean --force; \
     else \
-        npm ci --only=production && npm cache clean --force; \
+        npm ci --only=production --ignore-scripts && npm cache clean --force; \
     fi
 
 # Stage 2: Build da aplicação (apenas para produção)
