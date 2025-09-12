@@ -20,7 +20,8 @@ wait_for_db() {
     local attempt=1
     
     while [ $attempt -le $max_attempts ]; do
-        if pg_isready -h ${POSTGRES_HOST:-db} -p ${POSTGRES_PORT:-5432} -U ${POSTGRES_USER:-sienge_dev} -d ${POSTGRES_DB:-sienge_dev} > /dev/null 2>&1; then
+        # Usar nc (netcat) para testar conectividade TCP
+        if nc -z ${POSTGRES_HOST:-db} ${POSTGRES_PORT:-5432} 2>/dev/null; then
             log "✅ Banco de dados está disponível!"
             return 0
         fi
@@ -59,7 +60,7 @@ generate_client() {
 verify_connection() {
     log "🔍 Verificando conexão com o banco de dados..."
     
-    if pg_isready -h ${POSTGRES_HOST:-db} -p ${POSTGRES_PORT:-5432} -U ${POSTGRES_USER:-sienge_dev} -d ${POSTGRES_DB:-sienge_dev} > /dev/null 2>&1; then
+    if nc -z ${POSTGRES_HOST:-db} ${POSTGRES_PORT:-5432} 2>/dev/null; then
         log "✅ Conexão com banco de dados verificada!"
         return 0
     else

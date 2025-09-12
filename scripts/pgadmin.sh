@@ -54,7 +54,7 @@ else
         export $(grep -v '^#' .env.dev | xargs)
     fi
     CONTAINER_NAME="sienge-pgadmin-dev"
-    COMPOSE_FILE="docker-compose-dev.yml"
+    COMPOSE_FILE="docker-compose.yml"
 fi
 
 # Configurações baseadas no ambiente
@@ -101,8 +101,8 @@ echo -e "  ${GREEN}Email:${NC} $EMAIL"
 echo -e "  ${GREEN}Senha:${NC} $PASSWORD"
 echo ""
 echo -e "${BLUE}📊 Configuração do Banco de Dados:${NC}"
-echo -e "  ${GREEN}Host:${NC} db"
-echo -e "  ${GREEN}Porta:${NC} 5432"
+echo -e "  ${GREEN}Host:${NC} ${POSTGRES_HOST:-db}"
+echo -e "  ${GREEN}Porta:${NC} ${POSTGRES_PORT:-5432}"
 echo -e "  ${GREEN}Banco:${NC} $DB_NAME"
 echo -e "  ${GREEN}Usuário:${NC} $DB_USER"
 echo ""
@@ -123,3 +123,4 @@ else
 fi
 
 echo -e "${CYAN}===============================${NC}"
+

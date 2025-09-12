@@ -1,4 +1,4 @@
-# Dockerfile único para Desenvolvimento e Produção
+# Dockerfile único otimizado para Dev e Prod
 FROM node:18-alpine AS base
 
 # Build arguments para controlar o ambiente
@@ -6,7 +6,7 @@ ARG NODE_ENV=production
 ARG BUILD_TARGET=production
 
 # Instalar dependências necessárias para o Alpine
-RUN apk add --no-cache libc6-compat curl
+RUN apk add --no-cache libc6-compat curl bash
 
 # Definir diretório de trabalho
 WORKDIR /app
@@ -14,15 +14,37 @@ WORKDIR /app
 # Copiar arquivos de dependências
 COPY package*.json ./
 
-# Instalar dependências baseado no ambiente
+# Stage 1: Instalar dependências baseado no ambiente
+FROM base AS deps
 RUN if [ "$BUILD_TARGET" = "development" ]; then \
         npm ci && npm cache clean --force; \
     else \
         npm ci --only=production && npm cache clean --force; \
     fi
 
+# Stage 2: Build da aplicação (apenas para produção)
+FROM base AS builder
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+# Gerar cliente Prisma
+RUN npx prisma generate
+
+# Build apenas para produção
+RUN if [ "$BUILD_TARGET" = "production" ]; then npm run build; fi
+
+# Stage 3: Runtime
+FROM base AS runner
+
+# Copiar dependências
+COPY --from=deps /app/node_modules ./node_modules
+
 # Copiar código fonte
 COPY . .
+
+# Copiar script de entrypoint
+COPY scripts/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 # Criar usuário não-root
 RUN addgroup --system --gid 1001 nodejs
@@ -44,9 +66,12 @@ EXPOSE 3000
 ENV PORT=3000
 ENV NODE_ENV=${NODE_ENV}
 
-# Comando de inicialização baseado no ambiente
+# Definir entrypoint personalizado
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+
+# Comando baseado no ambiente
 CMD if [ "$NODE_ENV" = "development" ]; then \
         npm run dev; \
     else \
-        npm run build && npm start; \
+        npm start; \
     fi

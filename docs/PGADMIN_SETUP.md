@@ -268,3 +268,4 @@ O pgAdmin se integra perfeitamente com os scripts existentes:
 ---
 
 **🎉 Agora você tem uma ferramenta completa para administrar seu banco de dados PostgreSQL!**
+
