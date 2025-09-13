@@ -5,10 +5,11 @@
       "Bash(docker-compose:*)",
       "Bash(curl:*)",
       "Bash(docker cp:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(find:*)"
     ],
     "deny": []
   },
-  "enabledMcpjsonServers": ["task-master-ai"],
-  "enableAllProjectMcpServers": true
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": ["task-master-ai"]
 }

@@ -4,9 +4,9 @@ services:
     image: postgres:15-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-sienge_data}
-      POSTGRES_USER: ${POSTGRES_USER:-sienge_app}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-senha_forte}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - '${DB_PORT_EXTERNAL:-5432}:${DB_PORT_INTERNAL:-5432}'
     volumes:
@@ -50,21 +50,20 @@ services:
         BUILD_TARGET: ${BUILD_TARGET:-development}
     restart: unless-stopped
     environment:
-      - NODE_ENV=${NODE_ENV:-development}
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sienge_app}:${POSTGRES_PASSWORD:-senha_forte}@${POSTGRES_HOST:-db}:${POSTGRES_PORT:-5432}/${POSTGRES_DB:-sienge_data}
-      - POSTGRES_HOST=${POSTGRES_HOST:-db}
-      - POSTGRES_PORT=${POSTGRES_PORT:-5432}
-      - POSTGRES_USER=${POSTGRES_USER:-sienge_app}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-senha_forte}
-      - POSTGRES_DB=${POSTGRES_DB:-sienge_data}
-      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
-      - SIENGE_SUBDOMAIN=${SIENGE_SUBDOMAIN}
-      - SIENGE_USERNAME=${SIENGE_USERNAME}
-      - SIENGE_PASSWORD=${SIENGE_PASSWORD}
-      - SYNC_SCHEDULE=${SYNC_SCHEDULE:-0 2 * * *}
-      - SYNC_BATCH_SIZE=${SYNC_BATCH_SIZE:-200}
-      - SYNC_MAX_RETRIES=${SYNC_MAX_RETRIES:-3}
-      - EXTERNAL_DB_URL=postgresql://${POSTGRES_USER:-sienge_app}:${POSTGRES_PASSWORD:-senha_forte}@${POSTGRES_HOST_EXTERNAL:-localhost}:${DB_PORT_EXTERNAL:-5432}/${POSTGRES_DB:-sienge_data}
+      - NODE_ENV=production
+      - DATABASE_URL
+      - POSTGRES_HOST
+      - POSTGRES_PORT
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_DB
+      - NEXT_PUBLIC_APP_URL
+      - SIENGE_SUBDOMAIN
+      - SIENGE_USERNAME
+      - SIENGE_PASSWORD
+      - SYNC_SCHEDULE
+      - SYNC_BATCH_SIZE
+      - SYNC_MAX_RETRIES
     ports:
       - '${APP_PORT_EXTERNAL:-3000}:${APP_PORT_INTERNAL:-3000}'
     depends_on:

@@ -19,7 +19,7 @@ FROM base AS deps
 RUN if [ "$BUILD_TARGET" = "development" ]; then \
         npm ci --ignore-scripts && npm cache clean --force; \
     else \
-        npm ci --ignore-scripts && npm cache clean --force; \
+        npm ci --include=dev --ignore-scripts && npm cache clean --force; \
     fi
 
 # Stage 2: Build da aplicação (apenas para produção)
@@ -33,17 +33,21 @@ RUN npx prisma generate
 # Build sempre para produção (EasyPanel)
 RUN npm run build
 
-# Stage 3: Runtime
+# Stage 3: Runtime otimizado
 FROM base AS runner
 
-# Copiar dependências
-COPY --from=deps /app/node_modules ./node_modules
+# Copiar apenas dependências de produção
+COPY --from=builder /app/node_modules ./node_modules
 
-# Copiar código fonte INCLUINDO prisma/schema.prisma
-COPY . .
+# Copiar arquivos essenciais
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/scripts ./scripts
 
-# Copiar build de produção
-COPY --from=builder /app/.next ./.next
+# Copiar build de produção otimizado (standalone)
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/public ./public
 
 # Garantir que o Prisma CLI está disponível
 RUN npm install -g prisma@latest

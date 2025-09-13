@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 export async function GET(request: NextRequest) {
   try {
     // Estatísticas gerais dos dados
@@ -13,9 +16,9 @@ export async function GET(request: NextRequest) {
           syncStartedAt: true,
           entityType: true,
           recordsProcessed: true,
-          status: true
-        }
-      })
+          status: true,
+        },
+      }),
     ]);
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
@@ -27,46 +30,45 @@ export async function GET(request: NextRequest) {
         customers: {
           total: customersCount,
           endpoint: `${baseUrl}/api/data/customers`,
-          description: 'Dados dos clientes sincronizados'
+          description: 'Dados dos clientes sincronizados',
         },
         companies: {
           total: companiesCount,
           endpoint: `${baseUrl}/api/data/companies`,
-          description: 'Dados das empresas sincronizadas'
+          description: 'Dados das empresas sincronizadas',
         },
         syncLogs: {
           endpoint: `${baseUrl}/api/data/sync-logs`,
-          description: 'Logs de sincronização'
-        }
+          description: 'Logs de sincronização',
+        },
       },
       lastSync,
       powerBI: {
         quickStart: {
           customers: `${baseUrl}/api/data/customers?limit=1000`,
           companies: `${baseUrl}/api/data/companies?limit=1000`,
-          syncLogs: `${baseUrl}/api/data/sync-logs?limit=1000`
+          syncLogs: `${baseUrl}/api/data/sync-logs?limit=1000`,
         },
         instructions: [
           '1. Abra o Power BI Desktop',
           '2. Clique em "Obter Dados" > "Web"',
           '3. Cole uma das URLs acima',
-          '4. Clique em "OK" para carregar'
-        ]
+          '4. Clique em "OK" para carregar',
+        ],
       },
       meta: {
         version: '1.0.0',
         lastUpdated: new Date().toISOString(),
-        documentation: `${baseUrl}/api/data/docs`
-      }
+        documentation: `${baseUrl}/api/data/docs`,
+      },
     });
-
   } catch (error) {
     console.error('[Data API] Erro ao gerar dashboard:', error);
     return NextResponse.json(
-      { 
-        success: false, 
+      {
+        success: false,
         error: 'Erro interno do servidor',
-        message: error instanceof Error ? error.message : 'Erro desconhecido'
+        message: error instanceof Error ? error.message : 'Erro desconhecido',
       },
       { status: 500 }
     );

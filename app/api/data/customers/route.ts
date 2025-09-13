@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -13,16 +16,16 @@ export async function GET(request: NextRequest) {
 
     // Construir filtros
     const where: any = {};
-    
+
     if (active !== null) {
       where.ativo = active;
     }
-    
+
     if (search) {
       where.OR = [
         { nomeCompleto: { contains: search, mode: 'insensitive' } },
         { email: { contains: search, mode: 'insensitive' } },
-        { cpfCnpj: { contains: search } }
+        { cpfCnpj: { contains: search } },
       ];
     }
 
@@ -38,18 +41,32 @@ export async function GET(request: NextRequest) {
           nomeSocial: true,
           cpfCnpj: true,
           email: true,
+          rg: true,
           dataNascimento: true,
           nacionalidade: true,
-          profissao: true,
-          estadoCivil: true,
           ativo: true,
           dataCadastro: true,
+          tipoCliente: {
+            select: {
+              descricao: true,
+            },
+          },
+          profissao: {
+            select: {
+              nomeProfissao: true,
+            },
+          },
+          estadoCivil: {
+            select: {
+              descricao: true,
+            },
+          },
           telefones: {
             select: {
               numero: true,
               tipo: true,
-              observacao: true
-            }
+              observacao: true,
+            },
           },
           enderecos: {
             select: {
@@ -58,13 +75,13 @@ export async function GET(request: NextRequest) {
               complemento: true,
               bairro: true,
               cep: true,
-              tipoEndereco: true
-            }
-          }
+              tipoEndereco: true,
+            },
+          },
         },
-        orderBy: { nomeCompleto: 'asc' }
+        orderBy: { nomeCompleto: 'asc' },
       }),
-      prisma.cliente.count({ where })
+      prisma.cliente.count({ where }),
     ]);
 
     return NextResponse.json({
@@ -76,22 +93,21 @@ export async function GET(request: NextRequest) {
         total,
         totalPages: Math.ceil(total / limit),
         hasNext: page * limit < total,
-        hasPrev: page > 1
+        hasPrev: page > 1,
       },
       meta: {
         endpoint: '/api/data/customers',
         description: 'Dados dos clientes sincronizados do Sienge',
-        lastUpdated: new Date().toISOString()
-      }
+        lastUpdated: new Date().toISOString(),
+      },
     });
-
   } catch (error) {
     console.error('[Data API] Erro ao buscar clientes:', error);
     return NextResponse.json(
-      { 
-        success: false, 
+      {
+        success: false,
         error: 'Erro interno do servidor',
-        message: error instanceof Error ? error.message : 'Erro desconhecido'
+        message: error instanceof Error ? error.message : 'Erro desconhecido',
       },
       { status: 500 }
     );

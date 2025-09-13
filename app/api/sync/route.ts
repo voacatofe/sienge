@@ -2,8 +2,51 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { siengeApiClient } from '@/lib/sienge-api-client';
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 interface SyncRequest {
   entities: string[];
+}
+
+// Funções auxiliares para mapeamento de dados
+async function getOrCreateTipoCliente(descricao: string): Promise<number> {
+  const tipo = await prisma.tipoCliente.upsert({
+    where: { descricao },
+    update: {},
+    create: { descricao },
+    select: { idTipoCliente: true },
+  });
+  return tipo.idTipoCliente;
+}
+
+async function getOrCreateEstadoCivil(
+  descricao: string
+): Promise<number | null> {
+  if (!descricao) return null;
+
+  const estado = await prisma.estadoCivil.upsert({
+    where: { descricao },
+    update: {},
+    create: { descricao },
+    select: { idEstadoCivil: true },
+  });
+  return estado.idEstadoCivil;
+}
+
+async function getOrCreateProfissao(nome: string): Promise<number | null> {
+  if (!nome || nome.trim() === '') return null;
+
+  const profissao = await prisma.profissao.upsert({
+    where: { nomeProfissao: nome.trim() },
+    update: {},
+    create: {
+      nomeProfissao: nome.trim(),
+      codigoProfissao: nome.trim().toLowerCase().replace(/\s+/g, '_'),
+    },
+    select: { idProfissao: true },
+  });
+  return profissao.idProfissao;
 }
 
 // Método para salvar dados de entidades no banco
@@ -30,44 +73,58 @@ async function saveEntityData(entity: string, data: any[]) {
 
 // Implementações específicas de salvamento
 async function saveCustomers(customers: any[]) {
+  console.log(`[Sync] Iniciando salvamento de ${customers.length} customers`);
+
   for (const customer of customers) {
-    await prisma.cliente.upsert({
-      where: { idCliente: customer.id },
-      update: {
-        idTipoCliente: customer.personType === 'Física' ? 1 : 2,
-        nomeCompleto: customer.name,
-        cpfCnpj: customer.cpf,
-        email: customer.email,
+    try {
+      // Buscar/criar relacionamentos
+      const idTipoCliente = await getOrCreateTipoCliente(
+        customer.personType === 'Física' ? 'Pessoa Física' : 'Pessoa Jurídica'
+      );
+      const idEstadoCivil = await getOrCreateEstadoCivil(customer.civilStatus);
+      const idProfissao = await getOrCreateProfissao(customer.profession);
+
+      // Mapear dados da API para schema do banco
+      const customerData = {
+        idTipoCliente,
+        nomeCompleto: customer.name || '',
+        cpfCnpj: customer.cpf || '',
+        email: customer.email || null,
+        rg: customer.numberIdentityCard || null,
         dataNascimento: customer.birthDate
           ? new Date(customer.birthDate)
           : null,
-        nacionalidade: customer.nationality,
-        profissao: customer.profession,
-        estadoCivil: customer.civilStatus,
+        nacionalidade: customer.nationality || null,
+        idProfissao,
+        idEstadoCivil,
         ativo: true,
         dataCadastro: customer.createdAt
           ? new Date(customer.createdAt)
           : new Date(),
-      },
-      create: {
-        idCliente: customer.id,
-        idTipoCliente: customer.personType === 'Física' ? 1 : 2, // Assumindo que 1 = PF, 2 = PJ
-        nomeCompleto: customer.name,
-        cpfCnpj: customer.cpf,
-        email: customer.email,
-        dataNascimento: customer.birthDate
-          ? new Date(customer.birthDate)
-          : null,
-        nacionalidade: customer.nationality,
-        profissao: customer.profession,
-        estadoCivil: customer.civilStatus,
-        ativo: true,
-        dataCadastro: customer.createdAt
-          ? new Date(customer.createdAt)
-          : new Date(),
-      },
-    });
+      };
+
+      await prisma.cliente.upsert({
+        where: { idCliente: customer.id },
+        update: customerData,
+        create: {
+          idCliente: customer.id,
+          ...customerData,
+        },
+      });
+
+      console.log(
+        `[Sync] Cliente salvo: ${customer.name} (ID: ${customer.id})`
+      );
+    } catch (error) {
+      console.error(
+        `[Sync] Erro ao salvar cliente ${customer.id}:`,
+        error instanceof Error ? error.message : error
+      );
+      // Continue com o próximo cliente em caso de erro
+    }
   }
+
+  console.log(`[Sync] Salvamento de customers concluído`);
 }
 
 async function saveCompanies(companies: any[]) {

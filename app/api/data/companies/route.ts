@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -13,16 +16,16 @@ export async function GET(request: NextRequest) {
 
     // Construir filtros
     const where: any = {};
-    
+
     if (active !== null) {
       where.ativo = active;
     }
-    
+
     if (search) {
       where.OR = [
         { nomeEmpresa: { contains: search, mode: 'insensitive' } },
         { nomeFantasia: { contains: search, mode: 'insensitive' } },
-        { cnpj: { contains: search } }
+        { cnpj: { contains: search } },
       ];
     }
 
@@ -38,11 +41,11 @@ export async function GET(request: NextRequest) {
           cnpj: true,
           nomeFantasia: true,
           codigoEmpresa: true,
-          ativo: true
+          ativo: true,
         },
-        orderBy: { nomeEmpresa: 'asc' }
+        orderBy: { nomeEmpresa: 'asc' },
       }),
-      prisma.empresa.count({ where })
+      prisma.empresa.count({ where }),
     ]);
 
     return NextResponse.json({
@@ -54,22 +57,21 @@ export async function GET(request: NextRequest) {
         total,
         totalPages: Math.ceil(total / limit),
         hasNext: page * limit < total,
-        hasPrev: page > 1
+        hasPrev: page > 1,
       },
       meta: {
         endpoint: '/api/data/companies',
         description: 'Dados das empresas sincronizadas do Sienge',
-        lastUpdated: new Date().toISOString()
-      }
+        lastUpdated: new Date().toISOString(),
+      },
     });
-
   } catch (error) {
     console.error('[Data API] Erro ao buscar empresas:', error);
     return NextResponse.json(
-      { 
-        success: false, 
+      {
+        success: false,
         error: 'Erro interno do servidor',
-        message: error instanceof Error ? error.message : 'Erro desconhecido'
+        message: error instanceof Error ? error.message : 'Erro desconhecido',
       },
       { status: 500 }
     );

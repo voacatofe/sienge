@@ -1,4 +1,7 @@
 import { NextResponse } from 'next/server';
+
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 import { checkDatabaseHealth } from '@/lib/prisma';
 
 export async function GET() {

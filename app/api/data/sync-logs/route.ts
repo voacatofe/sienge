@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -21,17 +24,17 @@ export async function GET(request: NextRequest) {
         where,
         skip,
         take: limit,
-        orderBy: { syncStartedAt: 'desc' }
+        orderBy: { syncStartedAt: 'desc' },
       }),
-      prisma.syncLog.count({ where })
+      prisma.syncLog.count({ where }),
     ]);
 
     // Estatísticas gerais
     const stats = await prisma.syncLog.groupBy({
       by: ['entityType', 'status'],
       _count: {
-        id: true
-      }
+        id: true,
+      },
     });
 
     return NextResponse.json({
@@ -43,23 +46,22 @@ export async function GET(request: NextRequest) {
         total,
         totalPages: Math.ceil(total / limit),
         hasNext: page * limit < total,
-        hasPrev: page > 1
+        hasPrev: page > 1,
       },
       stats,
       meta: {
         endpoint: '/api/data/sync-logs',
         description: 'Logs de sincronização do Sienge',
-        lastUpdated: new Date().toISOString()
-      }
+        lastUpdated: new Date().toISOString(),
+      },
     });
-
   } catch (error) {
     console.error('[Data API] Erro ao buscar logs:', error);
     return NextResponse.json(
-      { 
-        success: false, 
+      {
+        success: false,
         error: 'Erro interno do servidor',
-        message: error instanceof Error ? error.message : 'Erro desconhecido'
+        message: error instanceof Error ? error.message : 'Erro desconhecido',
       },
       { status: 500 }
     );

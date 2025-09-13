@@ -118,8 +118,11 @@ main() {
     log "✅ Inicialização concluída com sucesso!"
     log "🚀 Iniciando aplicação Next.js..."
     
-    # Detectar se existe build de produção
-    if [ -d ".next" ] && [ -f ".next/BUILD_ID" ]; then
+    # Detectar se existe build standalone
+    if [ -f "server.js" ]; then
+        log "📦 Build standalone detectado, iniciando servidor otimizado..."
+        exec node server.js
+    elif [ -d ".next" ] && [ -f ".next/BUILD_ID" ]; then
         log "📦 Build de produção detectado, iniciando em modo produção..."
         exec npm start
     else
