@@ -19,7 +19,7 @@ Este projeto visa desenvolver uma solução que permite:
 - **Frontend**: Next.js 13+ com App Router e React
 - **Backend**: API Routes integradas ao Next.js
 - **Banco de Dados**: PostgreSQL 15+ com Prisma ORM
-- **Administração DB**: DbVisualizer para gerenciamento visual
+- **Administração DB**: Adminer para gerenciamento visual
 - **Containerização**: Docker-Compose para orquestração
 - **Scheduler**: node-cron para sincronização automática
 
@@ -39,7 +39,7 @@ Este projeto visa desenvolver uma solução que permite:
 - Docker e Docker-Compose instalados
 - Porta 3000 disponível (frontend)
 - Porta 5432 disponível (PostgreSQL)
-- DbVisualizer instalado (opcional - para administração visual do banco)
+- Adminer instalado (opcional - para administração visual do banco)
 - Credenciais de API do Sienge
 - Conexão de internet estável
 
@@ -68,7 +68,7 @@ Este projeto visa desenvolver uma solução que permite:
 4. **Acesse a aplicação**
    - Frontend: http://localhost:3000
    - PostgreSQL: localhost:5432
-   - pgAdmin: http://localhost:8080
+   - Adminer: http://localhost:8080
 
 ### Configuração da API Sienge
 
@@ -81,25 +81,27 @@ Este projeto visa desenvolver uma solução que permite:
 
 ## 📊 Uso dos Dados
 
-### Acesso via pgAdmin (Recomendado)
+### Acesso via Adminer (Recomendado)
 
-Para visualização e gerenciamento dos dados, use o pgAdmin:
+Para visualização e gerenciamento dos dados, use o Adminer:
 
 1. **Acesse**: http://localhost:8080
-2. **Login**: Use as credenciais configuradas no `.env`
-3. **Conecte ao banco**: Configure a conexão com PostgreSQL
-4. **Explore os dados**: Visualize tabelas, execute queries, monitore performance
+2. **Configure a conexão**:
+   - Sistema: PostgreSQL
+   - Servidor: db
+   - Usuário: sienge_app
+   - Senha: (conforme configurado no .env)
+   - Base de dados: sienge_data
+3. **Explore os dados**: Visualize tabelas, execute queries, monitore performance
 
 **Scripts de acesso rápido:**
 
 ```bash
-# Acesso via script principal
-./scripts/sienge.sh pgadmin-dev   # Desenvolvimento
-./scripts/sienge.sh pgadmin-prod  # Produção
+# Configurar e acessar Adminer
+.\scripts\configurar-adminer.ps1
 
-# Ou diretamente
-./scripts/pgadmin.sh dev
-./scripts/pgadmin.sh prod
+# Limpar vestígios de outras ferramentas
+.\scripts\limpar-vestigios.ps1
 ```
 
 ### Acesso Direto ao PostgreSQL

@@ -172,6 +172,33 @@ export async function POST(request: NextRequest) {
           costCenters: ['/cost-centers', '/departments'],
         };
 
+        // Filtros de data - buscar apenas dados do último ano
+        const oneYearAgo = new Date();
+        oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+        const dateFilter = oneYearAgo.toISOString().split('T')[0]; // YYYY-MM-DD format
+
+        // Parâmetros específicos por entidade
+        const entityParams: Record<string, Record<string, any>> = {
+          customers: {
+            // Filtrar por data de criação do último ano
+            createdAfter: dateFilter,
+            // Ordenar por data de criação para paginação consistente
+            sort: 'createdAt',
+            order: 'asc',
+          },
+          companies: {
+            // Companies geralmente são poucas, não precisa filtro de data
+          },
+          projects: {
+            createdAfter: dateFilter,
+            sort: 'createdAt',
+            order: 'asc',
+          },
+          costCenters: {
+            // Centros de custo geralmente são poucos
+          },
+        };
+
         const endpoints = endpointMap[entity];
         if (!endpoints) {
           throw new Error(`Entidade desconhecida: ${entity}`);
@@ -190,14 +217,21 @@ export async function POST(request: NextRequest) {
 
             // Configurações de limite baseadas na entidade
             const syncOptions = {
-              maxPages: entity === 'customers' ? 500 : 1000, // Clientes podem ter mais dados
-              maxRecords: entity === 'customers' ? 100000 : 50000, // Limite por entidade
-              timeoutMs: 20 * 60 * 1000, // 20 minutos por entidade
+              maxPages: entity === 'customers' ? 50 : 100, // Reduzido drasticamente
+              maxRecords: entity === 'customers' ? 10000 : 5000, // Limite menor para 1 ano
+              timeoutMs: 10 * 60 * 1000, // 10 minutos por entidade
             };
+
+            // Combinar parâmetros de filtro com parâmetros da entidade
+            const requestParams = {
+              ...(entityParams[entity] || {}),
+            };
+
+            console.log(`[Sync API] Parâmetros para ${entity}:`, requestParams);
 
             data = await siengeApiClient.fetchPaginatedData(
               endpoint,
-              {},
+              requestParams,
               syncOptions
             );
             successfulEndpoint = endpoint;

@@ -349,6 +349,9 @@ export class SiengeApiClient {
           break;
         }
 
+        // Calcular offset baseado na página atual
+        const offset = (page - 1) * SIENGE_API_CONFIG.DEFAULT_PAGE_SIZE;
+
         const response = await this.makeRequest<SiengeApiResponse<T>>({
           method: 'GET',
           url: endpoint,
@@ -356,19 +359,29 @@ export class SiengeApiClient {
             ...params,
             page,
             limit: SIENGE_API_CONFIG.DEFAULT_PAGE_SIZE,
+            offset, // Adicionar offset explícito
           },
         });
 
-        console.log(`[Sienge API] Resposta da página ${page}:`, {
-          status: response.status,
-          dataKeys: Object.keys(response.data || {}),
-          dataType: Array.isArray(response.data)
-            ? 'array'
-            : typeof response.data,
-          dataLength: Array.isArray(response.data)
-            ? response.data.length
-            : 'N/A',
-        });
+        console.log(
+          `[Sienge API] Resposta da página ${page} (offset: ${offset}):`,
+          {
+            status: response.status,
+            dataKeys: Object.keys(response.data || {}),
+            dataType: Array.isArray(response.data)
+              ? 'array'
+              : typeof response.data,
+            dataLength: Array.isArray(response.data)
+              ? response.data.length
+              : 'N/A',
+            requestParams: {
+              ...params,
+              page,
+              limit: SIENGE_API_CONFIG.DEFAULT_PAGE_SIZE,
+              offset,
+            },
+          }
+        );
 
         // Verificar diferentes estruturas de resposta possíveis
         let responseData: T[] = [];
@@ -384,18 +397,32 @@ export class SiengeApiClient {
           // Log da metadata para debug
           if (responseDataObj.resultSetMetadata) {
             const metadata = responseDataObj.resultSetMetadata;
+            const totalRecords = metadata.count || metadata.totalRecords || 0;
+            const currentOffset = metadata.offset || 0;
+            const limit = metadata.limit || SIENGE_API_CONFIG.DEFAULT_PAGE_SIZE;
+
             console.log(`[Sienge API] Metadata página ${page}:`, {
-              totalRecords: metadata.count || metadata.totalRecords,
-              currentOffset: metadata.offset,
-              limit: metadata.limit,
-              hasMore:
-                metadata.offset + metadata.limit <
-                (metadata.count || metadata.totalRecords),
+              totalRecords,
+              currentOffset,
+              expectedOffset: offset,
+              limit,
+              recordsProcessed: allData.length,
+              hasMore: currentOffset + limit < totalRecords,
             });
 
+            // Verificar se há mais dados E se não estamos em loop
             responseHasMore =
-              metadata.offset + metadata.limit <
-              (metadata.count || metadata.totalRecords);
+              currentOffset + limit < totalRecords &&
+              responseData.length > 0 &&
+              allData.length < totalRecords;
+
+            // Detectar loop infinito - se o offset não avançou
+            if (page > 1 && currentOffset === 0) {
+              console.warn(
+                `[Sienge API] LOOP DETECTADO na página ${page}! Offset ainda é 0. Parando sincronização.`
+              );
+              responseHasMore = false;
+            }
           } else {
             responseHasMore = false;
           }
@@ -461,11 +488,25 @@ export class SiengeApiClient {
           `[Sienge API] Página ${page}: ${responseData?.length || 0} registros | Total: ${allData.length} | Tempo: ${elapsedMinutes}min | HasMore: ${responseHasMore}`
         );
 
-        // Se não há mais dados ou se a resposta está vazia, parar
-        if (!responseHasMore || (responseData?.length || 0) === 0) {
+        // Condições para parar a paginação
+        const shouldStop =
+          !responseHasMore ||
+          (responseData?.length || 0) === 0 ||
+          // Parar se chegamos ao limite de registros esperados
+          allData.length >=
+            (responseDataObj?.resultSetMetadata?.count ||
+              responseDataObj?.resultSetMetadata?.totalRecords ||
+              0);
+
+        if (shouldStop) {
           hasMore = false;
+          const reason = !responseHasMore
+            ? 'hasMore=false'
+            : (responseData?.length || 0) === 0
+              ? 'dados vazios'
+              : 'limite de registros atingido';
           console.log(
-            `[Sienge API] Paginação finalizada na página ${page}. Motivo: ${!responseHasMore ? 'hasMore=false' : 'dados vazios'}`
+            `[Sienge API] Paginação finalizada na página ${page}. Motivo: ${reason}`
           );
         }
 
