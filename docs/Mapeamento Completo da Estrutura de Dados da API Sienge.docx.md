@@ -6,34 +6,53 @@
 
 ### ✅ **Endpoints Implementados e Corrigidos**
 
-| Endpoint Sienge        | Status              | API Local                                     | Arquivo                                 |
-| ---------------------- | ------------------- | --------------------------------------------- | --------------------------------------- |
-| `/customers`           | ✅ **IMPLEMENTADO** | `/api/data/customers`                         | `app/api/data/customers/route.ts`       |
-| `/companies`           | ✅ **IMPLEMENTADO** | `/api/data/companies`                         | `app/api/data/companies/route.ts`       |
-| `/accounts-receivable` | ✅ **IMPLEMENTADO** | `/api/data/accounts-receivable`               | `app/api/data/receivables/route.ts`     |
-| `/accounts-payable`    | ✅ **IMPLEMENTADO** | `/api/data/accounts-payable`                  | `app/api/data/payables/route.ts`        |
-| `/sales-contracts`     | ✅ **IMPLEMENTADO** | `/api/data/sales-contracts`                   | `app/api/data/sales-contracts/route.ts` |
-| `/commissions`         | ✅ **IMPLEMENTADO** | `/api/data/financial?type=commissions`        | `app/api/data/financial/route.ts`       |
-| `/payment-categories`  | ✅ **IMPLEMENTADO** | `/api/data/financial?type=payment-categories` | `app/api/data/financial/route.ts`       |
-| `/indexers`            | ✅ **IMPLEMENTADO** | `/api/data/financial?type=indexers`           | `app/api/data/financial/route.ts`       |
-| `/carriers`            | ✅ **IMPLEMENTADO** | `/api/data/financial?type=carriers`           | `app/api/data/financial/route.ts`       |
-| `/cost-centers`        | ✅ **IMPLEMENTADO** | `/api/data/financial?type=cost-centers`       | `app/api/data/financial/route.ts`       |
-| `/departments`         | ✅ **IMPLEMENTADO** | `/api/data/financial?type=departments`        | `app/api/data/financial/route.ts`       |
+| Endpoint Sienge        | Status              | API Local Categorizada                     | Categoria          | Arquivo                                                |
+| ---------------------- | ------------------- | ------------------------------------------ | ------------------ | ------------------------------------------------------ |
+| `/customers`           | ✅ **IMPLEMENTADO** | `/api/data/entidades/customers`            | **Entidades**      | `app/api/data/entidades/customers/route.ts`            |
+| `/companies`           | ✅ **IMPLEMENTADO** | `/api/data/entidades/companies`            | **Entidades**      | `app/api/data/entidades/companies/route.ts`            |
+| `/sales-contracts`     | ✅ **IMPLEMENTADO** | `/api/data/vendas/sales-contracts`         | **Vendas**         | `app/api/data/vendas/sales-contracts/route.ts`         |
+| `/commissions`         | ✅ **IMPLEMENTADO** | `/api/data/vendas/commissions`             | **Vendas**         | `app/api/data/vendas/commissions/route.ts`             |
+| `/accounts-receivable` | ✅ **IMPLEMENTADO** | `/api/data/financeiro/accounts-receivable` | **Financeiro**     | `app/api/data/financeiro/accounts-receivable/route.ts` |
+| `/accounts-payable`    | ✅ **IMPLEMENTADO** | `/api/data/financeiro/accounts-payable`    | **Financeiro**     | `app/api/data/financeiro/accounts-payable/route.ts`    |
+| `/payment-categories`  | ✅ **IMPLEMENTADO** | `/api/data/financeiro/payment-categories`  | **Financeiro**     | `app/api/data/financeiro/payment-categories/route.ts`  |
+| `/indexers`            | ✅ **IMPLEMENTADO** | `/api/data/financeiro/indexers`            | **Financeiro**     | `app/api/data/financeiro/indexers/route.ts`            |
+| `/carriers`            | ✅ **IMPLEMENTADO** | `/api/data/financeiro/carriers`            | **Financeiro**     | `app/api/data/financeiro/carriers/route.ts`            |
+| `/cost-centers`        | ✅ **IMPLEMENTADO** | `/api/data/organizacional/cost-centers`    | **Organizacional** | `app/api/data/organizacional/cost-centers/route.ts`    |
+| `/departments`         | ✅ **IMPLEMENTADO** | `/api/data/organizacional/departments`     | **Organizacional** | `app/api/data/organizacional/departments/route.ts`     |
 
-### 🔧 **Correções Implementadas**
+### 🆕 **Novos Endpoints Implementados**
 
-- ✅ **Endpoints corrigidos** conforme documentação oficial Sienge
-- ✅ **Configurações centralizadas** em `lib/config/sienge-api.ts`
-- ✅ **Meta endpoints atualizados** em todas as APIs
-- ✅ **Case statements corrigidos** no endpoint unificado `/financial`
-- ✅ **Mapeamentos ENTITY_TO_ENDPOINT** atualizados
+| Entidade                 | Status              | API Local Categorizada                             | Categoria           | Arquivo                                                        |
+| ------------------------ | ------------------- | -------------------------------------------------- | ------------------- | -------------------------------------------------------------- |
+| tipos-cliente            | ✅ **IMPLEMENTADO** | `/api/data/clientes/tipos-cliente`                 | **Clientes**        | `app/api/data/clientes/tipos-cliente/route.ts`                 |
+| estados-civis            | ✅ **IMPLEMENTADO** | `/api/data/clientes/estados-civis`                 | **Clientes**        | `app/api/data/clientes/estados-civis/route.ts`                 |
+| profissoes               | ✅ **IMPLEMENTADO** | `/api/data/clientes/profissoes`                    | **Clientes**        | `app/api/data/clientes/profissoes/route.ts`                    |
+| municipios               | ✅ **IMPLEMENTADO** | `/api/data/clientes/municipios`                    | **Clientes**        | `app/api/data/clientes/municipios/route.ts`                    |
+| empreendimentos          | ✅ **IMPLEMENTADO** | `/api/data/empreendimentos/empreendimentos`        | **Empreendimentos** | `app/api/data/empreendimentos/empreendimentos/route.ts`        |
+| unidades-imobiliarias    | ✅ **IMPLEMENTADO** | `/api/data/empreendimentos/unidades-imobiliarias`  | **Empreendimentos** | `app/api/data/empreendimentos/unidades-imobiliarias/route.ts`  |
+| tipos-imovel             | ✅ **IMPLEMENTADO** | `/api/data/empreendimentos/tipos-imovel`           | **Empreendimentos** | `app/api/data/empreendimentos/tipos-imovel/route.ts`           |
+| credores                 | ✅ **IMPLEMENTADO** | `/api/data/compras/credores`                       | **Compras**         | `app/api/data/compras/credores/route.ts`                       |
+| pedidos-compra           | ✅ **IMPLEMENTADO** | `/api/data/compras/pedidos-compra`                 | **Compras**         | `app/api/data/compras/pedidos-compra/route.ts`                 |
+| documentos-identificacao | ✅ **IMPLEMENTADO** | `/api/data/configuracoes/documentos-identificacao` | **Configurações**   | `app/api/data/configuracoes/documentos-identificacao/route.ts` |
+| tipos-condicao-pagamento | ✅ **IMPLEMENTADO** | `/api/data/configuracoes/tipos-condicao-pagamento` | **Configurações**   | `app/api/data/configuracoes/tipos-condicao-pagamento/route.ts` |
 
-### 📋 **Arquivos Modificados**
+### 🏗️ **Estrutura Categorizada Implementada**
 
-- ✅ `lib/config/sienge-api.ts` - Configurações centralizadas
-- ✅ `app/api/data/receivables/route.ts` - Meta endpoint corrigido
-- ✅ `app/api/data/payables/route.ts` - Meta endpoint corrigido
-- ✅ `app/api/data/financial/route.ts` - Case statements e meta fields corrigidos
+- ✅ **Diretórios categorizados** criados: `entidades/`, `clientes/`, `vendas/`, `empreendimentos/`, `compras/`, `financeiro/`, `organizacional/`, `configuracoes/`
+- ✅ **Endpoints migrados** para nova estrutura categorizada
+- ✅ **19 endpoints implementados** cobrindo todas as principais entidades
+- ✅ **Configurações atualizadas** em `lib/config/sienge-api.ts` com mapeamentos de endpoints locais
+- ✅ **Meta endpoints** atualizados com categorias em todos os arquivos
+- ✅ **Estrutura RESTful** consistente implementada
+- ✅ **Power BI friendly** - estrutura clara para integração
+
+### 📋 **Benefícios da Nova Estrutura**
+
+- 🎯 **Organização clara** por categorias funcionais
+- 🔄 **Consistência total** em todos os endpoints
+- 📊 **Facilita integração** com Power BI
+- 🚀 **Escalabilidade** para novos endpoints
+- 🛠️ **Manutenibilidade** melhorada
 
 ---
 

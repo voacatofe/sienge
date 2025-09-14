@@ -8,49 +8,38 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '100');
+    const limit = parseInt(searchParams.get('limit') || '50');
     const search = searchParams.get('search') || '';
-    const active = searchParams.get('active') !== 'false'; // Default true
 
     const skip = (page - 1) * limit;
 
-    // Construir filtros
     const where: any = {};
-
-    if (active !== null) {
-      where.ativo = active;
-    }
 
     if (search) {
       where.OR = [
-        { nomeEmpresa: { contains: search, mode: 'insensitive' } },
-        { nomeFantasia: { contains: search, mode: 'insensitive' } },
-        { cnpj: { contains: search } },
+        { nomeProfissao: { contains: search, mode: 'insensitive' } },
+        { codigoProfissao: { contains: search, mode: 'insensitive' } },
       ];
     }
 
-    // Buscar dados
-    const [companies, total] = await Promise.all([
-      prisma.empresa.findMany({
+    const [profissoes, total] = await Promise.all([
+      prisma.profissao.findMany({
         where,
         skip,
         take: limit,
         select: {
-          idEmpresa: true,
-          nomeEmpresa: true,
-          cnpj: true,
-          nomeFantasia: true,
-          codigoEmpresa: true,
-          ativo: true,
+          idProfissao: true,
+          nomeProfissao: true,
+          codigoProfissao: true,
         },
-        orderBy: { nomeEmpresa: 'asc' },
+        orderBy: { nomeProfissao: 'asc' },
       }),
-      prisma.empresa.count({ where }),
+      prisma.profissao.count({ where }),
     ]);
 
     return NextResponse.json({
       success: true,
-      data: companies,
+      data: profissoes,
       pagination: {
         page,
         limit,
@@ -60,13 +49,15 @@ export async function GET(request: NextRequest) {
         hasPrev: page > 1,
       },
       meta: {
-        endpoint: '/api/data/companies',
-        description: 'Dados das empresas sincronizadas do Sienge',
+        endpoint: '/api/data/clientes/profissoes',
+        description: 'Profissões - Categoria Clientes',
+        entityType: 'profissoes',
+        category: 'clientes',
         lastUpdated: new Date().toISOString(),
       },
     });
   } catch (error) {
-    console.error('[Data API] Erro ao buscar empresas:', error);
+    console.error('[Profissões API] Erro ao buscar profissões:', error);
     return NextResponse.json(
       {
         success: false,

@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '50');
     const search = searchParams.get('search') || '';
     const status = searchParams.get('status') || '';
-    const clienteId = searchParams.get('clienteId') || '';
+    const credorId = searchParams.get('credorId') || '';
 
     const skip = (page - 1) * limit;
 
@@ -22,28 +22,26 @@ export async function GET(request: NextRequest) {
       where.status = status;
     }
 
-    if (clienteId) {
-      where.idCliente = parseInt(clienteId);
+    if (credorId) {
+      where.idCredor = parseInt(credorId);
     }
 
     if (search) {
       where.OR = [
         { numeroDocumento: { contains: search, mode: 'insensitive' } },
-        {
-          cliente: { nomeCompleto: { contains: search, mode: 'insensitive' } },
-        },
-        { observacoes: { contains: search, mode: 'insensitive' } },
+        { credor: { nomeCredor: { contains: search, mode: 'insensitive' } } },
+        { observacao: { contains: search, mode: 'insensitive' } },
       ];
     }
 
     // Buscar dados
-    const [receivables, total] = await Promise.all([
-      prisma.tituloReceber.findMany({
+    const [payables, total] = await Promise.all([
+      prisma.tituloPagar.findMany({
         where,
         skip,
         take: limit,
         select: {
-          idTituloReceber: true,
+          idTituloPagar: true,
           numeroDocumento: true,
           dataEmissao: true,
           dataVencimento: true,
@@ -52,30 +50,18 @@ export async function GET(request: NextRequest) {
           valorPago: true,
           dataPagamento: true,
           status: true,
-          observacoes: true,
-          cliente: {
+          observacao: true,
+          credor: {
             select: {
-              idCliente: true,
-              nomeCompleto: true,
+              idCredor: true,
+              nomeCredor: true,
               cpfCnpj: true,
-            },
-          },
-          contrato: {
-            select: {
-              idContrato: true,
-              numeroContrato: true,
             },
           },
           planoFinanceiro: {
             select: {
               idPlanoFinanceiro: true,
               nomePlano: true,
-            },
-          },
-          portador: {
-            select: {
-              idPortador: true,
-              descricao: true,
             },
           },
           indexador: {
@@ -87,12 +73,12 @@ export async function GET(request: NextRequest) {
         },
         orderBy: { dataVencimento: 'desc' },
       }),
-      prisma.tituloReceber.count({ where }),
+      prisma.tituloPagar.count({ where }),
     ]);
 
     return NextResponse.json({
       success: true,
-      data: receivables,
+      data: payables,
       pagination: {
         page,
         limit,
@@ -102,13 +88,15 @@ export async function GET(request: NextRequest) {
         hasPrev: page > 1,
       },
       meta: {
-        endpoint: '/api/data/accounts-receivable',
-        description: 'Títulos a Receber sincronizados do Sienge',
+        endpoint: '/api/data/financeiro/accounts-payable',
+        description: 'Títulos a Pagar - Categoria Financeiro',
+        entityType: 'accounts-payable',
+        category: 'financeiro',
         lastUpdated: new Date().toISOString(),
       },
     });
   } catch (error) {
-    console.error('[Data API] Erro ao buscar títulos a receber:', error);
+    console.error('[Data API] Erro ao buscar títulos a pagar:', error);
     return NextResponse.json(
       {
         success: false,

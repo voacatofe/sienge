@@ -11,46 +11,34 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '50');
     const search = searchParams.get('search') || '';
     const status = searchParams.get('status') || '';
-    const credorId = searchParams.get('credorId') || '';
 
     const skip = (page - 1) * limit;
 
-    // Construir filtros
     const where: any = {};
 
     if (status) {
       where.status = status;
     }
 
-    if (credorId) {
-      where.idCredor = parseInt(credorId);
-    }
-
     if (search) {
       where.OR = [
-        { numeroDocumento: { contains: search, mode: 'insensitive' } },
+        { numeroPedido: { contains: search, mode: 'insensitive' } },
         { credor: { nomeCredor: { contains: search, mode: 'insensitive' } } },
-        { observacao: { contains: search, mode: 'insensitive' } },
       ];
     }
 
-    // Buscar dados
-    const [payables, total] = await Promise.all([
-      prisma.tituloPagar.findMany({
+    const [pedidos, total] = await Promise.all([
+      prisma.pedidoCompra.findMany({
         where,
         skip,
         take: limit,
         select: {
-          idTituloPagar: true,
-          numeroDocumento: true,
-          dataEmissao: true,
-          dataVencimento: true,
-          valorOriginal: true,
-          valorAtualizado: true,
-          valorPago: true,
-          dataPagamento: true,
+          idPedido: true,
+          numeroPedido: true,
+          dataPedido: true,
+          dataEntregaPrevista: true,
+          valorTotal: true,
           status: true,
-          observacao: true,
           credor: {
             select: {
               idCredor: true,
@@ -58,27 +46,38 @@ export async function GET(request: NextRequest) {
               cpfCnpj: true,
             },
           },
-          planoFinanceiro: {
+          empreendimento: {
             select: {
-              idPlanoFinanceiro: true,
-              nomePlano: true,
+              idEmpreendimento: true,
+              nome: true,
+              codigo: true,
             },
           },
-          indexador: {
+          departamento: {
             select: {
-              idIndexador: true,
-              nomeIndexador: true,
+              idDepartamento: true,
+              nomeDepartamento: true,
+            },
+          },
+          itens: {
+            select: {
+              idPedidoItem: true,
+              descricaoItem: true,
+              quantidade: true,
+              unidade: true,
+              precoUnitario: true,
+              valorTotalItem: true,
             },
           },
         },
-        orderBy: { dataVencimento: 'desc' },
+        orderBy: { dataPedido: 'desc' },
       }),
-      prisma.tituloPagar.count({ where }),
+      prisma.pedidoCompra.count({ where }),
     ]);
 
     return NextResponse.json({
       success: true,
-      data: payables,
+      data: pedidos,
       pagination: {
         page,
         limit,
@@ -88,13 +87,18 @@ export async function GET(request: NextRequest) {
         hasPrev: page > 1,
       },
       meta: {
-        endpoint: '/api/data/accounts-payable',
-        description: 'Títulos a Pagar sincronizados do Sienge',
+        endpoint: '/api/data/compras/pedidos-compra',
+        description: 'Pedidos de Compra - Categoria Compras',
+        entityType: 'pedidos-compra',
+        category: 'compras',
         lastUpdated: new Date().toISOString(),
       },
     });
   } catch (error) {
-    console.error('[Data API] Erro ao buscar títulos a pagar:', error);
+    console.error(
+      '[Pedidos Compra API] Erro ao buscar pedidos de compra:',
+      error
+    );
     return NextResponse.json(
       {
         success: false,

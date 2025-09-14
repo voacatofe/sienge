@@ -94,6 +94,20 @@ export const SYNC_CONFIGS: Record<SiengeEndpoint, SyncConfig> = {
     retryDelay: 1000,
     enabled: true,
   },
+  '/projects': {
+    endpoint: '/projects',
+    batchSize: 200,
+    maxRetries: 3,
+    retryDelay: 1000,
+    enabled: true,
+  },
+  '/contracts': {
+    endpoint: '/contracts',
+    batchSize: 200,
+    maxRetries: 3,
+    retryDelay: 1000,
+    enabled: true,
+  },
 };
 
 // Mapeamento de endpoints para nomes de entidades
@@ -109,6 +123,8 @@ export const ENDPOINT_TO_ENTITY: Record<SiengeEndpoint, string> = {
   '/payment-categories': 'payment_categories',
   '/indexers': 'indexers',
   '/carriers': 'carriers',
+  '/projects': 'projects',
+  '/contracts': 'contracts',
 };
 
 // Mapeamento de entidades para endpoints
@@ -124,6 +140,8 @@ export const ENTITY_TO_ENDPOINT: Record<string, SiengeEndpoint> = {
   payment_categories: '/payment-categories',
   indexers: '/indexers',
   carriers: '/carriers',
+  projects: '/projects',
+  contracts: '/contracts',
 };
 
 // Configurações de rate limiting por endpoint
@@ -189,4 +207,59 @@ export function getEntityName(endpoint: SiengeEndpoint): string {
 // Função para obter endpoint da entidade
 export function getEndpoint(entityName: string): SiengeEndpoint | undefined {
   return ENTITY_TO_ENDPOINT[entityName];
+}
+
+// Mapeamento de endpoints locais categorizados
+export const LOCAL_ENDPOINTS = {
+  ENTIDADES: {
+    customers: '/api/data/entidades/customers',
+    companies: '/api/data/entidades/companies',
+  },
+  CLIENTES: {
+    'tipos-cliente': '/api/data/clientes/tipos-cliente',
+    'estados-civis': '/api/data/clientes/estados-civis',
+    profissoes: '/api/data/clientes/profissoes',
+    municipios: '/api/data/clientes/municipios',
+  },
+  VENDAS: {
+    'sales-contracts': '/api/data/vendas/sales-contracts',
+    commissions: '/api/data/vendas/commissions',
+  },
+  EMPREENDIMENTOS: {
+    empreendimentos: '/api/data/empreendimentos/empreendimentos',
+    'unidades-imobiliarias': '/api/data/empreendimentos/unidades-imobiliarias',
+    'tipos-imovel': '/api/data/empreendimentos/tipos-imovel',
+  },
+  COMPRAS: {
+    credores: '/api/data/compras/credores',
+    'pedidos-compra': '/api/data/compras/pedidos-compra',
+  },
+  FINANCEIRO: {
+    'accounts-receivable': '/api/data/financeiro/accounts-receivable',
+    'accounts-payable': '/api/data/financeiro/accounts-payable',
+    indexers: '/api/data/financeiro/indexers',
+    'payment-categories': '/api/data/financeiro/payment-categories',
+    carriers: '/api/data/financeiro/carriers',
+  },
+  ORGANIZACIONAL: {
+    'cost-centers': '/api/data/organizacional/cost-centers',
+    departments: '/api/data/organizacional/departments',
+  },
+  CONFIGURACOES: {
+    'documentos-identificacao':
+      '/api/data/configuracoes/documentos-identificacao',
+    'tipos-condicao-pagamento':
+      '/api/data/configuracoes/tipos-condicao-pagamento',
+  },
+} as const;
+
+// Função para obter endpoint local categorizado
+export function getLocalEndpoint(entityName: string): string | undefined {
+  // Busca em todas as categorias
+  for (const category of Object.values(LOCAL_ENDPOINTS)) {
+    if (category[entityName as keyof typeof category]) {
+      return category[entityName as keyof typeof category];
+    }
+  }
+  return undefined;
 }

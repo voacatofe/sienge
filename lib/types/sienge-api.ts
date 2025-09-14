@@ -91,11 +91,20 @@ export interface SiengeQueryParams {
 }
 
 // Tipos para endpoints da API
-export type SiengeEndpoint = 
+export type SiengeEndpoint =
   | '/customers'
+  | '/companies'
   | '/cost-centers'
+  | '/departments'
   | '/projects'
-  | '/contracts';
+  | '/contracts'
+  | '/accounts-receivable'
+  | '/accounts-payable'
+  | '/sales-contracts'
+  | '/commissions'
+  | '/payment-categories'
+  | '/indexers'
+  | '/carriers';
 
 // Tipos para métodos HTTP suportados
 export type SiengeHttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';

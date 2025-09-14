@@ -96,8 +96,10 @@ export async function GET(request: NextRequest) {
         hasPrev: page > 1,
       },
       meta: {
-        endpoint: '/api/data/customers',
-        description: 'Dados dos clientes sincronizados do Sienge',
+        endpoint: '/api/data/entidades/customers',
+        description: 'Clientes - Categoria Entidades',
+        entityType: 'customers',
+        category: 'entidades',
         lastUpdated: new Date().toISOString(),
       },
     });

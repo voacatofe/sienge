@@ -107,19 +107,6 @@ https://api.sienge.com.br/{subdominio}/public/api/v1
 - `/cost-centers` - Centros de Custo ✅ **IMPLEMENTADO**
 - `/departments` - Departamentos ✅ **IMPLEMENTADO**
 
-### **❌ Endpoints Removidos (Causavam Erro 405)**
-
-#### **Endpoints Incorretos Removidos:**
-
-- `/indexes` ❌ → `/indexers` ✅
-- `/receivables` ❌ → `/accounts-receivable` ✅
-- `/payables` ❌ → `/accounts-payable` ✅
-- `/bills-receivable` ❌ (não existe)
-- `/bills-payable` ❌ (não existe)
-- `/sales-commissions` ❌ → `/commissions` ✅
-- `/financial-plans` ❌ → `/payment-categories` ✅
-- `/receivable-carriers` ❌ → `/carriers` ✅
-
 ### **🔑 Autenticação**
 
 - **Tipo**: Basic Auth (HTTP Basic Authentication)
@@ -137,26 +124,63 @@ https://api.sienge.com.br/{subdominio}/public/api/v1
 
 ### **🔧 Status das Implementações**
 
-#### **✅ APIs Locais Implementadas e Corrigidas:**
+#### **✅ APIs Locais Implementadas e Categorizadas:**
 
-- `/api/data/customers` - Consulta clientes locais
-- `/api/data/companies` - Consulta empresas locais
-- `/api/data/accounts-receivable` - Consulta títulos a receber locais
-- `/api/data/accounts-payable` - Consulta títulos a pagar locais
-- `/api/data/sales-contracts` - Consulta contratos de venda locais
-- `/api/data/financial?type=accounts-receivable` - Endpoint unificado
-- `/api/data/financial?type=accounts-payable` - Endpoint unificado
-- `/api/data/financial?type=commissions` - Endpoint unificado
-- `/api/data/financial?type=payment-categories` - Endpoint unificado
-- `/api/data/financial?type=indexers` - Endpoint unificado
-- `/api/data/financial?type=carriers` - Endpoint unificado
+**🏢 Entidades Principais:**
 
-#### **📋 Arquivos Corrigidos:**
+- `/api/data/entidades/customers` - Consulta clientes locais
+- `/api/data/entidades/companies` - Consulta empresas locais
 
-- ✅ `lib/config/sienge-api.ts` - Configurações centralizadas atualizadas
-- ✅ `app/api/data/receivables/route.ts` - Meta endpoint corrigido
-- ✅ `app/api/data/payables/route.ts` - Meta endpoint corrigido
-- ✅ `app/api/data/financial/route.ts` - Case statements e meta fields corrigidos
+**💰 Vendas:**
+
+- `/api/data/vendas/sales-contracts` - Consulta contratos de venda locais
+- `/api/data/vendas/commissions` - Consulta comissões de vendas locais
+
+**💸 Financeiro:**
+
+- `/api/data/financeiro/accounts-receivable` - Consulta títulos a receber locais
+- `/api/data/financeiro/accounts-payable` - Consulta títulos a pagar locais
+- `/api/data/financeiro/indexers` - Consulta indexadores locais
+- `/api/data/financeiro/payment-categories` - Consulta categorias de pagamento locais
+- `/api/data/financeiro/carriers` - Consulta portadores de recebimento locais
+
+**🏛️ Organizacional:**
+
+- `/api/data/organizacional/cost-centers` - Consulta centros de custo locais
+- `/api/data/organizacional/departments` - Consulta departamentos locais
+
+**👥 Clientes (Auxiliares):**
+
+- `/api/data/clientes/tipos-cliente` - Consulta tipos de cliente locais
+- `/api/data/clientes/estados-civis` - Consulta estados civis locais
+- `/api/data/clientes/profissoes` - Consulta profissões locais
+- `/api/data/clientes/municipios` - Consulta municípios locais
+
+**🏗️ Empreendimentos:**
+
+- `/api/data/empreendimentos/empreendimentos` - Consulta empreendimentos locais
+- `/api/data/empreendimentos/unidades-imobiliarias` - Consulta unidades imobiliárias locais
+- `/api/data/empreendimentos/tipos-imovel` - Consulta tipos de imóvel locais
+
+**🛒 Compras:**
+
+- `/api/data/compras/credores` - Consulta credores/fornecedores locais
+- `/api/data/compras/pedidos-compra` - Consulta pedidos de compra locais
+
+**⚙️ Configurações:**
+
+- `/api/data/configuracoes/documentos-identificacao` - Consulta documentos de identificação locais
+- `/api/data/configuracoes/tipos-condicao-pagamento` - Consulta tipos de condição de pagamento locais
+
+#### **📋 Estrutura Categorizada Implementada:**
+
+- ✅ **Diretórios categorizados** criados: `entidades/`, `clientes/`, `vendas/`, `empreendimentos/`, `compras/`, `financeiro/`, `organizacional/`, `configuracoes/`
+- ✅ **Endpoints migrados** para nova estrutura categorizada
+- ✅ **Novos endpoints implementados** para todas as entidades faltantes
+- ✅ **Configurações atualizadas** em `lib/config/sienge-api.ts` com mapeamentos de endpoints locais
+- ✅ **Meta endpoints** atualizados com categorias em todos os arquivos
+- ✅ **Estrutura RESTful** consistente implementada
+- ✅ **Sistema completo** com 19 endpoints categorizados implementados
 
 #### **🔧 Configurações Atualizadas:**
 

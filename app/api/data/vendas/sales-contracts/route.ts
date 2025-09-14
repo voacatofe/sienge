@@ -111,8 +111,10 @@ export async function GET(request: NextRequest) {
         hasPrev: page > 1,
       },
       meta: {
-        endpoint: '/api/data/sales-contracts',
-        description: 'Contratos de Venda sincronizados do Sienge',
+        endpoint: '/api/data/vendas/sales-contracts',
+        description: 'Contratos de Venda - Categoria Vendas',
+        entityType: 'sales-contracts',
+        category: 'vendas',
         lastUpdated: new Date().toISOString(),
       },
     });
