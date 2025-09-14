@@ -27,6 +27,22 @@ function createFriendlyFieldMapping(customer: any) {
   };
 }
 
+// Função para logar exemplo de dados processados (apenas para debug)
+function logSampleProcessedData(customer: any, cleanCustomer: any) {
+  if (process.env.NODE_ENV === 'development') {
+    console.log(`[Sync] Exemplo de dados processados para ${customer.name}:`);
+    console.log(
+      `  - Estado Civil: "${customer.civilStatus}" → "${cleanCustomer.estadoCivil}"`
+    );
+    console.log(
+      `  - Profissão: "${customer.profession}" → "${cleanCustomer.profissao}"`
+    );
+    console.log(
+      `  - Data de Cadastro: "${customer.createdAt}" → "${cleanCustomer.dataCadastro}"`
+    );
+  }
+}
+
 // Funções auxiliares para mapeamento de dados
 async function getOrCreateTipoCliente(descricao: string): Promise<number> {
   // Primeiro tentar encontrar existente
@@ -421,200 +437,304 @@ async function saveCostCenters(
 
 // === FUNÇÕES DE SALVAMENTO PARA ENTIDADES FINANCEIRAS ===
 
-async function saveReceivables(receivables: any[]) {
+async function saveReceivables(
+  receivables: any[]
+): Promise<{ inserted: number; updated: number; errors: number }> {
   console.log(
     `[Sync] Iniciando salvamento de ${receivables.length} títulos a receber`
   );
 
+  let insertedCount = 0;
+  let updatedCount = 0;
+  let errorCount = 0;
+
   for (const receivable of receivables) {
     try {
-      // Buscar/criar relacionamentos necessários
-      const idCliente = await getOrCreateCustomerReference(
-        receivable.customerId || receivable.clientId
-      );
-      const idContrato = receivable.contractId || null;
-      const idEmpresa = receivable.companyId || null;
-      const idPortador = await getOrCreatePortador(
-        receivable.carrierId || receivable.portadorId
-      );
-      const idPlanoFinanceiro = await getOrCreatePlanoFinanceiro(
-        receivable.paymentCategoryId || receivable.financialPlanId
-      );
-      const idIndexador = receivable.indexId || null;
-
-      const receivableData = {
-        idCliente,
-        idContrato,
-        idEmpresa,
+      // Limpar dados desnecessários de paginação e metadados
+      const cleanReceivable = {
+        idTituloReceber: receivable.id,
+        idCliente: receivable.customerId || receivable.clientId,
+        idContrato: receivable.contractId || null,
+        idEmpresa: receivable.companyId || null,
         numeroDocumento: receivable.documentNumber || receivable.numero || '',
         idDocumentoIdent: receivable.documentIdentificationId || null,
-        dataEmissao: receivable.issueDate
-          ? new Date(receivable.issueDate)
-          : new Date(),
-        dataVencimento: receivable.dueDate
-          ? new Date(receivable.dueDate)
-          : new Date(),
+        dataEmissao: receivable.issueDate,
+        dataVencimento: receivable.dueDate,
         valorOriginal: receivable.originalValue || receivable.valor || 0,
         valorAtualizado: receivable.updatedValue || null,
-        idIndexador,
+        idIndexador: receivable.indexId || null,
         juros: receivable.interest || null,
         multa: receivable.penalty || null,
         descontoConcedido: receivable.discountGranted || null,
         valorPago: receivable.paidValue || null,
-        dataPagamento: receivable.paymentDate
-          ? new Date(receivable.paymentDate)
-          : null,
+        dataPagamento: receivable.paymentDate,
         status: receivable.status || 'PENDENTE',
         observacoes: receivable.observations || null,
+        idPortador: receivable.carrierId || receivable.portadorId,
+        idPlanoFinanceiro:
+          receivable.paymentCategoryId || receivable.financialPlanId,
+      };
+
+      // Buscar/criar relacionamentos necessários
+      const idCliente = await getOrCreateCustomerReference(
+        cleanReceivable.idCliente
+      );
+      const idPortador = await getOrCreatePortador(cleanReceivable.idPortador);
+      const idPlanoFinanceiro = await getOrCreatePlanoFinanceiro(
+        cleanReceivable.idPlanoFinanceiro
+      );
+
+      const receivableData = {
+        idCliente,
+        idContrato: cleanReceivable.idContrato,
+        idEmpresa: cleanReceivable.idEmpresa,
+        numeroDocumento: cleanReceivable.numeroDocumento,
+        idDocumentoIdent: cleanReceivable.idDocumentoIdent,
+        dataEmissao: cleanReceivable.dataEmissao
+          ? new Date(cleanReceivable.dataEmissao)
+          : new Date(),
+        dataVencimento: cleanReceivable.dataVencimento
+          ? new Date(cleanReceivable.dataVencimento)
+          : new Date(),
+        valorOriginal: cleanReceivable.valorOriginal,
+        valorAtualizado: cleanReceivable.valorAtualizado,
+        idIndexador: cleanReceivable.idIndexador,
+        juros: cleanReceivable.juros,
+        multa: cleanReceivable.multa,
+        descontoConcedido: cleanReceivable.descontoConcedido,
+        valorPago: cleanReceivable.valorPago,
+        dataPagamento: cleanReceivable.dataPagamento
+          ? new Date(cleanReceivable.dataPagamento)
+          : null,
+        status: cleanReceivable.status,
+        observacoes: cleanReceivable.observacoes,
         idPortador,
         idPlanoFinanceiro,
       };
 
+      // Verificar se o título já existe
+      const existingReceivable = await prisma.tituloReceber.findUnique({
+        where: { idTituloReceber: cleanReceivable.idTituloReceber },
+      });
+
       await prisma.tituloReceber.upsert({
-        where: { idTituloReceber: receivable.id },
+        where: { idTituloReceber: cleanReceivable.idTituloReceber },
         update: receivableData,
         create: {
-          idTituloReceber: receivable.id,
+          idTituloReceber: cleanReceivable.idTituloReceber,
           ...receivableData,
         },
       });
 
-      console.log(
-        `[Sync] Título a receber salvo: ${receivable.documentNumber} (ID: ${receivable.id})`
-      );
+      if (existingReceivable) {
+        updatedCount++;
+      } else {
+        insertedCount++;
+      }
     } catch (error) {
+      errorCount++;
       console.error(
-        `[Sync] Erro ao salvar título a receber ${receivable.id}:`,
+        `[Sync] Erro ao salvar título a receber ${receivable.documentNumber || receivable.id}:`,
         error instanceof Error ? error.message : error
       );
     }
   }
 
-  console.log(`[Sync] Salvamento de títulos a receber concluído`);
+  console.log(
+    `[Sync] Salvamento de títulos a receber concluído: ${insertedCount} inseridos, ${updatedCount} atualizados, ${errorCount} erros`
+  );
+  return { inserted: insertedCount, updated: updatedCount, errors: errorCount };
 }
 
-async function savePayables(payables: any[]) {
+async function savePayables(
+  payables: any[]
+): Promise<{ inserted: number; updated: number; errors: number }> {
   console.log(
     `[Sync] Iniciando salvamento de ${payables.length} títulos a pagar`
   );
 
+  let insertedCount = 0;
+  let updatedCount = 0;
+  let errorCount = 0;
+
   for (const payable of payables) {
     try {
-      const idCredor = await getOrCreateCredorReference(
-        payable.creditorId || payable.supplierId
-      );
-      const idEmpresaDevedora = payable.companyId || null;
-      const idPlanoFinanceiro = await getOrCreatePlanoFinanceiro(
-        payable.paymentCategoryId || payable.financialPlanId
-      );
-      const idIndexador = payable.indexId || null;
-      const idContratoSuprimento = payable.contractId || null;
-
-      const payableData = {
-        idCredor,
-        idEmpresaDevedora,
+      // Limpar dados desnecessários de paginação e metadados
+      const cleanPayable = {
+        idTituloPagar: payable.id,
+        idCredor: payable.creditorId || payable.supplierId,
+        idEmpresaDevedora: payable.companyId || null,
         numeroDocumento: payable.documentNumber || payable.numero || '',
         idDocumentoIdent: payable.documentIdentificationId || null,
-        dataEmissao: payable.issueDate
-          ? new Date(payable.issueDate)
-          : new Date(),
-        dataVencimento: payable.dueDate
-          ? new Date(payable.dueDate)
-          : new Date(),
+        dataEmissao: payable.issueDate,
+        dataVencimento: payable.dueDate,
         valorOriginal: payable.originalValue || payable.valor || 0,
         valorAtualizado: payable.updatedValue || null,
-        idIndexador,
-        idPlanoFinanceiro,
+        idIndexador: payable.indexId || null,
+        idPlanoFinanceiro: payable.paymentCategoryId || payable.financialPlanId,
         observacao: payable.observations || null,
         descontoObtido: payable.discountObtained || null,
         valorPago: payable.paidValue || null,
-        dataPagamento: payable.paymentDate
-          ? new Date(payable.paymentDate)
-          : null,
+        dataPagamento: payable.paymentDate,
         status: payable.status || 'PENDENTE',
-        idContratoSuprimento,
+        idContratoSuprimento: payable.contractId || null,
       };
 
+      // Buscar/criar relacionamentos necessários
+      const idCredor = await getOrCreateCredorReference(cleanPayable.idCredor);
+      const idPlanoFinanceiro = await getOrCreatePlanoFinanceiro(
+        cleanPayable.idPlanoFinanceiro
+      );
+
+      const payableData = {
+        idCredor,
+        idEmpresaDevedora: cleanPayable.idEmpresaDevedora,
+        numeroDocumento: cleanPayable.numeroDocumento,
+        idDocumentoIdent: cleanPayable.idDocumentoIdent,
+        dataEmissao: cleanPayable.dataEmissao
+          ? new Date(cleanPayable.dataEmissao)
+          : new Date(),
+        dataVencimento: cleanPayable.dataVencimento
+          ? new Date(cleanPayable.dataVencimento)
+          : new Date(),
+        valorOriginal: cleanPayable.valorOriginal,
+        valorAtualizado: cleanPayable.valorAtualizado,
+        idIndexador: cleanPayable.idIndexador,
+        idPlanoFinanceiro,
+        observacao: cleanPayable.observacao,
+        descontoObtido: cleanPayable.descontoObtido,
+        valorPago: cleanPayable.valorPago,
+        dataPagamento: cleanPayable.dataPagamento
+          ? new Date(cleanPayable.dataPagamento)
+          : null,
+        status: cleanPayable.status,
+        idContratoSuprimento: cleanPayable.idContratoSuprimento,
+      };
+
+      // Verificar se o título já existe
+      const existingPayable = await prisma.tituloPagar.findUnique({
+        where: { idTituloPagar: cleanPayable.idTituloPagar },
+      });
+
       await prisma.tituloPagar.upsert({
-        where: { idTituloPagar: payable.id },
+        where: { idTituloPagar: cleanPayable.idTituloPagar },
         update: payableData,
         create: {
-          idTituloPagar: payable.id,
+          idTituloPagar: cleanPayable.idTituloPagar,
           ...payableData,
         },
       });
 
-      console.log(
-        `[Sync] Título a pagar salvo: ${payable.documentNumber} (ID: ${payable.id})`
-      );
+      if (existingPayable) {
+        updatedCount++;
+      } else {
+        insertedCount++;
+      }
     } catch (error) {
+      errorCount++;
       console.error(
-        `[Sync] Erro ao salvar título a pagar ${payable.id}:`,
+        `[Sync] Erro ao salvar título a pagar ${payable.documentNumber || payable.id}:`,
         error instanceof Error ? error.message : error
       );
     }
   }
 
-  console.log(`[Sync] Salvamento de títulos a pagar concluído`);
+  console.log(
+    `[Sync] Salvamento de títulos a pagar concluído: ${insertedCount} inseridos, ${updatedCount} atualizados, ${errorCount} erros`
+  );
+  return { inserted: insertedCount, updated: updatedCount, errors: errorCount };
 }
 
-async function saveSalesContracts(contracts: any[]) {
+async function saveSalesContracts(
+  contracts: any[]
+): Promise<{ inserted: number; updated: number; errors: number }> {
   console.log(
     `[Sync] Iniciando salvamento de ${contracts.length} contratos de venda`
   );
 
+  let insertedCount = 0;
+  let updatedCount = 0;
+  let errorCount = 0;
+
   for (const contract of contracts) {
     try {
-      const idCliente = await getOrCreateCustomerReference(
-        contract.customerId || contract.clientId
-      );
-      const idUnidade = contract.unitId || contract.propertyId;
-      const idIndexador = contract.indexId || null;
-      const idPlanoFinanceiro = await getOrCreatePlanoFinanceiro(
-        contract.financialPlanId
-      );
-      const idCondicaoPagamento = await getOrCreateCondicaoPagamento(
-        contract.paymentConditionId
-      );
-
-      const contractData = {
+      // Limpar dados desnecessários de paginação e metadados
+      const cleanContract = {
+        idContrato: contract.id,
         numeroContrato: contract.contractNumber || contract.numero || '',
-        idCliente,
-        idUnidade,
-        dataContrato: contract.contractDate
-          ? new Date(contract.contractDate)
-          : new Date(),
+        idCliente: contract.customerId || contract.clientId,
+        idUnidade: contract.unitId || contract.propertyId,
+        dataContrato: contract.contractDate,
         valorContrato: contract.contractValue || contract.valor || 0,
-        idIndexador,
-        idPlanoFinanceiro,
-        idCondicaoPagamento,
+        idIndexador: contract.indexId || null,
+        idPlanoFinanceiro: contract.financialPlanId,
+        idCondicaoPagamento: contract.paymentConditionId,
         entrada: contract.downPayment || null,
         financiamento: contract.financing || null,
         observacoes: contract.observations || null,
         statusContrato: contract.status || 'ATIVO',
       };
 
+      // Buscar/criar relacionamentos necessários
+      const idCliente = await getOrCreateCustomerReference(
+        cleanContract.idCliente
+      );
+      const idPlanoFinanceiro = await getOrCreatePlanoFinanceiro(
+        cleanContract.idPlanoFinanceiro
+      );
+      const idCondicaoPagamento = await getOrCreateCondicaoPagamento(
+        cleanContract.idCondicaoPagamento
+      );
+
+      const contractData = {
+        numeroContrato: cleanContract.numeroContrato,
+        idCliente,
+        idUnidade: cleanContract.idUnidade,
+        dataContrato: cleanContract.dataContrato
+          ? new Date(cleanContract.dataContrato)
+          : new Date(),
+        valorContrato: cleanContract.valorContrato,
+        idIndexador: cleanContract.idIndexador,
+        idPlanoFinanceiro,
+        idCondicaoPagamento,
+        entrada: cleanContract.entrada,
+        financiamento: cleanContract.financiamento,
+        observacoes: cleanContract.observacoes,
+        statusContrato: cleanContract.statusContrato,
+      };
+
+      // Verificar se o contrato já existe
+      const existingContract = await prisma.contratoVenda.findUnique({
+        where: { idContrato: cleanContract.idContrato },
+      });
+
       await prisma.contratoVenda.upsert({
-        where: { idContrato: contract.id },
+        where: { idContrato: cleanContract.idContrato },
         update: contractData,
         create: {
-          idContrato: contract.id,
+          idContrato: cleanContract.idContrato,
           ...contractData,
         },
       });
 
-      console.log(
-        `[Sync] Contrato de venda salvo: ${contract.contractNumber} (ID: ${contract.id})`
-      );
+      if (existingContract) {
+        updatedCount++;
+      } else {
+        insertedCount++;
+      }
     } catch (error) {
+      errorCount++;
       console.error(
-        `[Sync] Erro ao salvar contrato de venda ${contract.id}:`,
+        `[Sync] Erro ao salvar contrato de venda ${contract.contractNumber || contract.id}:`,
         error instanceof Error ? error.message : error
       );
     }
   }
 
-  console.log(`[Sync] Salvamento de contratos de venda concluído`);
+  console.log(
+    `[Sync] Salvamento de contratos de venda concluído: ${insertedCount} inseridos, ${updatedCount} atualizados, ${errorCount} erros`
+  );
+  return { inserted: insertedCount, updated: updatedCount, errors: errorCount };
 }
 
 async function saveSalesCommissions(commissions: any[]) {
