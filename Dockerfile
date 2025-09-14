@@ -44,7 +44,6 @@ COPY --from=builder /app/node_modules ./node_modules
 # Copiar arquivos essenciais
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/scripts ./scripts
 
 # Copiar build de produção (sem standalone)
 COPY --from=builder /app/.next ./.next
@@ -57,9 +56,12 @@ RUN npm install -g prisma@latest
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Copiar script de entrypoint (como root)
+# Copiar script de entrypoint (como root) - ANTES de copiar scripts
 COPY scripts/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
+# Copiar outros scripts necessários (mas não sobrescrever o entrypoint)
+COPY --from=builder /app/scripts ./scripts
 
 # Criar diretório de logs
 RUN mkdir -p logs && chown nextjs:nodejs logs
