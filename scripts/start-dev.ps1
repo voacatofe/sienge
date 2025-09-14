@@ -1,5 +1,5 @@
-# Script PowerShell para iniciar ambiente de DESENVOLVIMENTO do projeto Sienge
-# Otimizado para desenvolvimento com hot reload e recursos limitados
+# Script PowerShell para iniciar ambiente de DESENVOLVIMENTO/TESTE do projeto Sienge
+# AMBIENTE PRINCIPAL - Otimizado para desenvolvimento com hot reload e recursos limitados
 
 param(
     [Parameter(Position=0)]
@@ -16,8 +16,8 @@ $ComposeFile = "docker-compose-dev.yml"
 
 # Função para imprimir mensagens coloridas
 function Write-Header {
-    Write-Host "🛠️  Sienge - Ambiente de DESENVOLVIMENTO" -ForegroundColor Cyan
-    Write-Host "=========================================" -ForegroundColor Cyan
+    Write-Host "🐳 Sienge - Ambiente de DESENVOLVIMENTO/TESTE (Principal)" -ForegroundColor Cyan
+    Write-Host "=======================================================" -ForegroundColor Cyan
     Write-Host ""
 }
 
@@ -87,13 +87,28 @@ function Load-Environment {
     }
 }
 
-# Função para verificar Docker
-function Test-Docker {
+# Função para verificar Docker Desktop
+function Test-DockerDesktop {
     try {
-        docker info | Out-Null
-        Write-Success "Docker está rodando"
+        $dockerInfo = docker info 2>$null
+        if ($dockerInfo -match "Server Version") {
+            Write-Success "Docker Desktop está rodando"
+            
+            # Verificar se é Docker Desktop (não Docker Engine)
+            if ($dockerInfo -match "Docker Desktop" -or $dockerInfo -match "desktop") {
+                Write-Success "Docker Desktop detectado - ambiente ideal para desenvolvimento"
+            } else {
+                Write-Warning "Docker Engine detectado - funcional, mas Docker Desktop é recomendado"
+            }
+        } else {
+            throw "Docker não está respondendo corretamente"
+        }
     } catch {
-        Write-Error "Docker não está rodando. Por favor, inicie o Docker Desktop."
+        Write-Error "Docker Desktop não está rodando ou não está configurado corretamente."
+        Write-Status "Por favor:"
+        Write-Status "1. Inicie o Docker Desktop"
+        Write-Status "2. Aguarde até aparecer 'Docker Desktop is running'"
+        Write-Status "3. Execute este script novamente"
         exit 1
     }
 }
@@ -118,7 +133,7 @@ function Start-Development {
     Write-Header
     Write-Status "Iniciando ambiente de DESENVOLVIMENTO..."
     
-    Test-Docker
+    Test-DockerDesktop
     Load-Environment
     Test-DevelopmentConfig
     
@@ -249,7 +264,9 @@ function Test-Connectivity {
 # Função para mostrar informações de acesso
 function Show-AccessInfo {
     Write-Host ""
-    Write-Success "🎉 Ambiente de DESENVOLVIMENTO iniciado com sucesso!"
+    Write-Success "🎉 Ambiente de DESENVOLVIMENTO/TESTE iniciado com sucesso!"
+    Write-Host ""
+    Write-Host "🐳 Este é o ambiente PRINCIPAL para testes e desenvolvimento"
     Write-Host ""
     Write-Host "📋 Informações de acesso:"
     Write-Host "  🌐 Aplicação: http://localhost:$($env:APP_PORT_EXTERNAL)"
@@ -269,6 +286,7 @@ function Show-AccessInfo {
     Write-Host "   - Logs detalhados"
     Write-Host "   - Recursos limitados"
     Write-Host "   - Sincronização frequente (5 min)"
+    Write-Host "   - Porta 5433 para evitar conflitos com produção"
     Write-Host ""
 }
 
@@ -279,10 +297,10 @@ function Show-Help {
     Write-Host "📋 Comandos Disponíveis:" -ForegroundColor Yellow
     Write-Host ""
     
-    Write-Host "🛠️  Desenvolvimento:" -ForegroundColor Yellow
-    Write-Host "  start              - Iniciar ambiente de desenvolvimento" -ForegroundColor Green
+    Write-Host "🐳 Desenvolvimento/Teste (Principal):" -ForegroundColor Yellow
+    Write-Host "  start              - Iniciar ambiente de desenvolvimento/teste" -ForegroundColor Green
     Write-Host "  start --clean     - Iniciar ambiente limpo (remove volumes)" -ForegroundColor Green
-    Write-Host "  stop               - Parar ambiente de desenvolvimento" -ForegroundColor Green
+    Write-Host "  stop               - Parar ambiente de desenvolvimento/teste" -ForegroundColor Green
     Write-Host "  stop --clean      - Parar e remover volumes" -ForegroundColor Green
     Write-Host "  restart           - Reiniciar ambiente" -ForegroundColor Green
     Write-Host "  logs               - Visualizar logs" -ForegroundColor Green
@@ -293,15 +311,16 @@ function Show-Help {
     Write-Host ""
     
     Write-Host "💡 Exemplos de uso:" -ForegroundColor Cyan
-    Write-Host "  $($MyInvocation.MyCommand.Name) start                    # Iniciar desenvolvimento" -ForegroundColor Green
+    Write-Host "  $($MyInvocation.MyCommand.Name) start                    # Iniciar ambiente de teste" -ForegroundColor Green
     Write-Host "  $($MyInvocation.MyCommand.Name) start --clean           # Iniciar limpo" -ForegroundColor Green
-    Write-Host "  $($MyInvocation.MyCommand.Name) backup                   # Backup desenvolvimento" -ForegroundColor Green
+    Write-Host "  $($MyInvocation.MyCommand.Name) backup                   # Backup ambiente de teste" -ForegroundColor Green
     Write-Host ""
-    Write-Host "🛠️  Recursos de desenvolvimento:" -ForegroundColor Blue
+    Write-Host "🐳 Recursos do ambiente de teste:" -ForegroundColor Blue
     Write-Host "  • Hot reload habilitado" -ForegroundColor Blue
     Write-Host "  • Logs detalhados" -ForegroundColor Blue
     Write-Host "  • Recursos limitados" -ForegroundColor Blue
-    Write-Host "  • Sincronização frequente" -ForegroundColor Blue
+    Write-Host "  • Sincronização frequente (5 min)" -ForegroundColor Blue
+    Write-Host "  • Porta 5433 para evitar conflitos" -ForegroundColor Blue
     Write-Host ""
 }
 

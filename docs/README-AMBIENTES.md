@@ -2,6 +2,35 @@
 
 Este projeto suporta dois ambientes distintos: **desenvolvimento** e **produção**, cada um com suas próprias configurações e scripts de inicialização.
 
+## 🐳 Início Rápido (Docker Desktop - Principal)
+
+### Para começar rapidamente:
+
+1. **Certifique-se que o Docker Desktop está rodando**
+2. **Execute o ambiente de desenvolvimento/teste:**
+
+   ```bash
+   # Windows PowerShell (Recomendado)
+   .\scripts\start-dev.ps1 start
+
+   # Ou Windows Batch
+   start-dev.bat start
+   ```
+
+3. **Acesse a aplicação:** http://localhost:3000
+4. **Acesse o Adminer:** http://localhost:8080
+
+### Comandos essenciais:
+
+```bash
+.\scripts\start-dev.ps1 start    # Iniciar ambiente de teste
+.\scripts\start-dev.ps1 logs     # Ver logs em tempo real
+.\scripts\start-dev.ps1 stop     # Parar ambiente
+.\scripts\start-dev.ps1 backup   # Backup do banco
+```
+
+---
+
 ## 📁 Estrutura de Arquivos (ATUALIZADA)
 
 ```
@@ -90,22 +119,38 @@ docker-compose -f docker-compose-dev.yml --env-file .env.dev up --build -d
 - **Sincronização às 2h da manhã**
 - **Backup automático**
 
-### Como usar (NOVO)
+### Como usar (Docker Desktop - Ambiente Principal)
 
-#### Scripts Específicos (Recomendado):
+#### 🐳 Scripts para Docker Desktop (Recomendado):
 
 ```bash
-# Linux/Mac
-./scripts/start-prod.sh start
-./scripts/start-prod.sh stop
-./scripts/start-prod.sh logs
-./scripts/start-prod.sh backup
+# Windows PowerShell (Principal)
+.\scripts\start-dev.ps1 start      # Ambiente de desenvolvimento/teste
+.\scripts\start-dev.ps1 stop       # Parar ambiente
+.\scripts\start-dev.ps1 logs       # Ver logs
+.\scripts\start-dev.ps1 backup     # Backup do banco
 
+# Windows Batch (Alternativo)
+start-dev.bat start
+start-dev.bat stop
+start-dev.bat logs
+start-dev.bat backup
+
+# Linux/Mac (Compatibilidade)
+./scripts/start-dev.sh start
+./scripts/start-dev.sh stop
+./scripts/start-dev.sh logs
+./scripts/start-dev.sh backup
+```
+
+#### 🏭 Scripts para Produção:
+
+```bash
 # Windows PowerShell
-.\scripts\start-prod.ps1 start
-.\scripts\start-prod.ps1 stop
-.\scripts\start-prod.ps1 logs
-.\scripts\start-prod.ps1 backup
+.\scripts\start-prod.ps1 start     # Ambiente de produção
+.\scripts\start-prod.ps1 stop      # Parar ambiente
+.\scripts\start-prod.ps1 logs       # Ver logs
+.\scripts\start-prod.ps1 backup     # Backup do banco
 
 # Windows Batch
 start-prod.bat start
@@ -114,60 +159,65 @@ start-prod.bat logs
 start-prod.bat backup
 ```
 
-#### Manual:
+#### Manual (Docker Desktop):
 
 ```bash
-# Usar docker-compose.yml padrão
+# Desenvolvimento/Teste (Principal)
+docker-compose -f docker-compose-dev.yml up --build -d
+
+# Produção
 docker-compose up --build -d
 ```
 
 ### Acesso
 
+#### 🐳 Desenvolvimento/Teste (Docker Desktop - Principal):
+
+- **Aplicação:** http://localhost:3000
+- **Banco:** localhost:5433 (porta diferente para evitar conflitos)
+- **Adminer:** http://localhost:8080
+- **URL BD Externa:** `postgresql://sienge_dev:dev_password@localhost:5433/sienge_dev`
+
+#### 🏭 Produção:
+
 - **Aplicação:** http://localhost:3000
 - **Banco:** localhost:5432
 - **Adminer:** http://localhost:8080
-- **Logs:** `docker-compose logs -f`
+- **URL BD Externa:** `postgresql://sienge_app:senha_forte@localhost:5432/sienge_data`
 
-## 🔧 Comandos Úteis (ATUALIZADOS)
+## 🔧 Comandos Úteis (Docker Desktop - Principal)
 
-### Scripts Específicos (Recomendado)
-
-#### Desenvolvimento:
+### 🐳 Desenvolvimento/Teste (Docker Desktop)
 
 ```bash
-# Linux/Mac
-./scripts/start-dev.sh start          # Iniciar desenvolvimento
-./scripts/start-dev.sh logs           # Ver logs desenvolvimento
-./scripts/start-dev.sh stop           # Parar desenvolvimento
-./scripts/start-dev.sh backup         # Backup desenvolvimento
+# Windows PowerShell (Principal)
+.\scripts\start-dev.ps1 start      # Iniciar ambiente de teste
+.\scripts\start-dev.ps1 stop       # Parar ambiente
+.\scripts\start-dev.ps1 logs       # Ver logs em tempo real
+.\scripts\start-dev.ps1 backup     # Backup do banco de teste
+.\scripts\start-dev.ps1 restart   # Reiniciar ambiente
 
-# Windows PowerShell
-.\scripts\start-dev.ps1 start
-.\scripts\start-dev.ps1 logs
-.\scripts\start-dev.ps1 stop
-.\scripts\start-dev.ps1 backup
-
-# Windows Batch
+# Windows Batch (Alternativo)
 start-dev.bat start
-start-dev.bat logs
 start-dev.bat stop
+start-dev.bat logs
 start-dev.bat backup
+
+# Linux/Mac (Compatibilidade)
+./scripts/start-dev.sh start
+./scripts/start-dev.sh stop
+./scripts/start-dev.sh logs
+./scripts/start-dev.sh backup
 ```
 
-#### Produção:
+### 🏭 Produção
 
 ```bash
-# Linux/Mac
-./scripts/start-prod.sh start          # Iniciar produção
-./scripts/start-prod.sh logs           # Ver logs produção
-./scripts/start-prod.sh stop           # Parar produção
-./scripts/start-prod.sh backup         # Backup produção
-
 # Windows PowerShell
-.\scripts\start-prod.ps1 start
-.\scripts\start-prod.ps1 logs
-.\scripts\start-prod.ps1 stop
-.\scripts\start-prod.ps1 backup
+.\scripts\start-prod.ps1 start     # Iniciar ambiente de produção
+.\scripts\start-prod.ps1 stop      # Parar ambiente
+.\scripts\start-prod.ps1 logs       # Ver logs
+.\scripts\start-prod.ps1 backup     # Backup do banco de produção
 
 # Windows Batch
 start-prod.bat start
