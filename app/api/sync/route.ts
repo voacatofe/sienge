@@ -9,6 +9,24 @@ interface SyncRequest {
   entities: string[];
 }
 
+// Função auxiliar para criar mapeamento amigável de dados
+function createFriendlyFieldMapping(customer: any) {
+  return {
+    'ID do Cliente': customer.id,
+    'Nome Completo': customer.name,
+    'CPF/CNPJ': customer.cpf,
+    Email: customer.email,
+    RG: customer.numberIdentityCard,
+    'Data de Nascimento': customer.birthDate,
+    Nacionalidade: customer.nationality,
+    'Tipo de Pessoa': customer.personType,
+    'Estado Civil': customer.civilStatus?.descricao || customer.civilStatus,
+    Profissão: customer.profession?.descricao || customer.profession,
+    'Data de Cadastro': customer.createdAt,
+    'Data de Atualização': customer.updatedAt,
+  };
+}
+
 // Funções auxiliares para mapeamento de dados
 async function getOrCreateTipoCliente(descricao: string): Promise<number> {
   // Primeiro tentar encontrar existente
@@ -184,138 +202,221 @@ async function getOrCreateCondicaoPagamento(
 }
 
 // Método para salvar dados de entidades no banco
-async function saveEntityData(entity: string, data: any[]) {
+async function saveEntityData(
+  entity: string,
+  data: any[]
+): Promise<{ inserted: number; updated: number; errors: number }> {
   switch (entity) {
     case 'customers':
-      await saveCustomers(data);
-      break;
+      return await saveCustomers(data);
     case 'companies':
-      await saveCompanies(data);
-      break;
+      return await saveCompanies(data);
     case 'projects':
-      await saveProjects(data);
-      break;
+      return await saveProjects(data);
     case 'costCenters':
-      await saveCostCenters(data);
-      break;
+      return await saveCostCenters(data);
     // Entidades Financeiras
     case 'receivables':
-      await saveReceivables(data);
-      break;
+      return await saveReceivables(data);
     case 'payables':
-      await savePayables(data);
-      break;
+      return await savePayables(data);
     case 'salesContracts':
-      await saveSalesContracts(data);
-      break;
+      return await saveSalesContracts(data);
     case 'salesCommissions':
-      await saveSalesCommissions(data);
-      break;
+      return await saveSalesCommissions(data);
     case 'financialPlans':
-      await saveFinancialPlans(data);
-      break;
+      return await saveFinancialPlans(data);
     case 'receivableCarriers':
-      await saveReceivableCarriers(data);
-      break;
+      return await saveReceivableCarriers(data);
     case 'indexers':
-      await saveIndexers(data);
-      break;
+      return await saveIndexers(data);
     default:
       console.warn(
         `[Sync API] Salvamento não implementado para entidade: ${entity}`
       );
+      return { inserted: 0, updated: 0, errors: 0 };
   }
 }
 
 // Implementações específicas de salvamento
-async function saveCustomers(customers: any[]) {
+async function saveCustomers(
+  customers: any[]
+): Promise<{ inserted: number; updated: number; errors: number }> {
   console.log(`[Sync] Iniciando salvamento de ${customers.length} customers`);
+
+  let insertedCount = 0;
+  let updatedCount = 0;
+  let errorCount = 0;
 
   for (const customer of customers) {
     try {
+      // Limpar dados desnecessários de paginação e metadados
+      const cleanCustomer = {
+        idCliente: customer.id,
+        nomeCompleto: customer.name,
+        cpfCnpj: customer.cpf,
+        email: customer.email,
+        rg: customer.numberIdentityCard,
+        dataNascimento: customer.birthDate,
+        nacionalidade: customer.nationality,
+        tipoPessoa: customer.personType,
+        // Extrair valores corretos dos campos que estão vindo como objetos
+        estadoCivil: customer.civilStatus?.descricao || customer.civilStatus,
+        profissao: customer.profession?.descricao || customer.profession,
+        dataCadastro: customer.createdAt,
+        dataAtualizacao: customer.updatedAt,
+      };
+
+      // Log de exemplo para debug (apenas em desenvolvimento)
+      logSampleProcessedData(customer, cleanCustomer);
+
       // Buscar/criar relacionamentos
       const idTipoCliente = await getOrCreateTipoCliente(
-        customer.personType === 'Física' ? 'Pessoa Física' : 'Pessoa Jurídica'
+        cleanCustomer.tipoPessoa === 'Física'
+          ? 'Pessoa Física'
+          : 'Pessoa Jurídica'
       );
-      const idEstadoCivil = await getOrCreateEstadoCivil(customer.civilStatus);
-      const idProfissao = await getOrCreateProfissao(customer.profession);
+      const idEstadoCivil = await getOrCreateEstadoCivil(
+        cleanCustomer.estadoCivil
+      );
+      const idProfissao = await getOrCreateProfissao(cleanCustomer.profissao);
 
       // Mapear dados da API para schema do banco
       const customerData = {
         idTipoCliente,
-        nomeCompleto: customer.name || '',
-        cpfCnpj: customer.cpf || '',
-        email: customer.email || null,
-        rg: customer.numberIdentityCard || null,
-        dataNascimento: customer.birthDate
-          ? new Date(customer.birthDate)
+        nomeCompleto: cleanCustomer.nomeCompleto || '',
+        cpfCnpj: cleanCustomer.cpfCnpj || '',
+        email: cleanCustomer.email || null,
+        rg: cleanCustomer.rg || null,
+        dataNascimento: cleanCustomer.dataNascimento
+          ? new Date(cleanCustomer.dataNascimento)
           : null,
-        nacionalidade: customer.nationality || null,
+        nacionalidade: cleanCustomer.nacionalidade || null,
         idProfissao,
         idEstadoCivil,
         ativo: true,
-        dataCadastro: customer.createdAt
-          ? new Date(customer.createdAt)
+        dataCadastro: cleanCustomer.dataCadastro
+          ? new Date(cleanCustomer.dataCadastro)
           : new Date(),
       };
 
+      // Verificar se o cliente já existe
+      const existingCustomer = await prisma.cliente.findUnique({
+        where: { idCliente: cleanCustomer.idCliente },
+      });
+
       await prisma.cliente.upsert({
-        where: { idCliente: customer.id },
+        where: { idCliente: cleanCustomer.idCliente },
         update: customerData,
         create: {
-          idCliente: customer.id,
+          idCliente: cleanCustomer.idCliente,
           ...customerData,
         },
       });
 
-      console.log(
-        `[Sync] Cliente salvo: ${customer.name} (ID: ${customer.id})`
-      );
+      if (existingCustomer) {
+        updatedCount++;
+      } else {
+        insertedCount++;
+      }
     } catch (error) {
+      errorCount++;
       console.error(
-        `[Sync] Erro ao salvar cliente ${customer.id}:`,
+        `[Sync] Erro ao salvar cliente ${customer.name || customer.id}:`,
         error instanceof Error ? error.message : error
       );
       // Continue com o próximo cliente em caso de erro
     }
   }
 
-  console.log(`[Sync] Salvamento de customers concluído`);
-}
+  console.log(
+    `[Sync] Salvamento de clientes concluído: ${insertedCount} inseridos, ${updatedCount} atualizados, ${errorCount} erros`
+  );
 
-async function saveCompanies(companies: any[]) {
-  for (const company of companies) {
-    await prisma.empresa.upsert({
-      where: { idEmpresa: company.id },
-      update: {
-        nomeEmpresa: company.name,
-        cnpj: company.cnpj,
-        nomeFantasia: company.tradeName,
-        ativo: true,
-      },
-      create: {
-        idEmpresa: company.id,
-        nomeEmpresa: company.name,
-        cnpj: company.cnpj,
-        nomeFantasia: company.tradeName,
-        ativo: true,
-      },
-    });
+  // Log detalhado apenas se houver erros
+  if (errorCount > 0) {
+    console.log(`[Sync] Resumo dos campos processados:`);
+    console.log(`- Nome Completo: ${customers.length > 0 ? '✓' : '✗'}`);
+    console.log(`- CPF/CNPJ: ${customers.length > 0 ? '✓' : '✗'}`);
+    console.log(`- Estado Civil: ${customers.length > 0 ? '✓' : '✗'}`);
+    console.log(`- Profissão: ${customers.length > 0 ? '✓' : '✗'}`);
+    console.log(`- Data de Cadastro: ${customers.length > 0 ? '✓' : '✗'}`);
   }
+
+  return { inserted: insertedCount, updated: updatedCount, errors: errorCount };
 }
 
-async function saveProjects(projects: any[]) {
+async function saveCompanies(
+  companies: any[]
+): Promise<{ inserted: number; updated: number; errors: number }> {
+  console.log(`[Sync] Iniciando salvamento de ${companies.length} companies`);
+
+  let insertedCount = 0;
+  let updatedCount = 0;
+  let errorCount = 0;
+
+  for (const company of companies) {
+    try {
+      // Verificar se a empresa já existe
+      const existingCompany = await prisma.empresa.findUnique({
+        where: { idEmpresa: company.id },
+      });
+
+      await prisma.empresa.upsert({
+        where: { idEmpresa: company.id },
+        update: {
+          nomeEmpresa: company.name,
+          cnpj: company.cnpj,
+          nomeFantasia: company.tradeName,
+          ativo: true,
+        },
+        create: {
+          idEmpresa: company.id,
+          nomeEmpresa: company.name,
+          cnpj: company.cnpj,
+          nomeFantasia: company.tradeName,
+          ativo: true,
+        },
+      });
+
+      if (existingCompany) {
+        updatedCount++;
+      } else {
+        insertedCount++;
+      }
+    } catch (error) {
+      errorCount++;
+      console.error(
+        `[Sync] Erro ao salvar empresa ${company.id}:`,
+        error instanceof Error ? error.message : error
+      );
+    }
+  }
+
+  console.log(
+    `[Sync] Salvamento de companies concluído: ${insertedCount} inseridas, ${updatedCount} atualizadas, ${errorCount} erros`
+  );
+  return { inserted: insertedCount, updated: updatedCount, errors: errorCount };
+}
+
+async function saveProjects(
+  projects: any[]
+): Promise<{ inserted: number; updated: number; errors: number }> {
   // Implementar quando o endpoint de projetos estiver funcionando
   console.log(
     `[Sync API] Salvamento de projetos não implementado ainda: ${projects.length} registros`
   );
+  return { inserted: 0, updated: 0, errors: 0 };
 }
 
-async function saveCostCenters(costCenters: any[]) {
+async function saveCostCenters(
+  costCenters: any[]
+): Promise<{ inserted: number; updated: number; errors: number }> {
   // Implementar quando o endpoint de centros de custo estiver funcionando
   console.log(
     `[Sync API] Salvamento de centros de custo não implementado ainda: ${costCenters.length} registros`
   );
+  return { inserted: 0, updated: 0, errors: 0 };
 }
 
 // === FUNÇÕES DE SALVAMENTO PARA ENTIDADES FINANCEIRAS ===
@@ -715,6 +816,8 @@ export async function POST(request: NextRequest) {
 
     const results = [];
     let totalProcessed = 0;
+    let totalInserted = 0;
+    let totalUpdated = 0;
     let totalErrors = 0;
 
     // Processar cada entidade
@@ -892,9 +995,13 @@ export async function POST(request: NextRequest) {
         // Implementar salvamento no banco de dados
         if (data.length > 0) {
           try {
-            await saveEntityData(entity, data);
+            const saveResult = await saveEntityData(entity, data);
+            totalInserted += saveResult.inserted;
+            totalUpdated += saveResult.updated;
+            totalErrors += saveResult.errors;
+
             console.log(
-              `[Sync API] Dados salvos no banco para ${entity}: ${data.length} registros`
+              `[Sync API] Dados salvos no banco para ${entity}: ${saveResult.inserted} inseridos, ${saveResult.updated} atualizados, ${saveResult.errors} erros`
             );
           } catch (saveError) {
             console.error(
@@ -933,6 +1040,8 @@ export async function POST(request: NextRequest) {
       data: {
         syncCompletedAt: new Date(),
         recordsProcessed: totalProcessed,
+        recordsInserted: totalInserted,
+        recordsUpdated: totalUpdated,
         recordsErrors: totalErrors,
         status: totalErrors > 0 ? 'completed_with_errors' : 'completed',
         apiCallsMade: entities.length,
@@ -945,8 +1054,8 @@ export async function POST(request: NextRequest) {
       results,
       summary: {
         totalProcessed,
-        totalInserted: 0,
-        totalUpdated: 0,
+        totalInserted,
+        totalUpdated,
         totalErrors,
       },
     });
