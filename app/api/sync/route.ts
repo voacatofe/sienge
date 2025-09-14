@@ -732,16 +732,12 @@ export async function POST(request: NextRequest) {
           ],
           costCenters: ['/cost-centers', '/departments'],
           // Entidades Financeiras
-          receivables: [
-            '/receivables',
-            '/accounts-receivable',
-            '/bills-receivable',
-          ],
-          payables: ['/payables', '/accounts-payable', '/bills-payable'],
+          receivables: ['/accounts-receivable'],
+          payables: ['/accounts-payable'],
           salesContracts: ['/sales-contracts', '/contracts'],
-          salesCommissions: ['/sales-commissions', '/commissions'],
-          financialPlans: ['/payment-categories', '/financial-plans'],
-          receivableCarriers: ['/receivable-carriers', '/carriers'],
+          salesCommissions: ['/commissions'],
+          financialPlans: ['/payment-categories'],
+          receivableCarriers: ['/carriers'],
           indexers: ['/indexers'],
         };
 
