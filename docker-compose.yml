@@ -130,6 +130,38 @@ services:
         max-size: '${ADMINER_LOG_MAX_SIZE:-10m}'
         max-file: '${ADMINER_LOG_MAX_FILES:-3}'
 
+  # Sync Diário - Executa sincronização automática
+  daily-sync:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: npm run sync:daily
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - SYNC_URL=http://app:3000/api/sync
+      - SYNC_TIME=${SYNC_TIME:-0 2 * * *}
+    depends_on:
+      app:
+        condition: service_healthy
+    networks:
+      - sienge-network
+    # Configurações de recursos leves
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.25'
+        reservations:
+          memory: 128M
+          cpus: '0.1'
+    # Configurações de logging
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '10m'
+        max-file: '3'
+
 volumes:
   postgres-data:
     driver: local
