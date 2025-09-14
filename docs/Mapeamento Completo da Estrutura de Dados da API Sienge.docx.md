@@ -1,14 +1,51 @@
 # Mapeamento Completo da Estrutura de Dados da API Sienge
 
+## 🚀 Status de Implementação (Atualizado)
+
+**Última Atualização:** $(date)
+
+### ✅ **Endpoints Implementados e Corrigidos**
+
+| Endpoint Sienge        | Status              | API Local                                     | Arquivo                                 |
+| ---------------------- | ------------------- | --------------------------------------------- | --------------------------------------- |
+| `/customers`           | ✅ **IMPLEMENTADO** | `/api/data/customers`                         | `app/api/data/customers/route.ts`       |
+| `/companies`           | ✅ **IMPLEMENTADO** | `/api/data/companies`                         | `app/api/data/companies/route.ts`       |
+| `/accounts-receivable` | ✅ **IMPLEMENTADO** | `/api/data/accounts-receivable`               | `app/api/data/receivables/route.ts`     |
+| `/accounts-payable`    | ✅ **IMPLEMENTADO** | `/api/data/accounts-payable`                  | `app/api/data/payables/route.ts`        |
+| `/sales-contracts`     | ✅ **IMPLEMENTADO** | `/api/data/sales-contracts`                   | `app/api/data/sales-contracts/route.ts` |
+| `/commissions`         | ✅ **IMPLEMENTADO** | `/api/data/financial?type=commissions`        | `app/api/data/financial/route.ts`       |
+| `/payment-categories`  | ✅ **IMPLEMENTADO** | `/api/data/financial?type=payment-categories` | `app/api/data/financial/route.ts`       |
+| `/indexers`            | ✅ **IMPLEMENTADO** | `/api/data/financial?type=indexers`           | `app/api/data/financial/route.ts`       |
+| `/carriers`            | ✅ **IMPLEMENTADO** | `/api/data/financial?type=carriers`           | `app/api/data/financial/route.ts`       |
+| `/cost-centers`        | ✅ **IMPLEMENTADO** | `/api/data/financial?type=cost-centers`       | `app/api/data/financial/route.ts`       |
+| `/departments`         | ✅ **IMPLEMENTADO** | `/api/data/financial?type=departments`        | `app/api/data/financial/route.ts`       |
+
+### 🔧 **Correções Implementadas**
+
+- ✅ **Endpoints corrigidos** conforme documentação oficial Sienge
+- ✅ **Configurações centralizadas** em `lib/config/sienge-api.ts`
+- ✅ **Meta endpoints atualizados** em todas as APIs
+- ✅ **Case statements corrigidos** no endpoint unificado `/financial`
+- ✅ **Mapeamentos ENTITY_TO_ENDPOINT** atualizados
+
+### 📋 **Arquivos Modificados**
+
+- ✅ `lib/config/sienge-api.ts` - Configurações centralizadas
+- ✅ `app/api/data/receivables/route.ts` - Meta endpoint corrigido
+- ✅ `app/api/data/payables/route.ts` - Meta endpoint corrigido
+- ✅ `app/api/data/financial/route.ts` - Case statements e meta fields corrigidos
+
+---
+
 ## Visão Geral da API Sienge
 
-A API do Sienge Plataforma é dividida em **APIs REST** (transacionais) e **APIs Bulk-Data** (consultas em massa). As APIs REST fornecem operações CRUD e retornos paginados para recursos como *Clientes, Credores, Títulos a Receber* etc., enquanto as Bulk-Data permitem extrair grandes volumes de dados de uma só vez[\[1\]](https://ajuda.sienge.com.br/support/solutions/articles/153000200200-api-rest-credores#:~:text=API%2C%C2%A0Application%C2%A0Programming%C2%A0Interface%20ou%20Interface%20de%20Programa%C3%A7%C3%A3o,a%C3%A7%C3%B5es%20que%20podem%20ser%20feitas)[\[2\]](https://ajuda.sienge.com.br/support/solutions/articles/153000200931-como-entender-a-documentac%C3%A3o-das-apis-#:~:text=Plataforma%20ajuda,recursos%20para%20transacionar%20um). Cada endpoint normalmente retorna os dados em um formato estruturado com duas partes principais: uma lista de registros (campo *records* ou similar) e metadados de paginação (como *totalRecords*, *offset*, *limit* dentro de *resultSetMetadata*)[\[3\]](https://forum.xperiun.com/topic/359-conex%C3%A3o-com-apis-e-recursividade-sienge-api/#:~:text=Error%20fetching%20https%3A%2F%2Fforum.xperiun.com%2Ftopic%2F359). Dessa forma, ao consumir um endpoint de listagem, o desenvolvedor recebe os registros solicitados e informações sobre a quantidade total de dados disponíveis.
+A API do Sienge Plataforma é dividida em **APIs REST** (transacionais) e **APIs Bulk-Data** (consultas em massa). As APIs REST fornecem operações CRUD e retornos paginados para recursos como _Clientes, Credores, Títulos a Receber_ etc., enquanto as Bulk-Data permitem extrair grandes volumes de dados de uma só vez[\[1\]](https://ajuda.sienge.com.br/support/solutions/articles/153000200200-api-rest-credores#:~:text=API%2C%C2%A0Application%C2%A0Programming%C2%A0Interface%20ou%20Interface%20de%20Programa%C3%A7%C3%A3o,a%C3%A7%C3%B5es%20que%20podem%20ser%20feitas)[\[2\]](https://ajuda.sienge.com.br/support/solutions/articles/153000200931-como-entender-a-documentac%C3%A3o-das-apis-#:~:text=Plataforma%20ajuda,recursos%20para%20transacionar%20um). Cada endpoint normalmente retorna os dados em um formato estruturado com duas partes principais: uma lista de registros (campo _records_ ou similar) e metadados de paginação (como _totalRecords_, _offset_, _limit_ dentro de _resultSetMetadata_)[\[3\]](https://forum.xperiun.com/topic/359-conex%C3%A3o-com-apis-e-recursividade-sienge-api/#:~:text=Error%20fetching%20https%3A%2F%2Fforum.xperiun.com%2Ftopic%2F359). Dessa forma, ao consumir um endpoint de listagem, o desenvolvedor recebe os registros solicitados e informações sobre a quantidade total de dados disponíveis.
 
 **Autenticação:** A autenticação às APIs é feita via HTTP Basic Auth (usuário e senha de API) ou outro mecanismo fornecido pelo Sienge. Como mencionado, você gerenciará a autenticação no seu aplicativo, então não detalharemos esse processo aqui. Basta notar que cada chamada requer credenciais válidas e que é possível configurar usuários de API e liberar permissões de endpoints específicos no painel do Sienge[\[4\]](https://ajuda.sienge.com.br/support/solutions/articles/153000245608--construpoint-integrac%C3%A3o-com-sienge-plataforma-parametrizac%C3%A3o#:~:text=7%20%E2%80%93%20Seguiremos%20com%20a,todos%20os%20listados%20a%20seguir).
 
-**Organização por recursos:** A API é organizada por recursos correspondentes às entidades do sistema (p. ex. *Empresas*, *Clientes*, *Insumos*, *Títulos a Pagar* etc). Cobriremos todos os recursos/endpoints relevantes, mapeando-os para tabelas, campos e relacionamentos em um banco Postgres via Prisma. Cada seção abaixo trata de um conjunto de endpoints relacionados e define as tabelas necessárias, com campos (colunas) e relações (chaves estrangeiras) adequados. Os nomes dos modelos e campos são apresentados em **Português** para facilitar para o time (conforme solicitado, sem seguir necessariamente convenções de nomenclatura específicas).
+**Organização por recursos:** A API é organizada por recursos correspondentes às entidades do sistema (p. ex. _Empresas_, _Clientes_, _Insumos_, _Títulos a Pagar_ etc). Cobriremos todos os recursos/endpoints relevantes, mapeando-os para tabelas, campos e relacionamentos em um banco Postgres via Prisma. Cada seção abaixo trata de um conjunto de endpoints relacionados e define as tabelas necessárias, com campos (colunas) e relações (chaves estrangeiras) adequados. Os nomes dos modelos e campos são apresentados em **Português** para facilitar para o time (conforme solicitado, sem seguir necessariamente convenções de nomenclatura específicas).
 
-Antes de mergulhar nos detalhes por recurso, vale destacar que muitos endpoints de consulta (*GET*) fornecem filtros via query params e retornos paginados. Para armazenamento no banco, entretanto, consideramos tabelas completas contendo todos os registros daquele tipo. Endpoints de criação/atualização (*POST/PUT/PATCH*) correspondem a inserir ou alterar registros nessas tabelas.
+Antes de mergulhar nos detalhes por recurso, vale destacar que muitos endpoints de consulta (_GET_) fornecem filtros via query params e retornos paginados. Para armazenamento no banco, entretanto, consideramos tabelas completas contendo todos os registros daquele tipo. Endpoints de criação/atualização (_POST/PUT/PATCH_) correspondem a inserir ou alterar registros nessas tabelas.
 
 ## Cadastros Gerais e Tabelas Básicas
 
@@ -24,7 +61,7 @@ Recurso: **Empresas** – Representa as empresas cadastradas (a empresa principa
 \- **codigoEmpresa** (String): Código interno ou número da empresa (se houver, ex: código usado em relatórios).  
 \- **ativo** (Boolean): Indicador se a empresa está ativa.
 
-*Relações:* Uma Empresa pode relacionar-se com diversos outros registros. Por exemplo, Empresa é referenciada em **Empreendimentos** (Obras) que pertencem a ela, em **Títulos Financeiros** indicando a empresa devedora/credora, etc. No contexto de multi-empresa, muitos registros carregam o *companyId*. Como o subdomínio da URL da API identifica a empresa, possivelmente sua aplicação terá apenas uma empresa ativa, mas modelamos ainda assim a tabela Empresa caso seja necessário armazenar múltiplas.
+_Relações:_ Uma Empresa pode relacionar-se com diversos outros registros. Por exemplo, Empresa é referenciada em **Empreendimentos** (Obras) que pertencem a ela, em **Títulos Financeiros** indicando a empresa devedora/credora, etc. No contexto de multi-empresa, muitos registros carregam o _companyId_. Como o subdomínio da URL da API identifica a empresa, possivelmente sua aplicação terá apenas uma empresa ativa, mas modelamos ainda assim a tabela Empresa caso seja necessário armazenar múltiplas.
 
 ### **Departamentos (Departments)**
 
@@ -33,7 +70,7 @@ Recurso: **Departamentos** – Departamentos internos da empresa. A API permite 
 \- **nomeDepartamento** (String): Nome do departamento.  
 \- **codigoDepartamento** (String): Código ou sigla do departamento (se houver).
 
-*Relações:* Pode ser referenciado em alocações de custo (ex: distribuição de despesas por departamento). Na API de títulos a pagar há possibilidade de apropriar valores por departamento[\[6\]](https://docs.fluidapi.io/sienge#:~:text=,teste%20do%20fluxo%20com%20o), então um **Título** pode ter 0 ou mais departamentos associados (via tabela de relação, ver Títulos a Pagar).
+_Relações:_ Pode ser referenciado em alocações de custo (ex: distribuição de despesas por departamento). Na API de títulos a pagar há possibilidade de apropriar valores por departamento[\[6\]](https://docs.fluidapi.io/sienge#:~:text=,teste%20do%20fluxo%20com%20o), então um **Título** pode ter 0 ou mais departamentos associados (via tabela de relação, ver Títulos a Pagar).
 
 ### **Centro de Custos (Cost Centers)**
 
@@ -43,18 +80,18 @@ Recurso: **Centro de Custos** – Centros de custo para classificação de despe
 \- **codigoCentroCusto** (String): Código do centro de custo (geralmente uma sequência hierárquica).  
 \- **ativo** (Boolean): Se o centro de custo está ativo para uso.
 
-*Relações:* Centros de custo aparecem na apropriação de títulos financeiros. Por exemplo, no lançamento de um título a pagar, pode-se distribuir o valor por centros de custo[\[6\]](https://docs.fluidapi.io/sienge#:~:text=,teste%20do%20fluxo%20com%20o). Assim, teremos uma tabela de ligação entre **Título** (financeiro) e **CentroCusto** para registrar as porcentagens/valores alocados (ver seção de Títulos a Pagar).
+_Relações:_ Centros de custo aparecem na apropriação de títulos financeiros. Por exemplo, no lançamento de um título a pagar, pode-se distribuir o valor por centros de custo[\[6\]](https://docs.fluidapi.io/sienge#:~:text=,teste%20do%20fluxo%20com%20o). Assim, teremos uma tabela de ligação entre **Título** (financeiro) e **CentroCusto** para registrar as porcentagens/valores alocados (ver seção de Títulos a Pagar).
 
 ### **Indexadores (Indexes)**
 
 Recurso: **Indexadores** – Índices econômicos usados para atualização monetária (ex: IGPM, INCC). A API de indexadores fornece lista e detalhes de indexadores[\[8\]](https://api.sienge.com.br/docs/html-files/bulk-data-income-v1.html#:~:text=Parcelas%20do%20Contas%20a%20Receber,bills)[\[9\]](https://www.youtube.com/watch?v=1Iwju7XyC88#:~:text=Trabalhando%20com%20API%27s%20no%20Power,um%20conjunto%20de%20padr%C3%B5es). Modelo **Indexador**:  
 \- **idIndexador** (Integer, PK): Identificador do indexador.  
-\- **nomeIndexador** (String): Nome do índice (por ex. *IGPM*).  
+\- **nomeIndexador** (String): Nome do índice (por ex. _IGPM_).  
 \- **descricao** (String): Descrição detalhada ou fórmula do índice (se fornecido).  
 \- **periodicidade** (String): Periodicidade de atualização (mensal, anual, etc).  
 \- **valorAtual** (Decimal): Último valor/taxa conhecido (opcional).
 
-*Relações:* Indexadores são referenciados em contratos e títulos que sofrem correção monetária. Ex: um contrato de venda pode ter um indexador para corrigir parcelas a vencer, um título a pagar pode referenciar um indexador específico (no payload de título a pagar há campo *indexid* indicando o indexador aplicado[\[10\]](https://docs.fluidapi.io/sienge#:~:text=tostring%20,htmldate)). Portanto, **TítuloFinanceiro** terá campo estrangeiro **idIndexador**.
+_Relações:_ Indexadores são referenciados em contratos e títulos que sofrem correção monetária. Ex: um contrato de venda pode ter um indexador para corrigir parcelas a vencer, um título a pagar pode referenciar um indexador específico (no payload de título a pagar há campo _indexid_ indicando o indexador aplicado[\[10\]](https://docs.fluidapi.io/sienge#:~:text=tostring%20,htmldate)). Portanto, **TítuloFinanceiro** terá campo estrangeiro **idIndexador**.
 
 ### **Parâmetros (Parameters)**
 
@@ -63,7 +100,7 @@ Recurso: **Parâmetros** – Endpoint para recuperar parâmetros gerais do siste
 \- **valor** (String): Valor configurado.  
 \- **descricao** (String): Descrição do parâmetro.
 
-A API de Parâmetros provavelmente retorna um conjunto de configurações do sistema; armazenar isso localmente pode não ser essencial, mas se necessário, pode-se mapear em uma tabela simples. *Obs:* Este recurso não exige relações complexas.
+A API de Parâmetros provavelmente retorna um conjunto de configurações do sistema; armazenar isso localmente pode não ser essencial, mas se necessário, pode-se mapear em uma tabela simples. _Obs:_ Este recurso não exige relações complexas.
 
 ### **Estados Civis (Marital Status)**
 
@@ -84,7 +121,7 @@ Clientes (Pessoa Física) podem referenciar profissões (ex: profissão do clien
 
 ### **Tipos de Clientes (Customer Types)**
 
-Recurso: **Tipos de Clientes** – Classificações de cliente. Poderia indicar, por exemplo, se é *Pessoa Física* ou *Pessoa Jurídica*, ou categorias comerciais (Investidor, Comprador, etc). A documentação indica uma API de tipos de clientes[\[12\]](https://api.sienge.com.br/docs/html-files/customer-types-v1.html#:~:text=Tipos%20de%20Clientes%201.0.0%20,v1). Modelo **TipoCliente**:  
+Recurso: **Tipos de Clientes** – Classificações de cliente. Poderia indicar, por exemplo, se é _Pessoa Física_ ou _Pessoa Jurídica_, ou categorias comerciais (Investidor, Comprador, etc). A documentação indica uma API de tipos de clientes[\[12\]](https://api.sienge.com.br/docs/html-files/customer-types-v1.html#:~:text=Tipos%20de%20Clientes%201.0.0%20,v1). Modelo **TipoCliente**:  
 \- **idTipoCliente** (Integer, PK)  
 \- **descricao** (String): Descrição do tipo (ex: Pessoa Física, Pessoa Jurídica).
 
@@ -110,19 +147,19 @@ No contexto de contratos de venda, pode haver referência a um tipo de condiçã
 
 Recurso: **Planos Financeiros** – Representam as naturezas de receita/despesa (plano de contas gerencial, não confundir com contas contábeis). A API lista os planos financeiros disponíveis[\[14\]](https://api.sienge.com.br/docs/html-files/payment-categories-v1.html#:~:text=Planos%20Financeiros%201,de%20planos%20financeiros%20%C2%B7%20Models). Modelo **PlanoFinanceiro**:  
 \- **idPlanoFinanceiro** (Integer, PK)  
-\- **nomePlano** (String): Nome da natureza financeira (ex: *Receita de Venda Imóveis*, *Despesa Administrativa*).  
-\- **codigoPlano** (String): Código hierárquico da natureza (ex: 1.2.03.04 conforme *natureza* indicada).  
+\- **nomePlano** (String): Nome da natureza financeira (ex: _Receita de Venda Imóveis_, _Despesa Administrativa_).  
+\- **codigoPlano** (String): Código hierárquico da natureza (ex: 1.2.03.04 conforme _natureza_ indicada).  
 \- **tipo** (String): Indicador se é receita ou despesa, ou outra classificação.
 
-*Relações:* Em **Títulos a Pagar** e **Títulos a Receber**, o campo de *natureza* financeira é representado por ID de PlanoFinanceiro. No exemplo de integração, o campo *paymentcategoriesid* aparece para títulos a pagar[\[6\]](https://docs.fluidapi.io/sienge#:~:text=,teste%20do%20fluxo%20com%20o) – este corresponde ao **Plano Financeiro** vinculado à despesa.
+_Relações:_ Em **Títulos a Pagar** e **Títulos a Receber**, o campo de _natureza_ financeira é representado por ID de PlanoFinanceiro. No exemplo de integração, o campo _paymentcategoriesid_ aparece para títulos a pagar[\[6\]](https://docs.fluidapi.io/sienge#:~:text=,teste%20do%20fluxo%20com%20o) – este corresponde ao **Plano Financeiro** vinculado à despesa.
 
 ### **Documentos (Identificação de Documentos)**
 
 Recurso: **Documentos** – Refere-se à identificação de documentos financeiros, possivelmente tipos de documento fiscal/financeiro (por exemplo: Nota Fiscal, Fatura, Recibo). A API de Documentos lista identificações de documentos[\[15\]](https://api.sienge.com.br/docs/html-files/document-identification-v1.html#:~:text=Platform%20api.sienge.com.br%20%201.0.0.%20,v1.yaml%3Ftimestamp). Modelo **DocumentoIdentificacao**:  
-\- **idDocumentoIdent** (String, PK): Código do tipo de documento (ex: "FFX", "NF", etc). *(Observação: pelo exemplo, parece ser um código alfanumérico)*[\[16\]](https://docs.fluidapi.io/sienge#:~:text=000%2F0001%2003%60%20%7D%7D,indexid).  
-\- **descricao** (String): Descrição do tipo de documento (ex: *Nota Fiscal de Fornecedor*, *Fatura*, *Recibo*).
+\- **idDocumentoIdent** (String, PK): Código do tipo de documento (ex: "FFX", "NF", etc). _(Observação: pelo exemplo, parece ser um código alfanumérico)_[\[16\]](https://docs.fluidapi.io/sienge#:~:text=000%2F0001%2003%60%20%7D%7D,indexid).  
+\- **descricao** (String): Descrição do tipo de documento (ex: _Nota Fiscal de Fornecedor_, _Fatura_, _Recibo_).
 
-Este código é usado em títulos financeiros (campo *documentIdentificationId* nos títulos a pagar[\[16\]](https://docs.fluidapi.io/sienge#:~:text=000%2F0001%2003%60%20%7D%7D,indexid)). Portanto **TituloFinanceiro** terá campo **idDocumentoIdent** referenciando esta tabela.
+Este código é usado em títulos financeiros (campo _documentIdentificationId_ nos títulos a pagar[\[16\]](https://docs.fluidapi.io/sienge#:~:text=000%2F0001%2003%60%20%7D%7D,indexid)). Portanto **TituloFinanceiro** terá campo **idDocumentoIdent** referenciando esta tabela.
 
 ### **Municípios (Cities)**
 
@@ -146,53 +183,53 @@ Esta seção abrange as entidades relacionadas aos **Clientes**, suas negociaç�
 
 Recurso: **Clientes** – Representa os clientes/consumidores (pessoas físicas ou jurídicas). A API de Clientes permite listar clientes, bem como acessar sub-recursos do cliente: telefones, cônjuge, rendas familiares, endereços, anexos[\[17\]](https://api.sienge.com.br/docs/html-files/customers-v1.html#:~:text=Clientes,cliente%20%C2%B7%20Anexos%20do%20cliente). O modelo **Cliente** terá campos abrangendo informações gerais e estruturas separadas para Pessoa Física e Pessoa Jurídica:
 
-* **idCliente** (Integer, PK): Identificador do cliente.
+- **idCliente** (Integer, PK): Identificador do cliente.
 
-* **tipoCliente** (FK para TipoCliente): Indica se é PF ou PJ[\[17\]](https://api.sienge.com.br/docs/html-files/customers-v1.html#:~:text=Clientes,cliente%20%C2%B7%20Anexos%20do%20cliente).
+- **tipoCliente** (FK para TipoCliente): Indica se é PF ou PJ[\[17\]](https://api.sienge.com.br/docs/html-files/customers-v1.html#:~:text=Clientes,cliente%20%C2%B7%20Anexos%20do%20cliente).
 
-* **nomeCompleto** (String): Nome completo (para pessoa física) ou Razão Social (para pessoa jurídica).
+- **nomeCompleto** (String): Nome completo (para pessoa física) ou Razão Social (para pessoa jurídica).
 
-* **nomeSocial** (String): Nome social/apelido ou Nome Fantasia (se PJ).
+- **nomeSocial** (String): Nome social/apelido ou Nome Fantasia (se PJ).
 
-* **cpfCnpj** (String): CPF (PF) ou CNPJ (PJ).
+- **cpfCnpj** (String): CPF (PF) ou CNPJ (PJ).
 
-* **rg** (String, opcional): RG (pessoa física, se aplicável).
+- **rg** (String, opcional): RG (pessoa física, se aplicável).
 
-* **dataNascimento** (Date, PF): Data de nascimento (pessoa física).
+- **dataNascimento** (Date, PF): Data de nascimento (pessoa física).
 
-* **nacionalidade** (String, PF): Nacionalidade[\[18\]](https://ajuda.sienge.com.br/support/solutions/articles/153000200640-apoio-clientes-como-alterar-o-cadastro-de-cliente-atrav%C3%A9s-de-api-#:~:text=)[\[19\]](https://ajuda.sienge.com.br/support/solutions/articles/153000200640-apoio-clientes-como-alterar-o-cadastro-de-cliente-atrav%C3%A9s-de-api-#:~:text=Aten%C3%A7%C3%A3o%21%C2%A0%C2%A0O%20campo%C2%A0%E2%80%9Cnacionalidade%E2%80%9D%C2%A0passar%C3%A1%20a%20ficar%20na,por%20meio%20da%20estrutura%20atual).
+- **nacionalidade** (String, PF): Nacionalidade[\[18\]](https://ajuda.sienge.com.br/support/solutions/articles/153000200640-apoio-clientes-como-alterar-o-cadastro-de-cliente-atrav%C3%A9s-de-api-#:~:text=)[\[19\]](https://ajuda.sienge.com.br/support/solutions/articles/153000200640-apoio-clientes-como-alterar-o-cadastro-de-cliente-atrav%C3%A9s-de-api-#:~:text=Aten%C3%A7%C3%A3o%21%C2%A0%C2%A0O%20campo%C2%A0%E2%80%9Cnacionalidade%E2%80%9D%C2%A0passar%C3%A1%20a%20ficar%20na,por%20meio%20da%20estrutura%20atual).
 
-* **email** (String): E-mail de contato do cliente[\[18\]](https://ajuda.sienge.com.br/support/solutions/articles/153000200640-apoio-clientes-como-alterar-o-cadastro-de-cliente-atrav%C3%A9s-de-api-#:~:text=)[\[19\]](https://ajuda.sienge.com.br/support/solutions/articles/153000200640-apoio-clientes-como-alterar-o-cadastro-de-cliente-atrav%C3%A9s-de-api-#:~:text=Aten%C3%A7%C3%A3o%21%C2%A0%C2%A0O%20campo%C2%A0%E2%80%9Cnacionalidade%E2%80%9D%C2%A0passar%C3%A1%20a%20ficar%20na,por%20meio%20da%20estrutura%20atual).
+- **email** (String): E-mail de contato do cliente[\[18\]](https://ajuda.sienge.com.br/support/solutions/articles/153000200640-apoio-clientes-como-alterar-o-cadastro-de-cliente-atrav%C3%A9s-de-api-#:~:text=)[\[19\]](https://ajuda.sienge.com.br/support/solutions/articles/153000200640-apoio-clientes-como-alterar-o-cadastro-de-cliente-atrav%C3%A9s-de-api-#:~:text=Aten%C3%A7%C3%A3o%21%C2%A0%C2%A0O%20campo%C2%A0%E2%80%9Cnacionalidade%E2%80%9D%C2%A0passar%C3%A1%20a%20ficar%20na,por%20meio%20da%20estrutura%20atual).
 
-* **estadoCivil** (FK para EstadoCivil, PF): Estado civil do cliente.
+- **estadoCivil** (FK para EstadoCivil, PF): Estado civil do cliente.
 
-* **profissao** (FK para Profissao, PF): Profissão do cliente.
+- **profissao** (FK para Profissao, PF): Profissão do cliente.
 
-* **nomeConjuge** (String, PF, se não for mapeado como entidade separada): Nome do cônjuge, se casado. *(Nota: a API mais recente trata cônjuge como um sub-recurso separado)*.
+- **nomeConjuge** (String, PF, se não for mapeado como entidade separada): Nome do cônjuge, se casado. _(Nota: a API mais recente trata cônjuge como um sub-recurso separado)_.
 
-* **ativo** (Boolean): Indica se o cadastro do cliente está ativo.
+- **ativo** (Boolean): Indica se o cadastro do cliente está ativo.
 
-* **dataCadastro** (DateTime): Data de cadastro do cliente.
+- **dataCadastro** (DateTime): Data de cadastro do cliente.
 
 Sub-recursos do cliente de acordo com a API:
 
-* **Telefones do cliente**: lista de telefones relacionados[\[17\]](https://api.sienge.com.br/docs/html-files/customers-v1.html#:~:text=Clientes,cliente%20%C2%B7%20Anexos%20do%20cliente). Modelo **ClienteTelefone** com campos: **idTelefone**, **idCliente** (FK), **numero** (String), **tipo** (String, ex: celular, fixo), **observacao** (ex: "WhatsApp"). Um cliente pode ter vários telefones.
+- **Telefones do cliente**: lista de telefones relacionados[\[17\]](https://api.sienge.com.br/docs/html-files/customers-v1.html#:~:text=Clientes,cliente%20%C2%B7%20Anexos%20do%20cliente). Modelo **ClienteTelefone** com campos: **idTelefone**, **idCliente** (FK), **numero** (String), **tipo** (String, ex: celular, fixo), **observacao** (ex: "WhatsApp"). Um cliente pode ter vários telefones.
 
-* **Endereços do cliente**: endereços associados[\[17\]](https://api.sienge.com.br/docs/html-files/customers-v1.html#:~:text=Clientes,cliente%20%C2%B7%20Anexos%20do%20cliente). Modelo **ClienteEndereco**: **idEndereco**, **idCliente**, **logradouro**, **numero**, **complemento**, **bairro**, **cidade** (FK Municipio), **cep**, **tipoEndereco** (residencial, comercial, etc). Vários endereços por cliente.
+- **Endereços do cliente**: endereços associados[\[17\]](https://api.sienge.com.br/docs/html-files/customers-v1.html#:~:text=Clientes,cliente%20%C2%B7%20Anexos%20do%20cliente). Modelo **ClienteEndereco**: **idEndereco**, **idCliente**, **logradouro**, **numero**, **complemento**, **bairro**, **cidade** (FK Municipio), **cep**, **tipoEndereco** (residencial, comercial, etc). Vários endereços por cliente.
 
-* **Rendas Familiares do cliente**: fontes de renda declaradas[\[17\]](https://api.sienge.com.br/docs/html-files/customers-v1.html#:~:text=Clientes,cliente%20%C2%B7%20Anexos%20do%20cliente). Modelo **ClienteRenda**: **idRenda**, **idCliente**, **descricaoRenda** (ex: Salário, Aluguel), **valorMensal** (Decimal), **moeda** (BRL), **comprovada** (Boolean se comprovante apresentado). Várias rendas por cliente (PF).
+- **Rendas Familiares do cliente**: fontes de renda declaradas[\[17\]](https://api.sienge.com.br/docs/html-files/customers-v1.html#:~:text=Clientes,cliente%20%C2%B7%20Anexos%20do%20cliente). Modelo **ClienteRenda**: **idRenda**, **idCliente**, **descricaoRenda** (ex: Salário, Aluguel), **valorMensal** (Decimal), **moeda** (BRL), **comprovada** (Boolean se comprovante apresentado). Várias rendas por cliente (PF).
 
-* **Anexos do cliente**: documentos anexos (ex: cópia RG, comprovante residência)[\[17\]](https://api.sienge.com.br/docs/html-files/customers-v1.html#:~:text=Clientes,cliente%20%C2%B7%20Anexos%20do%20cliente). Modelo **ClienteAnexo**: **idAnexo**, **idCliente**, **tipoDocumento** (String, ex: RG, Comprovante), **urlArquivo** ou **binario** (dados do arquivo ou link).
+- **Anexos do cliente**: documentos anexos (ex: cópia RG, comprovante residência)[\[17\]](https://api.sienge.com.br/docs/html-files/customers-v1.html#:~:text=Clientes,cliente%20%C2%B7%20Anexos%20do%20cliente). Modelo **ClienteAnexo**: **idAnexo**, **idCliente**, **tipoDocumento** (String, ex: RG, Comprovante), **urlArquivo** ou **binario** (dados do arquivo ou link).
 
-* **Cônjuge do cliente**: a API possui um endpoint para consultar/alterar **cônjuge** do cliente[\[17\]](https://api.sienge.com.br/docs/html-files/customers-v1.html#:~:text=Clientes,cliente%20%C2%B7%20Anexos%20do%20cliente). O cônjuge pode ser tratado de duas formas no banco:
+- **Cônjuge do cliente**: a API possui um endpoint para consultar/alterar **cônjuge** do cliente[\[17\]](https://api.sienge.com.br/docs/html-files/customers-v1.html#:~:text=Clientes,cliente%20%C2%B7%20Anexos%20do%20cliente). O cônjuge pode ser tratado de duas formas no banco:
 
-* **Abordagem 1:** Armazenar o cônjuge como parte do modelo Cliente (campos dedicados prefixedo, ex: *nomeConjuge*, *cpfConjuge*, *dataNascConjuge*, etc). Isso reflete a estrutura antiga da API.
+- **Abordagem 1:** Armazenar o cônjuge como parte do modelo Cliente (campos dedicados prefixedo, ex: _nomeConjuge_, _cpfConjuge_, _dataNascConjuge_, etc). Isso reflete a estrutura antiga da API.
 
-* **Abordagem 2:** Armazenar em tabela separada **Conjuge** ligado 1-para-1 ao Cliente. Isso se alinha à nova API que trata cônjuge via endpoint /customers/{id}/spouse[\[20\]](https://ajuda.sienge.com.br/support/solutions/articles/153000200640-apoio-clientes-como-alterar-o-cadastro-de-cliente-atrav%C3%A9s-de-api-#:~:text=dos%20c%C3%B4njuges%20vinculados%20a%20um,substitui%C3%A7%C3%A3o%C2%A0PUT%C2%A0conforme%20apresentado%20pela%20figura%20abaixo). Nesse caso, **Conjuge** teria campos similares ao cliente PF (nome, CPF, RG, data nascimento, nacionalidade, profissão etc.), e **Cliente** teria campo idConjuge apontando para a entidade.
+- **Abordagem 2:** Armazenar em tabela separada **Conjuge** ligado 1-para-1 ao Cliente. Isso se alinha à nova API que trata cônjuge via endpoint /customers/{id}/spouse[\[20\]](https://ajuda.sienge.com.br/support/solutions/articles/153000200640-apoio-clientes-como-alterar-o-cadastro-de-cliente-atrav%C3%A9s-de-api-#:~:text=dos%20c%C3%B4njuges%20vinculados%20a%20um,substitui%C3%A7%C3%A3o%C2%A0PUT%C2%A0conforme%20apresentado%20pela%20figura%20abaixo). Nesse caso, **Conjuge** teria campos similares ao cliente PF (nome, CPF, RG, data nascimento, nacionalidade, profissão etc.), e **Cliente** teria campo idConjuge apontando para a entidade.
 
-Considerando manutenção, podemos implementar a tabela **Conjuge** separada. Assim, *Cliente (PF)* se relaciona opcionalmente com um Conjuge (1:1). Para **Cliente (PJ)**, campos específicos como *nomeConjuge* não se aplicam.
+Considerando manutenção, podemos implementar a tabela **Conjuge** separada. Assim, _Cliente (PF)_ se relaciona opcionalmente com um Conjuge (1:1). Para **Cliente (PJ)**, campos específicos como _nomeConjuge_ não se aplicam.
 
-*Relações adicionais:* Cliente se relaciona com **Reservas** e **Contratos de Venda** (um cliente pode ter várias reservas/contratos). Também está presente em **Títulos a Receber** como devedor (em geral, o cliente deve pagar). Caso o cliente seja também fornecedor (pouco provável no contexto, mas se fosse, seria registro duplicado em credores). Para evitar confusão, mantemos separado **Credor** abaixo.
+_Relações adicionais:_ Cliente se relaciona com **Reservas** e **Contratos de Venda** (um cliente pode ter várias reservas/contratos). Também está presente em **Títulos a Receber** como devedor (em geral, o cliente deve pagar). Caso o cliente seja também fornecedor (pouco provável no contexto, mas se fosse, seria registro duplicado em credores). Para evitar confusão, mantemos separado **Credor** abaixo.
 
 ### **Reservas de Unidades (Unit Reservations)**
 
@@ -205,7 +242,7 @@ Recurso: **Reservas de Unidades** – Representa a reserva (pré-venda) de uma u
 \- **statusReserva** (String): Status atual (Ativa, Expirada, ConvertidaEmContrato, Cancelada).  
 \- **observacoes** (String): Observações ou condições da reserva.
 
-*Relações:* Reserva liga Cliente e Unidade. Uma vez que a reserva se converte em contrato, possivelmente o registro de reserva é atualizado ou um contrato é criado referenciando a reserva. Se necessário, podemos incluir **idContratoVenda** na reserva quando virar venda.
+_Relações:_ Reserva liga Cliente e Unidade. Uma vez que a reserva se converte em contrato, possivelmente o registro de reserva é atualizado ou um contrato é criado referenciando a reserva. Se necessário, podemos incluir **idContratoVenda** na reserva quando virar venda.
 
 ### **Unidades de Imóveis (Real Estate Units)**
 
@@ -223,7 +260,7 @@ Recurso: **Unidades de Imóveis** – São as unidades comercializáveis nos emp
 \- **valorMinimo** (Decimal, opcional): Valor mínimo negociável.  
 \- **statusUnidade** (String): Status atual (Disponível, Reservada, Vendida, etc).
 
-*Relações:* Unidade pertence a um **Empreendimento**. Pode ter **Reserva(s)** e **Contrato de Venda** associado quando vendida. Poderá também estar vinculada a **Contratos de Locação** se o empreendimento for de locação, mas normalmente unidades aqui referem-se a vendas.  
+_Relações:_ Unidade pertence a um **Empreendimento**. Pode ter **Reserva(s)** e **Contrato de Venda** associado quando vendida. Poderá também estar vinculada a **Contratos de Locação** se o empreendimento for de locação, mas normalmente unidades aqui referem-se a vendas.  
 Além disso, unidades podem ter **Tabela de Preços** específicas por fase, mas assumiremos que o valor de tabela já reflete a tabela vigente.
 
 ### **Tabela de Preços (Price Tables)**
@@ -253,13 +290,13 @@ Recurso: **Contratos de Vendas** – Representa a venda efetivada de uma unidade
 \- **observacoes** (String): Observações gerais.  
 \- **statusContrato** (String): Status (Ativo, Distratado, etc).
 
-*Relações:* Contrato de Venda vincula Cliente e Unidade. A existência de um contrato normalmente implica que a unidade sai do status *Disponível* para *Vendida*.  
-Os **Títulos a Receber** (parcelas de pagamento) do contrato estão relacionados: cada parcela prevista pode ser registrada como um **Título a Receber** vinculado ao contrato e ao cliente. Dependendo de como o Sienge estrutura, pode haver uma tabela de **Parcelas do Contrato**, mas como a API já expõe *Títulos a Receber*, podemos utilizar essas entidades financeiras (ver próxima seção) para representar as parcelas do contrato.  
+_Relações:_ Contrato de Venda vincula Cliente e Unidade. A existência de um contrato normalmente implica que a unidade sai do status _Disponível_ para _Vendida_.  
+Os **Títulos a Receber** (parcelas de pagamento) do contrato estão relacionados: cada parcela prevista pode ser registrada como um **Título a Receber** vinculado ao contrato e ao cliente. Dependendo de como o Sienge estrutura, pode haver uma tabela de **Parcelas do Contrato**, mas como a API já expõe _Títulos a Receber_, podemos utilizar essas entidades financeiras (ver próxima seção) para representar as parcelas do contrato.  
 Além disso, **Comissões** de corretagem podem estar associadas ao contrato.
 
 ### **Comissões de Vendas (Sales Commissions)**
 
-Recurso: **Comissões** – Refere-se a comissões pagas a vendedores/corretores sobre contratos de venda. Há API de *Comissões* e *Comissões (Antigo)* para listagem e cadastro[\[24\]](https://api.sienge.com.br/docs/#:~:text=,Contas%20Cont%C3%A1beis). Modelo **ComissaoVenda**:  
+Recurso: **Comissões** – Refere-se a comissões pagas a vendedores/corretores sobre contratos de venda. Há API de _Comissões_ e _Comissões (Antigo)_ para listagem e cadastro[\[24\]](https://api.sienge.com.br/docs/#:~:text=,Contas%20Cont%C3%A1beis). Modelo **ComissaoVenda**:  
 \- **idComissao** (Integer, PK)  
 \- **idContrato** (FK para ContratoVenda): Contrato de venda que gerou a comissão.  
 \- **nomeCorretor** ou **idCorretor** (String ou FK para um cadastro de corretor se houver): Identificação do corretor/parceiro.  
@@ -284,7 +321,7 @@ E talvez vincular aos novos títulos gerados. No entanto, para fins práticos, p
 
 Recurso: **Portadores para o Contas a Receber** – Refere-se aos "portadores" ou meios de recebimento, possivelmente contas bancárias ou carteiras de cobrança associadas à empresa para receber pagamentos[\[27\]](https://api.sienge.com.br/docs/html-files/bearers-receivable-v1.html#:~:text=Portadores%20para%20o%20Contas%20a,Portadores). Modelo **PortadorRecebimento**:  
 \- **idPortador** (Integer, PK)  
-\- **descricao** (String): Nome do portador (ex: *Conta Banco do Brasil \- Agência X*)  
+\- **descricao** (String): Nome do portador (ex: _Conta Banco do Brasil \- Agência X_)  
 \- **codigo** (String): Código interno ou identificação (por ex, código da carteira de boleto).  
 \- **ativo** (Boolean): Se está ativo para uso.
 
@@ -298,43 +335,43 @@ Recurso: **Antecipação de Parcelas** – Permite registrar ou consultar anteci
 
 Recurso: **Títulos do Contas a Receber** – Representa os lançamentos a receber (parcelas de clientes). A API de Títulos a Receber permite listar títulos (possivelmente filtrados por período, contrato, etc)[\[29\]](https://api.sienge.com.br/docs/html-files/accounts-receivable-v1.html#:~:text=API%20de%20t%C3%ADtulos%20do%20contas,financeira%20do%20t%C3%ADtulo%20%C2%B7%20Models) e consultar detalhes como parcelas e apropriações financeiras. Estruturamos o modelo **TituloReceber** para armazenar cada título (parcela de contrato ou outra cobrança):
 
-* **idTituloReceber** (Integer, PK): Identificador do título (boleto/fatura) no sistema.
+- **idTituloReceber** (Integer, PK): Identificador do título (boleto/fatura) no sistema.
 
-* **idContrato** (FK ContratoVenda, opcional): Se vinculado a um contrato de venda específico.
+- **idContrato** (FK ContratoVenda, opcional): Se vinculado a um contrato de venda específico.
 
-* **idCliente** (FK Cliente): Devedor do título (cliente).
+- **idCliente** (FK Cliente): Devedor do título (cliente).
 
-* **idEmpresa** (FK Empresa): Empresa credora (normalmente a sua própria empresa).
+- **idEmpresa** (FK Empresa): Empresa credora (normalmente a sua própria empresa).
 
-* **numeroDocumento** (String): Número do documento (ex: número do boleto ou fatura)[\[16\]](https://docs.fluidapi.io/sienge#:~:text=000%2F0001%2003%60%20%7D%7D,indexid).
+- **numeroDocumento** (String): Número do documento (ex: número do boleto ou fatura)[\[16\]](https://docs.fluidapi.io/sienge#:~:text=000%2F0001%2003%60%20%7D%7D,indexid).
 
-* **idDocumentoIdent** (FK DocumentoIdentificacao): Tipo de documento (ex: "FFX" para fatura, etc)[\[16\]](https://docs.fluidapi.io/sienge#:~:text=000%2F0001%2003%60%20%7D%7D,indexid).
+- **idDocumentoIdent** (FK DocumentoIdentificacao): Tipo de documento (ex: "FFX" para fatura, etc)[\[16\]](https://docs.fluidapi.io/sienge#:~:text=000%2F0001%2003%60%20%7D%7D,indexid).
 
-* **dataEmissao** (Date): Data de emissão do título[\[10\]](https://docs.fluidapi.io/sienge#:~:text=tostring%20,htmldate).
+- **dataEmissao** (Date): Data de emissão do título[\[10\]](https://docs.fluidapi.io/sienge#:~:text=tostring%20,htmldate).
 
-* **dataVencimento** (Date): Data de vencimento[\[30\]](https://docs.fluidapi.io/sienge#:~:text=,htmldate).
+- **dataVencimento** (Date): Data de vencimento[\[30\]](https://docs.fluidapi.io/sienge#:~:text=,htmldate).
 
-* **valorOriginal** (Decimal): Valor original do título (principal)[\[31\]](https://docs.fluidapi.io/sienge#:~:text=0%2C%20,default).
+- **valorOriginal** (Decimal): Valor original do título (principal)[\[31\]](https://docs.fluidapi.io/sienge#:~:text=0%2C%20,default).
 
-* **valorAtualizado** (Decimal, opcional): Valor atualizado (se corrigido por juros/indexador até o momento, ou com multas).
+- **valorAtualizado** (Decimal, opcional): Valor atualizado (se corrigido por juros/indexador até o momento, ou com multas).
 
-* **idIndexador** (FK Indexador, opcional): Indexador aplicado, se parcelamento for corrigido.
+- **idIndexador** (FK Indexador, opcional): Indexador aplicado, se parcelamento for corrigido.
 
-* **juros** (Decimal, opcional): Valor de juros acumulado (se em atraso).
+- **juros** (Decimal, opcional): Valor de juros acumulado (se em atraso).
 
-* **multa** (Decimal, opcional): Valor de multa (se aplicável).
+- **multa** (Decimal, opcional): Valor de multa (se aplicável).
 
-* **descontoConcedido** (Decimal, opcional): Valor de desconto concedido (ex: por antecipação ou negociação).
+- **descontoConcedido** (Decimal, opcional): Valor de desconto concedido (ex: por antecipação ou negociação).
 
-* **valorPago** (Decimal, opcional): Valor já pago (no caso de pagamento parcial ou recebimento registrado).
+- **valorPago** (Decimal, opcional): Valor já pago (no caso de pagamento parcial ou recebimento registrado).
 
-* **dataPagamento** (Date, opcional): Data de quitação (se pago).
+- **dataPagamento** (Date, opcional): Data de quitação (se pago).
 
-* **status** (String): Status do título (Aberto/Pendente, Pago, Cancelado, Renegociado etc).
+- **status** (String): Status do título (Aberto/Pendente, Pago, Cancelado, Renegociado etc).
 
-* **idPortador** (FK PortadorRecebimento, opcional): Portador (conta/carteira) para recebimento.
+- **idPortador** (FK PortadorRecebimento, opcional): Portador (conta/carteira) para recebimento.
 
-*Relações:* O título a receber relaciona-se com Cliente e, se derivado de um contrato, com ContratoVenda e Unidade. Pode haver relação com **Recebimentos/Pagamentos** (se registrarmos pagamentos separadamente, mas podemos atualizar campos de pagamento no próprio título). Além disso, *Títulos a Receber* podem ser associados a **Comissões** (por exemplo, uma comissão de corretor pode ser devida quando um título é pago; mas esse vínculo é indireto via contrato).
+_Relações:_ O título a receber relaciona-se com Cliente e, se derivado de um contrato, com ContratoVenda e Unidade. Pode haver relação com **Recebimentos/Pagamentos** (se registrarmos pagamentos separadamente, mas podemos atualizar campos de pagamento no próprio título). Além disso, _Títulos a Receber_ podem ser associados a **Comissões** (por exemplo, uma comissão de corretor pode ser devida quando um título é pago; mas esse vínculo é indireto via contrato).
 
 A API também menciona **Parcelas do título** e **Apropriação financeira do título**[\[29\]](https://api.sienge.com.br/docs/html-files/accounts-receivable-v1.html#:~:text=API%20de%20t%C3%ADtulos%20do%20contas,financeira%20do%20t%C3%ADtulo%20%C2%B7%20Models). Em contas a receber, "parcelas do título" pode se referir a pagamentos parcelados daquele título (por exemplo, se o título foi renegociado em parcelas) – mas é raro, geralmente o título já é a própria parcela. Pode se tratar do detalhamento de um título em múltiplos recebimentos. Nesse caso, poderíamos ter uma tabela de **RecebimentoParcelaReceber** para registrar pagamentos parciais.
 
@@ -346,7 +383,7 @@ Além dos títulos, a API fornece alguns recursos auxiliares: \- **Histórico de
 \- **Extrato de Cliente** – a API pode gerar um relatório de extrato (contendo todos os títulos e pagamentos do cliente) e enviar por e-mail[\[33\]](https://api.sienge.com.br/docs/#:~:text=,mail%20%20%2A%20%2028). Não há necessidade de tabela, pois extrato consolida dados de **TituloReceber** e pagamentos existentes, mas podemos armazenar logs de envio (ex: **ExtratoEmailLog** com id, cliente, dataEnvio, períodoCoberto).  
 \- **Geração de Cobrança de Parcelas Vencidas** – provavelmente um endpoint para gerar documentos de cobrança (boletos/cartas) para todas parcelas atrasadas[\[34\]](https://api.sienge.com.br/docs/#:~:text=,Hist%C3%B3rico%20de%20Notifica%C3%A7%C3%A3o%20de%20Cobran%C3%A7as). Novamente, sem novos dados a armazenar além, possivelmente, de um log do evento.
 
-* **Saldo Devedor Presente** – este endpoint calcula o saldo devedor presente de um contrato (soma das parcelas futuras descontadas ou atualizadas até a data presente)[\[35\]](https://api.sienge.com.br/docs/#:~:text=,52). *Saldo Devedor Presente do Cliente (Total)* faz o mesmo em nível de cliente (todos contratos)[\[36\]](https://api.sienge.com.br/docs/#:~:text=,Total). Não é uma entidade armazenada, mas um cálculo on-the-fly sobre os títulos. Portanto, não vira tabela; podemos reproduzir via query quando necessário somando os **TituloReceber** em aberto de um cliente.
+- **Saldo Devedor Presente** – este endpoint calcula o saldo devedor presente de um contrato (soma das parcelas futuras descontadas ou atualizadas até a data presente)[\[35\]](https://api.sienge.com.br/docs/#:~:text=,52). _Saldo Devedor Presente do Cliente (Total)_ faz o mesmo em nível de cliente (todos contratos)[\[36\]](https://api.sienge.com.br/docs/#:~:text=,Total). Não é uma entidade armazenada, mas um cálculo on-the-fly sobre os títulos. Portanto, não vira tabela; podemos reproduzir via query quando necessário somando os **TituloReceber** em aberto de um cliente.
 
 ## Gestão de Fornecedores e Compras
 
@@ -381,7 +418,7 @@ Recurso: **Credores** – Representa os fornecedores e credores da empresa (forn
 
 Um credor pode ter múltiplas contas bancárias cadastradas. A API POST /creditors/{credorId}/bank-informations insere uma nova conta bancária para o credor[\[37\]](https://ajuda.sienge.com.br/support/solutions/articles/153000200200-api-rest-credores#:~:text=A%20API%20POST%C2%A0%2Fcreditors%2F%7BcreditorId%7D%2Fbank,conta%2C%20benefici%C3%A1rios%2C%20entre%20outras%20informa%C3%A7%C3%B5es), e GET /creditors/{credorId}/bank-informations lista todas[\[38\]](https://ajuda.sienge.com.br/support/solutions/articles/153000200200-api-rest-credores#:~:text=A%20API%C2%A0GET%C2%A0%2Fcreditors%2F%7BcreditorId%7D%2Fbank,da%20conta%2C%20entre%20outras%20informa%C3%A7%C3%B5es). Portanto, modelamos InfoBancaria separado (relação 1:N Credor \-\> InfoBancaria).
 
-*Relações:* Credor relaciona-se com **Títulos a Pagar** como beneficiário/credor do pagamento. Ou seja, cada **TituloPagar** tem um **idCredor**. Credor também pode estar ligado a **Contratos de Suprimentos** (contratos com fornecedores) e **Pedidos de Compra** como fornecedor.
+_Relações:_ Credor relaciona-se com **Títulos a Pagar** como beneficiário/credor do pagamento. Ou seja, cada **TituloPagar** tem um **idCredor**. Credor também pode estar ligado a **Contratos de Suprimentos** (contratos com fornecedores) e **Pedidos de Compra** como fornecedor.
 
 ### **Solicitações de Compra (Purchase Requests)**
 
@@ -489,7 +526,7 @@ Recurso: **Notas Fiscais Eletrônicas de Produto** – Provavelmente NF-e de pro
 
 ### **Bens Imóveis (Fixed Assets \- Properties)**
 
-Recurso: **Bens Imóveis** – Ativos imobilizados do tipo imóvel (terrenos, edifícios pertencentes à empresa, não confundir com unidades para venda). A API *Bens Imóveis* lista ativos fixos imóveis[\[44\]](https://api.sienge.com.br/docs/#:~:text=,8). Modelo **BemImovel**:  
+Recurso: **Bens Imóveis** – Ativos imobilizados do tipo imóvel (terrenos, edifícios pertencentes à empresa, não confundir com unidades para venda). A API _Bens Imóveis_ lista ativos fixos imóveis[\[44\]](https://api.sienge.com.br/docs/#:~:text=,8). Modelo **BemImovel**:  
 \- **idBemImovel** (Integer, PK)  
 \- **descricao** (String): Descrição do bem (ex: Terreno Matriz, Escritório SP).  
 \- **endereco** (campos de endereço se relevante)  
@@ -533,7 +570,7 @@ Nesta seção final, mapeamos as entidades de **Contas a Pagar** (títulos e par
 Recurso: **Títulos do Contas a Pagar** – São os títulos a pagar (despesas, contas a pagar a fornecedores). A API permite listar, inserir e atualizar títulos[\[48\]](https://api.sienge.com.br/docs/html-files/bill-debt-v1.html#:~:text=T%C3%ADtulos%20a%20pagar,atualiza%C3%A7%C3%A3o%20de%20parcelas%20do%20t%C3%ADtulo). Modelo **TituloPagar** similar ao de receber, porém voltado para pagamentos:  
 \- **idTituloPagar** (Integer, PK)  
 \- **idCredor** (FK Credor): Fornecedor a quem devemos pagar (credor)[\[16\]](https://docs.fluidapi.io/sienge#:~:text=000%2F0001%2003%60%20%7D%7D,indexid).  
-\- **idEmpresaDevedora** (FK Empresa): Empresa devedora (normalmente sua empresa; relevante se multi-empresa). No payload de exemplo aparece *debtorid* representando a empresa devedora[\[16\]](https://docs.fluidapi.io/sienge#:~:text=000%2F0001%2003%60%20%7D%7D,indexid).  
+\- **idEmpresaDevedora** (FK Empresa): Empresa devedora (normalmente sua empresa; relevante se multi-empresa). No payload de exemplo aparece _debtorid_ representando a empresa devedora[\[16\]](https://docs.fluidapi.io/sienge#:~:text=000%2F0001%2003%60%20%7D%7D,indexid).  
 \- **numeroDocumento** (String): Número do documento do título (ex: número da NF do fornecedor ou fatura interna)[\[16\]](https://docs.fluidapi.io/sienge#:~:text=000%2F0001%2003%60%20%7D%7D,indexid).  
 \- **idDocumentoIdent** (FK DocumentoIdentificacao): Tipo do documento (ex: nota fiscal, fatura, recibo)[\[16\]](https://docs.fluidapi.io/sienge#:~:text=000%2F0001%2003%60%20%7D%7D,indexid).  
 \- **dataEmissao** (Date): Data de emissão do título ou documento[\[10\]](https://docs.fluidapi.io/sienge#:~:text=tostring%20,htmldate).  
@@ -542,13 +579,13 @@ Recurso: **Títulos do Contas a Pagar** – São os títulos a pagar (despesas, 
 \- **valorAtualizado** (Decimal, opcional): Valor atualizado (com juros, correção se houver).  
 \- **idIndexador** (FK Indexador, opcional): Indexador aplicado (se título for corrigido monetariamente)[\[10\]](https://docs.fluidapi.io/sienge#:~:text=tostring%20,htmldate).  
 \- **idPlanoFinanceiro** (FK PlanoFinanceiro): Natureza financeira da despesa (ex: natureza do gasto)[\[6\]](https://docs.fluidapi.io/sienge#:~:text=,teste%20do%20fluxo%20com%20o).  
-\- **observacao** (String): Observações ou descrição da despesa (campo *notes*)[\[49\]](https://docs.fluidapi.io/sienge#:~:text=0%2C%20,costcenterid).  
+\- **observacao** (String): Observações ou descrição da despesa (campo _notes_)[\[49\]](https://docs.fluidapi.io/sienge#:~:text=0%2C%20,costcenterid).  
 \- **descontoObtido** (Decimal, opcional): Desconto obtido no pagamento (se antecipação, etc)[\[49\]](https://docs.fluidapi.io/sienge#:~:text=0%2C%20,costcenterid).  
 \- **status** (String): Status (Aberto/Pendente, Pago, Cancelado).  
 \- **valorPago** (Decimal): Valor já pago (se parcial ou liquidado).  
 \- **dataPagamento** (Date, opcional): Data de pagamento efetuado.
 
-*Relações:*  
+_Relações:_  
 **Parcelas do título a pagar:** Alguns títulos podem ser parcelados (ex: pagamento em várias vezes). A API menciona listagem de parcelas do título[\[48\]](https://api.sienge.com.br/docs/html-files/bill-debt-v1.html#:~:text=T%C3%ADtulos%20a%20pagar,atualiza%C3%A7%C3%A3o%20de%20parcelas%20do%20t%C3%ADtulo). Se um título tiver múltiplas parcelas, podemos representar cada parcela também como um **TituloPagar** separado vinculado por um campo **idTituloParcelaPai** (self FK) ou ter tabela **ParcelaTituloPagar**. No Sienge, talvez cada parcela seja um título em si, ou as parcelas são acessadas via outro endpoint. Para consistência, modelamos uma tabela **ParcelaTituloPagar**:  
 \- **idParcela** (Integer, PK)  
 \- **idTituloPagar** (FK TituloPagar principal)  
@@ -559,9 +596,9 @@ Recurso: **Títulos do Contas a Pagar** – São os títulos a pagar (despesas, 
 \- **dataPagamentoParcela** (Date, opcional)  
 \- **statusParcela** (String)
 
-Entretanto, poderíamos simplificar assumindo cada parcela é um TituloPagar independente (com mesmo número de documento talvez diferenciando parcela). Para evitar confusão, vamos supor que **TituloPagar** cobre parcelas individualmente (já que há inserção e listagem de título singular), e a *parcela do título* é mais para consulta de parcelas vinculadas.
+Entretanto, poderíamos simplificar assumindo cada parcela é um TituloPagar independente (com mesmo número de documento talvez diferenciando parcela). Para evitar confusão, vamos supor que **TituloPagar** cobre parcelas individualmente (já que há inserção e listagem de título singular), e a _parcela do título_ é mais para consulta de parcelas vinculadas.
 
-**Apropriação por Centro de Custo e Departamento:** No contas a pagar, pode-se ratear uma despesa em centros de custo e departamentos. O payload de exemplo mostra arrays *budgetcategories* (centros de custo com naturezas) e *departmentscost* (departamentos) associados ao título[\[50\]](https://docs.fluidapi.io/sienge#:~:text=,teste%20do%20fluxo%20com%20o). Modelamos:  
+**Apropriação por Centro de Custo e Departamento:** No contas a pagar, pode-se ratear uma despesa em centros de custo e departamentos. O payload de exemplo mostra arrays _budgetcategories_ (centros de custo com naturezas) e _departmentscost_ (departamentos) associados ao título[\[50\]](https://docs.fluidapi.io/sienge#:~:text=,teste%20do%20fluxo%20com%20o). Modelamos:  
 \- **TituloPagarCentroCusto** (tabela de alocação em centros de custo): **idTituloPagar**, **idCentroCusto**, **idPlanoFinanceiro**, **percentual** (ou valor)[\[50\]](https://docs.fluidapi.io/sienge#:~:text=,teste%20do%20fluxo%20com%20o). Um título pode ter várias linhas distribuindo seu valor entre diferentes centros de custo e naturezas financeiras.  
 \- **TituloPagarDepartamento** (tabela de alocação por departamento): **idTituloPagar**, **idDepartamento**, **percentual**[\[6\]](https://docs.fluidapi.io/sienge#:~:text=,teste%20do%20fluxo%20com%20o). Permite dividir o valor entre departamentos internos.
 
@@ -627,7 +664,7 @@ Recursos: **Lançamentos Contábeis (Contabilidade)** e **Lançamentos Contábei
 \- **idContaDebito** (FK ContaContabil, nullable se partida dupla for guardada separada)  
 \- **idContaCredito** (FK ContaContabil, idem)
 
-É comum ter *lançamento contábil* subdividido em itens de débito e crédito. Podemos ter uma tabela **LancamentoContabilItem**: **idLancamento**, **idContaContabil**, **valor**, **tipo** (D/C). Mas como a API possivelmente fornece já a visão de partidas, mantemos simples ou adaptado conforme necessário.
+É comum ter _lançamento contábil_ subdividido em itens de débito e crédito. Podemos ter uma tabela **LancamentoContabilItem**: **idLancamento**, **idContaContabil**, **valor**, **tipo** (D/C). Mas como a API possivelmente fornece já a visão de partidas, mantemos simples ou adaptado conforme necessário.
 
 ### **Lotes Contábeis (Accounting Batches)**
 
@@ -635,7 +672,7 @@ Recurso: **Lotes Contábeis** – Conjuntos de lançamentos agrupados (ex: um lo
 \- **idLote** (Integer, PK)  
 \- **numeroLote** (String): Código do lote (geralmente numeração sequencial ou composta por data).  
 \- **dataLote** (Date): Data de referência.  
-\- **descricao** (String): Descrição do lote (ex: *Integração Contas a Pagar Jan/2025*).  
+\- **descricao** (String): Descrição do lote (ex: _Integração Contas a Pagar Jan/2025_).  
 \- **origem** (String): Módulo ou origem (AP, AR, Folha, etc).  
 \- **situacao** (String): Aberto, Fechado, Integrado.
 
@@ -664,702 +701,702 @@ Com o mapeamento conceitual acima, cobrimos todos os recursos da API listados[\[
 ## Exemplo de schema.prisma
 
 datasource db {  
-  provider \= "postgresql"  
-  url      \= env("DATABASE\_URL")  
+ provider \= "postgresql"  
+ url \= env("DATABASE_URL")  
 }
 
 generator client {  
-  provider \= "prisma-client-js"  
+ provider \= "prisma-client-js"  
 }
 
 // Empresas e cadastros gerais  
 model Empresa {  
-  idEmpresa      Int       @id @default(autoincrement())  
-  nomeEmpresa    String  
-  cnpj           String?  
-  nomeFantasia   String?  
-  codigoEmpresa  String?  
-  ativo          Boolean   @default(true)  
-  // Relacionamentos  
-  empreendimentos  Empreendimento\[\]  
-  clientes         Cliente\[\]      @relation("EmpresaClientes")  
-  // ... outros relacionamentos (títulos, etc)  
+ idEmpresa Int @id @default(autoincrement())  
+ nomeEmpresa String  
+ cnpj String?  
+ nomeFantasia String?  
+ codigoEmpresa String?  
+ ativo Boolean @default(true)  
+ // Relacionamentos  
+ empreendimentos Empreendimento\[\]  
+ clientes Cliente\[\] @relation("EmpresaClientes")  
+ // ... outros relacionamentos (títulos, etc)  
 }
 
 model Departamento {  
-  idDepartamento   Int      @id @default(autoincrement())  
-  nomeDepartamento String  
-  codigoDepartamento String?  
-  // Relacionamentos  
-  // ex: títulos a pagar alocados  
-  alocacoesDespesa  TituloPagarDepartamento\[\]  
+ idDepartamento Int @id @default(autoincrement())  
+ nomeDepartamento String  
+ codigoDepartamento String?  
+ // Relacionamentos  
+ // ex: títulos a pagar alocados  
+ alocacoesDespesa TituloPagarDepartamento\[\]  
 }
 
 model CentroCusto {  
-  idCentroCusto   Int    @id @default(autoincrement())  
-  nomeCentroCusto String  
-  codigoCentroCusto String?  
-  ativo           Boolean @default(true)  
-  // Relacionamentos  
-  alocacoesDespesa  TituloPagarCentroCusto\[\]  
+ idCentroCusto Int @id @default(autoincrement())  
+ nomeCentroCusto String  
+ codigoCentroCusto String?  
+ ativo Boolean @default(true)  
+ // Relacionamentos  
+ alocacoesDespesa TituloPagarCentroCusto\[\]  
 }
 
 model Indexador {  
-  idIndexador   Int    @id @default(autoincrement())  
-  nomeIndexador String  
-  descricao     String?  
-  periodicidade String?  
-  valorAtual    Decimal? @precision(18,6)  
-  // Relacionamentos: contratos, títulos etc.  
-  contratosVenda ContratoVenda\[\]  
-  titulosReceber TituloReceber\[\]  
-  titulosPagar   TituloPagar\[\]  
+ idIndexador Int @id @default(autoincrement())  
+ nomeIndexador String  
+ descricao String?  
+ periodicidade String?  
+ valorAtual Decimal? @precision(18,6)  
+ // Relacionamentos: contratos, títulos etc.  
+ contratosVenda ContratoVenda\[\]  
+ titulosReceber TituloReceber\[\]  
+ titulosPagar TituloPagar\[\]  
 }
 
 model Parametro {  
-  chave   String @id  
-  valor   String  
-  descricao String?  
+ chave String @id  
+ valor String  
+ descricao String?  
 }
 
 model EstadoCivil {  
-  idEstadoCivil Int    @id @default(autoincrement())  
-  descricao     String  
-  // Relacionamentos  
-  clientes      Cliente\[\]  
+ idEstadoCivil Int @id @default(autoincrement())  
+ descricao String  
+ // Relacionamentos  
+ clientes Cliente\[\]  
 }
 
 model Profissao {  
-  idProfissao Int    @id @default(autoincrement())  
-  nomeProfissao String  
-  codigoProfissao String?  
-  clientes       Cliente\[\] @relation("ProfissaoCliente")  
-  conjuges       Conjuge\[\] @relation("ProfissaoConjuge")  
+ idProfissao Int @id @default(autoincrement())  
+ nomeProfissao String  
+ codigoProfissao String?  
+ clientes Cliente\[\] @relation("ProfissaoCliente")  
+ conjuges Conjuge\[\] @relation("ProfissaoConjuge")  
 }
 
 model TipoCliente {  
-  idTipoCliente Int    @id @default(autoincrement())  
-  descricao     String  
-  clientes      Cliente\[\]  
+ idTipoCliente Int @id @default(autoincrement())  
+ descricao String  
+ clientes Cliente\[\]  
 }
 
 model TipoImovel {  
-  idTipoImovel Int    @id @default(autoincrement())  
-  descricao    String  
-  unidades     UnidadeImobiliaria\[\]  
+ idTipoImovel Int @id @default(autoincrement())  
+ descricao String  
+ unidades UnidadeImobiliaria\[\]  
 }
 
 model TipoCondicaoPagamento {  
-  idTipoCondPag Int    @id @default(autoincrement())  
-  descricao     String  
-  contratosVenda ContratoVenda\[\]  
+ idTipoCondPag Int @id @default(autoincrement())  
+ descricao String  
+ contratosVenda ContratoVenda\[\]  
 }
 
 model PlanoFinanceiro {  
-  idPlanoFinanceiro Int    @id @default(autoincrement())  
-  nomePlano       String  
-  codigoPlano     String?  
-  tipo            String?  // Receita/Despesa  
-  // Relacionamentos  
-  titulosPagar    TituloPagar\[\]  
-  titulosReceber  TituloReceber\[\]  
-  alocacoesCCusto TituloPagarCentroCusto\[\]  
+ idPlanoFinanceiro Int @id @default(autoincrement())  
+ nomePlano String  
+ codigoPlano String?  
+ tipo String? // Receita/Despesa  
+ // Relacionamentos  
+ titulosPagar TituloPagar\[\]  
+ titulosReceber TituloReceber\[\]  
+ alocacoesCCusto TituloPagarCentroCusto\[\]  
 }
 
 model DocumentoIdentificacao {  
-  idDocumentoIdent String @id  // códigos como "FFX", etc.  
-  descricao        String?  
-  titulosReceber   TituloReceber\[\]  
-  titulosPagar     TituloPagar\[\]  
+ idDocumentoIdent String @id // códigos como "FFX", etc.  
+ descricao String?  
+ titulosReceber TituloReceber\[\]  
+ titulosPagar TituloPagar\[\]  
 }
 
 model Municipio {  
-  idMunicipio Int    @id @default(autoincrement())  
-  nome        String  
-  uf          String  
-  codigoIBGE  String?  
-  // Relacionamentos  
-  enderecosCliente ClienteEndereco\[\]  
-  enderecosCredor  CredorEndereco\[\]  
+ idMunicipio Int @id @default(autoincrement())  
+ nome String  
+ uf String  
+ codigoIBGE String?  
+ // Relacionamentos  
+ enderecosCliente ClienteEndereco\[\]  
+ enderecosCredor CredorEndereco\[\]  
 }
 
 // Clientes e relacionados  
 model Cliente {  
-  idCliente      Int    @id @default(autoincrement())  
-  tipoCliente    TipoCliente @relation(fields: \[idTipoCliente\], references: \[idTipoCliente\])  
-  idTipoCliente  Int  
-  nomeCompleto   String  
-  nomeSocial     String?  
-  cpfCnpj        String  
-  rg             String?  
-  dataNascimento DateTime?  
-  nacionalidade  String?  
-  email          String?  
-  estadoCivil    EstadoCivil? @relation(fields: \[idEstadoCivil\], references: \[idEstadoCivil\])  
-  idEstadoCivil  Int?  
-  profissao      Profissao?   @relation("ProfissaoCliente", fields: \[idProfissao\], references: \[idProfissao\])  
-  idProfissao    Int?  
-  // cônjuge separado:  
-  conjuge        Conjuge? @relation(fields: \[idConjuge\], references: \[idConjuge\])  
-  idConjuge      Int?  
-  ativo          Boolean @default(true)  
-  dataCadastro   DateTime @default(now())  
-  empresa        Empresa? @relation("EmpresaClientes", fields: \[idEmpresa\], references: \[idEmpresa\])  
-  idEmpresa      Int?  
-  // Relacionamentos \- telefones, enderecos, etc.  
-  telefones   ClienteTelefone\[\]  
-  enderecos   ClienteEndereco\[\]  
-  rendas      ClienteRenda\[\]  
-  anexos      ClienteAnexo\[\]  
-  reservas    ReservaUnidade\[\]  
-  contratosVenda ContratoVenda\[\]  
-  titulosReceber TituloReceber\[\]  
+ idCliente Int @id @default(autoincrement())  
+ tipoCliente TipoCliente @relation(fields: \[idTipoCliente\], references: \[idTipoCliente\])  
+ idTipoCliente Int  
+ nomeCompleto String  
+ nomeSocial String?  
+ cpfCnpj String  
+ rg String?  
+ dataNascimento DateTime?  
+ nacionalidade String?  
+ email String?  
+ estadoCivil EstadoCivil? @relation(fields: \[idEstadoCivil\], references: \[idEstadoCivil\])  
+ idEstadoCivil Int?  
+ profissao Profissao? @relation("ProfissaoCliente", fields: \[idProfissao\], references: \[idProfissao\])  
+ idProfissao Int?  
+ // cônjuge separado:  
+ conjuge Conjuge? @relation(fields: \[idConjuge\], references: \[idConjuge\])  
+ idConjuge Int?  
+ ativo Boolean @default(true)  
+ dataCadastro DateTime @default(now())  
+ empresa Empresa? @relation("EmpresaClientes", fields: \[idEmpresa\], references: \[idEmpresa\])  
+ idEmpresa Int?  
+ // Relacionamentos \- telefones, enderecos, etc.  
+ telefones ClienteTelefone\[\]  
+ enderecos ClienteEndereco\[\]  
+ rendas ClienteRenda\[\]  
+ anexos ClienteAnexo\[\]  
+ reservas ReservaUnidade\[\]  
+ contratosVenda ContratoVenda\[\]  
+ titulosReceber TituloReceber\[\]  
 }
 
 model ClienteTelefone {  
-  idTelefone Int   @id @default(autoincrement())  
-  numero     String  
-  tipo       String?  
-  observacao String?  
-  cliente    Cliente @relation(fields: \[idCliente\], references: \[idCliente\])  
-  idCliente  Int  
+ idTelefone Int @id @default(autoincrement())  
+ numero String  
+ tipo String?  
+ observacao String?  
+ cliente Cliente @relation(fields: \[idCliente\], references: \[idCliente\])  
+ idCliente Int  
 }
 
 model ClienteEndereco {  
-  idEndereco Int    @id @default(autoincrement())  
-  logradouro String  
-  numero     String  
-  complemento String?  
-  bairro     String?  
-  cep        String?  
-  tipoEndereco String?  
-  municipio   Municipio? @relation(fields: \[idMunicipio\], references: \[idMunicipio\])  
-  idMunicipio Int?  
-  cliente    Cliente @relation(fields: \[idCliente\], references: \[idCliente\])  
-  idCliente  Int  
+ idEndereco Int @id @default(autoincrement())  
+ logradouro String  
+ numero String  
+ complemento String?  
+ bairro String?  
+ cep String?  
+ tipoEndereco String?  
+ municipio Municipio? @relation(fields: \[idMunicipio\], references: \[idMunicipio\])  
+ idMunicipio Int?  
+ cliente Cliente @relation(fields: \[idCliente\], references: \[idCliente\])  
+ idCliente Int  
 }
 
 model ClienteRenda {  
-  idRenda    Int    @id @default(autoincrement())  
-  descricaoRenda String  
-  valorMensal Decimal @precision(18,2)  
-  moeda      String?  @default("BRL")  
-  comprovada Boolean?   
-  cliente    Cliente @relation(fields: \[idCliente\], references: \[idCliente\])  
-  idCliente  Int  
+ idRenda Int @id @default(autoincrement())  
+ descricaoRenda String  
+ valorMensal Decimal @precision(18,2)  
+ moeda String? @default("BRL")  
+ comprovada Boolean?  
+ cliente Cliente @relation(fields: \[idCliente\], references: \[idCliente\])  
+ idCliente Int  
 }
 
 model ClienteAnexo {  
-  idAnexo   Int    @id @default(autoincrement())  
-  tipoDocumento String  
-  urlArquivo   String?  
-  // se armazenar binário, ter campo Bytes  
-  cliente    Cliente @relation(fields: \[idCliente\], references: \[idCliente\])  
-  idCliente  Int  
+ idAnexo Int @id @default(autoincrement())  
+ tipoDocumento String  
+ urlArquivo String?  
+ // se armazenar binário, ter campo Bytes  
+ cliente Cliente @relation(fields: \[idCliente\], references: \[idCliente\])  
+ idCliente Int  
 }
 
 model Conjuge {  
-  idConjuge       Int    @id @default(autoincrement())  
-  nomeCompleto    String  
-  cpf             String?  
-  rg              String?  
-  dataNascimento  DateTime?  
-  nacionalidade   String?  
-  email           String?  
-  profissao       Profissao? @relation("ProfissaoConjuge", fields: \[idProfissao\], references: \[idProfissao\])  
-  idProfissao     Int?  
-  cliente         Cliente?  @relation(fields: \[idCliente\], references: \[idCliente\])  
-  idCliente       Int?   // assuming one-to-one from cliente side  
+ idConjuge Int @id @default(autoincrement())  
+ nomeCompleto String  
+ cpf String?  
+ rg String?  
+ dataNascimento DateTime?  
+ nacionalidade String?  
+ email String?  
+ profissao Profissao? @relation("ProfissaoConjuge", fields: \[idProfissao\], references: \[idProfissao\])  
+ idProfissao Int?  
+ cliente Cliente? @relation(fields: \[idCliente\], references: \[idCliente\])  
+ idCliente Int? // assuming one-to-one from cliente side  
 }
 
 // Vendas (Unidades, Reservas, Contratos)  
 model Empreendimento {  
-  idEmpreendimento Int    @id @default(autoincrement())  
-  nome         String  
-  codigo       String?  
-  descricao    String?  
-  idEmpresa    Int?      // qual empresa é dona do empreendimento  
-  empresa      Empresa?  @relation(fields: \[idEmpresa\], references: \[idEmpresa\])  
-  // talvez localização (cidade, endereço da obra)  
-  cidade       String?  
-  // Relacionamentos  
-  unidades     UnidadeImobiliaria\[\]  
-  orcamentos   OrcamentoObra\[\]  
-  // etc: planejamentos, diário de obra, etc, que virão na seção de Obras  
+ idEmpreendimento Int @id @default(autoincrement())  
+ nome String  
+ codigo String?  
+ descricao String?  
+ idEmpresa Int? // qual empresa é dona do empreendimento  
+ empresa Empresa? @relation(fields: \[idEmpresa\], references: \[idEmpresa\])  
+ // talvez localização (cidade, endereço da obra)  
+ cidade String?  
+ // Relacionamentos  
+ unidades UnidadeImobiliaria\[\]  
+ orcamentos OrcamentoObra\[\]  
+ // etc: planejamentos, diário de obra, etc, que virão na seção de Obras  
 }
 
 model UnidadeImobiliaria {  
-  idUnidade    Int    @id @default(autoincrement())  
-  codigoUnidade String  
-  empreendimento Empreendimento @relation(fields: \[idEmpreendimento\], references: \[idEmpreendimento\])  
-  idEmpreendimento Int  
-  tipoImovel      TipoImovel @relation(fields: \[idTipoImovel\], references: \[idTipoImovel\])  
-  idTipoImovel    Int  
-  bloco        String?  
-  andar        Int?  
-  areaPrivativa Decimal? @precision(10,2)  
-  areaTotal    Decimal? @precision(10,2)  
-  valorTabela  Decimal  @precision(18,2)  
-  valorMinimo  Decimal? @precision(18,2)  
-  statusUnidade String  // Disponível, Reservada, Vendida...  
-  reservas     ReservaUnidade\[\]  
-  contratoVenda ContratoVenda?  
+ idUnidade Int @id @default(autoincrement())  
+ codigoUnidade String  
+ empreendimento Empreendimento @relation(fields: \[idEmpreendimento\], references: \[idEmpreendimento\])  
+ idEmpreendimento Int  
+ tipoImovel TipoImovel @relation(fields: \[idTipoImovel\], references: \[idTipoImovel\])  
+ idTipoImovel Int  
+ bloco String?  
+ andar Int?  
+ areaPrivativa Decimal? @precision(10,2)  
+ areaTotal Decimal? @precision(10,2)  
+ valorTabela Decimal @precision(18,2)  
+ valorMinimo Decimal? @precision(18,2)  
+ statusUnidade String // Disponível, Reservada, Vendida...  
+ reservas ReservaUnidade\[\]  
+ contratoVenda ContratoVenda?  
 }
 
 model ReservaUnidade {  
-  idReserva    Int    @id @default(autoincrement())  
-  unidade      UnidadeImobiliaria @relation(fields: \[idUnidade\], references: \[idUnidade\])  
-  idUnidade    Int  
-  cliente      Cliente @relation(fields: \[idCliente\], references: \[idCliente\])  
-  idCliente    Int  
-  dataReserva  DateTime @default(now())  
-  validadeReserva DateTime?  
-  statusReserva   String?  // Ativa, Expirada, etc  
-  observacoes     String?  
-  contratoVenda   ContratoVenda?  
+ idReserva Int @id @default(autoincrement())  
+ unidade UnidadeImobiliaria @relation(fields: \[idUnidade\], references: \[idUnidade\])  
+ idUnidade Int  
+ cliente Cliente @relation(fields: \[idCliente\], references: \[idCliente\])  
+ idCliente Int  
+ dataReserva DateTime @default(now())  
+ validadeReserva DateTime?  
+ statusReserva String? // Ativa, Expirada, etc  
+ observacoes String?  
+ contratoVenda ContratoVenda?  
 }
 
 model ContratoVenda {  
-  idContrato    Int    @id @default(autoincrement())  
-  numeroContrato String  
-  cliente        Cliente @relation(fields: \[idCliente\], references: \[idCliente\])  
-  idCliente      Int  
-  unidade        UnidadeImobiliaria @relation(fields: \[idUnidade\], references: \[idUnidade\])  
-  idUnidade      Int  
-  dataContrato   DateTime  
-  valorContrato  Decimal @precision(18,2)  
-  indexador      Indexador? @relation(fields: \[idIndexador\], references: \[idIndexador\])  
-  idIndexador    Int?  
-  planoFinanceiro PlanoFinanceiro? @relation(fields: \[idPlanoFinanceiro\], references: \[idPlanoFinanceiro\])  
-  idPlanoFinanceiro Int?  
-  condicaoPagamento TipoCondicaoPagamento? @relation(fields: \[idTipoCondPag\], references: \[idTipoCondPag\])  
-  idTipoCondPag  Int?  
-  entrada        Decimal? @precision(18,2)  
-  financiamento  Decimal? @precision(18,2)  
-  observacoes    String?  
-  statusContrato String  
-  // Relacionamentos  
-  titulosReceber TituloReceber\[\]  
-  comissoes      ComissaoVenda\[\]  
+ idContrato Int @id @default(autoincrement())  
+ numeroContrato String  
+ cliente Cliente @relation(fields: \[idCliente\], references: \[idCliente\])  
+ idCliente Int  
+ unidade UnidadeImobiliaria @relation(fields: \[idUnidade\], references: \[idUnidade\])  
+ idUnidade Int  
+ dataContrato DateTime  
+ valorContrato Decimal @precision(18,2)  
+ indexador Indexador? @relation(fields: \[idIndexador\], references: \[idIndexador\])  
+ idIndexador Int?  
+ planoFinanceiro PlanoFinanceiro? @relation(fields: \[idPlanoFinanceiro\], references: \[idPlanoFinanceiro\])  
+ idPlanoFinanceiro Int?  
+ condicaoPagamento TipoCondicaoPagamento? @relation(fields: \[idTipoCondPag\], references: \[idTipoCondPag\])  
+ idTipoCondPag Int?  
+ entrada Decimal? @precision(18,2)  
+ financiamento Decimal? @precision(18,2)  
+ observacoes String?  
+ statusContrato String  
+ // Relacionamentos  
+ titulosReceber TituloReceber\[\]  
+ comissoes ComissaoVenda\[\]  
 }
 
 model ComissaoVenda {  
-  idComissao   Int    @id @default(autoincrement())  
-  contrato     ContratoVenda @relation(fields: \[idContrato\], references: \[idContrato\])  
-  idContrato   Int  
-  nomeCorretor String  
-  percentual   Decimal? @precision(5,2)  
-  valorComissao Decimal @precision(18,2)  
-  paga         Boolean @default(false)  
-  dataPagamento DateTime?  
+ idComissao Int @id @default(autoincrement())  
+ contrato ContratoVenda @relation(fields: \[idContrato\], references: \[idContrato\])  
+ idContrato Int  
+ nomeCorretor String  
+ percentual Decimal? @precision(5,2)  
+ valorComissao Decimal @precision(18,2)  
+ paga Boolean @default(false)  
+ dataPagamento DateTime?  
 }
 
 // Contas a Receber  
 model TituloReceber {  
-  idTituloReceber Int    @id @default(autoincrement())  
-  contrato        ContratoVenda? @relation(fields: \[idContrato\], references: \[idContrato\])  
-  idContrato      Int?  
-  cliente         Cliente @relation(fields: \[idCliente\], references: \[idCliente\])  
-  idCliente       Int  
-  empresa         Empresa? @relation(fields: \[idEmpresa\], references: \[idEmpresa\])  
-  idEmpresa       Int?  
-  numeroDocumento String  
-  documentoIdent  DocumentoIdentificacao? @relation(fields: \[idDocumentoIdent\], references: \[idDocumentoIdent\])  
-  idDocumentoIdent String?  
-  dataEmissao     DateTime  
-  dataVencimento  DateTime  
-  valorOriginal   Decimal @precision(18,2)  
-  valorAtualizado Decimal? @precision(18,2)  
-  indexador       Indexador? @relation(fields: \[idIndexador\], references: \[idIndexador\])  
-  idIndexador     Int?  
-  juros           Decimal? @precision(18,2)  
-  multa           Decimal? @precision(18,2)  
-  descontoConcedido Decimal? @precision(18,2)  
-  valorPago       Decimal? @precision(18,2)  
-  dataPagamento   DateTime?  
-  status          String  
-  portador        PortadorRecebimento? @relation(fields: \[idPortador\], references: \[idPortador\])  
-  idPortador      Int?  
+ idTituloReceber Int @id @default(autoincrement())  
+ contrato ContratoVenda? @relation(fields: \[idContrato\], references: \[idContrato\])  
+ idContrato Int?  
+ cliente Cliente @relation(fields: \[idCliente\], references: \[idCliente\])  
+ idCliente Int  
+ empresa Empresa? @relation(fields: \[idEmpresa\], references: \[idEmpresa\])  
+ idEmpresa Int?  
+ numeroDocumento String  
+ documentoIdent DocumentoIdentificacao? @relation(fields: \[idDocumentoIdent\], references: \[idDocumentoIdent\])  
+ idDocumentoIdent String?  
+ dataEmissao DateTime  
+ dataVencimento DateTime  
+ valorOriginal Decimal @precision(18,2)  
+ valorAtualizado Decimal? @precision(18,2)  
+ indexador Indexador? @relation(fields: \[idIndexador\], references: \[idIndexador\])  
+ idIndexador Int?  
+ juros Decimal? @precision(18,2)  
+ multa Decimal? @precision(18,2)  
+ descontoConcedido Decimal? @precision(18,2)  
+ valorPago Decimal? @precision(18,2)  
+ dataPagamento DateTime?  
+ status String  
+ portador PortadorRecebimento? @relation(fields: \[idPortador\], references: \[idPortador\])  
+ idPortador Int?  
 }
 
 model PortadorRecebimento {  
-  idPortador Int   @id @default(autoincrement())  
-  descricao  String  
-  codigo     String?  
-  ativo      Boolean @default(true)  
-  titulosReceber TituloReceber\[\]  
+ idPortador Int @id @default(autoincrement())  
+ descricao String  
+ codigo String?  
+ ativo Boolean @default(true)  
+ titulosReceber TituloReceber\[\]  
 }
 
 // Contas a Pagar  
 model TituloPagar {  
-  idTituloPagar Int    @id @default(autoincrement())  
-  credor        Credor @relation(fields: \[idCredor\], references: \[idCredor\])  
-  idCredor      Int  
-  empresaDevedora Empresa? @relation(fields: \[idEmpresaDevedora\], references: \[idEmpresa\])  
-  idEmpresaDevedora Int?  
-  numeroDocumento String  
-  documentoIdent  DocumentoIdentificacao? @relation(fields: \[idDocumentoIdent\], references: \[idDocumentoIdent\])  
-  idDocumentoIdent String?  
-  dataEmissao    DateTime  
-  dataVencimento DateTime  
-  valorOriginal  Decimal @precision(18,2)  
-  valorAtualizado Decimal? @precision(18,2)  
-  indexador      Indexador? @relation(fields: \[idIndexador\], references: \[idIndexador\])  
-  idIndexador    Int?  
-  planoFinanceiro PlanoFinanceiro? @relation(fields: \[idPlanoFinanceiro\], references: \[idPlanoFinanceiro\])  
-  idPlanoFinanceiro Int?  
-  observacao     String?  
-  descontoObtido Decimal? @precision(18,2)  
-  valorPago      Decimal? @precision(18,2)  
-  dataPagamento  DateTime?  
-  status         String  
-  // Relacionamentos  
-  parcelas       ParcelaTituloPagar\[\]  
-  impostos       TituloPagarImposto\[\]  
-  alocacoesCentroCusto TituloPagarCentroCusto\[\]  
-  alocacoesDepartamento TituloPagarDepartamento\[\]  
+ idTituloPagar Int @id @default(autoincrement())  
+ credor Credor @relation(fields: \[idCredor\], references: \[idCredor\])  
+ idCredor Int  
+ empresaDevedora Empresa? @relation(fields: \[idEmpresaDevedora\], references: \[idEmpresa\])  
+ idEmpresaDevedora Int?  
+ numeroDocumento String  
+ documentoIdent DocumentoIdentificacao? @relation(fields: \[idDocumentoIdent\], references: \[idDocumentoIdent\])  
+ idDocumentoIdent String?  
+ dataEmissao DateTime  
+ dataVencimento DateTime  
+ valorOriginal Decimal @precision(18,2)  
+ valorAtualizado Decimal? @precision(18,2)  
+ indexador Indexador? @relation(fields: \[idIndexador\], references: \[idIndexador\])  
+ idIndexador Int?  
+ planoFinanceiro PlanoFinanceiro? @relation(fields: \[idPlanoFinanceiro\], references: \[idPlanoFinanceiro\])  
+ idPlanoFinanceiro Int?  
+ observacao String?  
+ descontoObtido Decimal? @precision(18,2)  
+ valorPago Decimal? @precision(18,2)  
+ dataPagamento DateTime?  
+ status String  
+ // Relacionamentos  
+ parcelas ParcelaTituloPagar\[\]  
+ impostos TituloPagarImposto\[\]  
+ alocacoesCentroCusto TituloPagarCentroCusto\[\]  
+ alocacoesDepartamento TituloPagarDepartamento\[\]  
 }
 
 model ParcelaTituloPagar {  
-  idParcela    Int   @id @default(autoincrement())  
-  tituloPai    TituloPagar @relation(fields: \[idTituloPagar\], references: \[idTituloPagar\])  
-  idTituloPagar Int  
-  numeroParcela Int  
-  dataVencimentoParcela DateTime  
-  valorParcela Decimal @precision(18,2)  
-  valorPagoParcela Decimal? @precision(18,2)  
-  dataPagamentoParcela DateTime?  
-  statusParcela String  
+ idParcela Int @id @default(autoincrement())  
+ tituloPai TituloPagar @relation(fields: \[idTituloPagar\], references: \[idTituloPagar\])  
+ idTituloPagar Int  
+ numeroParcela Int  
+ dataVencimentoParcela DateTime  
+ valorParcela Decimal @precision(18,2)  
+ valorPagoParcela Decimal? @precision(18,2)  
+ dataPagamentoParcela DateTime?  
+ statusParcela String  
 }
 
 model TituloPagarImposto {  
-  idImposto    Int   @id @default(autoincrement())  
-  titulo       TituloPagar @relation(fields: \[idTituloPagar\], references: \[idTituloPagar\])  
-  idTituloPagar Int  
-  tipoImposto  String  
-  baseCalculo  Decimal @precision(18,2)  
-  aliquota     Decimal @precision(5,2)  
-  valorImposto Decimal @precision(18,2)  
-  retido       Boolean  
+ idImposto Int @id @default(autoincrement())  
+ titulo TituloPagar @relation(fields: \[idTituloPagar\], references: \[idTituloPagar\])  
+ idTituloPagar Int  
+ tipoImposto String  
+ baseCalculo Decimal @precision(18,2)  
+ aliquota Decimal @precision(5,2)  
+ valorImposto Decimal @precision(18,2)  
+ retido Boolean  
 }
 
 model TituloPagarCentroCusto {  
-  // sem id próprio, relacionamento many-to-many com atributos  
-  idTituloPagar  Int  
-  idCentroCusto  Int  
-  idPlanoFinanceiro Int  
-  percentual     Decimal? @precision(5,2)  
-  valor          Decimal? @precision(18,2)  
-  titulo   TituloPagar   @relation(fields: \[idTituloPagar\], references: \[idTituloPagar\])  
-  centro  CentroCusto    @relation(fields: \[idCentroCusto\], references: \[idCentroCusto\])  
-  plano   PlanoFinanceiro @relation(fields: \[idPlanoFinanceiro\], references: \[idPlanoFinanceiro\])  
-  @@id(\[idTituloPagar, idCentroCusto, idPlanoFinanceiro\])  
+ // sem id próprio, relacionamento many-to-many com atributos  
+ idTituloPagar Int  
+ idCentroCusto Int  
+ idPlanoFinanceiro Int  
+ percentual Decimal? @precision(5,2)  
+ valor Decimal? @precision(18,2)  
+ titulo TituloPagar @relation(fields: \[idTituloPagar\], references: \[idTituloPagar\])  
+ centro CentroCusto @relation(fields: \[idCentroCusto\], references: \[idCentroCusto\])  
+ plano PlanoFinanceiro @relation(fields: \[idPlanoFinanceiro\], references: \[idPlanoFinanceiro\])  
+ @@id(\[idTituloPagar, idCentroCusto, idPlanoFinanceiro\])  
 }
 
 model TituloPagarDepartamento {  
-  idTituloPagar  Int  
-  idDepartamento Int  
-  percentual     Decimal? @precision(5,2)  
-  valor          Decimal? @precision(18,2)  
-  titulo       TituloPagar @relation(fields: \[idTituloPagar\], references: \[idTituloPagar\])  
-  departamento Departamento @relation(fields: \[idDepartamento\], references: \[idDepartamento\])  
-  @@id(\[idTituloPagar, idDepartamento\])  
+ idTituloPagar Int  
+ idDepartamento Int  
+ percentual Decimal? @precision(5,2)  
+ valor Decimal? @precision(18,2)  
+ titulo TituloPagar @relation(fields: \[idTituloPagar\], references: \[idTituloPagar\])  
+ departamento Departamento @relation(fields: \[idDepartamento\], references: \[idDepartamento\])  
+ @@id(\[idTituloPagar, idDepartamento\])  
 }
 
 // Fornecedores/Credores e Compras  
 model Credor {  
-  idCredor     Int    @id @default(autoincrement())  
-  tipoCredor   String?  
-  nomeCredor   String  
-  cpfCnpj      String  
-  inscricaoEstadual String?  
-  contato      String?  
-  telefoneContato String?  
-  emailContato String?  
-  ativo        Boolean @default(true)  
-  ehCorretor   Boolean @default(false)  
-  // Relacionamentos  
-  enderecos    CredorEndereco\[\]  
-  contasBancarias CredorInfoBancaria\[\]  
-  titulosPagar TituloPagar\[\]  
-  pedidos      PedidoCompra\[\]  
-  contratosSuprimento ContratoSuprimento\[\]  
-  notasFiscais NotaFiscalCompra\[\]  
-  cotacoes     CotacaoPreco\[\]  
+ idCredor Int @id @default(autoincrement())  
+ tipoCredor String?  
+ nomeCredor String  
+ cpfCnpj String  
+ inscricaoEstadual String?  
+ contato String?  
+ telefoneContato String?  
+ emailContato String?  
+ ativo Boolean @default(true)  
+ ehCorretor Boolean @default(false)  
+ // Relacionamentos  
+ enderecos CredorEndereco\[\]  
+ contasBancarias CredorInfoBancaria\[\]  
+ titulosPagar TituloPagar\[\]  
+ pedidos PedidoCompra\[\]  
+ contratosSuprimento ContratoSuprimento\[\]  
+ notasFiscais NotaFiscalCompra\[\]  
+ cotacoes CotacaoPreco\[\]  
 }
 
 model CredorEndereco {  
-  idEndereco Int @id @default(autoincrement())  
-  logradouro String  
-  numero     String  
-  complemento String?  
-  bairro     String?  
-  cep        String?  
-  municipio   Municipio? @relation(fields: \[idMunicipio\], references: \[idMunicipio\])  
-  idMunicipio Int?  
-  credor      Credor @relation(fields: \[idCredor\], references: \[idCredor\])  
-  idCredor    Int  
+ idEndereco Int @id @default(autoincrement())  
+ logradouro String  
+ numero String  
+ complemento String?  
+ bairro String?  
+ cep String?  
+ municipio Municipio? @relation(fields: \[idMunicipio\], references: \[idMunicipio\])  
+ idMunicipio Int?  
+ credor Credor @relation(fields: \[idCredor\], references: \[idCredor\])  
+ idCredor Int  
 }
 
 model CredorInfoBancaria {  
-  idInfoBancaria Int @id @default(autoincrement())  
-  credor    Credor @relation(fields: \[idCredor\], references: \[idCredor\])  
-  idCredor  Int  
-  banco     String  
-  agencia   String  
-  conta     String  
-  digitoConta String?  
-  tipoConta String  
-  nomeBeneficiario String?  
-  cpfCnpjBeneficiario String?  
-  ativa     Boolean @default(true)  
+ idInfoBancaria Int @id @default(autoincrement())  
+ credor Credor @relation(fields: \[idCredor\], references: \[idCredor\])  
+ idCredor Int  
+ banco String  
+ agencia String  
+ conta String  
+ digitoConta String?  
+ tipoConta String  
+ nomeBeneficiario String?  
+ cpfCnpjBeneficiario String?  
+ ativa Boolean @default(true)  
 }
 
 model SolicitacaoCompra {  
-  idSolicitacao Int @id @default(autoincrement())  
-  numeroSolicitacao String  
-  empresa       Empresa? @relation(fields: \[idEmpresa\], references: \[idEmpresa\])  
-  idEmpresa     Int?  
-  departamento  Departamento? @relation(fields: \[idDepartamento\], references: \[idDepartamento\])  
-  idDepartamento Int?  
-  solicitante   String  
-  dataSolicitacao DateTime @default(now())  
-  descricao     String?  
-  status        String  
-  itens         SolicitacaoItem\[\]  
-  pedido        PedidoCompra?  
-  cotacoes      CotacaoPreco\[\]  
+ idSolicitacao Int @id @default(autoincrement())  
+ numeroSolicitacao String  
+ empresa Empresa? @relation(fields: \[idEmpresa\], references: \[idEmpresa\])  
+ idEmpresa Int?  
+ departamento Departamento? @relation(fields: \[idDepartamento\], references: \[idDepartamento\])  
+ idDepartamento Int?  
+ solicitante String  
+ dataSolicitacao DateTime @default(now())  
+ descricao String?  
+ status String  
+ itens SolicitacaoItem\[\]  
+ pedido PedidoCompra?  
+ cotacoes CotacaoPreco\[\]  
 }
 
 model SolicitacaoItem {  
-  idSolicitacaoItem Int @id @default(autoincrement())  
-  solicitacao  SolicitacaoCompra @relation(fields: \[idSolicitacao\], references: \[idSolicitacao\])  
-  idSolicitacao Int  
-  descricaoItem String  
-  quantidade   Decimal @precision(18,4)  
-  unidade      String  
-  justificativa String?  
+ idSolicitacaoItem Int @id @default(autoincrement())  
+ solicitacao SolicitacaoCompra @relation(fields: \[idSolicitacao\], references: \[idSolicitacao\])  
+ idSolicitacao Int  
+ descricaoItem String  
+ quantidade Decimal @precision(18,4)  
+ unidade String  
+ justificativa String?  
 }
 
 model PedidoCompra {  
-  idPedido    Int @id @default(autoincrement())  
-  numeroPedido String  
-  solicitacao  SolicitacaoCompra? @relation(fields: \[idSolicitacao\], references: \[idSolicitacao\])  
-  idSolicitacao Int?  
-  credor      Credor @relation(fields: \[idCredor\], references: \[idCredor\])  
-  idCredor    Int  
-  dataPedido  DateTime  
-  dataEntregaPrevista DateTime?  
-  empreendimento Empreendimento? @relation(fields: \[idEmpreendimento\], references: \[idEmpreendimento\])  
-  idEmpreendimento Int?  
-  departamento Departamento? @relation(fields: \[idDepartamento\], references: \[idDepartamento\])  
-  idDepartamento Int?  
-  valorTotal   Decimal @precision(18,2)  
-  status       String  
-  itens        PedidoItem\[\]  
-  notasFiscais NotaFiscalCompra\[\]  
+ idPedido Int @id @default(autoincrement())  
+ numeroPedido String  
+ solicitacao SolicitacaoCompra? @relation(fields: \[idSolicitacao\], references: \[idSolicitacao\])  
+ idSolicitacao Int?  
+ credor Credor @relation(fields: \[idCredor\], references: \[idCredor\])  
+ idCredor Int  
+ dataPedido DateTime  
+ dataEntregaPrevista DateTime?  
+ empreendimento Empreendimento? @relation(fields: \[idEmpreendimento\], references: \[idEmpreendimento\])  
+ idEmpreendimento Int?  
+ departamento Departamento? @relation(fields: \[idDepartamento\], references: \[idDepartamento\])  
+ idDepartamento Int?  
+ valorTotal Decimal @precision(18,2)  
+ status String  
+ itens PedidoItem\[\]  
+ notasFiscais NotaFiscalCompra\[\]  
 }
 
 model PedidoItem {  
-  idPedidoItem Int @id @default(autoincrement())  
-  pedido      PedidoCompra @relation(fields: \[idPedido\], references: \[idPedido\])  
-  idPedido    Int  
-  descricaoItem String  
-  quantidade  Decimal @precision(18,4)  
-  unidade     String  
-  precoUnitario Decimal @precision(18,4)  
-  valorTotalItem Decimal @precision(18,2)  
+ idPedidoItem Int @id @default(autoincrement())  
+ pedido PedidoCompra @relation(fields: \[idPedido\], references: \[idPedido\])  
+ idPedido Int  
+ descricaoItem String  
+ quantidade Decimal @precision(18,4)  
+ unidade String  
+ precoUnitario Decimal @precision(18,4)  
+ valorTotalItem Decimal @precision(18,2)  
 }
 
 model ContratoSuprimento {  
-  idContratoSuprimento Int @id @default(autoincrement())  
-  numeroContrato String  
-  credor      Credor @relation(fields: \[idCredor\], references: \[idCredor\])  
-  idCredor    Int  
-  empreendimento Empreendimento? @relation(fields: \[idEmpreendimento\], references: \[idEmpreendimento\])  
-  idEmpreendimento Int?  
-  dataInicio  DateTime  
-  dataFim     DateTime?  
-  objeto      String?  
-  valorContrato Decimal @precision(18,2)  
-  status      String  
-  medicoes    MedicaoContrato\[\]  
-  titulosPagar TituloPagar\[\] // titulos gerados deste contrato  
+ idContratoSuprimento Int @id @default(autoincrement())  
+ numeroContrato String  
+ credor Credor @relation(fields: \[idCredor\], references: \[idCredor\])  
+ idCredor Int  
+ empreendimento Empreendimento? @relation(fields: \[idEmpreendimento\], references: \[idEmpreendimento\])  
+ idEmpreendimento Int?  
+ dataInicio DateTime  
+ dataFim DateTime?  
+ objeto String?  
+ valorContrato Decimal @precision(18,2)  
+ status String  
+ medicoes MedicaoContrato\[\]  
+ titulosPagar TituloPagar\[\] // titulos gerados deste contrato  
 }
 
 model MedicaoContrato {  
-  idMedicao   Int @id @default(autoincrement())  
-  contrato    ContratoSuprimento @relation(fields: \[idContratoSuprimento\], references: \[idContratoSuprimento\])  
-  idContratoSuprimento Int  
-  numeroMedicao Int  
-  dataMedicao DateTime  
-  percentualExecutado Decimal? @precision(5,2)  
-  valorMedicao Decimal @precision(18,2)  
-  aprovada   Boolean @default(false)  
-  tituloPagar TituloPagar?  
+ idMedicao Int @id @default(autoincrement())  
+ contrato ContratoSuprimento @relation(fields: \[idContratoSuprimento\], references: \[idContratoSuprimento\])  
+ idContratoSuprimento Int  
+ numeroMedicao Int  
+ dataMedicao DateTime  
+ percentualExecutado Decimal? @precision(5,2)  
+ valorMedicao Decimal @precision(18,2)  
+ aprovada Boolean @default(false)  
+ tituloPagar TituloPagar?  
 }
 
 model CotacaoPreco {  
-  idCotacao  Int @id @default(autoincrement())  
-  solicitacao SolicitacaoCompra @relation(fields: \[idSolicitacao\], references: \[idSolicitacao\])  
-  idSolicitacao Int  
-  credor     Credor @relation(fields: \[idCredor\], references: \[idCredor\])  
-  idCredor   Int  
-  dataCotacao DateTime  
-  validaAte   DateTime?  
-  valorTotalCotado Decimal @precision(18,2)  
-  condicoes   String?  
-  escolhida   Boolean @default(false)  
-  itens       CotacaoItem\[\]  
+ idCotacao Int @id @default(autoincrement())  
+ solicitacao SolicitacaoCompra @relation(fields: \[idSolicitacao\], references: \[idSolicitacao\])  
+ idSolicitacao Int  
+ credor Credor @relation(fields: \[idCredor\], references: \[idCredor\])  
+ idCredor Int  
+ dataCotacao DateTime  
+ validaAte DateTime?  
+ valorTotalCotado Decimal @precision(18,2)  
+ condicoes String?  
+ escolhida Boolean @default(false)  
+ itens CotacaoItem\[\]  
 }
 
 model CotacaoItem {  
-  idCotacaoItem Int @id @default(autoincrement())  
-  cotacao    CotacaoPreco @relation(fields: \[idCotacao\], references: \[idCotacao\])  
-  idCotacao  Int  
-  descricaoItem String  
-  quantidade  Decimal @precision(18,4)  
-  unidade     String  
-  precoUnitario Decimal @precision(18,4)  
-  valorTotalItem Decimal @precision(18,2)  
+ idCotacaoItem Int @id @default(autoincrement())  
+ cotacao CotacaoPreco @relation(fields: \[idCotacao\], references: \[idCotacao\])  
+ idCotacao Int  
+ descricaoItem String  
+ quantidade Decimal @precision(18,4)  
+ unidade String  
+ precoUnitario Decimal @precision(18,4)  
+ valorTotalItem Decimal @precision(18,2)  
 }
 
 // Notas fiscais  
 model NotaFiscalCompra {  
-  idNotaFiscal Int @id @default(autoincrement())  
-  credor      Credor @relation(fields: \[idCredor\], references: \[idCredor\])  
-  idCredor    Int  
-  numeroNota  String  
-  serie       String?  
-  chaveAcesso String?  
-  dataEmissao DateTime  
-  valorTotal  Decimal @precision(18,2)  
-  pedido      PedidoCompra? @relation(fields: \[idPedido\], references: \[idPedido\])  
-  idPedido    Int?  
-  contratoSuprimento ContratoSuprimento? @relation(fields: \[idContratoSuprimento\], references: \[idContratoSuprimento\])  
-  idContratoSuprimento Int?  
-  status      String  
+ idNotaFiscal Int @id @default(autoincrement())  
+ credor Credor @relation(fields: \[idCredor\], references: \[idCredor\])  
+ idCredor Int  
+ numeroNota String  
+ serie String?  
+ chaveAcesso String?  
+ dataEmissao DateTime  
+ valorTotal Decimal @precision(18,2)  
+ pedido PedidoCompra? @relation(fields: \[idPedido\], references: \[idPedido\])  
+ idPedido Int?  
+ contratoSuprimento ContratoSuprimento? @relation(fields: \[idContratoSuprimento\], references: \[idContratoSuprimento\])  
+ idContratoSuprimento Int?  
+ status String  
 }
 
 // Patrimônio e Locação  
 model BemImovel {  
-  idBemImovel Int @id @default(autoincrement())  
-  descricao   String  
-  endereco    String?  
-  valorAquisicao Decimal? @precision(18,2)  
-  dataAquisicao DateTime?  
-  vidaUtil    Int?  
-  valorContabil Decimal? @precision(18,2)  
-  contratosLocacao ContratoLocacao\[\]  
+ idBemImovel Int @id @default(autoincrement())  
+ descricao String  
+ endereco String?  
+ valorAquisicao Decimal? @precision(18,2)  
+ dataAquisicao DateTime?  
+ vidaUtil Int?  
+ valorContabil Decimal? @precision(18,2)  
+ contratosLocacao ContratoLocacao\[\]  
 }
 
 model BemMovel {  
-  idBemMovel Int @id @default(autoincrement())  
-  descricao  String  
-  numeroPatrimonio String?  
-  valorAquisicao Decimal? @precision(18,2)  
-  dataAquisicao DateTime?  
-  vidaUtil   Int?  
-  valorContabil Decimal? @precision(18,2)  
+ idBemMovel Int @id @default(autoincrement())  
+ descricao String  
+ numeroPatrimonio String?  
+ valorAquisicao Decimal? @precision(18,2)  
+ dataAquisicao DateTime?  
+ vidaUtil Int?  
+ valorContabil Decimal? @precision(18,2)  
 }
 
 model ContratoLocacao {  
-  idContratoLocacao Int @id @default(autoincrement())  
-  bemImovel   BemImovel @relation(fields: \[idBemImovel\], references: \[idBemImovel\])  
-  idBemImovel Int  
-  cliente     Cliente @relation(fields: \[idCliente\], references: \[idCliente\])  
-  idCliente   Int  
-  dataInicio  DateTime  
-  dataFim     DateTime?  
-  valorAluguel Decimal @precision(18,2)  
-  periodicidadeReajuste String?  
-  indexador   Indexador? @relation(fields: \[idIndexador\], references: \[idIndexador\])  
-  idIndexador Int?  
-  garantia    String?  
-  ativo       Boolean @default(true)  
-  // títulos a receber gerados deste contrato de locação  
-  // (poderíamos derivar via idContratoLocacao em TituloReceber se mantivéssemos campo)  
+ idContratoLocacao Int @id @default(autoincrement())  
+ bemImovel BemImovel @relation(fields: \[idBemImovel\], references: \[idBemImovel\])  
+ idBemImovel Int  
+ cliente Cliente @relation(fields: \[idCliente\], references: \[idCliente\])  
+ idCliente Int  
+ dataInicio DateTime  
+ dataFim DateTime?  
+ valorAluguel Decimal @precision(18,2)  
+ periodicidadeReajuste String?  
+ indexador Indexador? @relation(fields: \[idIndexador\], references: \[idIndexador\])  
+ idIndexador Int?  
+ garantia String?  
+ ativo Boolean @default(true)  
+ // títulos a receber gerados deste contrato de locação  
+ // (poderíamos derivar via idContratoLocacao em TituloReceber se mantivéssemos campo)  
 }
 
 // Contas financeiras (bancárias e caixa)  
 model ContaCorrente {  
-  idConta    Int @id @default(autoincrement())  
-  descricao  String  
-  instituicao String?  
-  agencia    String?  
-  numeroConta String?  
-  tipoConta  String  
-  saldoInicial Decimal @precision(18,2) @default(0.0)  
-  saldoAtual   Decimal @precision(18,2)? // pode ser calculado ou atualizado  
-  ativa      Boolean @default(true)  
-  movimentos MovimentoFinanceiro\[\]  
+ idConta Int @id @default(autoincrement())  
+ descricao String  
+ instituicao String?  
+ agencia String?  
+ numeroConta String?  
+ tipoConta String  
+ saldoInicial Decimal @precision(18,2) @default(0.0)  
+ saldoAtual Decimal @precision(18,2)? // pode ser calculado ou atualizado  
+ ativa Boolean @default(true)  
+ movimentos MovimentoFinanceiro\[\]  
 }
 
 model MovimentoFinanceiro {  
-  idMovimento Int @id @default(autoincrement())  
-  conta       ContaCorrente @relation(fields: \[idConta\], references: \[idConta\])  
-  idConta     Int  
-  dataMovimento DateTime @default(now())  
-  descricao   String  
-  valor       Decimal @precision(18,2)  
-  tipo        String  // "CRÉDITO" ou "DÉBITO"  
-  idTituloReceber Int?  
-  idTituloPagar   Int?  
-  conciliado  Boolean @default(false)  
-  // Podemos incluir relations to TituloReceber/Pagar if needed for cascade, but referencing by id is enough.  
+ idMovimento Int @id @default(autoincrement())  
+ conta ContaCorrente @relation(fields: \[idConta\], references: \[idConta\])  
+ idConta Int  
+ dataMovimento DateTime @default(now())  
+ descricao String  
+ valor Decimal @precision(18,2)  
+ tipo String // "CRÉDITO" ou "DÉBITO"  
+ idTituloReceber Int?  
+ idTituloPagar Int?  
+ conciliado Boolean @default(false)  
+ // Podemos incluir relations to TituloReceber/Pagar if needed for cascade, but referencing by id is enough.  
 }
 
 // Contabilidade  
 model ContaContabil {  
-  idContaContabil Int @id @default(autoincrement())  
-  codigoConta   String  
-  nomeConta     String  
-  tipoConta     String  
-  analitica     Boolean @default(true)  
-  contaPai      ContaContabil? @relation("ContaContaPai", fields: \[idContaPai\], references: \[idContaContabil\])  
-  idContaPai    Int?  
-  subContas     ContaContabil\[\] @relation("ContaContaPai")  
-  lancamentosDebito  LancamentoContabilItem\[\] @relation("ContaDebito")  
-  lancamentosCredito LancamentoContabilItem\[\] @relation("ContaCredito")  
+ idContaContabil Int @id @default(autoincrement())  
+ codigoConta String  
+ nomeConta String  
+ tipoConta String  
+ analitica Boolean @default(true)  
+ contaPai ContaContabil? @relation("ContaContaPai", fields: \[idContaPai\], references: \[idContaContabil\])  
+ idContaPai Int?  
+ subContas ContaContabil\[\] @relation("ContaContaPai")  
+ lancamentosDebito LancamentoContabilItem\[\] @relation("ContaDebito")  
+ lancamentosCredito LancamentoContabilItem\[\] @relation("ContaCredito")  
 }
 
 model LancamentoContabil {  
-  idLancamento Int @id @default(autoincrement())  
-  dataLancamento DateTime  
-  lote       LoteContabil? @relation(fields: \[idLote\], references: \[idLote\])  
-  idLote     Int?  
-  historico  String  
-  // Relação com itens  
-  itens      LancamentoContabilItem\[\]  
+ idLancamento Int @id @default(autoincrement())  
+ dataLancamento DateTime  
+ lote LoteContabil? @relation(fields: \[idLote\], references: \[idLote\])  
+ idLote Int?  
+ historico String  
+ // Relação com itens  
+ itens LancamentoContabilItem\[\]  
 }
 
 model LancamentoContabilItem {  
-  idLancamento Int  
-  idConta      Int  
-  tipo         String // "D" ou "C"  
-  valor        Decimal @precision(18,2)  
-  lancamento   LancamentoContabil @relation(fields: \[idLancamento\], references: \[idLancamento\])  
-  contaContabil ContaContabil @relation(fields: \[idConta\], references: \[idContaContabil\])  
-  @@id(\[idLancamento, idConta, tipo\])  
+ idLancamento Int  
+ idConta Int  
+ tipo String // "D" ou "C"  
+ valor Decimal @precision(18,2)  
+ lancamento LancamentoContabil @relation(fields: \[idLancamento\], references: \[idLancamento\])  
+ contaContabil ContaContabil @relation(fields: \[idConta\], references: \[idContaContabil\])  
+ @@id(\[idLancamento, idConta, tipo\])  
 }
 
 model LoteContabil {  
-  idLote     Int @id @default(autoincrement())  
-  numeroLote String  
-  dataLote   DateTime  
-  descricao  String?  
-  origem     String?  
-  situacao   String?  
-  lancamentos LancamentoContabil\[\]  
+ idLote Int @id @default(autoincrement())  
+ numeroLote String  
+ dataLote DateTime  
+ descricao String?  
+ origem String?  
+ situacao String?  
+ lancamentos LancamentoContabil\[\]  
 }
 
-*(O schema acima é ilustrativo, combinando todos os modelos mencionados. Dependendo das necessidades reais, algumas tabelas auxiliares poderiam ser ajustadas ou normalizadas de forma diferente. Porém, ele reflete fielmente o mapa de dados dos endpoints da API Sienge, incluindo todos os campos e relações essenciais para atender a integração.)*
+_(O schema acima é ilustrativo, combinando todos os modelos mencionados. Dependendo das necessidades reais, algumas tabelas auxiliares poderiam ser ajustadas ou normalizadas de forma diferente. Porém, ele reflete fielmente o mapa de dados dos endpoints da API Sienge, incluindo todos os campos e relações essenciais para atender a integração.)_
 
 **Fontes:** Este mapeamento foi construído com base na documentação pública da API Sienge[\[60\]](https://api.sienge.com.br/docs/#:~:text=)[\[61\]](https://api.sienge.com.br/docs/#:~:text=,Contratos%20de%20Vendas) e artigos de suporte relacionados que descrevem os recursos e campos (por exemplo, estrutura de clientes e cônjuge[\[20\]](https://ajuda.sienge.com.br/support/solutions/articles/153000200640-apoio-clientes-como-alterar-o-cadastro-de-cliente-atrav%C3%A9s-de-api-#:~:text=dos%20c%C3%B4njuges%20vinculados%20a%20um,substitui%C3%A7%C3%A3o%C2%A0PUT%C2%A0conforme%20apresentado%20pela%20figura%20abaixo), payloads de títulos a pagar[\[62\]](https://docs.fluidapi.io/sienge#:~:text=000%2F0001%2003%60%20%7D%7D,natureza), endpoints de obras e integrações[\[63\]](https://ajuda.sienge.com.br/support/solutions/articles/153000245608--construpoint-integrac%C3%A3o-com-sienge-plataforma-parametrizac%C3%A3o#:~:text=)[\[64\]](https://suporteprevision.freshdesk.com/support/solutions/articles/153000240992-erro-de-permission-denied-#:~:text=,estimations%2F%7Bbuilding_id%7D%2Fsheets%2F%7Bbuilding_unit_id%7D%2Fitems), entre outros). Cada seção do modelo corresponde a endpoints documentados, garantindo que o desenvolvedor tenha um guia completo para implementar o esquema de banco de dados e o **schema.prisma** correspondente.
 
 ---
 
-[\[1\]](https://ajuda.sienge.com.br/support/solutions/articles/153000200200-api-rest-credores#:~:text=API%2C%C2%A0Application%C2%A0Programming%C2%A0Interface%20ou%20Interface%20de%20Programa%C3%A7%C3%A3o,a%C3%A7%C3%B5es%20que%20podem%20ser%20feitas) [\[37\]](https://ajuda.sienge.com.br/support/solutions/articles/153000200200-api-rest-credores#:~:text=A%20API%20POST%C2%A0%2Fcreditors%2F%7BcreditorId%7D%2Fbank,conta%2C%20benefici%C3%A1rios%2C%20entre%20outras%20informa%C3%A7%C3%B5es) [\[38\]](https://ajuda.sienge.com.br/support/solutions/articles/153000200200-api-rest-credores#:~:text=A%20API%C2%A0GET%C2%A0%2Fcreditors%2F%7BcreditorId%7D%2Fbank,da%20conta%2C%20entre%20outras%20informa%C3%A7%C3%B5es)  API REST – Credores : Sienge Plataforma 
+[\[1\]](https://ajuda.sienge.com.br/support/solutions/articles/153000200200-api-rest-credores#:~:text=API%2C%C2%A0Application%C2%A0Programming%C2%A0Interface%20ou%20Interface%20de%20Programa%C3%A7%C3%A3o,a%C3%A7%C3%B5es%20que%20podem%20ser%20feitas) [\[37\]](https://ajuda.sienge.com.br/support/solutions/articles/153000200200-api-rest-credores#:~:text=A%20API%20POST%C2%A0%2Fcreditors%2F%7BcreditorId%7D%2Fbank,conta%2C%20benefici%C3%A1rios%2C%20entre%20outras%20informa%C3%A7%C3%B5es) [\[38\]](https://ajuda.sienge.com.br/support/solutions/articles/153000200200-api-rest-credores#:~:text=A%20API%C2%A0GET%C2%A0%2Fcreditors%2F%7BcreditorId%7D%2Fbank,da%20conta%2C%20entre%20outras%20informa%C3%A7%C3%B5es) API REST – Credores : Sienge Plataforma
 
 [https://ajuda.sienge.com.br/support/solutions/articles/153000200200-api-rest-credores](https://ajuda.sienge.com.br/support/solutions/articles/153000200200-api-rest-credores)
 
@@ -1371,7 +1408,7 @@ model LoteContabil {
 
 [https://forum.xperiun.com/topic/359-conex%C3%A3o-com-apis-e-recursividade-sienge-api/](https://forum.xperiun.com/topic/359-conex%C3%A3o-com-apis-e-recursividade-sienge-api/)
 
-[\[4\]](https://ajuda.sienge.com.br/support/solutions/articles/153000245608--construpoint-integrac%C3%A3o-com-sienge-plataforma-parametrizac%C3%A3o#:~:text=7%20%E2%80%93%20Seguiremos%20com%20a,todos%20os%20listados%20a%20seguir) [\[63\]](https://ajuda.sienge.com.br/support/solutions/articles/153000245608--construpoint-integrac%C3%A3o-com-sienge-plataforma-parametrizac%C3%A3o#:~:text=)  \[CONSTRUPOINT\] Integração com Sienge Plataforma \- Parametrização : Sienge Plataforma 
+[\[4\]](https://ajuda.sienge.com.br/support/solutions/articles/153000245608--construpoint-integrac%C3%A3o-com-sienge-plataforma-parametrizac%C3%A3o#:~:text=7%20%E2%80%93%20Seguiremos%20com%20a,todos%20os%20listados%20a%20seguir) [\[63\]](https://ajuda.sienge.com.br/support/solutions/articles/153000245608--construpoint-integrac%C3%A3o-com-sienge-plataforma-parametrizac%C3%A3o#:~:text=) \[CONSTRUPOINT\] Integração com Sienge Plataforma \- Parametrização : Sienge Plataforma
 
 [https://ajuda.sienge.com.br/support/solutions/articles/153000245608--construpoint-integrac%C3%A3o-com-sienge-plataforma-parametrizac%C3%A3o](https://ajuda.sienge.com.br/support/solutions/articles/153000245608--construpoint-integrac%C3%A3o-com-sienge-plataforma-parametrizac%C3%A3o)
 
@@ -1383,7 +1420,7 @@ model LoteContabil {
 
 [https://docs.fluidapi.io/sienge](https://docs.fluidapi.io/sienge)
 
-[\[7\]](https://suporteprevision.freshdesk.com/support/solutions/articles/153000240992-erro-de-permission-denied-#:~:text=,centers) [\[64\]](https://suporteprevision.freshdesk.com/support/solutions/articles/153000240992-erro-de-permission-denied-#:~:text=,estimations%2F%7Bbuilding_id%7D%2Fsheets%2F%7Bbuilding_unit_id%7D%2Fitems)  Erro de "Permission denied" : Prevision 
+[\[7\]](https://suporteprevision.freshdesk.com/support/solutions/articles/153000240992-erro-de-permission-denied-#:~:text=,centers) [\[64\]](https://suporteprevision.freshdesk.com/support/solutions/articles/153000240992-erro-de-permission-denied-#:~:text=,estimations%2F%7Bbuilding_id%7D%2Fsheets%2F%7Bbuilding_unit_id%7D%2Fitems) Erro de "Permission denied" : Prevision
 
 [https://suporteprevision.freshdesk.com/support/solutions/articles/153000240992-erro-de-permission-denied-](https://suporteprevision.freshdesk.com/support/solutions/articles/153000240992-erro-de-permission-denied-)
 
@@ -1419,7 +1456,7 @@ model LoteContabil {
 
 [https://api.sienge.com.br/docs/html-files/customers-v1.html](https://api.sienge.com.br/docs/html-files/customers-v1.html)
 
-[\[18\]](https://ajuda.sienge.com.br/support/solutions/articles/153000200640-apoio-clientes-como-alterar-o-cadastro-de-cliente-atrav%C3%A9s-de-api-#:~:text=) [\[19\]](https://ajuda.sienge.com.br/support/solutions/articles/153000200640-apoio-clientes-como-alterar-o-cadastro-de-cliente-atrav%C3%A9s-de-api-#:~:text=Aten%C3%A7%C3%A3o%21%C2%A0%C2%A0O%20campo%C2%A0%E2%80%9Cnacionalidade%E2%80%9D%C2%A0passar%C3%A1%20a%20ficar%20na,por%20meio%20da%20estrutura%20atual) [\[20\]](https://ajuda.sienge.com.br/support/solutions/articles/153000200640-apoio-clientes-como-alterar-o-cadastro-de-cliente-atrav%C3%A9s-de-api-#:~:text=dos%20c%C3%B4njuges%20vinculados%20a%20um,substitui%C3%A7%C3%A3o%C2%A0PUT%C2%A0conforme%20apresentado%20pela%20figura%20abaixo)  Apoio : Clientes \- Como alterar o cadastro de cliente através de API? : Sienge Plataforma 
+[\[18\]](https://ajuda.sienge.com.br/support/solutions/articles/153000200640-apoio-clientes-como-alterar-o-cadastro-de-cliente-atrav%C3%A9s-de-api-#:~:text=) [\[19\]](https://ajuda.sienge.com.br/support/solutions/articles/153000200640-apoio-clientes-como-alterar-o-cadastro-de-cliente-atrav%C3%A9s-de-api-#:~:text=Aten%C3%A7%C3%A3o%21%C2%A0%C2%A0O%20campo%C2%A0%E2%80%9Cnacionalidade%E2%80%9D%C2%A0passar%C3%A1%20a%20ficar%20na,por%20meio%20da%20estrutura%20atual) [\[20\]](https://ajuda.sienge.com.br/support/solutions/articles/153000200640-apoio-clientes-como-alterar-o-cadastro-de-cliente-atrav%C3%A9s-de-api-#:~:text=dos%20c%C3%B4njuges%20vinculados%20a%20um,substitui%C3%A7%C3%A3o%C2%A0PUT%C2%A0conforme%20apresentado%20pela%20figura%20abaixo) Apoio : Clientes \- Como alterar o cadastro de cliente através de API? : Sienge Plataforma
 
 [https://ajuda.sienge.com.br/support/solutions/articles/153000200640-apoio-clientes-como-alterar-o-cadastro-de-cliente-atrav%C3%A9s-de-api-](https://ajuda.sienge.com.br/support/solutions/articles/153000200640-apoio-clientes-como-alterar-o-cadastro-de-cliente-atrav%C3%A9s-de-api-)
 

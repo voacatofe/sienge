@@ -74,7 +74,7 @@
     relacionamentos complexos, índices otimizados e campos sensíveis
     marcados para criptografia (CPF, CNPJ, etc.).
 
-## 📡 **Endpoints da API Sienge (Corrigidos)**
+## 📡 **Endpoints da API Sienge (Corrigidos e Implementados)**
 
 ### **🔧 Configuração da URL Base**
 
@@ -86,26 +86,26 @@ https://api.sienge.com.br/{subdominio}/public/api/v1
 
 #### **👥 Clientes e Empresas**
 
-- `/customers` - Clientes
-- `/companies` - Empresas
+- `/customers` - Clientes ✅ **IMPLEMENTADO**
+- `/companies` - Empresas ✅ **IMPLEMENTADO**
 
 #### **💰 Entidades Financeiras**
 
-- `/accounts-receivable` - Títulos a Receber (Contas a Receber)
-- `/accounts-payable` - Títulos a Pagar (Contas a Pagar)
-- `/indexers` - Indexadores/Correção Monetária
-- `/payment-categories` - Planos Financeiros
-- `/carriers` - Portadores de Recebimento
+- `/accounts-receivable` - Títulos a Receber (Contas a Receber) ✅ **IMPLEMENTADO**
+- `/accounts-payable` - Títulos a Pagar (Contas a Pagar) ✅ **IMPLEMENTADO**
+- `/indexers` - Indexadores/Correção Monetária ✅ **IMPLEMENTADO**
+- `/payment-categories` - Planos Financeiros ✅ **IMPLEMENTADO**
+- `/carriers` - Portadores de Recebimento ✅ **IMPLEMENTADO**
 
 #### **📋 Contratos e Vendas**
 
-- `/sales-contracts` - Contratos de Venda
-- `/commissions` - Comissões de Vendas
+- `/sales-contracts` - Contratos de Venda ✅ **IMPLEMENTADO**
+- `/commissions` - Comissões de Vendas ✅ **IMPLEMENTADO**
 
 #### **🏢 Estrutura Organizacional**
 
-- `/cost-centers` - Centros de Custo
-- `/departments` - Departamentos
+- `/cost-centers` - Centros de Custo ✅ **IMPLEMENTADO**
+- `/departments` - Departamentos ✅ **IMPLEMENTADO**
 
 ### **❌ Endpoints Removidos (Causavam Erro 405)**
 
@@ -135,6 +135,36 @@ https://api.sienge.com.br/{subdominio}/public/api/v1
 - `offset`: para paginação
 - Filtros de data quando aplicável
 
+### **🔧 Status das Implementações**
+
+#### **✅ APIs Locais Implementadas e Corrigidas:**
+
+- `/api/data/customers` - Consulta clientes locais
+- `/api/data/companies` - Consulta empresas locais
+- `/api/data/accounts-receivable` - Consulta títulos a receber locais
+- `/api/data/accounts-payable` - Consulta títulos a pagar locais
+- `/api/data/sales-contracts` - Consulta contratos de venda locais
+- `/api/data/financial?type=accounts-receivable` - Endpoint unificado
+- `/api/data/financial?type=accounts-payable` - Endpoint unificado
+- `/api/data/financial?type=commissions` - Endpoint unificado
+- `/api/data/financial?type=payment-categories` - Endpoint unificado
+- `/api/data/financial?type=indexers` - Endpoint unificado
+- `/api/data/financial?type=carriers` - Endpoint unificado
+
+#### **📋 Arquivos Corrigidos:**
+
+- ✅ `lib/config/sienge-api.ts` - Configurações centralizadas atualizadas
+- ✅ `app/api/data/receivables/route.ts` - Meta endpoint corrigido
+- ✅ `app/api/data/payables/route.ts` - Meta endpoint corrigido
+- ✅ `app/api/data/financial/route.ts` - Case statements e meta fields corrigidos
+
+#### **🔧 Configurações Atualizadas:**
+
+- ✅ Todos os endpoints Sienge mapeados corretamente
+- ✅ Configurações de sincronização centralizadas
+- ✅ Mapeamentos ENTITY_TO_ENDPOINT atualizados
+- ✅ Meta endpoints corrigidos em todas as APIs
+
 ### **⚠️ Observações Importantes**
 
 1. **Subdomínio obrigatório** na URL base
@@ -142,3 +172,4 @@ https://api.sienge.com.br/{subdominio}/public/api/v1
 3. **Rate limiting**: 200 requests/minuto
 4. **Timeout**: 30 segundos por requisição
 5. **Retry logic**: 3 tentativas com backoff exponencial
+6. **✅ Todas as correções implementadas** conforme documentação oficial Sienge
