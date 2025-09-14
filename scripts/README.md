@@ -2,262 +2,245 @@
 
 Esta pasta contém todos os scripts para gerenciar os ambientes de desenvolvimento e produção do projeto Sienge.
 
+## 🚀 Scripts Principais (NOVOS)
+
+### `start-prod.sh` / `start-prod.ps1` / `start-prod.bat`
+
+Script otimizado para ambiente de **PRODUÇÃO**:
+
+- Recursos completos (4GB RAM, 4 CPU)
+- Segurança reforçada
+- Logs otimizados para produção
+- Backup automático
+- Sincronização às 2h da manhã
+
+**Linux/Mac:**
+
+```bash
+./scripts/start-prod.sh start
+./scripts/start-prod.sh stop
+./scripts/start-prod.sh logs
+./scripts/start-prod.sh backup
+```
+
+**Windows PowerShell:**
+
+```powershell
+.\scripts\start-prod.ps1 start
+.\scripts\start-prod.ps1 stop
+.\scripts\start-prod.ps1 logs
+.\scripts\start-prod.ps1 backup
+```
+
+**Windows Batch:**
+
+```cmd
+start-prod.bat start
+start-prod.bat stop
+start-prod.bat logs
+start-prod.bat backup
+```
+
+### `start-dev.sh` / `start-dev.ps1` / `start-dev.bat`
+
+Script otimizado para ambiente de **DESENVOLVIMENTO**:
+
+- Recursos limitados (1GB RAM, 1 CPU)
+- Hot reload habilitado
+- Logs detalhados
+- Sincronização a cada 5 minutos
+- Banco separado (`sienge_dev`)
+
+**Linux/Mac:**
+
+```bash
+./scripts/start-dev.sh start
+./scripts/start-dev.sh stop
+./scripts/start-dev.sh logs
+./scripts/start-dev.sh backup
+```
+
+**Windows PowerShell:**
+
+```powershell
+.\scripts\start-dev.ps1 start
+.\scripts\start-dev.ps1 stop
+.\scripts\start-dev.ps1 logs
+.\scripts\start-dev.ps1 backup
+```
+
+**Windows Batch:**
+
+```cmd
+start-dev.bat start
+start-dev.bat stop
+start-dev.bat logs
+start-dev.bat backup
+```
+
+## 🐳 Docker Compose Separados
+
+### `docker-compose.yml` (Produção)
+
+- Otimizado para produção
+- Recursos completos
+- Segurança reforçada
+- Logs otimizados
+
+### `docker-compose-dev.yml` (Desenvolvimento)
+
+- Otimizado para desenvolvimento
+- Hot reload habilitado
+- Recursos limitados
+- Logs detalhados
+
 ## 🔧 Scripts de Schema Setup Automatizado
 
 ### `docker-entrypoint.sh`
+
 Script de entrypoint que automatiza a inicialização do schema Prisma:
+
 - Aguarda banco de dados estar disponível
 - Executa migrações automaticamente
 - Gera cliente Prisma
 - Inicia aplicação Next.js
 
 **Funcionalidades:**
+
 - ✅ Verificação de conectividade com banco
 - ✅ Execução automática de migrações
 - ✅ Geração do cliente Prisma
 - ✅ Logs detalhados com timestamp
 - ✅ Tratamento de erros robusto
 
-### `test-schema-setup.sh` / `test-schema-setup.ps1`
-Scripts para testar a automação do schema setup localmente:
+## 🔧 Scripts de Funcionalidade Core
 
-**Linux/Mac:**
-```bash
-./scripts/test-schema-setup.sh
-```
+### `daily-sync.js`
 
-**Windows:**
-```powershell
-.\scripts\test-schema-setup.ps1
-```
+Sistema de sincronização diária com cron:
 
-## 🐳 Dockerfiles Especializados
+- Execução automática às 2h da manhã
+- Logs detalhados de sincronização
+- Tratamento de erros robusto
 
-### `Dockerfile.dev`
-Dockerfile otimizado para desenvolvimento com schema setup automatizado:
-- Instala todas as dependências (incluindo devDependencies)
-- Usa entrypoint personalizado
-- Configurado para hot reload
+### `stop-sync.js`
 
-### `Dockerfile.prod`
-Dockerfile otimizado para produção com schema setup automatizado:
-- Instala apenas dependências de produção
-- Usa entrypoint personalizado
-- Build otimizado para produção
+Utilitário para parar sincronizações em andamento:
 
-## 🚀 Script Principal
+- Cancelamento seguro de syncs
+- Logs de operação
+- Integração com Prisma
 
-### `sienge.sh` (Linux/Mac)
-Script principal que centraliza todos os comandos:
+## 🗄️ Scripts de Banco de Dados
+
+### `adminer.sh`
+
+Script para acesso ao Adminer (interface web do banco):
 
 ```bash
-# Tornar executável
-chmod +x scripts/sienge.sh
+# Desenvolvimento
+./scripts/adminer.sh dev
 
-# Ver ajuda
-./scripts/sienge.sh help
-
-# Comandos principais
-./scripts/sienge.sh dev          # Iniciar desenvolvimento
-./scripts/sienge.sh prod         # Iniciar produção
-./scripts/sienge.sh status       # Ver status
-./scripts/sienge.sh backup-prod  # Backup produção
+# Produção
+./scripts/adminer.sh prod
 ```
 
-## 🛠️ Scripts de Desenvolvimento
+**Funcionalidades:**
 
-### `init-dev.sh` / `init-dev.ps1`
-Inicia o ambiente de desenvolvimento:
-- Hot reload habilitado
-- Logs detalhados
-- Recursos limitados
-- Banco separado (`sienge_dev`)
-
-**Linux/Mac:**
-```bash
-./scripts/init-dev.sh
-./scripts/init-dev.sh --clean  # Com limpeza de volumes
-```
-
-**Windows:**
-```powershell
-.\scripts\init-dev.ps1
-.\scripts\init-dev.ps1 -Clean  # Com limpeza de volumes
-```
-
-### `stop-dev.sh` / `stop-dev.ps1`
-Para o ambiente de desenvolvimento:
-
-**Linux/Mac:**
-```bash
-./scripts/stop-dev.sh
-./scripts/stop-dev.sh --clean  # Remove volumes também
-```
-
-**Windows:**
-```powershell
-.\scripts\stop-dev.ps1
-.\scripts\stop-dev.ps1 -Clean  # Remove volumes também
-```
-
-### `logs-dev.sh`
-Visualiza logs do ambiente de desenvolvimento:
-```bash
-./scripts/logs-dev.sh
-```
-
-## 🏭 Scripts de Produção
-
-### `init-prod.sh` / `init-prod.ps1`
-Inicia o ambiente de produção:
-- Build otimizado
-- Recursos completos
-- Logs otimizados
-- Banco principal (`sienge_data`)
-
-**Linux/Mac:**
-```bash
-./scripts/init-prod.sh
-```
-
-**Windows:**
-```powershell
-.\scripts\init-prod.ps1
-```
-
-### `stop-prod.sh` / `stop-prod.ps1`
-Para o ambiente de produção:
-
-**Linux/Mac:**
-```bash
-./scripts/stop-prod.sh
-./scripts/stop-prod.sh --clean  # Remove volumes (CUIDADO!)
-```
-
-**Windows:**
-```powershell
-.\scripts\stop-prod.ps1
-.\scripts\stop-prod.ps1 -Clean  # Remove volumes (CUIDADO!)
-```
-
-### `logs-prod.sh`
-Visualiza logs do ambiente de produção:
-```bash
-./scripts/logs-prod.sh
-```
+- ✅ Acesso automático ao Adminer
+- ✅ Configuração automática de credenciais
+- ✅ Abertura automática no navegador
+- ✅ Suporte a ambos os ambientes
 
 ## 💾 Scripts de Backup
 
-### `backup-db.sh`
-Cria backup do banco de dados:
+### Backup Automático
+
+Os novos scripts incluem backup automático:
 
 ```bash
-# Backup desenvolvimento
-./scripts/backup-db.sh dev
-
 # Backup produção
-./scripts/backup-db.sh prod
+./scripts/start-prod.sh backup
+
+# Backup desenvolvimento
+./scripts/start-dev.sh backup
 ```
 
 **Arquivos salvos em:**
+
 - Desenvolvimento: `backups/dev/backup_sienge_dev_YYYYMMDD_HHMMSS.sql`
 - Produção: `backups/prod/backup_sienge_data_YYYYMMDD_HHMMSS.sql`
 
-### `restore-db.sh`
-Restaura backup do banco de dados:
-
-```bash
-# Restaurar desenvolvimento
-./scripts/restore-db.sh dev backups/dev/backup_sienge_dev_20240101_120000.sql
-
-# Restaurar produção
-./scripts/restore-db.sh prod backups/prod/backup_sienge_data_20240101_120000.sql
-```
-
-⚠️ **ATENÇÃO:** A restauração substitui todos os dados existentes!
-
 ## 🔧 Comandos Rápidos
 
-### Desenvolvimento
+### Desenvolvimento (NOVO)
+
 ```bash
 # Iniciar
-./scripts/sienge.sh dev
+./scripts/start-dev.sh start
 
 # Ver logs
-./scripts/sienge.sh logs-dev
+./scripts/start-dev.sh logs
 
 # Parar
-./scripts/sienge.sh stop-dev
+./scripts/start-dev.sh stop
 
 # Backup
-./scripts/sienge.sh backup-dev
+./scripts/start-dev.sh backup
 ```
 
-### Produção
+### Produção (NOVO)
+
 ```bash
 # Iniciar
-./scripts/sienge.sh prod
+./scripts/start-prod.sh start
 
 # Ver logs
-./scripts/sienge.sh logs-prod
+./scripts/start-prod.sh logs
 
 # Parar
-./scripts/sienge.sh stop-prod
+./scripts/start-prod.sh stop
 
 # Backup
-./scripts/sienge.sh backup-prod
+./scripts/start-prod.sh backup
 ```
 
 ### Banco de Dados
-```bash
-# Acessar pgAdmin (desenvolvimento)
-./scripts/sienge.sh pgadmin-dev
 
-# Acessar pgAdmin (produção)
-./scripts/sienge.sh pgadmin-prod
+```bash
+# Acessar Adminer (desenvolvimento)
+./scripts/adminer.sh dev
+
+# Acessar Adminer (produção)
+./scripts/adminer.sh prod
 ```
 
-### Utilitários
-```bash
-# Ver status de todos os ambientes
-./scripts/sienge.sh status
-
-# Limpar sistema Docker
-./scripts/sienge.sh clean
-
-# Ver ajuda completa
-./scripts/sienge.sh help
-```
-
-## 📋 Estrutura de Arquivos
+## 📋 Estrutura de Arquivos (ATUALIZADA)
 
 ```
 scripts/
-├── docker-entrypoint.sh    # Entrypoint para automação do schema
-├── test-schema-setup.sh    # Teste da automação (Linux/Mac)
-├── test-schema-setup.ps1   # Teste da automação (Windows)
-├── sienge.sh               # Script principal (Linux/Mac)
-├── pgadmin.sh              # Acesso ao pgAdmin
-├── init-dev.sh             # Iniciar desenvolvimento (Linux/Mac)
-├── init-dev.ps1            # Iniciar desenvolvimento (Windows)
-├── init-prod.sh            # Iniciar produção (Linux/Mac)
-├── init-prod.ps1           # Iniciar produção (Windows)
-├── stop-dev.sh             # Parar desenvolvimento (Linux/Mac)
-├── stop-dev.ps1            # Parar desenvolvimento (Windows)
-├── stop-prod.sh            # Parar produção (Linux/Mac)
-├── stop-prod.ps1            # Parar produção (Windows)
-├── logs-dev.sh             # Logs desenvolvimento
-├── logs-prod.sh            # Logs produção
-├── backup-db.sh            # Backup banco de dados
-├── restore-db.sh           # Restaurar backup
-├── test-indexes.ps1        # Teste de índices (Windows)
-├── test-indexes.sql        # Scripts SQL de teste
-└── README.md               # Este arquivo
+├── start-prod.sh           # Script produção (Linux/Mac)
+├── start-prod.ps1           # Script produção (Windows PowerShell)
+├── start-dev.sh             # Script desenvolvimento (Linux/Mac)
+├── start-dev.ps1            # Script desenvolvimento (Windows PowerShell)
+├── docker-entrypoint.sh     # Entrypoint para automação do schema
+├── adminer.sh               # Acesso ao Adminer
+├── daily-sync.js            # Sincronização diária
+├── stop-sync.js             # Parar sincronização
+└── README.md                # Este arquivo
+
+# Arquivos na raiz
+├── start-prod.bat           # Script produção (Windows Batch)
+├── start-dev.bat            # Script desenvolvimento (Windows Batch)
+├── sienge.bat               # Script principal (Windows Batch)
+├── docker-compose.yml       # Docker Compose para produção
+└── docker-compose-dev.yml   # Docker Compose para desenvolvimento
 ```
 
 ## 🆘 Troubleshooting
 
 ### Scripts não executam (Linux/Mac)
+
 ```bash
 # Tornar executáveis
 chmod +x scripts/*.sh
@@ -267,14 +250,18 @@ ls -la scripts/
 ```
 
 ### Erro "Docker não está rodando"
+
 - Inicie o Docker Desktop
 - Verifique se está rodando: `docker info`
 
 ### Erro "Arquivo .env não encontrado"
-- Copie o template: `cp .env.example .env`
-- Configure as credenciais no arquivo `.env`
+
+- **Produção:** Copie o template: `cp .env.example .env`
+- **Desenvolvimento:** Copie o template: `cp .env.example .env.dev`
+- Configure as credenciais nos arquivos
 
 ### Containers não iniciam
+
 ```bash
 # Ver logs detalhados
 docker-compose logs
@@ -289,11 +276,11 @@ docker system prune -f
 
 ## 💡 Dicas
 
-1. **Use o script principal:** `./scripts/sienge.sh` centraliza todos os comandos
-2. **Backup regular:** Execute `backup-prod` regularmente em produção
-3. **Logs em tempo real:** Use `logs-dev` ou `logs-prod` para debug
-4. **Limpeza:** Use `clean` periodicamente para liberar espaço
-5. **Status:** Use `status` para verificar todos os ambientes
+1. **Use os novos scripts:** `start-prod.sh` e `start-dev.sh` são mais eficientes
+2. **Backup regular:** Execute `backup` regularmente em produção
+3. **Logs em tempo real:** Use `logs` para debug
+4. **Ambientes separados:** Dev usa porta 5433, Prod usa porta 5432
+5. **Hot reload:** Funciona apenas em desenvolvimento
 
 ## 🔗 Links Úteis
 

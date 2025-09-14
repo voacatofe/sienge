@@ -1,0 +1,135 @@
+services:
+  # Banco de dados PostgreSQL - Desenvolvimento
+  db:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-sienge_dev}
+      POSTGRES_USER: ${POSTGRES_USER:-sienge_dev}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dev_password}
+    ports:
+      - '${DB_PORT_EXTERNAL:-5433}:5432'
+    volumes:
+      - postgres-dev-data:/var/lib/postgresql/data
+    networks:
+      - sienge-dev-network
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'pg_isready -U ${POSTGRES_USER:-sienge_dev} -d ${POSTGRES_DB:-sienge_dev}',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    # Configurações de recursos limitadas para desenvolvimento
+    deploy:
+      resources:
+        limits:
+          memory: ${DB_MEMORY_LIMIT:-512M}
+          cpus: '${DB_CPU_LIMIT:-0.5}'
+        reservations:
+          memory: ${DB_MEMORY_RESERVATION:-256M}
+          cpus: '${DB_CPU_RESERVATION:-0.25}'
+    # Configurações de logging detalhadas para desenvolvimento
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '10m'
+        max-file: '2'
+
+  # Aplicação Next.js - Desenvolvimento
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NODE_ENV: development
+        BUILD_TARGET: development
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_DB
+      - NEXT_PUBLIC_APP_URL=http://localhost:${APP_PORT_EXTERNAL:-3000}
+      - SIENGE_SUBDOMAIN=${SIENGE_SUBDOMAIN:-dev}
+      - SIENGE_USERNAME=${SIENGE_USERNAME:-dev_user}
+      - SIENGE_PASSWORD=${SIENGE_PASSWORD:-dev_password}
+      - SYNC_SCHEDULE=${SYNC_SCHEDULE:-*/5 * * * *}
+      - SYNC_BATCH_SIZE=${SYNC_BATCH_SIZE:-50}
+      - SYNC_MAX_RETRIES=${SYNC_MAX_RETRIES:-1}
+    ports:
+      - '${APP_PORT_EXTERNAL:-3000}:3000'
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - sienge-dev-network
+    volumes:
+      - ./logs:/app/logs
+      - .:/app/src:ro # Montar código fonte para hot reload
+      - /app/node_modules # Excluir node_modules do volume
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/api/health']
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    # Configurações de recursos limitadas para desenvolvimento
+    deploy:
+      resources:
+        limits:
+          memory: ${APP_MEMORY_LIMIT:-1G}
+          cpus: '${APP_CPU_LIMIT:-1.0}'
+        reservations:
+          memory: ${APP_MEMORY_RESERVATION:-512M}
+          cpus: '${APP_CPU_RESERVATION:-0.5}'
+    # Configurações de logging detalhadas para desenvolvimento
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '10m'
+        max-file: '2'
+
+  # Adminer - Interface Web para Administração do Banco de Dados - Desenvolvimento
+  adminer:
+    image: adminer:latest
+    restart: unless-stopped
+    ports:
+      - '${ADMINER_PORT_EXTERNAL:-8080}:8080'
+    networks:
+      - sienge-dev-network
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:8080']
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    # Configurações de recursos limitadas para desenvolvimento
+    deploy:
+      resources:
+        limits:
+          memory: ${ADMINER_MEMORY_LIMIT:-256M}
+          cpus: '${ADMINER_CPU_LIMIT:-0.5}'
+        reservations:
+          memory: ${ADMINER_MEMORY_RESERVATION:-128M}
+          cpus: '${ADMINER_CPU_RESERVATION:-0.25}'
+    # Configurações de logging detalhadas para desenvolvimento
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '5m'
+        max-file: '2'
+
+volumes:
+  postgres-dev-data:
+    driver: local
+
+networks:
+  sienge-dev-network:
+    driver: bridge

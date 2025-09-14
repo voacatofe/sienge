@@ -1,14 +1,14 @@
 services:
-  # Banco de dados PostgreSQL
+  # Banco de dados PostgreSQL - Produção
   db:
     image: postgres:15-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_DB: ${POSTGRES_DB:-sienge_data}
+      POSTGRES_USER: ${POSTGRES_USER:-sienge_app}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
-      - '${DB_PORT_EXTERNAL:-5432}:${DB_PORT_INTERNAL:-5432}'
+      - '${DB_PORT_EXTERNAL:-5432}:5432'
     volumes:
       - postgres-data:/var/lib/postgresql/data
     networks:
@@ -19,41 +19,41 @@ services:
           'CMD-SHELL',
           'pg_isready -U ${POSTGRES_USER:-sienge_app} -d ${POSTGRES_DB:-sienge_data}',
         ]
-      interval: ${DB_HEALTH_INTERVAL:-30s}
-      timeout: ${DB_HEALTH_TIMEOUT:-10s}
+      interval: 30s
+      timeout: 10s
       retries: 3
-    # Configurações de segurança e recursos
+    # Configurações de segurança e recursos para produção
     security_opt:
       - no-new-privileges:true
     deploy:
       resources:
         limits:
-          memory: ${DB_MEMORY_LIMIT:-1G}
-          cpus: '${DB_CPU_LIMIT:-1.0}'
+          memory: ${DB_MEMORY_LIMIT:-2G}
+          cpus: '${DB_CPU_LIMIT:-2.0}'
         reservations:
-          memory: ${DB_MEMORY_RESERVATION:-512M}
-          cpus: '${DB_CPU_RESERVATION:-0.5}'
-    # Configurações de logging
+          memory: ${DB_MEMORY_RESERVATION:-1G}
+          cpus: '${DB_CPU_RESERVATION:-1.0}'
+    # Configurações de logging otimizadas para produção
     logging:
       driver: 'json-file'
       options:
-        max-size: '${DB_LOG_MAX_SIZE:-10m}'
-        max-file: '${DB_LOG_MAX_FILES:-3}'
+        max-size: '50m'
+        max-file: '5'
 
-  # Aplicação Next.js
+  # Aplicação Next.js - Produção
   app:
     build:
       context: .
       dockerfile: Dockerfile
       args:
-        NODE_ENV: ${NODE_ENV:-development}
-        BUILD_TARGET: ${BUILD_TARGET:-development}
+        NODE_ENV: production
+        BUILD_TARGET: production
     restart: unless-stopped
     environment:
       - NODE_ENV=production
       - DATABASE_URL
-      - POSTGRES_HOST
-      - POSTGRES_PORT
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
       - POSTGRES_USER
       - POSTGRES_PASSWORD
       - POSTGRES_DB
@@ -61,11 +61,11 @@ services:
       - SIENGE_SUBDOMAIN
       - SIENGE_USERNAME
       - SIENGE_PASSWORD
-      - SYNC_SCHEDULE
-      - SYNC_BATCH_SIZE
-      - SYNC_MAX_RETRIES
+      - SYNC_SCHEDULE=${SYNC_SCHEDULE:-0 2 * * *}
+      - SYNC_BATCH_SIZE=${SYNC_BATCH_SIZE:-200}
+      - SYNC_MAX_RETRIES=${SYNC_MAX_RETRIES:-3}
     ports:
-      - '${APP_PORT_EXTERNAL:-3000}:${APP_PORT_INTERNAL:-3000}'
+      - '${APP_PORT_EXTERNAL:-3000}:3000'
     depends_on:
       db:
         condition: service_healthy
@@ -75,28 +75,28 @@ services:
       - ./logs:/app/logs
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://localhost:3000/api/health']
-      interval: ${APP_HEALTH_INTERVAL:-30s}
-      timeout: ${APP_HEALTH_TIMEOUT:-10s}
+      interval: 30s
+      timeout: 10s
       retries: 3
-    # Configurações de segurança e recursos
+    # Configurações de segurança e recursos para produção
     security_opt:
       - no-new-privileges:true
     deploy:
       resources:
         limits:
-          memory: ${APP_MEMORY_LIMIT:-2G}
-          cpus: '${APP_CPU_LIMIT:-2.0}'
+          memory: ${APP_MEMORY_LIMIT:-4G}
+          cpus: '${APP_CPU_LIMIT:-4.0}'
         reservations:
-          memory: ${APP_MEMORY_RESERVATION:-1G}
-          cpus: '${APP_CPU_RESERVATION:-1.0}'
-    # Configurações de logging
+          memory: ${APP_MEMORY_RESERVATION:-2G}
+          cpus: '${APP_CPU_RESERVATION:-2.0}'
+    # Configurações de logging otimizadas para produção
     logging:
       driver: 'json-file'
       options:
-        max-size: '${APP_LOG_MAX_SIZE:-10m}'
-        max-file: '${APP_LOG_MAX_FILES:-3}'
+        max-size: '50m'
+        max-file: '5'
 
-  # Adminer - Interface Web para Administração do Banco de Dados
+  # Adminer - Interface Web para Administração do Banco de Dados - Produção
   adminer:
     image: adminer:latest
     restart: unless-stopped
@@ -109,57 +109,69 @@ services:
         condition: service_healthy
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://localhost:8080']
-      interval: ${ADMINER_HEALTH_INTERVAL:-30s}
-      timeout: ${ADMINER_HEALTH_TIMEOUT:-10s}
+      interval: 30s
+      timeout: 10s
       retries: 3
-    # Configurações de segurança e recursos
+    # Configurações de segurança e recursos para produção
     security_opt:
       - no-new-privileges:true
     deploy:
       resources:
         limits:
-          memory: ${ADMINER_MEMORY_LIMIT:-256M}
-          cpus: '${ADMINER_CPU_LIMIT:-0.5}'
+          memory: ${ADMINER_MEMORY_LIMIT:-512M}
+          cpus: '${ADMINER_CPU_LIMIT:-1.0}'
         reservations:
-          memory: ${ADMINER_MEMORY_RESERVATION:-128M}
-          cpus: '${ADMINER_CPU_RESERVATION:-0.25}'
-    # Configurações de logging
+          memory: ${ADMINER_MEMORY_RESERVATION:-256M}
+          cpus: '${ADMINER_CPU_RESERVATION:-0.5}'
+    # Configurações de logging otimizadas para produção
     logging:
       driver: 'json-file'
       options:
-        max-size: '${ADMINER_LOG_MAX_SIZE:-10m}'
-        max-file: '${ADMINER_LOG_MAX_FILES:-3}'
+        max-size: '20m'
+        max-file: '3'
 
-  # Sync Diário - Executa sincronização automática
+  # Sync Diário - Executa sincronização automática - Produção
   daily-sync:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        NODE_ENV: production
+        BUILD_TARGET: production
     command: npm run sync:daily
     restart: unless-stopped
     environment:
       - NODE_ENV=production
       - SYNC_URL=http://app:3000/api/sync
       - SYNC_TIME=${SYNC_TIME:-0 2 * * *}
+      - DATABASE_URL
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_DB
+      - SIENGE_SUBDOMAIN
+      - SIENGE_USERNAME
+      - SIENGE_PASSWORD
     depends_on:
       app:
         condition: service_healthy
     networks:
       - sienge-network
-    # Configurações de recursos leves
+    # Configurações de recursos leves para produção
     deploy:
       resources:
         limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
           memory: 256M
           cpus: '0.25'
-        reservations:
-          memory: 128M
-          cpus: '0.1'
-    # Configurações de logging
+    # Configurações de logging otimizadas para produção
     logging:
       driver: 'json-file'
       options:
-        max-size: '10m'
+        max-size: '20m'
         max-file: '3'
 
 volumes:
