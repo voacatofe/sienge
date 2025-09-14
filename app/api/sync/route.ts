@@ -737,154 +737,256 @@ async function saveSalesContracts(
   return { inserted: insertedCount, updated: updatedCount, errors: errorCount };
 }
 
-async function saveSalesCommissions(commissions: any[]) {
+async function saveSalesCommissions(
+  commissions: any[]
+): Promise<{ inserted: number; updated: number; errors: number }> {
   console.log(
     `[Sync] Iniciando salvamento de ${commissions.length} comissões de venda`
   );
 
+  let insertedCount = 0;
+  let updatedCount = 0;
+  let errorCount = 0;
+
   for (const commission of commissions) {
     try {
-      const idContrato = commission.contractId;
-
-      const commissionData = {
-        idContrato,
+      // Limpar dados desnecessários de paginação e metadados
+      const cleanCommission = {
+        idComissao: commission.id,
+        idContrato: commission.contractId,
         nomeCorretor: commission.brokerName || commission.corretor || '',
         percentual: commission.percentage || commission.percentual || null,
         valorComissao: commission.commissionValue || commission.valor || 0,
         paga: commission.paid || false,
-        dataPagamento: commission.paymentDate
-          ? new Date(commission.paymentDate)
+        dataPagamento: commission.paymentDate,
+      };
+
+      const commissionData = {
+        idContrato: cleanCommission.idContrato,
+        nomeCorretor: cleanCommission.nomeCorretor,
+        percentual: cleanCommission.percentual,
+        valorComissao: cleanCommission.valorComissao,
+        paga: cleanCommission.paga,
+        dataPagamento: cleanCommission.dataPagamento
+          ? new Date(cleanCommission.dataPagamento)
           : null,
       };
 
+      // Verificar se a comissão já existe
+      const existingCommission = await prisma.comissaoVenda.findUnique({
+        where: { idComissao: cleanCommission.idComissao },
+      });
+
       await prisma.comissaoVenda.upsert({
-        where: { idComissao: commission.id },
+        where: { idComissao: cleanCommission.idComissao },
         update: commissionData,
         create: {
-          idComissao: commission.id,
+          idComissao: cleanCommission.idComissao,
           ...commissionData,
         },
       });
 
-      console.log(
-        `[Sync] Comissão de venda salva: ${commission.brokerName} (ID: ${commission.id})`
-      );
+      if (existingCommission) {
+        updatedCount++;
+      } else {
+        insertedCount++;
+      }
     } catch (error) {
+      errorCount++;
       console.error(
-        `[Sync] Erro ao salvar comissão de venda ${commission.id}:`,
+        `[Sync] Erro ao salvar comissão de venda ${commission.brokerName || commission.id}:`,
         error instanceof Error ? error.message : error
       );
     }
   }
 
-  console.log(`[Sync] Salvamento de comissões de venda concluído`);
+  console.log(
+    `[Sync] Salvamento de comissões de venda concluído: ${insertedCount} inseridas, ${updatedCount} atualizadas, ${errorCount} erros`
+  );
+  return { inserted: insertedCount, updated: updatedCount, errors: errorCount };
 }
 
-async function saveFinancialPlans(plans: any[]) {
+async function saveFinancialPlans(
+  plans: any[]
+): Promise<{ inserted: number; updated: number; errors: number }> {
   console.log(
     `[Sync] Iniciando salvamento de ${plans.length} planos financeiros`
   );
 
+  let insertedCount = 0;
+  let updatedCount = 0;
+  let errorCount = 0;
+
   for (const plan of plans) {
     try {
-      const planData = {
+      // Limpar dados desnecessários de paginação e metadados
+      const cleanPlan = {
+        idPlanoFinanceiro: plan.id,
         nomePlano: plan.name || plan.nome || '',
         codigoPlano: plan.code || plan.codigo || null,
         tipo: plan.type || plan.tipo || null,
       };
 
+      const planData = {
+        nomePlano: cleanPlan.nomePlano,
+        codigoPlano: cleanPlan.codigoPlano,
+        tipo: cleanPlan.tipo,
+      };
+
+      // Verificar se o plano já existe
+      const existingPlan = await prisma.planoFinanceiro.findUnique({
+        where: { idPlanoFinanceiro: cleanPlan.idPlanoFinanceiro },
+      });
+
       await prisma.planoFinanceiro.upsert({
-        where: { idPlanoFinanceiro: plan.id },
+        where: { idPlanoFinanceiro: cleanPlan.idPlanoFinanceiro },
         update: planData,
         create: {
-          idPlanoFinanceiro: plan.id,
+          idPlanoFinanceiro: cleanPlan.idPlanoFinanceiro,
           ...planData,
         },
       });
 
-      console.log(
-        `[Sync] Plano financeiro salvo: ${plan.name} (ID: ${plan.id})`
-      );
+      if (existingPlan) {
+        updatedCount++;
+      } else {
+        insertedCount++;
+      }
     } catch (error) {
+      errorCount++;
       console.error(
-        `[Sync] Erro ao salvar plano financeiro ${plan.id}:`,
+        `[Sync] Erro ao salvar plano financeiro ${plan.name || plan.id}:`,
         error instanceof Error ? error.message : error
       );
     }
   }
 
-  console.log(`[Sync] Salvamento de planos financeiros concluído`);
+  console.log(
+    `[Sync] Salvamento de planos financeiros concluído: ${insertedCount} inseridos, ${updatedCount} atualizados, ${errorCount} erros`
+  );
+  return { inserted: insertedCount, updated: updatedCount, errors: errorCount };
 }
 
-async function saveReceivableCarriers(carriers: any[]) {
+async function saveReceivableCarriers(
+  carriers: any[]
+): Promise<{ inserted: number; updated: number; errors: number }> {
   console.log(
     `[Sync] Iniciando salvamento de ${carriers.length} portadores de recebimento`
   );
 
+  let insertedCount = 0;
+  let updatedCount = 0;
+  let errorCount = 0;
+
   for (const carrier of carriers) {
     try {
-      const carrierData = {
+      // Limpar dados desnecessários de paginação e metadados
+      const cleanCarrier = {
+        idPortador: carrier.id,
         descricao: carrier.description || carrier.nome || '',
         codigo: carrier.code || carrier.codigo || null,
         ativo: carrier.active !== false,
       };
 
+      const carrierData = {
+        descricao: cleanCarrier.descricao,
+        codigo: cleanCarrier.codigo,
+        ativo: cleanCarrier.ativo,
+      };
+
+      // Verificar se o portador já existe
+      const existingCarrier = await prisma.portadorRecebimento.findUnique({
+        where: { idPortador: cleanCarrier.idPortador },
+      });
+
       await prisma.portadorRecebimento.upsert({
-        where: { idPortador: carrier.id },
+        where: { idPortador: cleanCarrier.idPortador },
         update: carrierData,
         create: {
-          idPortador: carrier.id,
+          idPortador: cleanCarrier.idPortador,
           ...carrierData,
         },
       });
 
-      console.log(
-        `[Sync] Portador de recebimento salvo: ${carrier.description} (ID: ${carrier.id})`
-      );
+      if (existingCarrier) {
+        updatedCount++;
+      } else {
+        insertedCount++;
+      }
     } catch (error) {
+      errorCount++;
       console.error(
-        `[Sync] Erro ao salvar portador de recebimento ${carrier.id}:`,
+        `[Sync] Erro ao salvar portador de recebimento ${carrier.description || carrier.id}:`,
         error instanceof Error ? error.message : error
       );
     }
   }
 
-  console.log(`[Sync] Salvamento de portadores de recebimento concluído`);
+  console.log(
+    `[Sync] Salvamento de portadores de recebimento concluído: ${insertedCount} inseridos, ${updatedCount} atualizados, ${errorCount} erros`
+  );
+  return { inserted: insertedCount, updated: updatedCount, errors: errorCount };
 }
 
-async function saveIndexers(indexers: any[]) {
+async function saveIndexers(
+  indexers: any[]
+): Promise<{ inserted: number; updated: number; errors: number }> {
   console.log(`[Sync] Iniciando salvamento de ${indexers.length} indexadores`);
+
+  let insertedCount = 0;
+  let updatedCount = 0;
+  let errorCount = 0;
 
   for (const indexer of indexers) {
     try {
-      const indexerData = {
+      // Limpar dados desnecessários de paginação e metadados
+      const cleanIndexer = {
+        idIndexador: indexer.id,
         nomeIndexador: indexer.name || indexer.nome || '',
         descricao: indexer.description || indexer.descricao || null,
         periodicidade: indexer.periodicity || indexer.periodicidade || null,
         valorAtual: indexer.currentValue || indexer.valor || null,
       };
 
+      const indexerData = {
+        nomeIndexador: cleanIndexer.nomeIndexador,
+        descricao: cleanIndexer.descricao,
+        periodicidade: cleanIndexer.periodicidade,
+        valorAtual: cleanIndexer.valorAtual,
+      };
+
+      // Verificar se o indexador já existe
+      const existingIndexer = await prisma.indexador.findUnique({
+        where: { idIndexador: cleanIndexer.idIndexador },
+      });
+
       await prisma.indexador.upsert({
-        where: { idIndexador: indexer.id },
+        where: { idIndexador: cleanIndexer.idIndexador },
         update: indexerData,
         create: {
-          idIndexador: indexer.id,
+          idIndexador: cleanIndexer.idIndexador,
           ...indexerData,
         },
       });
 
-      console.log(
-        `[Sync] Indexador salvo: ${indexer.name} (ID: ${indexer.id})`
-      );
+      if (existingIndexer) {
+        updatedCount++;
+      } else {
+        insertedCount++;
+      }
     } catch (error) {
+      errorCount++;
       console.error(
-        `[Sync] Erro ao salvar indexador ${indexer.id}:`,
+        `[Sync] Erro ao salvar indexador ${indexer.name || indexer.id}:`,
         error instanceof Error ? error.message : error
       );
     }
   }
 
-  console.log(`[Sync] Salvamento de indexadores concluído`);
+  console.log(
+    `[Sync] Salvamento de indexadores concluído: ${insertedCount} inseridos, ${updatedCount} atualizados, ${errorCount} erros`
+  );
+  return { inserted: insertedCount, updated: updatedCount, errors: errorCount };
 }
 
 export async function POST(request: NextRequest) {
