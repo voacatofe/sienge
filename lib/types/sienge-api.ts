@@ -100,10 +100,10 @@ export type SiengeEndpoint =
   | '/contracts'
   | '/accounts-receivable'
   | '/accounts-payable'
+  | '/indexers'
   | '/sales-contracts'
   | '/commissions'
   | '/payment-categories'
-  | '/indexers'
   | '/carriers';
 
 // Tipos para métodos HTTP suportados
@@ -116,6 +116,7 @@ export interface SyncConfig {
   maxRetries: number;
   retryDelay: number;
   enabled: boolean;
+  httpMethod?: SiengeHttpMethod; // Método HTTP específico para este endpoint
 }
 
 // Tipos para logs de sincronização

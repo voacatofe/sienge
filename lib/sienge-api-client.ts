@@ -295,7 +295,72 @@ export class SiengeApiClient {
     }
   }
 
-  // Método genérico para buscar dados paginados
+  // Função para tentar requisição com fallback de métodos HTTP
+  private async tryRequestWithFallback<T = any>(
+    endpoint: string,
+    params: Record<string, any>,
+    preferredMethod: 'GET' | 'POST' = 'GET'
+  ): Promise<AxiosResponse<T>> {
+    // Lista de métodos para tentar em ordem de preferência
+    const methodsToTry =
+      preferredMethod === 'GET'
+        ? (['GET', 'POST'] as const)
+        : (['POST', 'GET'] as const);
+
+    let lastError: any = null;
+
+    for (const method of methodsToTry) {
+      try {
+        console.log(`[Sienge API] Tentando ${method} ${endpoint}`);
+
+        const config: AxiosRequestConfig = {
+          method,
+          url: endpoint,
+        };
+
+        if (method === 'GET') {
+          config.params = params;
+        } else {
+          // Para POST, enviar parâmetros no body
+          config.data = params;
+          config.headers = {
+            'Content-Type': 'application/json',
+          };
+        }
+
+        const response = await this.makeRequest<T>(config);
+        console.log(`[Sienge API] ✅ Sucesso com ${method} ${endpoint}`);
+        return response;
+      } catch (error: any) {
+        lastError = error;
+
+        // Se for erro 405 (Method Not Allowed), tentar próximo método
+        if (error.response?.status === 405) {
+          console.log(
+            `[Sienge API] ❌ ${method} não suportado (405) para ${endpoint}, tentando próximo método...`
+          );
+          continue;
+        }
+
+        // Se for erro 403 (Forbidden), pode ser problema de permissão
+        if (error.response?.status === 403) {
+          console.log(
+            `[Sienge API] ❌ Acesso negado (403) para ${endpoint} com ${method}`
+          );
+          continue;
+        }
+
+        // Para outros erros, não tentar outros métodos
+        throw error;
+      }
+    }
+
+    // Se chegou aqui, todos os métodos falharam
+    console.log(`[Sienge API] ❌ Todos os métodos falharam para ${endpoint}`);
+    throw lastError;
+  }
+
+  // Método genérico para buscar dados paginados com fallback de métodos HTTP
   async fetchPaginatedData<T = any>(
     endpoint: string,
     params: Record<string, any> = {},
@@ -303,6 +368,7 @@ export class SiengeApiClient {
       maxPages?: number;
       maxRecords?: number;
       timeoutMs?: number;
+      preferredMethod?: 'GET' | 'POST';
     } = {}
   ): Promise<T[]> {
     const allData: T[] = [];
@@ -352,16 +418,19 @@ export class SiengeApiClient {
         // Calcular offset baseado na página atual
         const offset = (page - 1) * SIENGE_API_CONFIG.DEFAULT_PAGE_SIZE;
 
-        const response = await this.makeRequest<SiengeApiResponse<T>>({
-          method: 'GET',
-          url: endpoint,
-          params: {
+        // Tentar diferentes métodos HTTP baseado na preferência e histórico de erros
+        const response = await this.tryRequestWithFallback<
+          SiengeApiResponse<T>
+        >(
+          endpoint,
+          {
             ...params,
             page,
             limit: SIENGE_API_CONFIG.DEFAULT_PAGE_SIZE,
-            offset, // Adicionar offset explícito
+            offset,
           },
-        });
+          options.preferredMethod || 'GET'
+        );
 
         console.log(
           `[Sienge API] Resposta da página ${page} (offset: ${offset}):`,

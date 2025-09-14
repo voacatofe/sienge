@@ -6,12 +6,12 @@ export const SIENGE_ENDPOINTS = {
   COMPANIES: '/companies' as SiengeEndpoint,
   ACCOUNTS_RECEIVABLE: '/accounts-receivable' as SiengeEndpoint,
   ACCOUNTS_PAYABLE: '/accounts-payable' as SiengeEndpoint,
+  INDEXERS: '/indexers' as SiengeEndpoint,
   SALES_CONTRACTS: '/sales-contracts' as SiengeEndpoint,
   COMMISSIONS: '/commissions' as SiengeEndpoint,
   COST_CENTERS: '/cost-centers' as SiengeEndpoint,
   DEPARTMENTS: '/departments' as SiengeEndpoint,
   PAYMENT_CATEGORIES: '/payment-categories' as SiengeEndpoint,
-  INDEXERS: '/indexers' as SiengeEndpoint,
   CARRIERS: '/carriers' as SiengeEndpoint,
 } as const;
 
@@ -37,6 +37,7 @@ export const SYNC_CONFIGS: Record<SiengeEndpoint, SyncConfig> = {
     maxRetries: 3,
     retryDelay: 1000,
     enabled: true,
+    httpMethod: 'POST', // Tentativa com POST devido ao erro 405
   },
   '/accounts-payable': {
     endpoint: '/accounts-payable',
@@ -44,6 +45,7 @@ export const SYNC_CONFIGS: Record<SiengeEndpoint, SyncConfig> = {
     maxRetries: 3,
     retryDelay: 1000,
     enabled: true,
+    httpMethod: 'POST', // Tentativa com POST devido ao erro 405
   },
   '/sales-contracts': {
     endpoint: '/sales-contracts',
@@ -86,6 +88,7 @@ export const SYNC_CONFIGS: Record<SiengeEndpoint, SyncConfig> = {
     maxRetries: 3,
     retryDelay: 1000,
     enabled: true,
+    httpMethod: 'GET', // Manter GET mas pode precisar de permissões
   },
   '/carriers': {
     endpoint: '/carriers',
