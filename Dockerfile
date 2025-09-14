@@ -53,19 +53,20 @@ COPY --from=builder /app/public ./public
 # Garantir que o Prisma CLI está disponível
 RUN npm install -g prisma@latest
 
-# Copiar script de entrypoint
-COPY scripts/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
-
 # Criar usuário não-root
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
+# Copiar script de entrypoint (como root)
+COPY scripts/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
 # Criar diretório de logs
 RUN mkdir -p logs && chown nextjs:nodejs logs
 
-# Alterar proprietário dos arquivos
+# Alterar proprietário dos arquivos (mas manter entrypoint como root)
 RUN chown -R nextjs:nodejs /app
+RUN chown root:root /usr/local/bin/docker-entrypoint.sh
 
 # Mudar para usuário não-root
 USER nextjs

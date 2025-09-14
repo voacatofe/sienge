@@ -12,7 +12,8 @@
       "Bash(npx eslint:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(dir:*)"
     ],
     "deny": []
   },
