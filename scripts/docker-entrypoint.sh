@@ -20,8 +20,9 @@ wait_for_db() {
     local attempt=1
     
     while [ $attempt -le $max_attempts ]; do
-        # Usar nc (netcat) para testar conectividade TCP
-        if nc -z ${POSTGRES_HOST:-db} ${POSTGRES_PORT:-5432} 2>/dev/null; then
+        # Usar curl para testar conectividade HTTP (mais simples que nc)
+        if curl -f -s http://${POSTGRES_HOST:-db}:${POSTGRES_PORT:-5432} >/dev/null 2>&1 || \
+           timeout 1 bash -c "</dev/tcp/${POSTGRES_HOST:-db}/${POSTGRES_PORT:-5432}" >/dev/null 2>&1; then
             log "✅ Banco de dados está disponível!"
             return 0
         fi
@@ -67,7 +68,8 @@ generate_client() {
 verify_connection() {
     log "🔍 Verificando conexão com o banco de dados..."
     
-    if nc -z ${POSTGRES_HOST:-db} ${POSTGRES_PORT:-5432} 2>/dev/null; then
+    if curl -f -s http://${POSTGRES_HOST:-db}:${POSTGRES_PORT:-5432} >/dev/null 2>&1 || \
+       timeout 1 bash -c "</dev/tcp/${POSTGRES_HOST:-db}/${POSTGRES_PORT:-5432}" >/dev/null 2>&1; then
         log "✅ Conexão com banco de dados verificada!"
         return 0
     else
