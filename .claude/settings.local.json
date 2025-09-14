@@ -6,7 +6,11 @@
       "Bash(curl:*)",
       "Bash(docker cp:*)",
       "Bash(rm:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(npx tsc:*)",
+      "Bash(node:*)",
+      "Bash(npx eslint:*)",
+      "Bash(git add:*)"
     ],
     "deny": []
   },
