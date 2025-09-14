@@ -71,7 +71,6 @@ services:
       - sienge-dev-network
     volumes:
       - ./logs:/app/logs
-      - .:/app/src:ro # Montar código fonte para hot reload
       - /app/node_modules # Excluir node_modules do volume
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://localhost:3000/api/health']

@@ -742,7 +742,7 @@ export async function POST(request: NextRequest) {
           salesCommissions: ['/sales-commissions', '/commissions'],
           financialPlans: ['/payment-categories', '/financial-plans'],
           receivableCarriers: ['/receivable-carriers', '/carriers'],
-          indexers: ['/indexes', '/indexers'],
+          indexers: ['/indexers'],
         };
 
         // Filtros de data - buscar apenas dados do último ano
