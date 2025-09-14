@@ -102,7 +102,7 @@ export async function GET(request: NextRequest) {
         hasPrev: page > 1,
       },
       meta: {
-        endpoint: '/api/data/receivables',
+        endpoint: '/api/data/accounts-receivable',
         description: 'Títulos a Receber sincronizados do Sienge',
         lastUpdated: new Date().toISOString(),
       },

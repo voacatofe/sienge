@@ -88,7 +88,7 @@ export async function GET(request: NextRequest) {
         hasPrev: page > 1,
       },
       meta: {
-        endpoint: '/api/data/payables',
+        endpoint: '/api/data/accounts-payable',
         description: 'Títulos a Pagar sincronizados do Sienge',
         lastUpdated: new Date().toISOString(),
       },

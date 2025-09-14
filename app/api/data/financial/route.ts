@@ -16,25 +16,25 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
 
     switch (entityType) {
-      case 'receivables':
+      case 'accounts-receivable':
         return await getReceivables(skip, limit, search, status, page);
 
-      case 'payables':
+      case 'accounts-payable':
         return await getPayables(skip, limit, search, status, page);
 
       case 'sales-contracts':
         return await getSalesContracts(skip, limit, search, status, page);
 
-      case 'sales-commissions':
+      case 'commissions':
         return await getSalesCommissions(skip, limit, search, page);
 
-      case 'financial-plans':
+      case 'payment-categories':
         return await getFinancialPlans(skip, limit, search, page);
 
       case 'indexers':
         return await getIndexers(skip, limit, search, page);
 
-      case 'receivable-carriers':
+      case 'carriers':
         return await getReceivableCarriers(skip, limit, search, page);
 
       default:
@@ -136,9 +136,9 @@ async function getReceivables(
       hasPrev: page > 1,
     },
     meta: {
-      endpoint: '/api/data/financial?type=receivables',
+      endpoint: '/api/data/financial?type=accounts-receivable',
       description: 'Títulos a Receber - Entidades Financeiras',
-      entityType: 'receivables',
+      entityType: 'accounts-receivable',
       lastUpdated: new Date().toISOString(),
     },
   });
@@ -215,9 +215,9 @@ async function getPayables(
       hasPrev: page > 1,
     },
     meta: {
-      endpoint: '/api/data/financial?type=payables',
+      endpoint: '/api/data/financial?type=accounts-payable',
       description: 'Títulos a Pagar - Entidades Financeiras',
-      entityType: 'payables',
+      entityType: 'accounts-payable',
       lastUpdated: new Date().toISOString(),
     },
   });
@@ -364,9 +364,9 @@ async function getSalesCommissions(
       hasPrev: page > 1,
     },
     meta: {
-      endpoint: '/api/data/financial?type=sales-commissions',
+      endpoint: '/api/data/financial?type=commissions',
       description: 'Comissões de Venda - Entidades Financeiras',
-      entityType: 'sales-commissions',
+      entityType: 'commissions',
       lastUpdated: new Date().toISOString(),
     },
   });
@@ -417,9 +417,9 @@ async function getFinancialPlans(
       hasPrev: page > 1,
     },
     meta: {
-      endpoint: '/api/data/financial?type=financial-plans',
+      endpoint: '/api/data/financial?type=payment-categories',
       description: 'Planos Financeiros - Cadastro Auxiliar Financeiro',
-      entityType: 'financial-plans',
+      entityType: 'payment-categories',
       lastUpdated: new Date().toISOString(),
     },
   });
@@ -524,9 +524,9 @@ async function getReceivableCarriers(
       hasPrev: page > 1,
     },
     meta: {
-      endpoint: '/api/data/financial?type=receivable-carriers',
+      endpoint: '/api/data/financial?type=carriers',
       description: 'Portadores de Recebimento - Cadastro Auxiliar Financeiro',
-      entityType: 'receivable-carriers',
+      entityType: 'carriers',
       lastUpdated: new Date().toISOString(),
     },
   });
@@ -588,13 +588,13 @@ async function getFinancialSummary() {
       },
     },
     availableTypes: [
-      'receivables',
-      'payables',
+      'accounts-receivable',
+      'accounts-payable',
       'sales-contracts',
-      'sales-commissions',
-      'financial-plans',
+      'commissions',
+      'payment-categories',
       'indexers',
-      'receivable-carriers',
+      'carriers',
     ],
     meta: {
       endpoint: '/api/data/financial',

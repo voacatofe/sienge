@@ -3,15 +3,57 @@ import { SyncConfig, SiengeEndpoint } from '../types/sienge-api';
 // Configurações dos endpoints da API Sienge
 export const SIENGE_ENDPOINTS = {
   CUSTOMERS: '/customers' as SiengeEndpoint,
+  COMPANIES: '/companies' as SiengeEndpoint,
+  ACCOUNTS_RECEIVABLE: '/accounts-receivable' as SiengeEndpoint,
+  ACCOUNTS_PAYABLE: '/accounts-payable' as SiengeEndpoint,
+  SALES_CONTRACTS: '/sales-contracts' as SiengeEndpoint,
+  COMMISSIONS: '/commissions' as SiengeEndpoint,
   COST_CENTERS: '/cost-centers' as SiengeEndpoint,
-  PROJECTS: '/projects' as SiengeEndpoint,
-  CONTRACTS: '/contracts' as SiengeEndpoint,
+  DEPARTMENTS: '/departments' as SiengeEndpoint,
+  PAYMENT_CATEGORIES: '/payment-categories' as SiengeEndpoint,
+  INDEXERS: '/indexers' as SiengeEndpoint,
+  CARRIERS: '/carriers' as SiengeEndpoint,
 } as const;
 
 // Configurações de sincronização para cada endpoint
 export const SYNC_CONFIGS: Record<SiengeEndpoint, SyncConfig> = {
   '/customers': {
     endpoint: '/customers',
+    batchSize: 200,
+    maxRetries: 3,
+    retryDelay: 1000,
+    enabled: true,
+  },
+  '/companies': {
+    endpoint: '/companies',
+    batchSize: 200,
+    maxRetries: 3,
+    retryDelay: 1000,
+    enabled: true,
+  },
+  '/accounts-receivable': {
+    endpoint: '/accounts-receivable',
+    batchSize: 200,
+    maxRetries: 3,
+    retryDelay: 1000,
+    enabled: true,
+  },
+  '/accounts-payable': {
+    endpoint: '/accounts-payable',
+    batchSize: 200,
+    maxRetries: 3,
+    retryDelay: 1000,
+    enabled: true,
+  },
+  '/sales-contracts': {
+    endpoint: '/sales-contracts',
+    batchSize: 200,
+    maxRetries: 3,
+    retryDelay: 1000,
+    enabled: true,
+  },
+  '/commissions': {
+    endpoint: '/commissions',
     batchSize: 200,
     maxRetries: 3,
     retryDelay: 1000,
@@ -24,15 +66,29 @@ export const SYNC_CONFIGS: Record<SiengeEndpoint, SyncConfig> = {
     retryDelay: 1000,
     enabled: true,
   },
-  '/projects': {
-    endpoint: '/projects',
+  '/departments': {
+    endpoint: '/departments',
     batchSize: 200,
     maxRetries: 3,
     retryDelay: 1000,
     enabled: true,
   },
-  '/contracts': {
-    endpoint: '/contracts',
+  '/payment-categories': {
+    endpoint: '/payment-categories',
+    batchSize: 200,
+    maxRetries: 3,
+    retryDelay: 1000,
+    enabled: true,
+  },
+  '/indexers': {
+    endpoint: '/indexers',
+    batchSize: 200,
+    maxRetries: 3,
+    retryDelay: 1000,
+    enabled: true,
+  },
+  '/carriers': {
+    endpoint: '/carriers',
     batchSize: 200,
     maxRetries: 3,
     retryDelay: 1000,
@@ -43,17 +99,31 @@ export const SYNC_CONFIGS: Record<SiengeEndpoint, SyncConfig> = {
 // Mapeamento de endpoints para nomes de entidades
 export const ENDPOINT_TO_ENTITY: Record<SiengeEndpoint, string> = {
   '/customers': 'customers',
+  '/companies': 'companies',
+  '/accounts-receivable': 'accounts_receivable',
+  '/accounts-payable': 'accounts_payable',
+  '/sales-contracts': 'sales_contracts',
+  '/commissions': 'commissions',
   '/cost-centers': 'cost_centers',
-  '/projects': 'projects',
-  '/contracts': 'contracts',
+  '/departments': 'departments',
+  '/payment-categories': 'payment_categories',
+  '/indexers': 'indexers',
+  '/carriers': 'carriers',
 };
 
 // Mapeamento de entidades para endpoints
 export const ENTITY_TO_ENDPOINT: Record<string, SiengeEndpoint> = {
   customers: '/customers',
+  companies: '/companies',
+  accounts_receivable: '/accounts-receivable',
+  accounts_payable: '/accounts-payable',
+  sales_contracts: '/sales-contracts',
+  commissions: '/commissions',
   cost_centers: '/cost-centers',
-  projects: '/projects',
-  contracts: '/contracts',
+  departments: '/departments',
+  payment_categories: '/payment-categories',
+  indexers: '/indexers',
+  carriers: '/carriers',
 };
 
 // Configurações de rate limiting por endpoint
