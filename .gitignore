@@ -98,7 +98,7 @@ dist
 
 # Gatsby files
 .cache/
-public
+# public  # Comentado para Next.js usar pasta public
 
 # Storybook build outputs
 .out
