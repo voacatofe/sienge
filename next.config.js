@@ -14,8 +14,6 @@ const nextConfig = {
   experimental: {
     serverComponentsExternalPackages: ['@prisma/client'],
   },
-  // Output standalone para melhor performance em containers
-  output: 'standalone',
   // Configuração para resolver problemas de CORS em desenvolvimento
   async headers() {
     return [

@@ -30,7 +30,9 @@ COPY . .
 # Gerar cliente Prisma
 RUN npx prisma generate
 
-# Build sempre para produção (EasyPanel)
+# Build com configurações otimizadas para resolver problemas de SSR
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
 
 # Stage 3: Runtime otimizado
@@ -44,9 +46,8 @@ COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/scripts ./scripts
 
-# Copiar build de produção otimizado (standalone)
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
+# Copiar build de produção (sem standalone)
+COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
 
 # Garantir que o Prisma CLI está disponível
