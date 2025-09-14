@@ -13,6 +13,9 @@ export const SIENGE_ENDPOINTS = {
   DEPARTMENTS: '/departments' as SiengeEndpoint,
   PAYMENT_CATEGORIES: '/payment-categories' as SiengeEndpoint,
   CARRIERS: '/carriers' as SiengeEndpoint,
+  PROFESSIONS: '/professions' as SiengeEndpoint,
+  MARITAL_STATUS: '/marital-status' as SiengeEndpoint,
+  CUSTOMER_TYPES: '/customer-types' as SiengeEndpoint,
 } as const;
 
 // Configurações de sincronização para cada endpoint
@@ -111,6 +114,27 @@ export const SYNC_CONFIGS: Record<SiengeEndpoint, SyncConfig> = {
     retryDelay: 1000,
     enabled: true,
   },
+  '/professions': {
+    endpoint: '/professions',
+    batchSize: 200,
+    maxRetries: 3,
+    retryDelay: 1000,
+    enabled: true,
+  },
+  '/marital-status': {
+    endpoint: '/marital-status',
+    batchSize: 200,
+    maxRetries: 3,
+    retryDelay: 1000,
+    enabled: true,
+  },
+  '/customer-types': {
+    endpoint: '/customer-types',
+    batchSize: 200,
+    maxRetries: 3,
+    retryDelay: 1000,
+    enabled: true,
+  },
 };
 
 // Mapeamento de endpoints para nomes de entidades
@@ -128,6 +152,9 @@ export const ENDPOINT_TO_ENTITY: Record<SiengeEndpoint, string> = {
   '/carriers': 'carriers',
   '/projects': 'projects',
   '/contracts': 'contracts',
+  '/professions': 'professions',
+  '/marital-status': 'marital_status',
+  '/customer-types': 'customer_types',
 };
 
 // Mapeamento de entidades para endpoints
@@ -145,6 +172,9 @@ export const ENTITY_TO_ENDPOINT: Record<string, SiengeEndpoint> = {
   carriers: '/carriers',
   projects: '/projects',
   contracts: '/contracts',
+  professions: '/professions',
+  marital_status: '/marital-status',
+  customer_types: '/customer-types',
 };
 
 // Configurações de rate limiting por endpoint

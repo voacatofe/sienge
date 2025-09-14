@@ -15,7 +15,9 @@
       "WebSearch",
       "Bash(dir:*)",
       "WebFetch(domain:api.sienge.com.br)",
-      "WebFetch(domain:ajuda.sienge.com.br)"
+      "WebFetch(domain:ajuda.sienge.com.br)",
+      "Bash(start chrome --remote-debugging-port=9222)",
+      "mcp__puppeteer__puppeteer_connect_active_tab"
     ],
     "deny": []
   },

@@ -278,9 +278,9 @@ async function saveCustomers(
         dataNascimento: customer.birthDate,
         nacionalidade: customer.nationality,
         tipoPessoa: customer.personType,
-        // Extrair valores corretos dos campos que estão vindo como objetos
-        estadoCivil: customer.civilStatus?.descricao || customer.civilStatus,
-        profissao: customer.profession?.descricao || customer.profession,
+        // Os campos vêm como strings diretas da API Sienge
+        estadoCivil: customer.civilStatus, // String direta: "Casado", "Solteiro"
+        profissao: customer.profession, // String direta: "Engenheiro", "Advogado"
         dataCadastro: customer.createdAt,
         dataAtualizacao: customer.updatedAt,
       };
@@ -288,16 +288,12 @@ async function saveCustomers(
       // Log de exemplo para debug (apenas em desenvolvimento)
       logSampleProcessedData(customer, cleanCustomer);
 
-      // Buscar/criar relacionamentos
+      // Buscar/criar apenas o tipo de cliente (necessário para relacionamento)
       const idTipoCliente = await getOrCreateTipoCliente(
         cleanCustomer.tipoPessoa === 'Física'
           ? 'Pessoa Física'
           : 'Pessoa Jurídica'
       );
-      const idEstadoCivil = await getOrCreateEstadoCivil(
-        cleanCustomer.estadoCivil
-      );
-      const idProfissao = await getOrCreateProfissao(cleanCustomer.profissao);
 
       // Mapear dados da API para schema do banco
       const customerData = {
@@ -310,8 +306,9 @@ async function saveCustomers(
           ? new Date(cleanCustomer.dataNascimento)
           : null,
         nacionalidade: cleanCustomer.nacionalidade || null,
-        idProfissao,
-        idEstadoCivil,
+        // Armazenar as strings diretamente (sem criar tabelas auxiliares)
+        profissaoStr: cleanCustomer.profissao || null,
+        estadoCivilStr: cleanCustomer.estadoCivil || null,
         ativo: true,
         dataCadastro: cleanCustomer.dataCadastro
           ? new Date(cleanCustomer.dataCadastro)

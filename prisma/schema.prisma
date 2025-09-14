@@ -206,6 +206,9 @@ model Cliente {
   email          String?
   idEstadoCivil  Int?
   idProfissao    Int?
+  // Campos de string diretos da API Sienge (sem relacionamento)
+  estadoCivilStr String?           // String direta da API: "Casado", "Solteiro"
+  profissaoStr   String?           // String direta da API: "Engenheiro", "Advogado"
   ativo          Boolean           @default(true)
   dataCadastro   DateTime          @default(now())
   idEmpresa      Int?

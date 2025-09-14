@@ -104,7 +104,10 @@ export type SiengeEndpoint =
   | '/sales-contracts'
   | '/commissions'
   | '/payment-categories'
-  | '/carriers';
+  | '/carriers'
+  | '/professions'
+  | '/marital-status'
+  | '/customer-types';
 
 // Tipos para métodos HTTP suportados
 export type SiengeHttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';

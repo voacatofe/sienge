@@ -80,5 +80,5 @@ EXPOSE 3000
 ENV PORT=3000
 ENV NODE_ENV=${NODE_ENV}
 
-# Definir entrypoint personalizado
-ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+# Definir comando padrão
+CMD ["npm", "start"]
