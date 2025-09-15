@@ -507,7 +507,7 @@ export const ENDPOINT_MAPPINGS: Record<string, EndpointMapping> = {
   // ============================================
 
   'accounts-receivable': {
-    model: 'contas_receber',
+    model: 'contasReceber',
     primaryKey: 'receivableBillId',
     fieldMapping: {
       customerId: 'customerId',
@@ -816,7 +816,7 @@ export const ENDPOINT_MAPPINGS: Record<string, EndpointMapping> = {
   },
 
   'accounts-statements': {
-    model: 'extratos_conta',
+    model: 'extratoConta',
     primaryKey: 'id',
     fieldMapping: {
       id: 'id',

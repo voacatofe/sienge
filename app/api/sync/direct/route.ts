@@ -79,6 +79,10 @@ async function processGenericEndpoint(
           existingRecord = await prisma.unidade.findUnique({ where: whereClause });
         } else if (mapping.model === 'webhook') {
           existingRecord = await prisma.webhook.findUnique({ where: whereClause });
+        } else if (mapping.model === 'extratoConta') {
+          existingRecord = await prisma.extratoConta.findUnique({ where: whereClause });
+        } else if (mapping.model === 'contasReceber') {
+          existingRecord = await prisma.contasReceber.findUnique({ where: whereClause });
         } else {
           existingRecord = await (prisma as any)[mapping.model].findUnique({ where: whereClause });
         }
