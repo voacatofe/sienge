@@ -42,7 +42,7 @@ model SyncLog {
 }
 
 model Empresa {
-  idEmpresa          Int                 @id @default(autoincrement())
+  idEmpresa          Int                 @id  // ID da API Sienge (sem auto-incremento)
   nomeEmpresa        String
   cnpj               String?              // SENSITIVE: CNPJ da empresa - criptografado
   nomeFantasia       String?
@@ -88,7 +88,7 @@ model CentroCusto {
 }
 
 model Indexador {
-  idIndexador    Int             @id @default(autoincrement())
+  idIndexador    Int             @id  // ID da API Sienge (sem auto-incremento)
   nomeIndexador  String
   descricao      String?
   periodicidade  String?
@@ -131,7 +131,7 @@ model TipoCondicaoPagamento {
 }
 
 model PlanoFinanceiro {
-  idPlanoFinanceiro Int                      @id @default(autoincrement())
+  idPlanoFinanceiro Int                      @id  // ID da API Sienge (sem auto-incremento)
   nomePlano         String
   codigoPlano       String?
   tipo              String?
@@ -172,7 +172,7 @@ model Municipio {
 }
 
 model Cliente {
-  idCliente           Int               @id @default(autoincrement())
+  idCliente           Int               @id  // ID da API Sienge (sem auto-incremento)
   nomeCompleto        String
   nomeSocial          String?
   cpfCnpj            String            // SENSITIVE: CPF/CNPJ do cliente - criptografado
@@ -287,7 +287,7 @@ model ClienteAnexo {
 
 
 model Empreendimento {
-  idEmpreendimento    Int                  @id @default(autoincrement())
+  idEmpreendimento    Int                  @id  // ID da API Sienge (sem auto-incremento)
   nome                String
   codigo              String?
   descricao           String?
@@ -358,7 +358,7 @@ model ReservaUnidade {
 }
 
 model ContratoVenda {
-  idContrato           Int                     @id @default(autoincrement())
+  idContrato           Int                     @id  // ID da API Sienge (sem auto-incremento)
   numeroContrato       String
   idCliente            Int
   idUnidade            Int                     @unique
@@ -392,7 +392,7 @@ model ContratoVenda {
 }
 
 model ComissaoVenda {
-  idComissao    Int           @id @default(autoincrement())
+  idComissao    Int           @id  // ID da API Sienge (sem auto-incremento)
   idContrato    Int
   nomeCorretor  String
   percentual    Decimal?      @db.Decimal(5, 2)
@@ -413,7 +413,7 @@ model ComissaoVenda {
 }
 
 model PortadorRecebimento {
-  idPortador      Int             @id @default(autoincrement())
+  idPortador      Int             @id  // ID da API Sienge (sem auto-incremento)
   descricao       String
   codigo          String?
   ativo           Boolean         @default(true)
@@ -426,7 +426,7 @@ model PortadorRecebimento {
 }
 
 model TituloReceber {
-  idTituloReceber   Int                     @id @default(autoincrement())
+  idTituloReceber   Int                     @id  // ID da API Sienge (sem auto-incremento)
   idContrato        Int?
   idCliente         Int
   idEmpresa         Int?
@@ -671,7 +671,7 @@ model NotaFiscalCompra {
 }
 
 model TituloPagar {
-  idTituloPagar         Int                       @id @default(autoincrement())
+  idTituloPagar         Int                       @id  // ID da API Sienge (sem auto-incremento)
   idCredor              Int
   idEmpresaDevedora     Int?
   numeroDocumento       String
