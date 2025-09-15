@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 
 interface CredentialsFormData {
@@ -24,7 +24,7 @@ export function ConfigurationSection({
     'idle' | 'syncing' | 'success' | 'error'
   >('idle');
   const [errorMessage, setErrorMessage] = useState('');
-  const [syncProgress, setSyncProgress] = useState<{
+  const [, setSyncProgress] = useState<{
     [key: string]: 'pending' | 'syncing' | 'completed' | 'error';
   }>({});
   const [syncResults, setSyncResults] = useState<any[]>([]);
@@ -44,12 +44,7 @@ export function ConfigurationSection({
     reset,
   } = form;
 
-  // Verificar se já existem configurações salvas
-  useEffect(() => {
-    checkExistingConfiguration();
-  }, []);
-
-  const checkExistingConfiguration = async () => {
+  const checkExistingConfiguration = useCallback(async () => {
     try {
       const response = await fetch('/api/config/credentials', {
         method: 'GET',
@@ -71,7 +66,12 @@ export function ConfigurationSection({
     } catch (error) {
       console.error('Erro ao verificar configurações:', error);
     }
-  };
+  }, [onConfigurationChange, reset]);
+
+  // Verificar se já existem configurações salvas
+  useEffect(() => {
+    checkExistingConfiguration();
+  }, [checkExistingConfiguration]);
 
   const onSubmit = async (data: CredentialsFormData) => {
     setIsSubmitting(true);
@@ -287,28 +287,23 @@ export function ConfigurationSection({
 
           if (testResult.success) {
             // Verificar se os dados estão em result.data.items (estrutura padrão da API Sienge)
-            let actualData = testResult.data;
             let dataLength = 0;
 
             if (testResult.data && typeof testResult.data === 'object') {
               // Se tem propriedade 'results', usar ela (estrutura padrão da API Sienge)
               if (Array.isArray(testResult.data.results)) {
-                actualData = testResult.data.results;
                 dataLength = testResult.data.results.length;
               }
               // Se tem propriedade 'items', usar ela
               else if (Array.isArray(testResult.data.items)) {
-                actualData = testResult.data.items;
                 dataLength = testResult.data.items.length;
               }
               // Se tem propriedade 'data', usar ela
               else if (Array.isArray(testResult.data.data)) {
-                actualData = testResult.data.data;
                 dataLength = testResult.data.data.length;
               }
               // Se é um array direto
               else if (Array.isArray(testResult.data)) {
-                actualData = testResult.data;
                 dataLength = testResult.data.length;
               }
             }

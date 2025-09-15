@@ -86,27 +86,8 @@ export const ENDPOINT_MAPPINGS: Record<string, EndpointMapping> = {
       activityId: 'activityId',
       activityDescription: 'activityDescription',
 
-      // Mapeamento direto do primeiro telefone
-      mainPhone: {
-        field: 'phones',
-        transform: (val: any) => {
-          if (Array.isArray(val) && val.length > 0) {
-            const firstPhone = val[0];
-            return firstPhone.number || firstPhone.phone || firstPhone.telefone || null;
-          }
-          return null;
-        }
-      },
-      mainPhoneType: {
-        field: 'phones',
-        transform: (val: any) => {
-          if (Array.isArray(val) && val.length > 0) {
-            const firstPhone = val[0];
-            return firstPhone.type || firstPhone.tipo || null;
-          }
-          return null;
-        }
-      },
+      // Campos extras para processamento posterior dos telefones e endereços
+      // Estes não vão diretamente para a tabela Cliente, mas são usados para criar registros relacionados
 
       // Mapeamento direto do primeiro endereço
       mainAddress: {
@@ -164,7 +145,7 @@ export const ENDPOINT_MAPPINGS: Record<string, EndpointMapping> = {
         }
       },
 
-      // Arrays completos para processamento posterior se necessário
+      // Campos JSON para telefones e endereços
       phones: {
         field: 'phones',
         transform: (val: any) => val || []
@@ -393,21 +374,6 @@ export const ENDPOINT_MAPPINGS: Record<string, EndpointMapping> = {
       cnpj: 'cnpj',
       type: 'tipo',
       adress: 'endereco',
-      address: 'endereco',
-      city: 'cidade',
-      state: 'estado',
-      zipCode: 'cep',
-      phone: 'telefone',
-      email: 'email',
-      site: 'site',
-      active: { field: 'ativo', transform: (val: any) => val !== false },
-      isActive: { field: 'ativo', transform: (val: any) => val !== false },
-      companyId: 'idEmpresa',
-      companyName: 'nomeEmpresa',
-      costDatabaseId: 'idBaseCustos',
-      costDatabaseDescription: 'descricaoBaseCustos',
-      buildingTypeId: 'idTipoObra',
-      buildingTypeDescription: 'descricaoTipoObra',
       creationDate: {
         field: 'dataCadastro',
         transform: (val: any) => (val ? new Date(val) : new Date()),
@@ -418,6 +384,8 @@ export const ENDPOINT_MAPPINGS: Record<string, EndpointMapping> = {
       },
       createdBy: 'criadoPor',
       modifiedBy: 'modificadoPor',
+      companyId: 'idEmpresa',
+      companyName: 'nomeEmpresa',
     },
   },
 
@@ -742,7 +710,7 @@ export const ENDPOINT_MAPPINGS: Record<string, EndpointMapping> = {
   },
 
   'hooks': {
-    model: 'webhooks',
+    model: 'webhook',
     primaryKey: 'id',
     fieldMapping: {
       id: 'id',

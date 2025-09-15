@@ -130,10 +130,12 @@ model Cliente {
   activityId              Int?     @map("activityId")
   activityDescription     String?  @map("activityDescription")
 
+  // Campos JSON para telefones e endereços
+  phones                  Json?    @map("phones")
+  addresses               Json?    @map("addresses")
+
   // Relacionamentos
   empresa                  Empresa? @relation(fields: [idEmpresa], references: [idEmpresa])
-  telefones                ClienteTelefone[]
-  enderecos                ClienteEndereco[]
   titulosReceber           TituloReceber[]
   contasReceber            ContasReceber[]
 
@@ -147,45 +149,6 @@ model Cliente {
   @@map("clientes")
 }
 
-model ClienteTelefone {
-  idTelefone   Int     @id @default(autoincrement()) @map("idTelefone")
-  numero       String  @map("numero")
-  tipo         String? @map("tipo")
-  observacao   String? @map("observacao")
-  idCliente    Int     @map("idCliente")
-  idd          String? @map("idd")
-  main         Boolean @default(false) @map("main")
-
-  // Relacionamentos
-  cliente      Cliente @relation(fields: [idCliente], references: [idCliente])
-
-  @@index([idCliente])
-  @@index([main])
-  @@map("cliente_telefones")
-}
-
-model ClienteEndereco {
-  idEndereco     Int     @id @default(autoincrement()) @map("idEndereco")
-  logradouro     String? @map("logradouro")
-  numero         String? @map("numero")
-  complemento    String? @map("complemento")
-  bairro         String? @map("bairro")
-  cidade         String? @map("cidade")
-  estado         String? @map("estado")
-  cep            String? @map("cep")
-  tipo           String? @map("tipo")
-  idCliente      Int     @map("idCliente")
-  idMunicipio    Int?    @map("idMunicipio")
-  mail           Boolean @default(false) @map("mail")
-
-  // Relacionamentos
-  cliente        Cliente @relation(fields: [idCliente], references: [idCliente])
-
-  @@index([idCliente])
-  @@index([mail])
-  @@index([idMunicipio])
-  @@map("cliente_enderecos")
-}
 
 model Indexador {
   idIndexador    Int     @id @map("idIndexador")

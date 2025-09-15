@@ -23,6 +23,7 @@ function validateRequiredParams(params: any) {
   return endpoint && data;
 }
 
+
 // Função genérica para processar qualquer endpoint
 async function processGenericEndpoint(
   endpoint: string,
@@ -58,36 +59,61 @@ async function processGenericEndpoint(
         }
       }
 
-      // Tratamento especial para ContratoVenda - verificar se enterpriseId existe
-      if (mapping.model === 'contratoVenda' && mappedData.enterpriseId) {
-        const enterprise = await prisma.empreendimento.findUnique({
-          where: { id: mappedData.enterpriseId }
-        });
-
-        if (!enterprise) {
-          console.warn(
-            `[Sync] Empreendimento ${mappedData.enterpriseId} não encontrado para contrato ${item.id}. Definindo como null.`
-          );
-          mappedData.enterpriseId = null;
-        }
-      }
+      console.log(`[Sync Debug] Processing ${endpoint} - mapped data:`, mappedData);
 
       // Verificar se o registro já existe
-      const whereClause = { [mapping.primaryKey]: item.id };
-      const existingRecord = await (prisma as any)[mapping.model].findUnique({
-        where: whereClause,
-      });
+      const primaryKeyValue = item[mapping.primaryKey] || item.id;
+      const whereClause = { [mapping.primaryKey]: primaryKeyValue };
+
+      if (!primaryKeyValue) {
+        console.warn(`[Sync] Primary key value is null/undefined for ${endpoint} item`, item);
+        continue;
+      }
+
+      // Use direct property access instead of bracket notation
+      let existingRecord;
+      try {
+        if (mapping.model === 'empreendimento') {
+          existingRecord = await prisma.empreendimento.findUnique({ where: whereClause });
+        } else if (mapping.model === 'unidade') {
+          existingRecord = await prisma.unidade.findUnique({ where: whereClause });
+        } else if (mapping.model === 'webhook') {
+          existingRecord = await prisma.webhook.findUnique({ where: whereClause });
+        } else {
+          existingRecord = await (prisma as any)[mapping.model].findUnique({ where: whereClause });
+        }
+      } catch (error) {
+        console.error(`[Sync] Error in findUnique for ${mapping.model}:`, error);
+        console.error(`[Sync] Where clause:`, whereClause);
+        console.error(`[Sync] Mapped data:`, mappedData);
+        throw error;
+      }
 
       if (existingRecord) {
-        await (prisma as any)[mapping.model].update({
-          where: whereClause,
-          data: mappedData,
-        });
+        if (mapping.model === 'empreendimento') {
+          await prisma.empreendimento.update({ where: whereClause, data: mappedData });
+        } else if (mapping.model === 'unidade') {
+          await prisma.unidade.update({ where: whereClause, data: mappedData });
+        } else if (mapping.model === 'webhook') {
+          await prisma.webhook.update({ where: whereClause, data: mappedData });
+        } else {
+          await (prisma as any)[mapping.model].update({ where: whereClause, data: mappedData });
+        }
         results.updated++;
       } else {
-        await (prisma as any)[mapping.model].create({ data: mappedData });
+        if (mapping.model === 'empreendimento') {
+          await prisma.empreendimento.create({ data: mappedData });
+        } else if (mapping.model === 'unidade') {
+          await prisma.unidade.create({ data: mappedData });
+        } else if (mapping.model === 'webhook') {
+          await prisma.webhook.create({ data: mappedData });
+        } else {
+          await (prisma as any)[mapping.model].create({ data: mappedData });
+        }
         results.inserted++;
       }
+
+
     } catch (error) {
       console.error(`Erro ao processar ${endpoint} ${item.id}:`, error);
       if (errorLogger) {

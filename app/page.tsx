@@ -1,8 +1,27 @@
 'use client';
 
 import { useState } from 'react';
-import { ConfigurationSection } from './components/ConfigurationSection';
+import dynamic from 'next/dynamic';
 import { PowerBILinksSection } from './components/PowerBILinksSection';
+
+// Carregar ConfigurationSection dinamicamente para evitar problemas de SSR
+const ConfigurationSection = dynamic(
+  () => import('./components/ConfigurationSection').then(mod => ({ default: mod.ConfigurationSection })),
+  { 
+    ssr: false,
+    loading: () => (
+      <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+        <div className="animate-pulse">
+          <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
+          <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
+          <div className="h-10 bg-gray-200 rounded mb-4"></div>
+          <div className="h-10 bg-gray-200 rounded mb-4"></div>
+          <div className="h-10 bg-gray-200 rounded"></div>
+        </div>
+      </div>
+    )
+  }
+);
 
 export default function Home() {
   const [syncCompleted, setSyncCompleted] = useState(false);
