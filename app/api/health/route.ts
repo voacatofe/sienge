@@ -2,10 +2,12 @@ import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
-import { checkDatabaseHealth } from '@/lib/prisma';
 
 export async function GET() {
   try {
+    // Importar função de verificação apenas quando necessário
+    const { checkDatabaseHealth } = await import('@/lib/prisma');
+
     // Verificar conectividade com o banco de dados
     const dbStatus = await checkDatabaseHealth();
 
