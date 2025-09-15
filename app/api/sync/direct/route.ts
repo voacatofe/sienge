@@ -59,7 +59,9 @@ async function processGenericEndpoint(
         }
       }
 
-      console.log(`[Sync Debug] Processing ${endpoint} - mapped data:`, mappedData);
+      console.log(`[Sync Debug] Processing ${endpoint} - model: ${mapping.model}, mapped data:`, mappedData);
+      console.log(`[Sync Debug] Prisma client available:`, !!prisma);
+      console.log(`[Sync Debug] Prisma ${mapping.model} available:`, !!(prisma as any)[mapping.model]);
 
       // Verificar se o registro já existe
       const primaryKeyValue = item[mapping.primaryKey] || item.id;
@@ -100,6 +102,10 @@ async function processGenericEndpoint(
           await prisma.unidade.update({ where: whereClause, data: mappedData });
         } else if (mapping.model === 'webhook') {
           await prisma.webhook.update({ where: whereClause, data: mappedData });
+        } else if (mapping.model === 'extratoConta') {
+          await prisma.extratoConta.update({ where: whereClause, data: mappedData });
+        } else if (mapping.model === 'contasReceber') {
+          await prisma.contasReceber.update({ where: whereClause, data: mappedData });
         } else {
           await (prisma as any)[mapping.model].update({ where: whereClause, data: mappedData });
         }
@@ -111,6 +117,10 @@ async function processGenericEndpoint(
           await prisma.unidade.create({ data: mappedData });
         } else if (mapping.model === 'webhook') {
           await prisma.webhook.create({ data: mappedData });
+        } else if (mapping.model === 'extratoConta') {
+          await prisma.extratoConta.create({ data: mappedData });
+        } else if (mapping.model === 'contasReceber') {
+          await prisma.contasReceber.create({ data: mappedData });
         } else {
           await (prisma as any)[mapping.model].create({ data: mappedData });
         }
