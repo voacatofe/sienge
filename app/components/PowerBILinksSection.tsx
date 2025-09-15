@@ -49,16 +49,16 @@ export function PowerBILinksSection({ syncResults }: PowerBILinksProps) {
           <li>
             • Servidor:{' '}
             <strong>
-              {process.env.PRIMARY_DOMAIN || 'localhost'}:
-              {process.env.DB_PORT_EXTERNAL || '5432'}
+              {process.env.NEXT_PUBLIC_PRIMARY_DOMAIN || 'localhost'}:
+              {process.env.NEXT_PUBLIC_DB_PORT_EXTERNAL || '5432'}
             </strong>
           </li>
           <li>
-            • Banco: <strong>{process.env.POSTGRES_DB || 'sienge_data'}</strong>
+            • Banco: <strong>{process.env.NEXT_PUBLIC_POSTGRES_DB || 'sienge_data'}</strong>
           </li>
           <li>
             • Usuário:{' '}
-            <strong>{process.env.POSTGRES_USER || 'sienge_app'}</strong>
+            <strong>{process.env.NEXT_PUBLIC_POSTGRES_USER || 'sienge_app'}</strong>
           </li>
           <li>
             • Modo: <strong>Importar</strong> para melhor performance
