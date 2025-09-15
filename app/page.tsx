@@ -5,12 +5,11 @@ import { ConfigurationSection } from './components/ConfigurationSection';
 import { PowerBILinksSection } from './components/PowerBILinksSection';
 
 export default function Home() {
-  const [isConfigured, setIsConfigured] = useState(false);
   const [syncCompleted, setSyncCompleted] = useState(false);
   const [syncResults, setSyncResults] = useState<any[]>([]);
 
-  const handleConfigurationChange = (configured: boolean) => {
-    setIsConfigured(configured);
+  const handleConfigurationChange = () => {
+    // Callback para quando a configuração mudar (se necessário no futuro)
   };
 
   const handleSyncCompleted = (results: any[]) => {

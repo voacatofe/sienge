@@ -71,20 +71,6 @@ async function getCustomerReference(customerId: any): Promise<number | null> {
   return cliente?.idCliente || null;
 }
 
-async function getCredorReference(creditorId: any): Promise<number | null> {
-  if (!creditorId) return null;
-
-  // Importar Prisma apenas quando necessário
-  const { prisma } = await import('@/lib/prisma');
-
-  const credor = await prisma.credor.findFirst({
-    where: { idCredor: creditorId },
-    select: { idCredor: true },
-  });
-
-  return credor?.idCredor || null;
-}
-
 async function getPortadorReference(portadorId: any): Promise<number | null> {
   if (!portadorId) return null;
 
@@ -890,10 +876,11 @@ async function savePayables(
       };
 
       // Buscar relacionamentos necessários - pular se não existirem
-      const idCredor = await getCredorReference(cleanPayable.idCredor);
+      // Como a tabela Credor foi removida, vamos usar o ID diretamente
+      const idCredor = cleanPayable.idCredor;
       if (!idCredor) {
         console.warn(
-          `[Sync] Credor ${cleanPayable.idCredor} não encontrado, pulando título pagar ${cleanPayable.numeroDocumento}`
+          `[Sync] ID do credor não fornecido, pulando título pagar ${cleanPayable.numeroDocumento}`
         );
         continue;
       }
