@@ -187,12 +187,12 @@ async function saveCustomers(
       const cleanCustomer = {
         idCliente: customer.id,
         nomeCompleto: customer.name,
+        nomeSocial: customer.socialName || null,
         cpfCnpj: customer.cpf,
         email: customer.email,
         rg: customer.numberIdentityCard,
         dataNascimento: customer.birthDate,
         nacionalidade: customer.nationality,
-        tipoPessoa: customer.personType,
         // Os campos vêm como strings diretas da API Sienge
         estadoCivil: customer.civilStatus, // String direta: "Casado", "Solteiro"
         profissao: customer.profession, // String direta: "Engenheiro", "Advogado"
@@ -215,6 +215,25 @@ async function saveCustomers(
         marriageDate: customer.marriageDate,
         licenseIssueDate: customer.licenseIssueDate,
         mailingAddress: customer.mailingAddress,
+
+        // Campos adicionais da API Sienge (todos os campos)
+        naturalidade: customer.naturalidade,
+        nomePai: customer.nomePai,
+        nomeMae: customer.nomeMae,
+        numeroIdentidade: customer.numeroIdentidade,
+        dataEmissaoIdentidade: customer.dataEmissaoIdentidade,
+        orgaoEmissor: customer.orgaoEmissor,
+        sexo: customer.sexo,
+        estrangeiro: customer.estrangeiro,
+        idInternacional: customer.idInternacional,
+        regimeMatrimonial: customer.regimeMatrimonial,
+        dataCasamento: customer.dataCasamento,
+        numeroCNH: customer.numeroCNH,
+        orgaoEmissorCNH: customer.orgaoEmissorCNH,
+        dataEmissaoCNH: customer.dataEmissaoCNH,
+        enderecoCorrespondencia: customer.enderecoCorrespondencia,
+        observacoes: customer.observacoes,
+        ativo: customer.ativo,
       };
 
       // Log de exemplo para debug (apenas em desenvolvimento)
@@ -263,6 +282,30 @@ async function saveCustomers(
           ? new Date(cleanCustomer.licenseIssueDate)
           : null,
         mailingAddress: cleanCustomer.mailingAddress || null,
+
+        // Campos adicionais da API Sienge (todos os campos)
+        naturalidade: cleanCustomer.naturalidade || null,
+        nomePai: cleanCustomer.nomePai || null,
+        nomeMae: cleanCustomer.nomeMae || null,
+        numeroIdentidade: cleanCustomer.numeroIdentidade || null,
+        dataEmissaoIdentidade: cleanCustomer.dataEmissaoIdentidade
+          ? new Date(cleanCustomer.dataEmissaoIdentidade)
+          : null,
+        orgaoEmissor: cleanCustomer.orgaoEmissor || null,
+        sexo: cleanCustomer.sexo || null,
+        estrangeiro: cleanCustomer.estrangeiro || null,
+        idInternacional: cleanCustomer.idInternacional || null,
+        regimeMatrimonial: cleanCustomer.regimeMatrimonial || null,
+        dataCasamento: cleanCustomer.dataCasamento
+          ? new Date(cleanCustomer.dataCasamento)
+          : null,
+        numeroCNH: cleanCustomer.numeroCNH || null,
+        orgaoEmissorCNH: cleanCustomer.orgaoEmissorCNH || null,
+        dataEmissaoCNH: cleanCustomer.dataEmissaoCNH
+          ? new Date(cleanCustomer.dataEmissaoCNH)
+          : null,
+        enderecoCorrespondencia: cleanCustomer.enderecoCorrespondencia || null,
+        observacoes: cleanCustomer.observacoes || null,
       };
 
       // Verificar se o cliente já existe
@@ -292,11 +335,35 @@ async function saveCustomers(
         );
       }
 
-      // Salvar rendas familiares
-      if (customer.familyIncome && customer.familyIncome.length > 0) {
-        await saveCustomerFamilyIncome(
-          savedCustomer.idCliente,
-          customer.familyIncome
+      // Salvar cônjuge
+      if (customer.spouse && customer.spouse.length > 0) {
+        // await saveCustomerSpouse(savedCustomer.idCliente, customer.spouse);
+        console.log(
+          `[Sync] Cônjuge encontrado para cliente ${savedCustomer.idCliente}, mas função não implementada ainda`
+        );
+      }
+
+      // Salvar procuradores
+      if (customer.procurators && customer.procurators.length > 0) {
+        // await saveCustomerProcurators(savedCustomer.idCliente, customer.procurators);
+        console.log(
+          `[Sync] Procuradores encontrados para cliente ${savedCustomer.idCliente}, mas função não implementada ainda`
+        );
+      }
+
+      // Salvar subtipos
+      if (customer.subtypes && customer.subtypes.length > 0) {
+        // await saveCustomerSubtypes(savedCustomer.idCliente, customer.subtypes);
+        console.log(
+          `[Sync] Subtipos encontrados para cliente ${savedCustomer.idCliente}, mas função não implementada ainda`
+        );
+      }
+
+      // Salvar anexos
+      if (customer.attachments && customer.attachments.length > 0) {
+        // await saveCustomerAttachments(savedCustomer.idCliente, customer.attachments);
+        console.log(
+          `[Sync] Anexos encontrados para cliente ${savedCustomer.idCliente}, mas função não implementada ainda`
         );
       }
 
@@ -426,40 +493,165 @@ async function saveCustomerAddresses(
   }
 }
 
-// Função para salvar rendas familiares do cliente
-async function saveCustomerFamilyIncome(
+// Função para salvar cônjuge do cliente
+async function saveCustomerSpouse(
   idCliente: number,
-  familyIncome: any[]
+  spouse: any[]
 ): Promise<void> {
   try {
     // Importar Prisma apenas quando necessário
     const { prisma } = await import('@/lib/prisma');
 
-    // Remover rendas existentes para evitar duplicatas
-    await prisma.clienteRenda.deleteMany({
+    // Remover cônjuge existente para evitar duplicatas
+    await prisma.clienteConjuge.deleteMany({
       where: { idCliente },
     });
 
-    // Inserir novas rendas
-    for (const income of familyIncome) {
-      await prisma.clienteRenda.create({
+    // Inserir novo cônjuge
+    for (const spouseData of spouse) {
+      await prisma.clienteConjuge.create({
         data: {
           idCliente,
-          descricaoRenda: income.kinsName || '',
-          valorMensal: income.incomeValue || 0,
-          moeda: 'BRL',
-          comprovada: false, // Padrão false, pode ser ajustado conforme regra de negócio
-          kinship: income.kinship || null,
+          nome: spouseData.name || '',
+          cpf: spouseData.cpf || null,
+          email: spouseData.email || null,
+          sexo: spouseData.sex || null,
+          estrangeiro: spouseData.foreigner || null,
+          idInternacional: spouseData.internationalId || null,
+          estadoCivil: spouseData.civilStatus || null,
+          dataNascimento: spouseData.birthDate
+            ? new Date(spouseData.birthDate)
+            : null,
+          numeroIdentidade: spouseData.numberIdentityCard || null,
+          dataEmissaoIdentidade: spouseData.issueDateIdentityCard
+            ? new Date(spouseData.issueDateIdentityCard)
+            : null,
+          profissao: spouseData.profession || null,
+          nacionalidade: spouseData.nationality || null,
+          naturalidade: spouseData.birthPlace || null,
+          nomePai: spouseData.fatherName || null,
+          nomeMae: spouseData.motherName || null,
+        },
+      });
+    }
+
+    console.log(`[Sync] Salvo cônjuge para cliente ${idCliente}`);
+  } catch (error) {
+    console.error(
+      `[Sync] Erro ao salvar cônjuge do cliente ${idCliente}:`,
+      error
+    );
+  }
+}
+
+// Função para salvar procuradores do cliente
+async function saveCustomerProcurators(
+  idCliente: number,
+  procurators: any[]
+): Promise<void> {
+  try {
+    // Importar Prisma apenas quando necessário
+    const { prisma } = await import('@/lib/prisma');
+
+    // Remover procuradores existentes para evitar duplicatas
+    await prisma.clienteProcurador.deleteMany({
+      where: { idCliente },
+    });
+
+    // Inserir novos procuradores
+    for (const procurator of procurators) {
+      await prisma.clienteProcurador.create({
+        data: {
+          idCliente,
+          nome: procurator.name || '',
+          cpf: procurator.cpf || null,
+          email: procurator.email || null,
+          telefone: procurator.phone || null,
+          endereco: procurator.address || null,
+          observacoes: procurator.notes || null,
         },
       });
     }
 
     console.log(
-      `[Sync] Salvas ${familyIncome.length} rendas familiares para cliente ${idCliente}`
+      `[Sync] Salvos ${procurators.length} procuradores para cliente ${idCliente}`
     );
   } catch (error) {
     console.error(
-      `[Sync] Erro ao salvar rendas familiares do cliente ${idCliente}:`,
+      `[Sync] Erro ao salvar procuradores do cliente ${idCliente}:`,
+      error
+    );
+  }
+}
+
+// Função para salvar subtipos do cliente
+async function saveCustomerSubtypes(
+  idCliente: number,
+  subtypes: any[]
+): Promise<void> {
+  try {
+    // Importar Prisma apenas quando necessário
+    const { prisma } = await import('@/lib/prisma');
+
+    // Remover subtipos existentes para evitar duplicatas
+    await prisma.clienteSubtipo.deleteMany({
+      where: { idCliente },
+    });
+
+    // Inserir novos subtipos
+    for (const subtype of subtypes) {
+      await prisma.clienteSubtipo.create({
+        data: {
+          idCliente,
+          nome: subtype.name || '',
+          descricao: subtype.description || null,
+          ativo: subtype.active !== false,
+        },
+      });
+    }
+
+    console.log(
+      `[Sync] Salvos ${subtypes.length} subtipos para cliente ${idCliente}`
+    );
+  } catch (error) {
+    console.error(
+      `[Sync] Erro ao salvar subtipos do cliente ${idCliente}:`,
+      error
+    );
+  }
+}
+
+// Função para salvar anexos do cliente
+async function saveCustomerAttachments(
+  idCliente: number,
+  attachments: any[]
+): Promise<void> {
+  try {
+    // Importar Prisma apenas quando necessário
+    const { prisma } = await import('@/lib/prisma');
+
+    // Remover anexos existentes para evitar duplicatas
+    await prisma.clienteAnexo.deleteMany({
+      where: { idCliente },
+    });
+
+    // Inserir novos anexos
+    for (const attachment of attachments) {
+      await prisma.clienteAnexo.create({
+        data: {
+          idCliente,
+          tipoDocumento: attachment.documentType || '',
+          urlArquivo: attachment.fileUrl || null,
+        },
+      });
+    }
+
+    console.log(
+      `[Sync] Salvos ${attachments.length} anexos para cliente ${idCliente}`
+    );
+  } catch (error) {
+    console.error(
+      `[Sync] Erro ao salvar anexos do cliente ${idCliente}:`,
       error
     );
   }

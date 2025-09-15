@@ -187,7 +187,8 @@ model Cliente {
   estadoCivilStr     String?           // String direta da API: "Casado", "Solteiro"
   profissaoStr       String?           // String direta da API: "Engenheiro", "Advogado"
   
-  // Campos adicionais da API Sienge
+  // Campos adicionais da API Sienge (CustomerGet)
+  personType         String?           // Tipo de pessoa (física ou jurídica)
   foreigner          String?           // "N" ou "S" - estrangeiro
   internationalId    String?           // ID internacional
   issuingBody        String?           // Órgão emissor do RG
@@ -196,13 +197,31 @@ model Cliente {
   matrimonialRegime  String?           // Regime matrimonial
   fatherName         String?           // Nome do pai
   motherName         String?           // Nome da mãe
-  sex                String?           // Sexo ("Feminino", "Masculino")
+  sex                String?           // Sexo ("Feminino", "Masculino", "Anônimo")
   licenseNumber      String?           // Número da carteira
   licenseIssuingBody String?           // Órgão emissor da carteira
   issueDateIdentityCard DateTime?     // Data emissão RG
   marriageDate       DateTime?         // Data do casamento
   licenseIssueDate   DateTime?         // Data emissão carteira
   mailingAddress     String?           // Endereço de correspondência
+  
+  // Campos para pessoa jurídica
+  cityRegistrationNumber String?       // Inscrição municipal
+  cnaeNumber           String?         // Número do CNAE
+  cnpj                 String?         // CNPJ (se pessoa jurídica)
+  contactName          String?         // Nome do contato
+  creaNumber           String?         // Número do CREA
+  establishmentDate    DateTime?       // Data de constituição
+  fantasyName          String?         // Nome fantasia
+  note                 String?         // Observação
+  site                 String?         // Website
+  shareCapital         Decimal?        @db.Decimal(18, 2) // Capital social
+  stateRegistrationNumber String?      // Inscrição estadual
+  technicalManager     String?         // Responsável técnico
+  
+  // Campos de atividade
+  activityId          Int?             // ID da atividade
+  activityDescription String?          // Descrição da atividade
   
   // Relacionamentos
   empresa            Empresa?          @relation(fields: [idEmpresa], references: [idEmpresa])
@@ -215,6 +234,9 @@ model Cliente {
   contratosVenda     ContratoVenda[]
   reservas           ReservaUnidade[]
   titulosReceber     TituloReceber[]
+  conjuges           ClienteConjuge[]
+  procuradores       ClienteProcurador[]
+  subtipos           ClienteSubtipo[]
 
   @@index([nomeCompleto])
   @@index([ativo])
@@ -223,6 +245,8 @@ model Cliente {
   @@index([idEmpresa])
   @@index([nomeCompleto, ativo])
   @@index([idEmpresa, ativo])
+  @@index([personType])
+  @@index([clientType])
   @@map("clientes")
 }
 
@@ -283,6 +307,127 @@ model ClienteAnexo {
   cliente       Cliente @relation(fields: [idCliente], references: [idCliente])
 
   @@map("cliente_anexos")
+}
+
+model ClienteConjuge {
+  idConjuge           Int      @id @default(autoincrement())
+  idCliente           Int
+  nome                String
+  cpf                 String?  // SENSITIVE: CPF do cônjuge - criptografado
+  email               String?
+  sexo                String?  // "F", "M", "A"
+  estrangeiro         String?  // "S" ou "N"
+  idInternacional     String?  // ID internacional
+  estadoCivil         String?  // Estado civil
+  dataNascimento      DateTime?
+  numeroIdentidade    String?  // RG
+  dataEmissaoIdentidade DateTime?
+  profissao           String?
+  nacionalidade       String?
+  naturalidade        String?
+  nomePai             String?
+  nomeMae             String?
+  telefoneCelular     String?
+  telefoneComercial   String?
+  empresa             String?
+  
+  // Endereço do cônjuge
+  cidade              String?
+  complemento         String?
+  bairro              String?
+  numero              String?
+  logradouro          String?
+  cep                 String?
+  
+  cliente             Cliente @relation(fields: [idCliente], references: [idCliente])
+
+  @@index([idCliente])
+  @@map("cliente_conjuges")
+}
+
+model ClienteProcurador {
+  idProcurador        Int      @id @default(autoincrement())
+  idCliente           Int
+  nome                String
+  cpf                 String   // SENSITIVE: CPF do procurador - criptografado
+  tipoProcurador      String   // "CLIENTE", "CONJUGE", "AMBOS"
+  numeroIdentidade    String?  // RG
+  email               String?
+  dataNascimento      DateTime?
+  nacionalidade       String?
+  naturalidade        String?
+  idProfissao         Int?     // Código da profissão
+  idEstadoCivil       Int?     // Código do estado civil
+  regimeMatrimonial   String?
+  dataCasamento       DateTime?
+  
+  // Endereço residencial
+  logradouroResidencial String?
+  bairroResidencial     String?
+  idMunicipioResidencial Int?
+  cepResidencial         String?
+  numeroResidencial       String?
+  complementoResidencial  String?
+  
+  // Endereço comercial
+  logradouroComercial String?
+  bairroComercial     String?
+  idMunicipioComercial Int?
+  cepComercial        String?
+  numeroComercial     String?
+  complementoComercial String?
+  
+  // Procuração
+  nomeCartorio        String?
+  comarca             String?
+  idEstado            Int?     // Código da UF
+  livro               String?
+  folha               String?
+  dataProcuração      DateTime?
+  dataValidade        DateTime?
+  
+  // Cônjuge do procurador
+  nomeConjuge         String?
+  cpfConjuge          String?  // SENSITIVE: CPF do cônjuge - criptografado
+  dataNascimentoConjuge DateTime?
+  naturalidadeConjuge String?
+  nacionalidadeConjuge String?
+  idProfissaoConjuge  Int?
+  numeroIdentidadeConjuge String?
+  
+  cliente             Cliente @relation(fields: [idCliente], references: [idCliente])
+  telefones           ClienteProcuradorTelefone[]
+
+  @@index([idCliente])
+  @@map("cliente_procuradores")
+}
+
+model ClienteProcuradorTelefone {
+  idTelefone    Int     @id @default(autoincrement())
+  idProcurador  Int
+  numero        String
+  tipo          String  // "CELULAR", "COMERCIAL", "RESIDENCIAL"
+  principal     Boolean @default(false)
+  ramal         String?
+  observacao    String?
+  
+  procurador    ClienteProcurador @relation(fields: [idProcurador], references: [idProcurador])
+
+  @@index([idProcurador])
+  @@map("cliente_procurador_telefones")
+}
+
+model ClienteSubtipo {
+  idSubtipo     Int     @id @default(autoincrement())
+  idCliente     Int
+  idSubtipoApi  Int     // ID do subtipo na API Sienge
+  descricao     String
+  
+  cliente       Cliente @relation(fields: [idCliente], references: [idCliente])
+
+  @@index([idCliente])
+  @@index([idSubtipoApi])
+  @@map("cliente_subtipos")
 }
 
 
