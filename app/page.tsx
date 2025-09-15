@@ -1,17 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { ConfigurationSection } from './components/ConfigurationSection';
 import { SyncGroupsSection } from './components/SyncGroupsSection';
 import { PowerBILinksSection } from './components/PowerBILinksSection';
 
 export default function Home() {
-  const [isConfigured, setIsConfigured] = useState(false);
   const [completedGroups, setCompletedGroups] = useState<string[]>([]);
-
-  const handleConfigurationChange = (configured: boolean) => {
-    setIsConfigured(configured);
-  };
 
   const handleSyncCompleted = (groups: string[]) => {
     setCompletedGroups(groups);
@@ -30,14 +24,9 @@ export default function Home() {
           </p>
         </header>
 
-        {/* Configuration Section */}
-        <ConfigurationSection
-          onConfigurationChange={handleConfigurationChange}
-        />
-
         {/* Sync Groups Section */}
         <SyncGroupsSection
-          isConfigured={isConfigured}
+          isConfigured={true}
           onSyncCompleted={handleSyncCompleted}
         />
 
