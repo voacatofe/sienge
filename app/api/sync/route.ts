@@ -12,7 +12,7 @@ function createFriendlyFieldMapping(customer: any) {
   return {
     'ID do Cliente': customer.id,
     'Nome Completo': customer.name,
-    'CPF/CNPJ': customer.cpf,
+    'CPF/CNPJ': customer.cpfCnpj,
     Email: customer.email,
     RG: customer.numberIdentityCard,
     'Data de Nascimento': customer.birthDate,
@@ -172,7 +172,7 @@ async function saveCustomers(
         idCliente: customer.id,
         nomeCompleto: customer.name,
         nomeSocial: customer.socialName || null,
-        cpfCnpj: customer.cpf,
+        cpfCnpj: customer.cpfCnpj,
         email: customer.email,
         rg: customer.numberIdentityCard,
         dataNascimento: customer.birthDate,
@@ -856,7 +856,24 @@ async function saveSalesContracts(
         update: contractData,
         create: {
           id: cleanContract.idContrato,
-          ...contractData,
+          companyId: contractData.companyId,
+          internalCompanyId: contractData.internalCompanyId,
+          companyName: contractData.companyName,
+          enterpriseId: contractData.enterpriseId,
+          internalEnterpriseId: contractData.internalEnterpriseId,
+          enterpriseName: contractData.enterpriseName,
+          receivableBillId: contractData.receivableBillId,
+          cancellationPayableBillId: contractData.cancellationPayableBillId,
+          contractDate: contractData.contractDate,
+          issueDate: contractData.issueDate,
+          accountingDate: contractData.accountingDate,
+          expectedDeliveryDate: contractData.expectedDeliveryDate,
+          keysDeliveredAt: contractData.keysDeliveredAt,
+          number: contractData.number,
+          externalId: contractData.externalId,
+          correctionType: contractData.correctionType,
+          situation: contractData.situation,
+          discountType: contractData.discountType,
         },
       });
 
@@ -980,9 +997,9 @@ async function saveReceivableCarriers(
       };
 
       const carrierData = {
-        nomePortador: cleanCarrier.descricao, // Usando descricao como nomePortador
-        tipoPortador: cleanCarrier.codigo,
-        codigoPortador: cleanCarrier.codigo,
+        nome: cleanCarrier.descricao, // Usando descricao como nome
+        tipo: cleanCarrier.codigo,
+        codigo: cleanCarrier.codigo,
         ativo: cleanCarrier.ativo,
       };
 
@@ -993,10 +1010,18 @@ async function saveReceivableCarriers(
 
       await prisma.portadorRecebimento.upsert({
         where: { idPortador: cleanCarrier.idPortador },
-        update: carrierData,
+        update: {
+          nomePortador: carrierData.nome,
+          tipoPortador: carrierData.tipo,
+          codigoPortador: carrierData.codigo,
+          ativo: carrierData.ativo,
+        },
         create: {
           idPortador: cleanCarrier.idPortador,
-          ...carrierData,
+          nomePortador: carrierData.nome,
+          tipoPortador: carrierData.tipo,
+          codigoPortador: carrierData.codigo,
+          ativo: carrierData.ativo,
         },
       });
 
