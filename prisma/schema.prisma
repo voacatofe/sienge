@@ -105,33 +105,11 @@ model Indexador {
 model TipoCliente {
   idTipoCliente Int       @id @default(autoincrement())
   descricao     String
-  clientes      Cliente[]
 
   @@index([descricao])
   @@map("tipos_cliente")
 }
 
-model EstadoCivil {
-  idEstadoCivil Int       @id @default(autoincrement())
-  descricao     String
-  clientes      Cliente[]
-  conjuges      Conjuge[]
-
-  @@index([descricao])
-  @@map("estados_civis")
-}
-
-model Profissao {
-  idProfissao     Int       @id @default(autoincrement())
-  nomeProfissao   String
-  codigoProfissao String?
-  clientes        Cliente[] @relation("ProfissaoCliente")
-  conjuges        Conjuge[] @relation("ProfissaoConjuge")
-
-  @@index([nomeProfissao])
-  @@index([codigoProfissao])
-  @@map("profissoes")
-}
 
 model TipoImovel {
   idTipoImovel Int                  @id @default(autoincrement())
@@ -194,61 +172,55 @@ model Municipio {
 }
 
 model Cliente {
-  idCliente      Int               @id @default(autoincrement())
-  idTipoCliente  Int
-  nomeCompleto   String
-  nomeSocial     String?
-  cpfCnpj        String            // SENSITIVE: CPF/CNPJ do cliente - criptografado
-  rg             String?
-  dataNascimento DateTime?
-  nacionalidade  String?
-  email          String?
-  idEstadoCivil  Int?
-  idProfissao    Int?
-  // Campos de string diretos da API Sienge (sem relacionamento)
-  estadoCivilStr String?           // String direta da API: "Casado", "Solteiro"
-  profissaoStr   String?           // String direta da API: "Engenheiro", "Advogado"
-  ativo          Boolean           @default(true)
-  dataCadastro   DateTime          @default(now())
-  dataAtualizacao DateTime?        // Data da última modificação da API
-  idEmpresa      Int?
+  idCliente           Int               @id @default(autoincrement())
+  nomeCompleto        String
+  nomeSocial          String?
+  cpfCnpj            String            // SENSITIVE: CPF/CNPJ do cliente - criptografado
+  rg                 String?
+  dataNascimento     DateTime?
+  nacionalidade      String?
+  email              String?
+  ativo              Boolean           @default(true)
+  dataCadastro       DateTime          @default(now())
+  dataAtualizacao    DateTime?         // Data da última modificação da API
+  idEmpresa          Int?
+  estadoCivilStr     String?           // String direta da API: "Casado", "Solteiro"
+  profissaoStr       String?           // String direta da API: "Engenheiro", "Advogado"
   
   // Campos adicionais da API Sienge
   foreigner          String?           // "N" ou "S" - estrangeiro
   internationalId    String?           // ID internacional
-  issuingBody         String?           // Órgão emissor do RG
-  clientType          String?           // Tipo de cliente
-  birthPlace          String?           // Naturalidade
-  matrimonialRegime   String?           // Regime matrimonial
-  fatherName          String?           // Nome do pai
-  motherName          String?           // Nome da mãe
-  sex                 String?           // Sexo ("Feminino", "Masculino")
-  licenseNumber       String?           // Número da carteira
-  licenseIssuingBody  String?           // Órgão emissor da carteira
-  issueDateIdentityCard DateTime?      // Data emissão RG
-  marriageDate        DateTime?         // Data do casamento
-  licenseIssueDate    DateTime?         // Data emissão carteira
-  mailingAddress      String?           // Endereço de correspondência
+  issuingBody        String?           // Órgão emissor do RG
+  clientType         String?           // Tipo de cliente
+  birthPlace         String?           // Naturalidade
+  matrimonialRegime  String?           // Regime matrimonial
+  fatherName         String?           // Nome do pai
+  motherName         String?           // Nome da mãe
+  sex                String?           // Sexo ("Feminino", "Masculino")
+  licenseNumber      String?           // Número da carteira
+  licenseIssuingBody String?           // Órgão emissor da carteira
+  issueDateIdentityCard DateTime?     // Data emissão RG
+  marriageDate       DateTime?         // Data do casamento
+  licenseIssueDate   DateTime?         // Data emissão carteira
+  mailingAddress     String?           // Endereço de correspondência
   
-  anexos         ClienteAnexo[]
-  enderecos      ClienteEndereco[]
-  rendas         ClienteRenda[]
-  telefones      ClienteTelefone[]
-  empresa        Empresa?          @relation(fields: [idEmpresa], references: [idEmpresa])
-  estadoCivil    EstadoCivil?      @relation(fields: [idEstadoCivil], references: [idEstadoCivil])
-  profissao      Profissao?        @relation("ProfissaoCliente", fields: [idProfissao], references: [idProfissao])
-  tipoCliente    TipoCliente       @relation(fields: [idTipoCliente], references: [idTipoCliente])
-  conjuge        Conjuge?
-  contratosVenda ContratoVenda[]
-  reservas       ReservaUnidade[]
-  titulosReceber TituloReceber[]
+  // Relacionamentos
+  empresa            Empresa?          @relation(fields: [idEmpresa], references: [idEmpresa])
+  
+  // Relacionamentos com outras tabelas
+  anexos             ClienteAnexo[]
+  enderecos          ClienteEndereco[]
+  rendas             ClienteRenda[]
+  telefones          ClienteTelefone[]
+  contratosVenda     ContratoVenda[]
+  reservas           ReservaUnidade[]
+  titulosReceber     TituloReceber[]
 
   @@index([nomeCompleto])
   @@index([ativo])
   @@index([dataCadastro])
   @@index([dataAtualizacao])
   @@index([idEmpresa])
-  @@index([idTipoCliente])
   @@index([nomeCompleto, ativo])
   @@index([idEmpresa, ativo])
   @@map("clientes")
@@ -313,25 +285,6 @@ model ClienteAnexo {
   @@map("cliente_anexos")
 }
 
-model Conjuge {
-  idConjuge      Int          @id @default(autoincrement())
-  nomeCompleto   String
-  cpf            String?      // SENSITIVE: CPF do cônjuge - criptografado
-  rg             String?
-  dataNascimento DateTime?
-  nacionalidade  String?
-  email          String?
-  idEstadoCivil  Int?
-  idProfissao    Int?
-  idCliente      Int?         @unique
-  cliente        Cliente?     @relation(fields: [idCliente], references: [idCliente])
-  estadoCivil    EstadoCivil? @relation(fields: [idEstadoCivil], references: [idEstadoCivil])
-  profissao      Profissao?   @relation("ProfissaoConjuge", fields: [idProfissao], references: [idProfissao])
-
-  @@index([nomeCompleto])
-  @@index([idCliente])
-  @@map("conjuges")
-}
 
 model Empreendimento {
   idEmpreendimento    Int                  @id @default(autoincrement())
