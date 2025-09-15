@@ -86,6 +86,9 @@ export async function POST(request: NextRequest) {
     const { action } = body;
 
     if (action === 'cancel') {
+      // Importar Prisma apenas quando necessário
+      const { prisma } = await import('@/lib/prisma');
+
       // Marcar sincronização atual como cancelada
       const latestSync = await prisma.syncLog.findFirst({
         where: {

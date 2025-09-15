@@ -62,6 +62,9 @@ async function getOrCreateProfissao(nome: string): Promise<string | null> {
 async function getCustomerReference(customerId: any): Promise<number | null> {
   if (!customerId) return null;
 
+  // Importar Prisma apenas quando necessário
+  const { prisma } = await import('@/lib/prisma');
+
   // Apenas verificar se o cliente existe, não criar
   const cliente = await prisma.cliente.findFirst({
     where: { idCliente: customerId },
@@ -74,6 +77,9 @@ async function getCustomerReference(customerId: any): Promise<number | null> {
 async function getCredorReference(creditorId: any): Promise<number | null> {
   if (!creditorId) return null;
 
+  // Importar Prisma apenas quando necessário
+  const { prisma } = await import('@/lib/prisma');
+
   const credor = await prisma.credor.findFirst({
     where: { idCredor: creditorId },
     select: { idCredor: true },
@@ -84,6 +90,9 @@ async function getCredorReference(creditorId: any): Promise<number | null> {
 
 async function getPortadorReference(portadorId: any): Promise<number | null> {
   if (!portadorId) return null;
+
+  // Importar Prisma apenas quando necessário
+  const { prisma } = await import('@/lib/prisma');
 
   const portador = await prisma.portadorRecebimento.findFirst({
     where: { idPortador: portadorId },
@@ -98,6 +107,9 @@ async function getPlanoFinanceiroReference(
 ): Promise<number | null> {
   if (!planoId) return null;
 
+  // Importar Prisma apenas quando necessário
+  const { prisma } = await import('@/lib/prisma');
+
   const plano = await prisma.planoFinanceiro.findFirst({
     where: { idPlanoFinanceiro: planoId },
     select: { idPlanoFinanceiro: true },
@@ -110,6 +122,9 @@ async function getCondicaoPagamentoReference(
   condicaoId: any
 ): Promise<number | null> {
   if (!condicaoId) return null;
+
+  // Importar Prisma apenas quando necessário
+  const { prisma } = await import('@/lib/prisma');
 
   const condicao = await prisma.tipoCondicaoPagamento.findFirst({
     where: { idTipoCondPag: condicaoId },
@@ -160,6 +175,9 @@ async function saveEntityData(
 async function saveCustomers(
   customers: any[]
 ): Promise<{ inserted: number; updated: number; errors: number }> {
+  // Importar Prisma apenas quando necessário
+  const { prisma } = await import('@/lib/prisma');
+
   console.log(`[Sync] Iniciando salvamento de ${customers.length} customers`);
 
   let insertedCount = 0;
@@ -323,6 +341,9 @@ async function saveCustomerPhones(
   phones: any[]
 ): Promise<void> {
   try {
+    // Importar Prisma apenas quando necessário
+    const { prisma } = await import('@/lib/prisma');
+
     // Remover telefones existentes para evitar duplicatas
     await prisma.clienteTelefone.deleteMany({
       where: { idCliente },
@@ -359,6 +380,9 @@ async function saveCustomerAddresses(
   addresses: any[]
 ): Promise<void> {
   try {
+    // Importar Prisma apenas quando necessário
+    const { prisma } = await import('@/lib/prisma');
+
     // Remover endereços existentes para evitar duplicatas
     await prisma.clienteEndereco.deleteMany({
       where: { idCliente },
@@ -411,6 +435,9 @@ async function saveCustomerFamilyIncome(
   familyIncome: any[]
 ): Promise<void> {
   try {
+    // Importar Prisma apenas quando necessário
+    const { prisma } = await import('@/lib/prisma');
+
     // Remover rendas existentes para evitar duplicatas
     await prisma.clienteRenda.deleteMany({
       where: { idCliente },
@@ -444,6 +471,9 @@ async function saveCustomerFamilyIncome(
 async function saveCompanies(
   companies: any[]
 ): Promise<{ inserted: number; updated: number; errors: number }> {
+  // Importar Prisma apenas quando necessário
+  const { prisma } = await import('@/lib/prisma');
+
   console.log(`[Sync] Iniciando salvamento de ${companies.length} companies`);
 
   let insertedCount = 0;
@@ -519,6 +549,9 @@ async function saveCostCenters(
 async function saveReceivables(
   receivables: any[]
 ): Promise<{ inserted: number; updated: number; errors: number }> {
+  // Importar Prisma apenas quando necessário
+  const { prisma } = await import('@/lib/prisma');
+
   console.log(
     `[Sync] Iniciando salvamento de ${receivables.length} títulos a receber`
   );
@@ -633,6 +666,9 @@ async function saveReceivables(
 async function savePayables(
   payables: any[]
 ): Promise<{ inserted: number; updated: number; errors: number }> {
+  // Importar Prisma apenas quando necessário
+  const { prisma } = await import('@/lib/prisma');
+
   console.log(
     `[Sync] Iniciando salvamento de ${payables.length} títulos a pagar`
   );
@@ -739,6 +775,9 @@ async function savePayables(
 async function saveSalesContracts(
   contracts: any[]
 ): Promise<{ inserted: number; updated: number; errors: number }> {
+  // Importar Prisma apenas quando necessário
+  const { prisma } = await import('@/lib/prisma');
+
   console.log(
     `[Sync] Iniciando salvamento de ${contracts.length} contratos de venda`
   );
@@ -836,6 +875,9 @@ async function saveSalesContracts(
 async function saveSalesCommissions(
   commissions: any[]
 ): Promise<{ inserted: number; updated: number; errors: number }> {
+  // Importar Prisma apenas quando necessário
+  const { prisma } = await import('@/lib/prisma');
+
   console.log(
     `[Sync] Iniciando salvamento de ${commissions.length} comissões de venda`
   );
@@ -905,6 +947,9 @@ async function saveSalesCommissions(
 async function saveFinancialPlans(
   plans: any[]
 ): Promise<{ inserted: number; updated: number; errors: number }> {
+  // Importar Prisma apenas quando necessário
+  const { prisma } = await import('@/lib/prisma');
+
   console.log(
     `[Sync] Iniciando salvamento de ${plans.length} planos financeiros`
   );
@@ -966,6 +1011,9 @@ async function saveFinancialPlans(
 async function saveReceivableCarriers(
   carriers: any[]
 ): Promise<{ inserted: number; updated: number; errors: number }> {
+  // Importar Prisma apenas quando necessário
+  const { prisma } = await import('@/lib/prisma');
+
   console.log(
     `[Sync] Iniciando salvamento de ${carriers.length} portadores de recebimento`
   );
@@ -1027,6 +1075,9 @@ async function saveReceivableCarriers(
 async function saveIndexers(
   indexers: any[]
 ): Promise<{ inserted: number; updated: number; errors: number }> {
+  // Importar Prisma apenas quando necessário
+  const { prisma } = await import('@/lib/prisma');
+
   console.log(`[Sync] Iniciando salvamento de ${indexers.length} indexadores`);
 
   let insertedCount = 0;

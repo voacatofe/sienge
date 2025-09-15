@@ -60,6 +60,9 @@ async function validateSiengeCredentials(
   username: string,
   password: string
 ): Promise<boolean> {
+  const { validateCredentialsWithCache } = await import(
+    '@/lib/cache/credentials-cache'
+  );
   return validateCredentialsWithCache(
     subdomain,
     username,
@@ -191,6 +194,9 @@ export async function POST(request: NextRequest) {
       });
 
       // Invalidar cache para este subdomínio
+      const { credentialsCache } = await import(
+        '@/lib/cache/credentials-cache'
+      );
       credentialsCache.invalidateBySubdomain(sanitizedSubdomain);
     } else {
       // Criar novas credenciais
