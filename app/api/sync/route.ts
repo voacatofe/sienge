@@ -46,177 +46,78 @@ function logSampleProcessedData(customer: any, cleanCustomer: any) {
 }
 
 // Funções auxiliares para mapeamento de dados
-async function getOrCreateTipoCliente(descricao: string): Promise<number> {
-  // Primeiro tentar encontrar existente
-  let tipo = await prisma.tipoCliente.findFirst({
-    where: { descricao },
-    select: { idTipoCliente: true },
-  });
-
-  if (!tipo) {
-    // Se não existir, criar novo
-    tipo = await prisma.tipoCliente.create({
-      data: { descricao },
-      select: { idTipoCliente: true },
-    });
-  }
-
-  return tipo.idTipoCliente;
-}
 
 async function getOrCreateEstadoCivil(
   descricao: string
-): Promise<number | null> {
-  if (!descricao) return null;
-
-  // Primeiro tentar encontrar existente
-  let estado = await prisma.estadoCivil.findFirst({
-    where: { descricao },
-    select: { idEstadoCivil: true },
-  });
-
-  if (!estado) {
-    // Se não existir, criar novo
-    estado = await prisma.estadoCivil.create({
-      data: { descricao },
-      select: { idEstadoCivil: true },
-    });
-  }
-
-  return estado.idEstadoCivil;
+): Promise<string | null> {
+  // Como removemos a tabela estados_civis, retornamos a string diretamente
+  return descricao || null;
 }
 
-async function getOrCreateProfissao(nome: string): Promise<number | null> {
-  if (!nome || nome.trim() === '') return null;
-
-  // Primeiro tentar encontrar existente
-  let profissao = await prisma.profissao.findFirst({
-    where: { nomeProfissao: nome.trim() },
-    select: { idProfissao: true },
-  });
-
-  if (!profissao) {
-    // Se não existir, criar novo
-    profissao = await prisma.profissao.create({
-      data: {
-        nomeProfissao: nome.trim(),
-        codigoProfissao: nome.trim().toLowerCase().replace(/\s+/g, '_'),
-      },
-      select: { idProfissao: true },
-    });
-  }
-
-  return profissao.idProfissao;
+async function getOrCreateProfissao(nome: string): Promise<string | null> {
+  // Como removemos a tabela profissoes, retornamos a string diretamente
+  return nome || null;
 }
 
 // Funções auxiliares para entidades financeiras
-async function getOrCreateCustomerReference(customerId: any): Promise<number> {
-  if (!customerId) throw new Error('Customer ID é obrigatório');
+async function getCustomerReference(customerId: any): Promise<number | null> {
+  if (!customerId) return null;
 
-  // Assumindo que o cliente já existe (foi sincronizado antes)
-  // Se não existir, podemos criar um registro básico
+  // Apenas verificar se o cliente existe, não criar
   const cliente = await prisma.cliente.findFirst({
     where: { idCliente: customerId },
     select: { idCliente: true },
   });
 
-  if (!cliente) {
-    console.warn(
-      `[Sync] Cliente ${customerId} não encontrado, criando registro básico`
-    );
-    const novoCliente = await prisma.cliente.create({
-      data: {
-        idCliente: customerId,
-        idTipoCliente: 1, // Padrão PF
-        nomeCompleto: `Cliente ${customerId}`,
-        cpfCnpj: '',
-        ativo: true,
-        dataCadastro: new Date(),
-      },
-    });
-    return novoCliente.idCliente;
-  }
-
-  return cliente.idCliente;
+  return cliente?.idCliente || null;
 }
 
-async function getOrCreateCredorReference(creditorId: any): Promise<number> {
-  if (!creditorId) throw new Error('Creditor ID é obrigatório');
+async function getCredorReference(creditorId: any): Promise<number | null> {
+  if (!creditorId) return null;
 
   const credor = await prisma.credor.findFirst({
     where: { idCredor: creditorId },
     select: { idCredor: true },
   });
 
-  if (!credor) {
-    console.warn(
-      `[Sync] Credor ${creditorId} não encontrado, criando registro básico`
-    );
-    const novoCredor = await prisma.credor.create({
-      data: {
-        idCredor: creditorId,
-        nomeCredor: `Credor ${creditorId}`,
-        cpfCnpj: '',
-        ativo: true,
-      },
-    });
-    return novoCredor.idCredor;
-  }
-
-  return credor.idCredor;
+  return credor?.idCredor || null;
 }
 
-async function getOrCreatePortador(portadorId: any): Promise<number | null> {
+async function getPortadorReference(portadorId: any): Promise<number | null> {
   if (!portadorId) return null;
 
-  const portador = await prisma.portadorRecebimento.upsert({
+  const portador = await prisma.portadorRecebimento.findFirst({
     where: { idPortador: portadorId },
-    update: {},
-    create: {
-      idPortador: portadorId,
-      descricao: `Portador ${portadorId}`,
-      ativo: true,
-    },
     select: { idPortador: true },
   });
 
-  return portador.idPortador;
+  return portador?.idPortador || null;
 }
 
-async function getOrCreatePlanoFinanceiro(
+async function getPlanoFinanceiroReference(
   planoId: any
 ): Promise<number | null> {
   if (!planoId) return null;
 
-  const plano = await prisma.planoFinanceiro.upsert({
+  const plano = await prisma.planoFinanceiro.findFirst({
     where: { idPlanoFinanceiro: planoId },
-    update: {},
-    create: {
-      idPlanoFinanceiro: planoId,
-      nomePlano: `Plano ${planoId}`,
-    },
     select: { idPlanoFinanceiro: true },
   });
 
-  return plano.idPlanoFinanceiro;
+  return plano?.idPlanoFinanceiro || null;
 }
 
-async function getOrCreateCondicaoPagamento(
+async function getCondicaoPagamentoReference(
   condicaoId: any
 ): Promise<number | null> {
   if (!condicaoId) return null;
 
-  const condicao = await prisma.tipoCondicaoPagamento.upsert({
+  const condicao = await prisma.tipoCondicaoPagamento.findFirst({
     where: { idTipoCondPag: condicaoId },
-    update: {},
-    create: {
-      idTipoCondPag: condicaoId,
-      descricao: `Condição ${condicaoId}`,
-    },
     select: { idTipoCondPag: true },
   });
 
-  return condicao.idTipoCondPag;
+  return condicao?.idTipoCondPag || null;
 }
 
 // Método para salvar dados de entidades no banco
@@ -305,16 +206,8 @@ async function saveCustomers(
       // Log de exemplo para debug (apenas em desenvolvimento)
       logSampleProcessedData(customer, cleanCustomer);
 
-      // Buscar/criar apenas o tipo de cliente (necessário para relacionamento)
-      const idTipoCliente = await getOrCreateTipoCliente(
-        cleanCustomer.tipoPessoa === 'Física'
-          ? 'Pessoa Física'
-          : 'Pessoa Jurídica'
-      );
-
       // Mapear dados da API para schema do banco
       const customerData = {
-        idTipoCliente,
         nomeCompleto: cleanCustomer.nomeCompleto || '',
         cpfCnpj: cleanCustomer.cpfCnpj || '',
         email: cleanCustomer.email || null,
@@ -662,12 +555,17 @@ async function saveReceivables(
           receivable.paymentCategoryId || receivable.financialPlanId,
       };
 
-      // Buscar/criar relacionamentos necessários
-      const idCliente = await getOrCreateCustomerReference(
-        cleanReceivable.idCliente
-      );
-      const idPortador = await getOrCreatePortador(cleanReceivable.idPortador);
-      const idPlanoFinanceiro = await getOrCreatePlanoFinanceiro(
+      // Buscar relacionamentos necessários - pular se não existirem
+      const idCliente = await getCustomerReference(cleanReceivable.idCliente);
+      if (!idCliente) {
+        console.warn(
+          `[Sync] Cliente ${cleanReceivable.idCliente} não encontrado, pulando título receber ${cleanReceivable.numeroDocumento}`
+        );
+        continue;
+      }
+
+      const idPortador = await getPortadorReference(cleanReceivable.idPortador);
+      const idPlanoFinanceiro = await getPlanoFinanceiroReference(
         cleanReceivable.idPlanoFinanceiro
       );
 
@@ -767,9 +665,16 @@ async function savePayables(
         idContratoSuprimento: payable.contractId || null,
       };
 
-      // Buscar/criar relacionamentos necessários
-      const idCredor = await getOrCreateCredorReference(cleanPayable.idCredor);
-      const idPlanoFinanceiro = await getOrCreatePlanoFinanceiro(
+      // Buscar relacionamentos necessários - pular se não existirem
+      const idCredor = await getCredorReference(cleanPayable.idCredor);
+      if (!idCredor) {
+        console.warn(
+          `[Sync] Credor ${cleanPayable.idCredor} não encontrado, pulando título pagar ${cleanPayable.numeroDocumento}`
+        );
+        continue;
+      }
+
+      const idPlanoFinanceiro = await getPlanoFinanceiroReference(
         cleanPayable.idPlanoFinanceiro
       );
 
@@ -862,14 +767,19 @@ async function saveSalesContracts(
         statusContrato: contract.status || 'ATIVO',
       };
 
-      // Buscar/criar relacionamentos necessários
-      const idCliente = await getOrCreateCustomerReference(
-        cleanContract.idCliente
-      );
-      const idPlanoFinanceiro = await getOrCreatePlanoFinanceiro(
+      // Buscar relacionamentos necessários - pular se não existirem
+      const idCliente = await getCustomerReference(cleanContract.idCliente);
+      if (!idCliente) {
+        console.warn(
+          `[Sync] Cliente ${cleanContract.idCliente} não encontrado, pulando contrato ${cleanContract.numeroContrato}`
+        );
+        continue;
+      }
+
+      const idPlanoFinanceiro = await getPlanoFinanceiroReference(
         cleanContract.idPlanoFinanceiro
       );
-      const idCondicaoPagamento = await getOrCreateCondicaoPagamento(
+      const idCondicaoPagamento = await getCondicaoPagamentoReference(
         cleanContract.idCondicaoPagamento
       );
 
