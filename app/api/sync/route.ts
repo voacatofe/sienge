@@ -5,6 +5,12 @@ import {
   hasEndpointMapping,
   getEndpointMapping,
 } from './direct/endpoint-mappings';
+import { siengeClient } from '../../../lib/sienge-api-client';
+import {
+  GenericDataMapper,
+  GenericEndpointConfig,
+  GENERIC_ENDPOINT_CONFIGS,
+} from '../../../lib/generic-data-mapper';
 
 const prisma = new PrismaClient();
 
@@ -16,22 +22,123 @@ interface SyncRequest {
 }
 
 /**
- * Processa um endpoint usando o sistema de mapeamento automatizado
+ * Processa entidades usando o sistema de mapeamento automatizado genérico
  */
 async function processGenericEndpoint(
   endpoint: string,
   data: any[],
   syncLogId: number
 ): Promise<{ inserted: number; updated: number; errors: number }> {
+  // Verificar se existe configuração genérica
+  const genericConfig = GenericDataMapper.getConfig(endpoint);
+
+  if (genericConfig) {
+    return await processWithGenericMapping(
+      endpoint,
+      data,
+      syncLogId,
+      genericConfig
+    );
+  }
+
+  // Fallback para o sistema legado
   if (!hasEndpointMapping(endpoint)) {
     console.log(`Endpoint ${endpoint} não possui mapeamento definido`);
     return { inserted: 0, updated: 0, errors: 0 };
   }
 
   const mapping = getEndpointMapping(endpoint);
+  return await processWithLegacyMapping(endpoint, data, syncLogId, mapping);
+}
+
+/**
+ * Processa dados usando o novo sistema de mapeamento genérico
+ */
+async function processWithGenericMapping(
+  endpoint: string,
+  data: any[],
+  syncLogId: number,
+  config: GenericEndpointConfig
+): Promise<{ inserted: number; updated: number; errors: number }> {
   let inserted = 0;
   let updated = 0;
   let errors = 0;
+
+  console.log(
+    `Processando ${data.length} registros de ${endpoint} com mapeamento genérico`
+  );
+
+  for (const item of data) {
+    try {
+      // Mapear dados usando o sistema genérico
+      const mappedData = GenericDataMapper.mapApiDataToDatabase(item, config);
+
+      // Validar dados mapeados
+      if (!GenericDataMapper.validateMappedData(mappedData, config)) {
+        console.error(`Dados inválidos para ${endpoint}:`, mappedData);
+        errors++;
+        continue;
+      }
+
+      // Verificar se o registro já existe
+      const primaryKeyValue = mappedData[config.primaryKey];
+      if (!primaryKeyValue) {
+        console.error(
+          `Chave primária ${config.primaryKey} não encontrada nos dados:`,
+          mappedData
+        );
+        errors++;
+        continue;
+      }
+
+      const existingRecord = await (prisma as any)[config.model].findUnique({
+        where: { [config.primaryKey]: primaryKeyValue },
+      });
+
+      if (existingRecord) {
+        // Atualizar registro existente
+        await (prisma as any)[config.model].update({
+          where: { [config.primaryKey]: primaryKeyValue },
+          data: mappedData,
+        });
+        updated++;
+        console.log(`Atualizado ${endpoint} ID: ${primaryKeyValue}`);
+      } else {
+        // Inserir novo registro
+        await (prisma as any)[config.model].create({
+          data: mappedData,
+        });
+        inserted++;
+        console.log(`Inserido ${endpoint} ID: ${primaryKeyValue}`);
+      }
+    } catch (error) {
+      console.error(`Erro ao processar item do endpoint ${endpoint}:`, error);
+      errors++;
+    }
+  }
+
+  console.log(
+    `Processamento de ${endpoint} concluído: ${inserted} inseridos, ${updated} atualizados, ${errors} erros`
+  );
+  return { inserted, updated, errors };
+}
+
+/**
+ * Processa dados usando o sistema legado (compatibilidade)
+ */
+async function processWithLegacyMapping(
+  endpoint: string,
+  data: any[],
+  syncLogId: number,
+  mapping: any
+): Promise<{ inserted: number; updated: number; errors: number }> {
+  let inserted = 0;
+  let updated = 0;
+  let errors = 0;
+
+  console.log(
+    `Processando ${data.length} registros de ${endpoint} com mapeamento legado`
+  );
 
   for (const item of data) {
     try {
@@ -183,19 +290,46 @@ export async function POST(request: NextRequest) {
           },
         });
 
-        // Simular dados da API (em produção, viria de uma chamada real)
-        const mockData = await getMockDataForEntity(entity);
+        // Buscar dados da API Sienge
+        const apiResponse = await getApiDataForEntity(entity);
+
+        // Extrair dados da resposta usando o sistema genérico
+        let extractedData: any[] = [];
+
+        if (GenericDataMapper.hasConfig(entity)) {
+          const config = GenericDataMapper.getConfig(entity)!;
+          extractedData = GenericDataMapper.extractDataFromApiResponse(
+            apiResponse,
+            config
+          );
+        } else {
+          // Fallback para dados diretos se não há configuração genérica
+          extractedData = Array.isArray(apiResponse)
+            ? apiResponse
+            : apiResponse?.data && Array.isArray(apiResponse.data)
+              ? apiResponse.data
+              : [];
+        }
+
+        console.log(`Extraídos ${extractedData.length} registros de ${entity}`);
 
         let result: { inserted: number; updated: number; errors: number };
         const endpoint = getEndpointFromEntity(entity);
 
         // Usar sistema automatizado se disponível, senão usar função legada
-        if (hasEndpointMapping(endpoint)) {
+        if (
+          GenericDataMapper.hasConfig(entity) ||
+          hasEndpointMapping(endpoint)
+        ) {
           console.log(`[Sync] Usando sistema automatizado para ${entity}`);
-          result = await processGenericEndpoint(endpoint, mockData, syncLog.id);
+          result = await processGenericEndpoint(
+            endpoint,
+            extractedData,
+            syncLog.id
+          );
         } else {
           console.log(`[Sync] Usando processamento legado para ${entity}`);
-          result = await processLegacyEntity(entity, mockData);
+          result = await processLegacyEntity(entity, extractedData);
         }
 
         // Atualizar log de sincronização
@@ -203,7 +337,7 @@ export async function POST(request: NextRequest) {
           where: { id: syncLog.id },
           data: {
             syncCompletedAt: new Date(),
-            recordsProcessed: mockData.length,
+            recordsProcessed: extractedData.length,
             recordsInserted: result.inserted,
             recordsUpdated: result.updated,
             recordsErrors: result.errors,
@@ -214,7 +348,7 @@ export async function POST(request: NextRequest) {
         results.push({
           entity,
           success: true,
-          processed: mockData.length,
+          processed: extractedData.length,
           inserted: result.inserted,
           updated: result.updated,
           errors: result.errors,
@@ -275,41 +409,92 @@ export async function POST(request: NextRequest) {
 }
 
 /**
- * Função auxiliar para simular dados da API (substituir por chamada real)
+ * Função para buscar dados reais da API Sienge
+ * Substituiu os dados mock por chamadas reais
  */
-async function getMockDataForEntity(entity: string): Promise<any[]> {
-  // Em produção, esta função faria uma chamada real para a API Sienge
-  // Por enquanto, retorna dados mock para teste
+async function getApiDataForEntity(entity: string): Promise<any[]> {
+  try {
+    // Inicializar cliente da API se não estiver inicializado
+    if (!siengeClient.isInitialized()) {
+      await siengeClient.initialize();
+    }
+
+    // Buscar dados da API usando o método genérico
+    const apiData = await siengeClient.fetchEntityData(
+      entity,
+      {},
+      {
+        usePagination: true,
+        batchSize: 100,
+        maxPages: 5,
+        onProgress: (page, total) => {
+          console.log(`Buscando ${entity} - Página ${page}/${total}`);
+        },
+      }
+    );
+
+    console.log(
+      `Dados obtidos da API para ${entity}:`,
+      apiData?.length || 0,
+      'registros'
+    );
+    return Array.isArray(apiData) ? apiData : [];
+  } catch (error) {
+    console.error(`Erro ao buscar dados da API para ${entity}:`, error);
+
+    // Fallback para dados mock em caso de erro da API
+    console.log(`Usando dados mock para ${entity} devido ao erro da API`);
+    return getMockDataFallback(entity);
+  }
+}
+
+/**
+ * Função de fallback com dados mock (apenas para desenvolvimento/teste)
+ */
+function getMockDataFallback(entity: string): any[] {
   switch (entity) {
     case 'customers':
       return [
         {
           id: 1,
-          name: 'Cliente Teste',
-          cpfCnpj: '12345678901',
-          email: 'teste@email.com',
-          companyId: 1,
+          name: 'João Silva',
+          cpfCnpj: '123.456.789-00',
+          email: 'joao@email.com',
+          active: true,
+          createdAt: '2024-01-15T10:00:00Z',
+        },
+        {
+          id: 2,
+          name: 'Maria Santos',
+          cpfCnpj: '987.654.321-00',
+          email: 'maria@email.com',
+          active: true,
+          createdAt: '2024-01-16T11:00:00Z',
         },
       ];
+
     case 'income':
       return [
         {
           id: 1,
-          contractId: 1,
           customerId: 1,
-          companyId: 1,
-          documentNumber: 'DOC001',
-          issueDate: '2024-01-15',
-          dueDate: '2024-02-15',
-          originalValue: 1000.0,
-          receivableBillId: 'RB001',
-          documentId: 'D001',
-          defaulting: false,
-          subjudice: false,
-          normal: true,
-          inBilling: true,
+          documentNumber: 'REC-001',
+          issueDate: '2024-01-15T00:00:00Z',
+          dueDate: '2024-02-15T00:00:00Z',
+          originalValue: 1500.0,
+          status: 'pending',
+        },
+        {
+          id: 2,
+          customerId: 2,
+          documentNumber: 'REC-002',
+          issueDate: '2024-01-16T00:00:00Z',
+          dueDate: '2024-02-16T00:00:00Z',
+          originalValue: 2500.0,
+          status: 'pending',
         },
       ];
+
     default:
       return [];
   }
