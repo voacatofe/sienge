@@ -161,7 +161,9 @@ async function saveCustomers(
 
   // Processar apenas o primeiro cliente para debug
   const testCustomers = customers.slice(0, 1);
-  console.log(`[Sync] Processando apenas ${testCustomers.length} cliente(s) para debug`);
+  console.log(
+    `[Sync] Processando apenas ${testCustomers.length} cliente(s) para debug`
+  );
 
   for (const customer of testCustomers) {
     try {
@@ -256,8 +258,6 @@ async function saveCustomers(
         where: { idCliente: cleanCustomer.idCliente },
       });
 
-
-      
       const savedCustomer = await prisma.cliente.upsert({
         where: { idCliente: cleanCustomer.idCliente },
         update: customerData,
@@ -320,7 +320,10 @@ async function saveCustomers(
         `[Sync] Erro ao salvar cliente ${customer.name || customer.id}:`,
         error instanceof Error ? error.message : error
       );
-      console.error(`[Sync] Stack trace:`, error instanceof Error ? error.stack : 'No stack trace');
+      console.error(
+        `[Sync] Stack trace:`,
+        error instanceof Error ? error.stack : 'No stack trace'
+      );
       // Continue com o próximo cliente em caso de erro
     }
   }
@@ -433,7 +436,9 @@ async function saveCustomerSpouse(
 ): Promise<void> {
   // Como não temos a tabela clienteConjuge no schema atual,
   // vamos apenas logar que os dados foram recebidos
-  console.log(`[Sync] Dados de cônjuge recebidos para cliente ${idCliente}, mas não salvos (tabela não existe no schema)`);
+  console.log(
+    `[Sync] Dados de cônjuge recebidos para cliente ${idCliente}, mas não salvos (tabela não existe no schema)`
+  );
 }
 
 // Função para salvar procuradores do cliente
@@ -443,7 +448,9 @@ async function saveCustomerProcurators(
 ): Promise<void> {
   // Como não temos a tabela clienteProcurador no schema atual,
   // vamos apenas logar que os dados foram recebidos
-  console.log(`[Sync] Dados de procuradores recebidos para cliente ${idCliente}, mas não salvos (tabela não existe no schema)`);
+  console.log(
+    `[Sync] Dados de procuradores recebidos para cliente ${idCliente}, mas não salvos (tabela não existe no schema)`
+  );
 }
 
 // Função para salvar subtipos do cliente
@@ -453,7 +460,9 @@ async function saveCustomerSubtypes(
 ): Promise<void> {
   // Como não temos a tabela clienteSubtipo no schema atual,
   // vamos apenas logar que os dados foram recebidos
-  console.log(`[Sync] Dados de subtipos recebidos para cliente ${idCliente}, mas não salvos (tabela não existe no schema)`);
+  console.log(
+    `[Sync] Dados de subtipos recebidos para cliente ${idCliente}, mas não salvos (tabela não existe no schema)`
+  );
 }
 
 // Função para salvar anexos do cliente
@@ -463,7 +472,9 @@ async function saveCustomerAttachments(
 ): Promise<void> {
   // Como não temos a tabela clienteAnexo no schema atual,
   // vamos apenas logar que os dados foram recebidos
-  console.log(`[Sync] Dados de anexos recebidos para cliente ${idCliente}, mas não salvos (tabela não existe no schema)`);
+  console.log(
+    `[Sync] Dados de anexos recebidos para cliente ${idCliente}, mas não salvos (tabela não existe no schema)`
+  );
 }
 
 async function saveCompanies(
@@ -874,7 +885,9 @@ async function saveSalesCommissions(
 ): Promise<{ inserted: number; updated: number; errors: number }> {
   // Como não temos a tabela comissaoVenda no schema atual,
   // vamos apenas logar que os dados foram recebidos
-  console.log(`[Sync] Dados de ${commissions.length} comissões de venda recebidos, mas não salvos (tabela não existe no schema)`);
+  console.log(
+    `[Sync] Dados de ${commissions.length} comissões de venda recebidos, mas não salvos (tabela não existe no schema)`
+  );
   return { inserted: 0, updated: 0, errors: 0 };
 }
 
@@ -1129,8 +1142,35 @@ export async function POST(request: NextRequest) {
     let totalUpdated = 0;
     let totalErrors = 0;
 
-    // Processar cada entidade
-    for (const entity of entities) {
+    // Definir ordem de prioridade para evitar problemas de chave estrangeira
+    const entityPriority = {
+      companies: 1, // Empresas primeiro (referenciadas por clientes)
+      costCenters: 2, // Centros de custo
+      projects: 3, // Projetos
+      customers: 4, // Clientes (dependem de empresas)
+      receivables: 5, // Contas a receber (dependem de clientes)
+      payables: 6, // Contas a pagar
+      salesContracts: 7, // Contratos de venda
+      salesCommissions: 8, // Comissões
+      financialPlans: 9, // Planos financeiros
+      receivableCarriers: 10, // Portadores
+      indexers: 11, // Indexadores
+    };
+
+    // Ordenar entidades por prioridade para garantir ordem correta de inserção
+    const sortedEntities = entities.sort((a, b) => {
+      const priorityA = entityPriority[a as keyof typeof entityPriority] || 999;
+      const priorityB = entityPriority[b as keyof typeof entityPriority] || 999;
+      return priorityA - priorityB;
+    });
+
+    console.log(
+      '[Sync API] Ordem de processamento das entidades:',
+      sortedEntities
+    );
+
+    // Processar cada entidade na ordem correta
+    for (const entity of sortedEntities) {
       try {
         // Mapeamento de entidades para endpoints com fallbacks
         const endpointMap: Record<string, string[]> = {
