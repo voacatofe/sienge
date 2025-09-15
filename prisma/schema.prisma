@@ -70,6 +70,7 @@ model Empresa {
   clientes         Cliente[]
   titulosReceber   TituloReceber[]
   titulosPagar     TituloPagar[]
+  contasReceber    ContasReceber[]
 
   @@index([nomeEmpresa])
   @@index([cnpj])
@@ -134,6 +135,7 @@ model Cliente {
   telefones                ClienteTelefone[]
   enderecos                ClienteEndereco[]
   titulosReceber           TituloReceber[]
+  contasReceber            ContasReceber[]
 
   @@index([nomeCompleto])
   @@index([ativo])
