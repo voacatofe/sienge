@@ -113,37 +113,183 @@ export function SyncGroupsSection({
         if (!group) continue;
 
         try {
-          const response = await fetch('/api/sync', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              entities: group.entities,
-            }),
-          });
+          // Mapear entidades para endpoints da API Sienge
+          const endpointMap: Record<string, string[]> = {
+            customers: ['/customers'],
+            companies: ['/companies'],
+            projects: ['/buildings', '/constructions', '/empreendimentos'],
+            costCenters: ['/cost-centers', '/departments'],
+            receivables: ['/accounts-receivable'],
+            payables: ['/accounts-payable'],
+            'sales-contracts': ['/sales-contracts'],
+            'sales-commissions': ['/commissions'],
+            'financial-plans': ['/payment-categories'],
+            'receivable-carriers': ['/carriers'],
+            indexers: ['/indexers'],
+            creditors: ['/creditors'],
+            'customer-types': ['/customer-types'],
+            'marital-status': ['/marital-status'],
+            professions: ['/professions'],
+          };
 
-          const result = await response.json();
+          // Calcular data de 1 ano atrás para filtros
+          const oneYearAgo = new Date();
+          oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+          const dateFilter = oneYearAgo.toISOString().split('T')[0]; // YYYY-MM-DD
 
-          if (response.ok && result.success) {
+          let totalRecords = 0;
+          const groupResults: any[] = [];
+
+          // Processar cada entidade do grupo
+          for (const entity of group.entities) {
+            const endpoints = endpointMap[entity];
+            if (!endpoints) continue;
+
+            // Parâmetros específicos por entidade com filtro de data
+            const entityParams: Record<string, Record<string, any>> = {
+              customers: {
+                createdAfter: dateFilter,
+                sort: 'createdAt',
+                order: 'asc',
+                limit: 1000,
+              },
+              companies: {
+                limit: 100,
+              },
+              projects: {
+                createdAfter: dateFilter,
+                sort: 'createdAt',
+                order: 'asc',
+                limit: 500,
+              },
+              costCenters: {
+                limit: 100,
+              },
+              receivables: {
+                issueAfter: dateFilter,
+                sort: 'issueDate',
+                order: 'asc',
+                limit: 2000,
+              },
+              payables: {
+                issueAfter: dateFilter,
+                sort: 'issueDate',
+                order: 'asc',
+                limit: 2000,
+              },
+              'sales-contracts': {
+                contractAfter: dateFilter,
+                sort: 'contractDate',
+                order: 'asc',
+                limit: 1000,
+              },
+              'sales-commissions': {
+                createdAfter: dateFilter,
+                sort: 'createdAt',
+                order: 'asc',
+                limit: 500,
+              },
+              'financial-plans': {
+                limit: 100,
+              },
+              'receivable-carriers': {
+                limit: 100,
+              },
+              indexers: {
+                limit: 50,
+              },
+              creditors: {
+                limit: 500,
+              },
+              'customer-types': {
+                limit: 50,
+              },
+              'marital-status': {
+                limit: 50,
+              },
+              professions: {
+                limit: 100,
+              },
+            };
+
+            // Tentar cada endpoint até encontrar um que funcione
+            let entityData: any[] = [];
+            let successfulEndpoint = '';
+
+            for (const endpoint of endpoints) {
+              try {
+                const params = entityParams[entity] || {};
+                const queryParams = new URLSearchParams({
+                  endpoint,
+                  ...Object.entries(params).reduce(
+                    (acc, [key, value]) => {
+                      acc[key] = String(value);
+                      return acc;
+                    },
+                    {} as Record<string, string>
+                  ),
+                });
+
+                const response = await fetch(
+                  `/api/sienge/proxy?${queryParams}`
+                );
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                  entityData = Array.isArray(result.data) ? result.data : [];
+                  successfulEndpoint = endpoint;
+                  break;
+                }
+              } catch (error) {
+                console.warn(
+                  `Falha com endpoint ${endpoint} para ${entity}:`,
+                  error
+                );
+                continue;
+              }
+            }
+
+            if (entityData.length > 0) {
+              totalRecords += entityData.length;
+              groupResults.push({
+                entity,
+                endpoint: successfulEndpoint,
+                count: entityData.length,
+                data: entityData,
+              });
+            }
+          }
+
+          if (totalRecords > 0) {
             setSyncProgress(prev => ({ ...prev, [groupId]: 'completed' }));
             completedGroups.push(groupId);
             setSyncResults(prev => [
               ...prev,
-              { groupId, group: group.name, result },
+              {
+                groupId,
+                group: group.name,
+                result: {
+                  success: true,
+                  totalRecords,
+                  entities: groupResults,
+                },
+              },
             ]);
           } else {
             setSyncProgress(prev => ({ ...prev, [groupId]: 'error' }));
             setErrorMessage(
               prev =>
-                prev +
-                `Erro no grupo ${group.name}: ${result.message || 'Erro desconhecido'}. `
+                prev + `Nenhum dado encontrado para o grupo ${group.name}. `
             );
           }
         } catch (error) {
           setSyncProgress(prev => ({ ...prev, [groupId]: 'error' }));
           setErrorMessage(
-            prev => prev + `Erro de conexão no grupo ${group.name}. `
+            prev =>
+              prev +
+              `Erro no grupo ${group.name}: ${
+                error instanceof Error ? error.message : 'Erro desconhecido'
+              }. `
           );
         }
 
@@ -213,10 +359,11 @@ export function SyncGroupsSection({
         </div>
         <div>
           <h3 className="text-lg font-semibold text-gray-900">
-            Sincronização por Grupos de Entidades
+            Sincronização Direta da API Sienge
           </h3>
           <p className="text-gray-600">
-            Selecione os grupos de dados que deseja sincronizar do Sienge
+            Selecione os grupos de dados que deseja sincronizar diretamente da
+            API Sienge (último ano)
           </p>
         </div>
       </div>
@@ -407,6 +554,13 @@ export function SyncGroupsSection({
                 <p className="text-sm text-green-700 mt-1">
                   {syncResults.length} grupos sincronizados com sucesso
                 </p>
+                <div className="mt-2 text-xs text-green-600">
+                  {syncResults.map((result, index) => (
+                    <div key={index}>
+                      {result.group}: {result.result.totalRecords} registros
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>

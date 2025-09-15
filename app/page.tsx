@@ -26,7 +26,7 @@ export default function Home() {
             Sienge Data Sync
           </h1>
           <p className="text-lg text-gray-600">
-            Sincronização simplificada de dados da API Sienge para Power BI
+            Sincronização direta de dados da API Sienge para análise no Power BI
           </p>
         </header>
 
