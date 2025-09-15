@@ -10,6 +10,7 @@ export const REQUIRED_PARAMS: Record<string, string[]> = {
 
   // Endpoints de vendas (bulk data)
   '/sales': ['enterpriseId', 'createdAfter', 'createdBefore', 'situation'],
+  '/sales-contracts': [], // Endpoint opcional - não requer parâmetros obrigatórios
 
   // Endpoints de medições e anexos (bulk data)
   '/supply-contracts/measurements/attachments/all': [
@@ -58,6 +59,12 @@ export function validateDateParams(params: Record<string, any>): {
     'measurementEndDate',
     'startDueDate',
     'endDueDate',
+    'initialIssueDate',
+    'finalIssueDate',
+    'initialCancelDate',
+    'finalCancelDate',
+    'modifiedAfter',
+    'modifiedBefore',
   ];
 
   for (const param of dateParams) {
