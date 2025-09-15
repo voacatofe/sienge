@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { siengeApiClient } from '@/lib/sienge-api-client';
-import { validateSiengeParams } from '@/lib/validators/sienge-params';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -11,6 +9,12 @@ export const runtime = 'nodejs';
  */
 export async function GET(request: NextRequest) {
   try {
+    // Importar dependências apenas quando necessário
+    const { siengeApiClient } = await import('@/lib/sienge-api-client');
+    const { validateSiengeParams } = await import(
+      '@/lib/validators/sienge-params'
+    );
+
     const { searchParams } = new URL(request.url);
 
     // O endpoint é passado como parâmetro
@@ -88,6 +92,9 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    // Importar dependências apenas quando necessário
+    const { siengeApiClient } = await import('@/lib/sienge-api-client');
+
     const body = await request.json();
     const { endpoint, data, params } = body;
 

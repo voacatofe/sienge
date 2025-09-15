@@ -1,7 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { siengeApiClient } from '@/lib/sienge-api-client';
-import { getSyncConfig } from '@/lib/config/sienge-api';
-import { SiengeEndpoint } from '@/lib/types/sienge-api';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -1138,8 +1135,10 @@ async function saveIndexers(
 
 export async function POST(request: NextRequest) {
   try {
-    // Importar Prisma apenas quando necessário
+    // Importar dependências apenas quando necessário
     const { prisma } = await import('@/lib/prisma');
+    const { siengeApiClient } = await import('@/lib/sienge-api-client');
+    const { getSyncConfig } = await import('@/lib/config/sienge-api');
 
     const body: SyncRequest = await request.json();
     const { entities = [] } = body;
@@ -1324,7 +1323,7 @@ export async function POST(request: NextRequest) {
             console.log(`[Sync API] Parâmetros para ${entity}:`, requestParams);
 
             // Obter configuração do endpoint para determinar método HTTP preferido
-            const syncConfig = getSyncConfig(endpoint as SiengeEndpoint);
+            const syncConfig = getSyncConfig(endpoint as any);
             const preferredMethod = syncConfig?.httpMethod || 'GET';
 
             data = await siengeApiClient.fetchPaginatedData(

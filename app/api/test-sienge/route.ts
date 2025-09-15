@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { siengeApiClient } from '@/lib/sienge-api-client';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
 export async function GET(request: NextRequest) {
   try {
+    // Importar dependências apenas quando necessário
+    const { siengeApiClient } = await import('@/lib/sienge-api-client');
+
     // Inicializar cliente da API
     await siengeApiClient.initialize();
 
