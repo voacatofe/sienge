@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 
 interface PowerBILinksProps {
-  completedGroups: string[];
+  syncResults: any[];
 }
 
 interface DataSource {
@@ -15,7 +15,7 @@ interface DataSource {
   color: string;
 }
 
-export function PowerBILinksSection({ completedGroups }: PowerBILinksProps) {
+export function PowerBILinksSection({ syncResults }: PowerBILinksProps) {
   const [baseUrl, setBaseUrl] = useState('');
 
   useEffect(() => {
@@ -28,100 +28,161 @@ export function PowerBILinksSection({ completedGroups }: PowerBILinksProps) {
   const getDataSources = (): DataSource[] => {
     const sources: DataSource[] = [];
 
-    if (completedGroups.includes('financial')) {
-      sources.push(
-        {
-          group: 'financial',
-          name: 'Títulos a Receber',
-          table: 'titulo_receber',
-          description: 'Dados completos de títulos a receber',
-          icon: '📈',
-          color: 'green',
-        },
-        {
-          group: 'financial',
-          name: 'Títulos a Pagar',
-          table: 'titulo_pagar',
-          description: 'Dados completos de títulos a pagar',
-          icon: '📉',
-          color: 'green',
-        },
-        {
-          group: 'financial',
-          name: 'Contratos de Venda',
-          table: 'contrato_venda',
-          description: 'Contratos de venda e comissões',
-          icon: '📋',
-          color: 'green',
-        },
-        {
-          group: 'financial',
-          name: 'Comissões',
-          table: 'comissao_venda',
-          description: 'Comissões de vendas',
-          icon: '💰',
-          color: 'green',
-        }
-      );
-    }
+    // Mapear resultados da sincronização para fontes de dados
+    const endpointMapping: Record<
+      string,
+      {
+        name: string;
+        table: string;
+        description: string;
+        icon: string;
+        color: string;
+      }
+    > = {
+      Clientes: {
+        name: 'Clientes',
+        table: 'customers',
+        description: 'Base completa de clientes',
+        icon: '👤',
+        color: 'blue',
+      },
+      Empresas: {
+        name: 'Empresas',
+        table: 'companies',
+        description: 'Dados das empresas',
+        icon: '🏢',
+        color: 'blue',
+      },
+      Empreendimentos: {
+        name: 'Empreendimentos',
+        table: 'enterprises',
+        description: 'Dados dos empreendimentos',
+        icon: '🏗️',
+        color: 'blue',
+      },
+      Unidades: {
+        name: 'Unidades',
+        table: 'units',
+        description: 'Unidades imobiliárias',
+        icon: '🏠',
+        color: 'blue',
+      },
+      'Características de Unidade': {
+        name: 'Características de Unidade',
+        table: 'units_characteristics',
+        description: 'Características das unidades',
+        icon: '📋',
+        color: 'blue',
+      },
+      'Situações de Unidade': {
+        name: 'Situações de Unidade',
+        table: 'units_situations',
+        description: 'Situações das unidades',
+        icon: '📊',
+        color: 'blue',
+      },
+      Receitas: {
+        name: 'Receitas',
+        table: 'income',
+        description: 'Dados de receitas por período',
+        icon: '💰',
+        color: 'green',
+      },
+      'Movimentos Bancários': {
+        name: 'Movimentos Bancários',
+        table: 'bank_movement',
+        description: 'Movimentos financeiros',
+        icon: '🏦',
+        color: 'green',
+      },
+      'Extrato de Cliente': {
+        name: 'Extrato de Cliente',
+        table: 'customer_extract_history',
+        description: 'Extrato de clientes',
+        icon: '📈',
+        color: 'green',
+      },
+      'Extrato de Contas': {
+        name: 'Extrato de Contas',
+        table: 'accounts_statements',
+        description: 'Extrato de contas',
+        icon: '📉',
+        color: 'green',
+      },
+      'Contratos de Venda': {
+        name: 'Contratos de Venda',
+        table: 'sales_contracts',
+        description: 'Contratos de venda',
+        icon: '📋',
+        color: 'purple',
+      },
+      Vendas: {
+        name: 'Vendas',
+        table: 'sales',
+        description: 'Dados de vendas',
+        icon: '📊',
+        color: 'purple',
+      },
+      'Medições de Contratos': {
+        name: 'Medições de Contratos',
+        table: 'supply_contracts_measurements',
+        description: 'Medições de contratos',
+        icon: '📏',
+        color: 'orange',
+      },
+      'Anexos de Medição': {
+        name: 'Anexos de Medição',
+        table: 'supply_contracts_measurements_attachments',
+        description: 'Anexos de medição',
+        icon: '📎',
+        color: 'orange',
+      },
+      'Tipos de Ocorrência': {
+        name: 'Tipos de Ocorrência',
+        table: 'construction_daily_report_event_type',
+        description: 'Tipos de ocorrência',
+        icon: '⚠️',
+        color: 'orange',
+      },
+      'Tipos de Diário de Obra': {
+        name: 'Tipos de Diário de Obra',
+        table: 'construction_daily_report_types',
+        description: 'Tipos de diário de obra',
+        icon: '📝',
+        color: 'orange',
+      },
+      Webhooks: {
+        name: 'Webhooks',
+        table: 'hooks',
+        description: 'Configurações de webhooks',
+        icon: '🔗',
+        color: 'gray',
+      },
+      Patrimônio: {
+        name: 'Patrimônio',
+        table: 'patrimony_fixed',
+        description: 'Bens patrimoniais',
+        icon: '🏛️',
+        color: 'gray',
+      },
+    };
 
-    if (completedGroups.includes('customers')) {
-      sources.push(
-        {
-          group: 'customers',
-          name: 'Clientes',
-          table: 'cliente',
-          description: 'Base completa de clientes',
-          icon: '👤',
-          color: 'blue',
-        },
-        {
-          group: 'customers',
-          name: 'Credores',
-          table: 'credor',
-          description: 'Base de credores e fornecedores',
-          icon: '🏪',
-          color: 'blue',
-        },
-        {
-          group: 'customers',
-          name: 'Cônjuges',
-          table: 'conjuge',
-          description: 'Dados de cônjuges',
-          icon: '👥',
-          color: 'blue',
+    // Criar fontes de dados baseadas nos resultados da sincronização
+    syncResults.forEach(result => {
+      if (result.success && result.count > 0) {
+        const mapping = endpointMapping[result.endpoint];
+        if (mapping) {
+          sources.push({
+            group: mapping.color,
+            name: mapping.name,
+            table: mapping.table,
+            description: `${mapping.description} (${result.count} registros)`,
+            icon: mapping.icon,
+            color: mapping.color,
+          });
         }
-      );
-    }
-
-    if (completedGroups.includes('registries')) {
-      sources.push(
-        {
-          group: 'registries',
-          name: 'Empresas',
-          table: 'empresa',
-          description: 'Dados das empresas',
-          icon: '🏢',
-          color: 'purple',
-        },
-        {
-          group: 'registries',
-          name: 'Empreendimentos',
-          table: 'empreendimento',
-          description: 'Dados dos empreendimentos',
-          icon: '🏗️',
-          color: 'purple',
-        },
-        {
-          group: 'registries',
-          name: 'Unidades',
-          table: 'unidade_imobiliaria',
-          description: 'Unidades imobiliárias',
-          icon: '🏠',
-          color: 'purple',
-        }
-      );
-    }
+      }
+    });
 
     return sources;
   };
@@ -173,7 +234,7 @@ ${dataSources.map(source => `• ${source.name}: ${source.table}`).join('\n')}
     `;
   };
 
-  if (completedGroups.length === 0) {
+  if (syncResults.length === 0) {
     return null;
   }
 

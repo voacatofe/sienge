@@ -1,14 +1,21 @@
 'use client';
 
 import { useState } from 'react';
-import { SyncGroupsSection } from './components/SyncGroupsSection';
+import { ConfigurationSection } from './components/ConfigurationSection';
 import { PowerBILinksSection } from './components/PowerBILinksSection';
 
 export default function Home() {
-  const [completedGroups, setCompletedGroups] = useState<string[]>([]);
+  const [isConfigured, setIsConfigured] = useState(false);
+  const [syncCompleted, setSyncCompleted] = useState(false);
+  const [syncResults, setSyncResults] = useState<any[]>([]);
 
-  const handleSyncCompleted = (groups: string[]) => {
-    setCompletedGroups(groups);
+  const handleConfigurationChange = (configured: boolean) => {
+    setIsConfigured(configured);
+  };
+
+  const handleSyncCompleted = (results: any[]) => {
+    setSyncCompleted(true);
+    setSyncResults(results);
   };
 
   return (
@@ -20,20 +27,19 @@ export default function Home() {
             Sienge Data Sync
           </h1>
           <p className="text-lg text-gray-600">
-            Sincronização direta de dados da API Sienge para análise no Power BI
+            Sincronização automática de dados da API Sienge para análise no
+            Power BI
           </p>
         </header>
 
-        {/* Sync Groups Section */}
-        <SyncGroupsSection
-          isConfigured={true}
+        {/* Configuration Section */}
+        <ConfigurationSection
+          onConfigurationChange={handleConfigurationChange}
           onSyncCompleted={handleSyncCompleted}
         />
 
         {/* Power BI Links Section */}
-        {completedGroups.length > 0 && (
-          <PowerBILinksSection completedGroups={completedGroups} />
-        )}
+        {syncCompleted && <PowerBILinksSection syncResults={syncResults} />}
 
         {/* Footer */}
         <footer className="text-center mt-8 text-gray-600">

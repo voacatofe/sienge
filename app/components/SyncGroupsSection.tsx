@@ -18,42 +18,61 @@ interface SyncGroupsSectionProps {
 
 const ENTITY_GROUPS: EntityGroup[] = [
   {
-    id: 'financial',
-    name: 'Entidades Financeiras',
-    description: 'Títulos a receber, a pagar, contratos e comissões',
+    id: 'basic-data',
+    name: 'Dados Básicos',
+    description: 'Clientes, empresas, empreendimentos e unidades',
     entities: [
-      'receivables',
-      'payables',
-      'sales-contracts',
-      'sales-commissions',
-      'financial-plans',
-      'indexers',
-      'receivable-carriers',
+      'customers',
+      'companies',
+      'enterprises',
+      'units',
+      'units-characteristics',
+      'units-situations',
+    ],
+    icon: '🏢',
+    color: 'blue',
+  },
+  {
+    id: 'financial-data',
+    name: 'Dados Financeiros',
+    description: 'Receitas, movimentos bancários e extratos por período',
+    entities: [
+      'income',
+      'bank-movement',
+      'customer-extract-history',
+      'accounts-statements',
     ],
     icon: '💰',
     color: 'green',
   },
   {
-    id: 'customers',
-    name: 'Clientes e Credores',
-    description: 'Clientes, credores, tipos e cadastros auxiliares',
-    entities: [
-      'customers',
-      'creditors',
-      'customer-types',
-      'marital-status',
-      'professions',
-    ],
-    icon: '👥',
-    color: 'blue',
+    id: 'sales-data',
+    name: 'Dados de Vendas',
+    description: 'Contratos de venda e vendas por empreendimento',
+    entities: ['sales-contracts', 'sales'],
+    icon: '📊',
+    color: 'purple',
   },
   {
-    id: 'registries',
-    name: 'Cadastros Básicos',
-    description: 'Empresas, departamentos, centros de custo',
-    entities: ['companies', 'departments', 'cost-centers', 'property-types'],
-    icon: '📋',
-    color: 'purple',
+    id: 'construction-data',
+    name: 'Dados de Obra',
+    description: 'Medições, anexos e relatórios de obra',
+    entities: [
+      'supply-contracts-measurements-all',
+      'supply-contracts-measurements-attachments-all',
+      'construction-daily-report-event-type',
+      'construction-daily-report-types',
+    ],
+    icon: '🏗️',
+    color: 'orange',
+  },
+  {
+    id: 'system-data',
+    name: 'Dados do Sistema',
+    description: 'Webhooks, patrimônio e tipos de ocorrência',
+    entities: ['hooks', 'patrimony-fixed'],
+    icon: '⚙️',
+    color: 'gray',
   },
 ];
 
@@ -113,23 +132,34 @@ export function SyncGroupsSection({
         if (!group) continue;
 
         try {
-          // Mapear entidades para endpoints da API Sienge
+          // Mapear entidades para endpoints da API Sienge (apenas os que existem)
           const endpointMap: Record<string, string[]> = {
             customers: ['/customers'],
             companies: ['/companies'],
-            projects: ['/buildings', '/constructions', '/empreendimentos'],
-            costCenters: ['/cost-centers', '/departments'],
-            receivables: ['/accounts-receivable'],
-            payables: ['/accounts-payable'],
+            enterprises: ['/enterprises'],
+            units: ['/units'],
+            'units-characteristics': ['/units/characteristics'],
+            'units-situations': ['/units/situations'],
+            income: ['/income'],
+            'bank-movement': ['/bank-movement'],
+            'customer-extract-history': ['/customer-extract-history'],
+            'accounts-statements': ['/accounts-statements'],
             'sales-contracts': ['/sales-contracts'],
-            'sales-commissions': ['/commissions'],
-            'financial-plans': ['/payment-categories'],
-            'receivable-carriers': ['/carriers'],
-            indexers: ['/indexers'],
-            creditors: ['/creditors'],
-            'customer-types': ['/customer-types'],
-            'marital-status': ['/marital-status'],
-            professions: ['/professions'],
+            sales: ['/sales'],
+            'supply-contracts-measurements-all': [
+              '/supply-contracts/measurements/all',
+            ],
+            'supply-contracts-measurements-attachments-all': [
+              '/supply-contracts/measurements/attachments/all',
+            ],
+            'construction-daily-report-event-type': [
+              '/construction-daily-report/event-type',
+            ],
+            'construction-daily-report-types': [
+              '/construction-daily-report/types',
+            ],
+            hooks: ['/hooks'],
+            'patrimony-fixed': ['/patrimony/fixed'],
           };
 
           // Calcular data de 1 ano atrás para filtros
@@ -148,67 +178,72 @@ export function SyncGroupsSection({
             // Parâmetros específicos por entidade com filtro de data
             const entityParams: Record<string, Record<string, any>> = {
               customers: {
-                createdAfter: dateFilter,
-                sort: 'createdAt',
-                order: 'asc',
                 limit: 1000,
               },
               companies: {
                 limit: 100,
               },
-              projects: {
-                createdAfter: dateFilter,
-                sort: 'createdAt',
-                order: 'asc',
-                limit: 500,
-              },
-              costCenters: {
+              enterprises: {
                 limit: 100,
               },
-              receivables: {
-                issueAfter: dateFilter,
-                sort: 'issueDate',
-                order: 'asc',
-                limit: 2000,
-              },
-              payables: {
-                issueAfter: dateFilter,
-                sort: 'issueDate',
-                order: 'asc',
-                limit: 2000,
-              },
-              'sales-contracts': {
-                contractAfter: dateFilter,
-                sort: 'contractDate',
-                order: 'asc',
+              units: {
                 limit: 1000,
               },
-              'sales-commissions': {
+              'units-characteristics': {
+                limit: 100,
+              },
+              'units-situations': {
+                limit: 100,
+              },
+              income: {
+                startDate: dateFilter,
+                endDate: new Date().toISOString().split('T')[0],
+                selectionType: 'D',
+                limit: 1000,
+              },
+              'bank-movement': {
+                startDate: dateFilter,
+                endDate: new Date().toISOString().split('T')[0],
+                limit: 1000,
+              },
+              'customer-extract-history': {
+                startDueDate: dateFilter,
+                endDueDate: new Date().toISOString().split('T')[0],
+                limit: 1000,
+              },
+              'accounts-statements': {
+                startDate: dateFilter,
+                endDate: new Date().toISOString().split('T')[0],
+                limit: 1000,
+              },
+              'sales-contracts': {
+                limit: 1000,
+              },
+              sales: {
                 createdAfter: dateFilter,
-                sort: 'createdAt',
-                order: 'asc',
-                limit: 500,
+                createdBefore: new Date().toISOString().split('T')[0],
+                situation: 'SOLD',
+                limit: 1000,
               },
-              'financial-plans': {
+              'supply-contracts-measurements-all': {
+                limit: 1000,
+              },
+              'supply-contracts-measurements-attachments-all': {
+                measurementStartDate: dateFilter,
+                measurementEndDate: new Date().toISOString().split('T')[0],
+                limit: 1000,
+              },
+              'construction-daily-report-event-type': {
                 limit: 100,
               },
-              'receivable-carriers': {
+              'construction-daily-report-types': {
                 limit: 100,
               },
-              indexers: {
-                limit: 50,
-              },
-              creditors: {
-                limit: 500,
-              },
-              'customer-types': {
-                limit: 50,
-              },
-              'marital-status': {
-                limit: 50,
-              },
-              professions: {
+              hooks: {
                 limit: 100,
+              },
+              'patrimony-fixed': {
+                limit: 1000,
               },
             };
 
