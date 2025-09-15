@@ -246,6 +246,11 @@ export function ConfigurationSection({
         path: '/accounts-statements',
       },
       {
+        id: 'accounts-receivable',
+        name: 'Contas a Receber',
+        path: '/accounts-receivable',
+      },
+      {
         id: 'sales-contracts',
         name: 'Contratos de Venda',
         path: '/sales-contracts',
@@ -271,8 +276,25 @@ export function ConfigurationSection({
         name: 'Tipos de Diário de Obra',
         path: '/construction-daily-report/types',
       },
+      {
+        id: 'construction-daily-report',
+        name: 'Relatórios Diários de Obra',
+        path: '/construction-daily-report',
+      },
       { id: 'hooks', name: 'Webhooks', path: '/hooks' },
       { id: 'patrimony-fixed', name: 'Patrimônio', path: '/patrimony/fixed' },
+      {
+        id: 'building-cost-estimations',
+        name: 'Orçamentos de Obra',
+        path: '/building-cost-estimations',
+      },
+      {
+        id: 'building-projects-progress-logs',
+        name: 'Logs de Progresso',
+        path: '/building-projects/progress-logs',
+      },
+      { id: 'measurement', name: 'Medições', path: '/measurement' },
+      { id: 'sites', name: 'Obras', path: '/sites' },
     ];
 
     // Primeiro: testar conectividade com cada endpoint
@@ -377,40 +399,21 @@ export function ConfigurationSection({
     const dateFilter = oneYearAgo.toISOString().split('T')[0];
     const today = new Date().toISOString().split('T')[0];
 
-    // Parâmetros específicos por endpoint (sem limit - será controlado pela paginação)
+    // Parâmetros específicos por endpoint
     const endpointParams: Record<string, Record<string, any>> = {
-      customers: {
-        createdAfter: dateFilter,
-        createdBefore: today,
-      },
+      customers: { createdAfter: dateFilter, createdBefore: today },
       companies: {},
       enterprises: {},
       units: {},
       'units-characteristics': {},
       'units-situations': {},
-      income: {
-        startDate: dateFilter,
-        endDate: today,
-        selectionType: 'D',
-      },
+      income: { startDate: dateFilter, endDate: today, selectionType: 'D' },
       'bank-movement': { startDate: dateFilter, endDate: today },
-      'customer-extract-history': {
-        startDueDate: dateFilter,
-        endDueDate: today,
-      },
-      'accounts-statements': {
-        startDate: dateFilter,
-        endDate: today,
-      },
-      'sales-contracts': {
-        createdAfter: dateFilter,
-        createdBefore: today,
-      },
-      sales: {
-        createdAfter: dateFilter,
-        createdBefore: today,
-        situation: 'SOLD',
-      },
+      'customer-extract-history': { startDueDate: dateFilter, endDueDate: today },
+      'accounts-statements': { startDate: dateFilter, endDate: today },
+      'accounts-receivable': { startDate: dateFilter, endDate: today },
+      'sales-contracts': { createdAfter: dateFilter, createdBefore: today },
+      sales: { createdAfter: dateFilter, createdBefore: today, situation: 'SOLD' },
       'supply-contracts-measurements-all': {},
       'supply-contracts-measurements-attachments-all': {
         measurementStartDate: dateFilter,
@@ -418,8 +421,13 @@ export function ConfigurationSection({
       },
       'construction-daily-report-event-type': {},
       'construction-daily-report-types': {},
+      'construction-daily-report': { startDate: dateFilter, endDate: today },
       hooks: {},
       'patrimony-fixed': {},
+      'building-cost-estimations': { startDate: dateFilter, endDate: today },
+      'building-projects-progress-logs': { startDate: dateFilter, endDate: today },
+      measurement: { startDate: dateFilter, endDate: today },
+      sites: {},
     };
 
     const results: any[] = [];
