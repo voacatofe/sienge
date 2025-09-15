@@ -112,6 +112,102 @@ export function ConfigurationSection({
     }
   };
 
+  // Função para buscar TODOS os dados com paginação automática
+  const fetchAllPaginatedData = async (
+    endpointPath: string,
+    baseParams: Record<string, any>,
+    endpointName: string
+  ) => {
+    const allData: any[] = [];
+    let offset = 0;
+    const limit = 200; // Máximo permitido pela API
+    let hasMoreData = true;
+    let totalFetched = 0;
+
+    console.log(`🔄 Iniciando paginação para ${endpointName}...`);
+
+    while (hasMoreData) {
+      try {
+        const paginatedParams = {
+          ...baseParams,
+          limit: limit,
+          offset: offset,
+        };
+
+        const queryParams = new URLSearchParams({
+          endpoint: endpointPath,
+          ...Object.entries(paginatedParams).reduce(
+            (acc, [key, value]) => {
+              acc[key] = String(value);
+              return acc;
+            },
+            {} as Record<string, string>
+          ),
+        });
+
+        console.log(
+          `📄 ${endpointName} - Página ${Math.floor(offset / limit) + 1}: offset=${offset}, limit=${limit}`
+        );
+
+        const response = await fetch(`/api/sienge/proxy?${queryParams}`);
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+          // Extrair dados da estrutura correta da API Sienge
+          let pageData: any[] = [];
+
+          if (result.data && typeof result.data === 'object') {
+            // Se tem propriedade 'items', usar ela
+            if (Array.isArray(result.data.items)) {
+              pageData = result.data.items;
+            }
+            // Se tem propriedade 'data', usar ela
+            else if (Array.isArray(result.data.data)) {
+              pageData = result.data.data;
+            }
+            // Se é um array direto
+            else if (Array.isArray(result.data)) {
+              pageData = result.data;
+            }
+          }
+
+          allData.push(...pageData);
+          totalFetched += pageData.length;
+
+          console.log(
+            `✅ ${endpointName} - Página ${Math.floor(offset / limit) + 1}: ${pageData.length} registros (Total: ${totalFetched})`
+          );
+
+          // Verificar se há mais dados
+          if (pageData.length < limit) {
+            hasMoreData = false; // Última página
+            console.log(
+              `🏁 ${endpointName} - Paginação completa: ${totalFetched} registros totais`
+            );
+          } else {
+            offset += limit; // Próxima página
+          }
+
+          // Aguardar um pouco entre páginas para não sobrecarregar a API
+          await new Promise(resolve => setTimeout(resolve, 300));
+        } else {
+          console.log(
+            `❌ ${endpointName} - Erro na página ${Math.floor(offset / limit) + 1}: ${result.error || 'Erro desconhecido'}`
+          );
+          hasMoreData = false;
+        }
+      } catch (error) {
+        console.log(
+          `❌ ${endpointName} - Erro de conexão na página ${Math.floor(offset / limit) + 1}:`,
+          error
+        );
+        hasMoreData = false;
+      }
+    }
+
+    return allData;
+  };
+
   const syncAllEndpoints = async () => {
     // Lista de todos os endpoints disponíveis
     const endpoints = [
@@ -272,129 +368,71 @@ export function ConfigurationSection({
     const dateFilter = oneYearAgo.toISOString().split('T')[0];
     const today = new Date().toISOString().split('T')[0];
 
-    // Parâmetros específicos por endpoint
+    // Parâmetros específicos por endpoint (sem limit - será controlado pela paginação)
     const endpointParams: Record<string, Record<string, any>> = {
-      customers: { limit: 200 }, // Máximo permitido pela API Sienge
-      companies: { limit: 100 },
-      enterprises: { limit: 100 },
-      units: { limit: 1000 },
-      'units-characteristics': { limit: 100 },
-      'units-situations': { limit: 100 },
+      customers: {}, // Paginação automática vai buscar todos
+      companies: {},
+      enterprises: {},
+      units: {},
+      'units-characteristics': {},
+      'units-situations': {},
       income: {
         startDate: dateFilter,
         endDate: today,
         selectionType: 'D',
-        limit: 1000,
       },
-      'bank-movement': { startDate: dateFilter, endDate: today, limit: 1000 },
+      'bank-movement': { startDate: dateFilter, endDate: today },
       'customer-extract-history': {
         startDueDate: dateFilter,
         endDueDate: today,
-        limit: 1000,
       },
       'accounts-statements': {
         startDate: dateFilter,
         endDate: today,
-        limit: 1000,
       },
-      'sales-contracts': { limit: 1000 },
+      'sales-contracts': {},
       sales: {
         createdAfter: dateFilter,
         createdBefore: today,
         situation: 'SOLD',
-        limit: 1000,
       },
-      'supply-contracts-measurements-all': { limit: 1000 },
+      'supply-contracts-measurements-all': {},
       'supply-contracts-measurements-attachments-all': {
         measurementStartDate: dateFilter,
         measurementEndDate: today,
-        limit: 1000,
       },
-      'construction-daily-report-event-type': { limit: 100 },
-      'construction-daily-report-types': { limit: 100 },
-      hooks: { limit: 100 },
-      'patrimony-fixed': { limit: 1000 },
+      'construction-daily-report-event-type': {},
+      'construction-daily-report-types': {},
+      hooks: {},
+      'patrimony-fixed': {},
     };
 
     const results: any[] = [];
     let successCount = 0;
     let errorCount = 0;
 
-    // Sincronizar apenas os endpoints válidos
+    // Sincronizar apenas os endpoints válidos com paginação automática
     for (const endpoint of validEndpoints) {
       setSyncProgress(prev => ({ ...prev, [endpoint.id]: 'syncing' }));
 
       try {
-        const params = endpointParams[endpoint.id] || { limit: 1000 };
-        const queryParams = new URLSearchParams({
-          endpoint: endpoint.path,
-          ...Object.entries(params).reduce(
-            (acc, [key, value]) => {
-              acc[key] = String(value);
-              return acc;
-            },
-            {} as Record<string, string>
-          ),
+        const params = endpointParams[endpoint.id] || {};
+
+        // Usar paginação automática para buscar TODOS os dados
+        const allData = await fetchAllPaginatedData(
+          endpoint.path,
+          params,
+          endpoint.name
+        );
+
+        setSyncProgress(prev => ({ ...prev, [endpoint.id]: 'completed' }));
+        results.push({
+          endpoint: endpoint.name,
+          path: endpoint.path,
+          count: allData.length,
+          success: true,
         });
-
-        const response = await fetch(`/api/sienge/proxy?${queryParams}`);
-        const result = await response.json();
-
-        console.log(`🔄 Sincronização ${endpoint.name}:`, {
-          success: result.success,
-          dataLength: Array.isArray(result.data)
-            ? result.data.length
-            : 'não é array',
-          dataType: typeof result.data,
-          params: params,
-          statusCode: response.status,
-        });
-
-        if (response.ok && result.success) {
-          // Extrair dados da estrutura correta da API Sienge
-          let actualData = result.data;
-          let dataLength = 0;
-
-          if (result.data && typeof result.data === 'object') {
-            // Se tem propriedade 'items', usar ela
-            if (Array.isArray(result.data.items)) {
-              actualData = result.data.items;
-              dataLength = result.data.items.length;
-            }
-            // Se tem propriedade 'data', usar ela
-            else if (Array.isArray(result.data.data)) {
-              actualData = result.data.data;
-              dataLength = result.data.data.length;
-            }
-            // Se é um array direto
-            else if (Array.isArray(result.data)) {
-              actualData = result.data;
-              dataLength = result.data.length;
-            }
-          }
-
-          setSyncProgress(prev => ({ ...prev, [endpoint.id]: 'completed' }));
-          results.push({
-            endpoint: endpoint.name,
-            path: endpoint.path,
-            count: dataLength,
-            success: true,
-          });
-          successCount++;
-        } else {
-          setSyncProgress(prev => ({ ...prev, [endpoint.id]: 'error' }));
-          results.push({
-            endpoint: endpoint.name,
-            path: endpoint.path,
-            count: 0,
-            success: false,
-            error:
-              result.error ||
-              `HTTP ${response.status}: ${result.message || 'Erro desconhecido'}`,
-            statusCode: response.status,
-          });
-          errorCount++;
-        }
+        successCount++;
       } catch (error) {
         setSyncProgress(prev => ({ ...prev, [endpoint.id]: 'error' }));
         results.push({
@@ -408,7 +446,7 @@ export function ConfigurationSection({
       }
 
       // Aguardar um pouco entre endpoints
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise(resolve => setTimeout(resolve, 1000));
     }
 
     // Adicionar endpoints que falharam no teste de conectividade
