@@ -109,6 +109,8 @@ model Cliente {
   matrimonialRegime        String?  @map("matrimonialRegime")
   motherName               String?  @map("motherName")
 
+  // Campos adicionais da API Sienge
+
   // Campos adicionais da API Sienge (pessoa jurídica)
   cityRegistrationNumber   String?  @map("cityRegistrationNumber")
   cnaeNumber              String?  @map("cnaeNumber")

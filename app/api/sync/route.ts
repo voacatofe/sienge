@@ -159,7 +159,11 @@ async function saveCustomers(
   let updatedCount = 0;
   let errorCount = 0;
 
-  for (const customer of customers) {
+  // Processar apenas o primeiro cliente para debug
+  const testCustomers = customers.slice(0, 1);
+  console.log(`[Sync] Processando apenas ${testCustomers.length} cliente(s) para debug`);
+
+  for (const customer of testCustomers) {
     try {
       // Limpar dados desnecessários de paginação e metadados
       const cleanCustomer = {
@@ -170,7 +174,7 @@ async function saveCustomers(
         email: customer.email,
         rg: customer.numberIdentityCard,
         dataNascimento: customer.birthDate,
-        nacionalidade: customer.nationality,
+
         // Os campos vêm como strings diretas da API Sienge
         estadoCivil: customer.civilStatus, // String direta: "Casado", "Solteiro"
         profissao: customer.profession, // String direta: "Engenheiro", "Advogado"
@@ -194,23 +198,6 @@ async function saveCustomers(
         licenseIssueDate: customer.licenseIssueDate,
         mailingAddress: customer.mailingAddress,
 
-        // Campos adicionais da API Sienge (todos os campos)
-        naturalidade: customer.naturalidade,
-        nomePai: customer.nomePai,
-        nomeMae: customer.nomeMae,
-        numeroIdentidade: customer.numeroIdentidade,
-        dataEmissaoIdentidade: customer.dataEmissaoIdentidade,
-        orgaoEmissor: customer.orgaoEmissor,
-        sexo: customer.sexo,
-        estrangeiro: customer.estrangeiro,
-        idInternacional: customer.idInternacional,
-        regimeMatrimonial: customer.regimeMatrimonial,
-        dataCasamento: customer.dataCasamento,
-        numeroCNH: customer.numeroCNH,
-        orgaoEmissorCNH: customer.orgaoEmissorCNH,
-        dataEmissaoCNH: customer.dataEmissaoCNH,
-        enderecoCorrespondencia: customer.enderecoCorrespondencia,
-        observacoes: customer.observacoes,
         ativo: customer.ativo,
       };
 
@@ -219,6 +206,8 @@ async function saveCustomers(
 
       // Mapear dados da API para schema do banco
       const customerData = {
+        idCliente: customer.id,
+        idEmpresa: null, // Não usar empresa por enquanto até ser configurada
         nomeCompleto: cleanCustomer.nomeCompleto || '',
         cpfCnpj: cleanCustomer.cpfCnpj || '',
         email: cleanCustomer.email || null,
@@ -226,7 +215,7 @@ async function saveCustomers(
         dataNascimento: cleanCustomer.dataNascimento
           ? new Date(cleanCustomer.dataNascimento)
           : null,
-        nacionalidade: cleanCustomer.nacionalidade || null,
+
         // Armazenar as strings diretamente (sem criar tabelas auxiliares)
         profissaoStr: cleanCustomer.profissao || null,
         estadoCivilStr: cleanCustomer.estadoCivil || null,
@@ -260,30 +249,6 @@ async function saveCustomers(
           ? new Date(cleanCustomer.licenseIssueDate)
           : null,
         mailingAddress: cleanCustomer.mailingAddress || null,
-
-        // Campos adicionais da API Sienge (todos os campos)
-        naturalidade: cleanCustomer.naturalidade || null,
-        nomePai: cleanCustomer.nomePai || null,
-        nomeMae: cleanCustomer.nomeMae || null,
-        numeroIdentidade: cleanCustomer.numeroIdentidade || null,
-        dataEmissaoIdentidade: cleanCustomer.dataEmissaoIdentidade
-          ? new Date(cleanCustomer.dataEmissaoIdentidade)
-          : null,
-        orgaoEmissor: cleanCustomer.orgaoEmissor || null,
-        sexo: cleanCustomer.sexo || null,
-        estrangeiro: cleanCustomer.estrangeiro || null,
-        idInternacional: cleanCustomer.idInternacional || null,
-        regimeMatrimonial: cleanCustomer.regimeMatrimonial || null,
-        dataCasamento: cleanCustomer.dataCasamento
-          ? new Date(cleanCustomer.dataCasamento)
-          : null,
-        numeroCNH: cleanCustomer.numeroCNH || null,
-        orgaoEmissorCNH: cleanCustomer.orgaoEmissorCNH || null,
-        dataEmissaoCNH: cleanCustomer.dataEmissaoCNH
-          ? new Date(cleanCustomer.dataEmissaoCNH)
-          : null,
-        enderecoCorrespondencia: cleanCustomer.enderecoCorrespondencia || null,
-        observacoes: cleanCustomer.observacoes || null,
       };
 
       // Verificar se o cliente já existe
@@ -291,13 +256,12 @@ async function saveCustomers(
         where: { idCliente: cleanCustomer.idCliente },
       });
 
+
+      
       const savedCustomer = await prisma.cliente.upsert({
         where: { idCliente: cleanCustomer.idCliente },
         update: customerData,
-        create: {
-          idCliente: cleanCustomer.idCliente,
-          ...customerData,
-        },
+        create: customerData,
       });
 
       // Salvar telefones
@@ -356,6 +320,7 @@ async function saveCustomers(
         `[Sync] Erro ao salvar cliente ${customer.name || customer.id}:`,
         error instanceof Error ? error.message : error
       );
+      console.error(`[Sync] Stack trace:`, error instanceof Error ? error.stack : 'No stack trace');
       // Continue com o próximo cliente em caso de erro
     }
   }

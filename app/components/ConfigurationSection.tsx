@@ -440,6 +440,31 @@ export function ConfigurationSection({
           endpoint.name
         );
 
+        // Salvar os dados no banco de dados através da API /api/sync
+        if (allData.length > 0) {
+          try {
+            const syncResponse = await fetch('/api/sync', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                endpoint: endpoint.id,
+                data: allData
+              })
+            });
+
+            if (!syncResponse.ok) {
+              throw new Error(`Erro ao salvar no banco: ${syncResponse.statusText}`);
+            }
+
+            console.log(`Dados do endpoint ${endpoint.name} salvos no banco com sucesso`);
+          } catch (syncError) {
+            console.error(`Erro ao salvar dados do ${endpoint.name} no banco:`, syncError);
+            throw syncError;
+          }
+        }
+
         setSyncProgress(prev => ({ ...prev, [endpoint.id]: 'completed' }));
         results.push({
           endpoint: endpoint.name,

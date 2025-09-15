@@ -54,8 +54,6 @@ services:
         NODE_ENV: development
         BUILD_TARGET: development
     restart: unless-stopped
-    env_file:
-      - .env.docker
     environment:
       - NODE_ENV=development
       - DATABASE_URL
