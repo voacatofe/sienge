@@ -2,22 +2,17 @@ services:
   # Banco de dados PostgreSQL - Desenvolvimento
   db:
     image: postgres:15-alpine
+    container_name: sienge-dev-db
     restart: unless-stopped
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-sienge_dev}
       POSTGRES_USER: ${POSTGRES_USER:-sienge_dev}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dev_password}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dev_password_123}
       POSTGRES_HOST_AUTH_METHOD: md5
     ports:
       - '${DB_PORT_EXTERNAL:-5433}:5432'
     volumes:
       - postgres-dev-data:/var/lib/postgresql/data
-      - ./postgresql.conf:/etc/postgresql/postgresql.conf
-      - ./pg_hba.conf:/etc/postgresql/pg_hba.conf
-    command: >
-      postgres
-      -c config_file=/etc/postgresql/postgresql.conf
-      -c hba_file=/etc/postgresql/pg_hba.conf
     networks:
       - sienge-dev-network
     healthcheck:
@@ -53,22 +48,25 @@ services:
       args:
         NODE_ENV: development
         BUILD_TARGET: development
+    container_name: sienge-dev-app
     restart: unless-stopped
     environment:
       - NODE_ENV=development
-      - DATABASE_URL
+      - DATABASE_URL=${DATABASE_URL}
       - POSTGRES_HOST=db
       - POSTGRES_PORT=5432
-      - POSTGRES_USER
-      - POSTGRES_PASSWORD
-      - POSTGRES_DB
+      - POSTGRES_USER=${POSTGRES_USER:-sienge_dev}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-dev_password_123}
+      - POSTGRES_DB=${POSTGRES_DB:-sienge_dev}
       - NEXT_PUBLIC_APP_URL=http://localhost:${APP_PORT_EXTERNAL:-3000}
-      - SIENGE_SUBDOMAIN=${SIENGE_SUBDOMAIN:-dev}
+      - SIENGE_SUBDOMAIN=${SIENGE_SUBDOMAIN:-sandbox}
       - SIENGE_USERNAME=${SIENGE_USERNAME:-dev_user}
       - SIENGE_PASSWORD=${SIENGE_PASSWORD:-dev_password}
-      - SYNC_SCHEDULE=${SYNC_SCHEDULE:-*/5 * * * *}
+      - SYNC_SCHEDULE=${SYNC_SCHEDULE:-*/15 * * * *}
       - SYNC_BATCH_SIZE=${SYNC_BATCH_SIZE:-50}
       - SYNC_MAX_RETRIES=${SYNC_MAX_RETRIES:-1}
+      - LOG_LEVEL=${LOG_LEVEL:-debug}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY:-dev-encryption-key-32-characters-!!}
     ports:
       - '${APP_PORT_EXTERNAL:-3000}:3000'
     depends_on:
@@ -77,8 +75,10 @@ services:
     networks:
       - sienge-dev-network
     volumes:
+      - .:/app:cached
+      - /app/node_modules
+      - /app/.next
       - ./logs:/app/logs
-      - /app/node_modules # Excluir node_modules do volume
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://localhost:3000/api/health']
       interval: 15s
@@ -103,7 +103,11 @@ services:
   # Adminer - Interface Web para Administração do Banco de Dados - Desenvolvimento
   adminer:
     image: adminer:latest
+    container_name: sienge-dev-adminer
     restart: unless-stopped
+    environment:
+      ADMINER_DEFAULT_SERVER: db
+      ADMINER_DESIGN: pepa-linha
     ports:
       - '${ADMINER_PORT_EXTERNAL:-8080}:8080'
     networks:

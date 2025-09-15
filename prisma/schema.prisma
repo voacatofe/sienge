@@ -403,7 +403,7 @@ model ContratoVenda {
   dataAtualizacao        DateTime? @map("dataAtualizacao")
 
   // Relacionamentos
-  empreendimento         Empreendimento? @relation(fields: [enterpriseId], references: [id])
+  empreendimento         Empreendimento? @relation(fields: [enterpriseId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   unidades               Unidade[]
 
   @@index([number])

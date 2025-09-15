@@ -5,6 +5,7 @@ import {
   hasEndpointMapping,
   getEndpointMapping,
 } from './endpoint-mappings';
+import { ErrorLogger } from '../../../../lib/error-logger';
 
 const prisma = new PrismaClient();
 
@@ -27,7 +28,8 @@ async function processGenericEndpoint(
   endpoint: string,
   data: any[],
   syncLogId: number,
-  prisma: any
+  prisma: any,
+  errorLogger?: ErrorLogger
 ) {
   const results = { inserted: 0, updated: 0, errors: 0 };
   const mapping = getEndpointMapping(endpoint);
@@ -56,6 +58,20 @@ async function processGenericEndpoint(
         }
       }
 
+      // Tratamento especial para ContratoVenda - verificar se enterpriseId existe
+      if (mapping.model === 'contratoVenda' && mappedData.enterpriseId) {
+        const enterprise = await prisma.empreendimento.findUnique({
+          where: { id: mappedData.enterpriseId }
+        });
+
+        if (!enterprise) {
+          console.warn(
+            `[Sync] Empreendimento ${mappedData.enterpriseId} não encontrado para contrato ${item.id}. Definindo como null.`
+          );
+          mappedData.enterpriseId = null;
+        }
+      }
+
       // Verificar se o registro já existe
       const whereClause = { [mapping.primaryKey]: item.id };
       const existingRecord = await (prisma as any)[mapping.model].findUnique({
@@ -74,6 +90,9 @@ async function processGenericEndpoint(
       }
     } catch (error) {
       console.error(`Erro ao processar ${endpoint} ${item.id}:`, error);
+      if (errorLogger) {
+        errorLogger.logException(endpoint, item.id, error);
+      }
       results.errors++;
     }
   }
@@ -82,6 +101,8 @@ async function processGenericEndpoint(
 }
 
 export async function POST(request: NextRequest) {
+  const errorLogger = new ErrorLogger();
+
   try {
     const body: DirectSyncRequest = await request.json();
     const { endpoint, data } = body;
@@ -113,7 +134,7 @@ export async function POST(request: NextRequest) {
 
     // Processar dados usando o sistema genérico
     if (hasEndpointMapping(endpoint)) {
-      result = await processGenericEndpoint(endpoint, data, syncLog.id, prisma);
+      result = await processGenericEndpoint(endpoint, data, syncLog.id, prisma, errorLogger);
     } else {
       // Para endpoints sem mapeamento definido
       switch (endpoint) {
@@ -163,6 +184,12 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    // Exibir resumo de erros se houver
+    if (errorLogger.hasErrors()) {
+      console.log(errorLogger.formatSummaryForConsole());
+      errorLogger.saveToFile();
+    }
+
     return NextResponse.json({
       success: true,
       message: `Sincronização do endpoint ${endpoint} concluída`,
@@ -173,6 +200,7 @@ export async function POST(request: NextRequest) {
         updated: result.updated,
         errors: result.errors,
       },
+      errorSummary: errorLogger.hasErrors() ? errorLogger.generateSummary() : null,
     });
   } catch (error) {
     console.error('Erro na sincronização direta:', error);

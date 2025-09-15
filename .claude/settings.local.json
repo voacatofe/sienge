@@ -19,7 +19,11 @@
       "Bash(start chrome --remote-debugging-port=9222)",
       "mcp__puppeteer__puppeteer_connect_active_tab",
       "Bash(npx prisma generate:*)",
-      "Bash(npx prisma:*)"
+      "Bash(npx prisma:*)",
+      "Bash(powershell:*)",
+      "Bash(docker exec:*)",
+      "Bash(docker logs:*)",
+      "Bash(docker ps:*)"
     ],
     "deny": []
   },

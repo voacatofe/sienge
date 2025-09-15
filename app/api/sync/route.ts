@@ -11,6 +11,12 @@ import {
   GenericEndpointConfig,
   GENERIC_ENDPOINT_CONFIGS,
 } from '../../../lib/generic-data-mapper';
+import {
+  getSyncOrder,
+  areDependenciesSatisfied,
+  getEntitiesByPhase,
+} from '../../../lib/sync-dependencies';
+import { ErrorLogger } from '../../../lib/error-logger';
 
 const prisma = new PrismaClient();
 
@@ -27,7 +33,8 @@ interface SyncRequest {
 async function processGenericEndpoint(
   endpoint: string,
   data: any[],
-  syncLogId: number
+  syncLogId: number,
+  errorLogger?: ErrorLogger
 ): Promise<{ inserted: number; updated: number; errors: number }> {
   // Verificar se existe configuração genérica
   const genericConfig = GenericDataMapper.getConfig(endpoint);
@@ -37,7 +44,8 @@ async function processGenericEndpoint(
       endpoint,
       data,
       syncLogId,
-      genericConfig
+      genericConfig,
+      errorLogger
     );
   }
 
@@ -48,7 +56,7 @@ async function processGenericEndpoint(
   }
 
   const mapping = getEndpointMapping(endpoint);
-  return await processWithLegacyMapping(endpoint, data, syncLogId, mapping);
+  return await processWithLegacyMapping(endpoint, data, syncLogId, mapping, errorLogger);
 }
 
 /**
@@ -58,7 +66,8 @@ async function processWithGenericMapping(
   endpoint: string,
   data: any[],
   syncLogId: number,
-  config: GenericEndpointConfig
+  config: GenericEndpointConfig,
+  errorLogger?: ErrorLogger
 ): Promise<{ inserted: number; updated: number; errors: number }> {
   let inserted = 0;
   let updated = 0;
@@ -78,6 +87,20 @@ async function processWithGenericMapping(
         console.error(`Dados inválidos para ${endpoint}:`, mappedData);
         errors++;
         continue;
+      }
+
+      // Tratamento especial para ContratoVenda - verificar se enterpriseId existe
+      if (config.model === 'contratoVenda' && mappedData.enterpriseId) {
+        const enterprise = await (prisma as any).empreendimento.findUnique({
+          where: { id: mappedData.enterpriseId }
+        });
+
+        if (!enterprise) {
+          console.warn(
+            `[Sync] Empreendimento ${mappedData.enterpriseId} não encontrado para contrato ${item.id}. Definindo como null.`
+          );
+          mappedData.enterpriseId = null;
+        }
       }
 
       // Verificar se o registro já existe
@@ -113,6 +136,9 @@ async function processWithGenericMapping(
       }
     } catch (error) {
       console.error(`Erro ao processar item do endpoint ${endpoint}:`, error);
+      if (errorLogger) {
+        errorLogger.logException(endpoint, item.id || item.idCliente || item.idEmpresa, error);
+      }
       errors++;
     }
   }
@@ -130,7 +156,8 @@ async function processWithLegacyMapping(
   endpoint: string,
   data: any[],
   syncLogId: number,
-  mapping: any
+  mapping: any,
+  errorLogger?: ErrorLogger
 ): Promise<{ inserted: number; updated: number; errors: number }> {
   let inserted = 0;
   let updated = 0;
@@ -180,6 +207,9 @@ async function processWithLegacyMapping(
       }
     } catch (error) {
       console.error(`Erro ao processar item do endpoint ${endpoint}:`, error);
+      if (errorLogger) {
+        errorLogger.logException(endpoint, item.id, error);
+      }
       errors++;
     }
   }
@@ -261,6 +291,8 @@ function getEndpointFromEntity(entity: string): string {
  * Endpoint principal de sincronização
  */
 export async function POST(request: NextRequest) {
+  const errorLogger = new ErrorLogger();
+
   try {
     const body: SyncRequest = await request.json();
     const { entities } = body;
@@ -272,10 +304,36 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const results: any[] = [];
+    // Ordenar entidades respeitando dependências
+    const orderedEntities = getSyncOrder(entities);
+    console.log('[Sync] Ordem de sincronização definida:', orderedEntities);
 
-    for (const entity of entities) {
+    // Mostrar fases de sincronização
+    const phaseMap = getEntitiesByPhase();
+    console.log('[Sync] Entidades organizadas por fase:');
+    Array.from(phaseMap.entries()).forEach(([phase, phaseEntities]) => {
+      const toSync = phaseEntities.filter(e => orderedEntities.includes(e));
+      if (toSync.length > 0) {
+        console.log(`  Fase ${phase}: ${toSync.join(', ')}`);
+      }
+    });
+
+    const results: any[] = [];
+    const syncedEntities: string[] = [];
+
+    for (const entity of orderedEntities) {
       try {
+        // Verificar se todas as dependências foram satisfeitas
+        if (!areDependenciesSatisfied(entity, syncedEntities)) {
+          console.warn(`[Sync] Pulando ${entity} - dependências não satisfeitas`);
+          results.push({
+            entity,
+            success: false,
+            message: 'Dependências não satisfeitas',
+          });
+          continue;
+        }
+
         console.log(`\n[Sync] Iniciando sincronização da entidade: ${entity}`);
 
         // Criar log de sincronização
@@ -326,7 +384,8 @@ export async function POST(request: NextRequest) {
           result = await processGenericEndpoint(
             endpoint,
             extractedData,
-            syncLog.id
+            syncLog.id,
+            errorLogger
           );
         } else {
           console.log(`[Sync] Usando processamento legado para ${entity}`);
@@ -355,11 +414,15 @@ export async function POST(request: NextRequest) {
           errors: result.errors,
         });
 
+        // Adicionar entidade à lista de sincronizadas
+        syncedEntities.push(entity);
+
         console.log(
           `[Sync] ${entity} concluída: ${result.inserted} inseridos, ${result.updated} atualizados, ${result.errors} erros`
         );
       } catch (error) {
         console.error(`[Sync] Erro ao processar ${entity}:`, error);
+        errorLogger.logException(entity, undefined, error);
         results.push({
           entity,
           success: false,
@@ -385,6 +448,14 @@ export async function POST(request: NextRequest) {
     console.log(`  - Total atualizado: ${totalUpdated}`);
     console.log(`  - Total de erros: ${totalErrors}`);
 
+    // Exibir resumo de erros se houver
+    if (errorLogger.hasErrors()) {
+      console.log(errorLogger.formatSummaryForConsole());
+
+      // Salvar log de erros em arquivo
+      errorLogger.saveToFile();
+    }
+
     return NextResponse.json({
       success: true,
       message: 'Sincronização concluída',
@@ -395,6 +466,7 @@ export async function POST(request: NextRequest) {
         errors: totalErrors,
       },
       results,
+      errorSummary: errorLogger.hasErrors() ? errorLogger.generateSummary() : null,
     });
   } catch (error) {
     console.error('[Sync] Erro geral na sincronização:', error);
