@@ -1,23 +1,70 @@
 // Tipos específicos para entidades da API Sienge
 
+// Tipos específicos para entidades da API Sienge
+
+export interface SiengePhone {
+  type: string;
+  number: string;
+  main: boolean;
+  note?: string;
+  idd: string;
+}
+
+export interface SiengeAddress {
+  type: string;
+  streetName: string;
+  number: string;
+  complement?: string;
+  neighborhood: string;
+  cityId: number;
+  city: string;
+  state: string;
+  zipCode: string;
+  mail: boolean;
+}
+
+export interface SiengeFamilyIncome {
+  kinsName: string;
+  kinship: string;
+  incomeValue: number;
+  observation: string;
+}
+
 export interface SiengeCustomer {
   id: number;
-  nome: string;
-  cpfCnpj?: string;
-  email?: string;
-  telefone?: string;
-  endereco?: {
-    logradouro?: string;
-    numero?: string;
-    complemento?: string;
-    bairro?: string;
-    cidade?: string;
-    uf?: string;
-    cep?: string;
-  };
-  ativo: boolean;
-  dataCadastro: string;
-  dataAtualizacao?: string;
+  personType: string;
+  foreigner: string;
+  internationalId?: string;
+  createdAt: string;
+  modifiedAt: string;
+  issuingBody?: string;
+  clientType?: string;
+  phones: SiengePhone[];
+  addresses: SiengeAddress[];
+  procurators: any[];
+  contacts: any[];
+  subTypes: any[];
+  birthPlace?: string;
+  civilStatus: string;
+  cpf: string;
+  email: string;
+  fatherName?: string;
+  sex: string;
+  matrimonialRegime: string;
+  name: string;
+  nationality: string;
+  numberIdentityCard: string;
+  motherName?: string;
+  profession: string;
+  mailingAddress: string;
+  licenseNumber?: string;
+  licenseIssuingBody?: string;
+  birthDate: string;
+  issueDateIdentityCard?: string;
+  marriageDate?: string;
+  licenseIssueDate?: string;
+  spouse?: any;
+  familyIncome: SiengeFamilyIncome[];
 }
 
 export interface SiengeCostCenter {

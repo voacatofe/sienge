@@ -1,6 +1,5 @@
 generator client {
   provider = "prisma-client-js"
-  previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
@@ -211,7 +210,26 @@ model Cliente {
   profissaoStr   String?           // String direta da API: "Engenheiro", "Advogado"
   ativo          Boolean           @default(true)
   dataCadastro   DateTime          @default(now())
+  dataAtualizacao DateTime?        // Data da última modificação da API
   idEmpresa      Int?
+  
+  // Campos adicionais da API Sienge
+  foreigner          String?           // "N" ou "S" - estrangeiro
+  internationalId    String?           // ID internacional
+  issuingBody         String?           // Órgão emissor do RG
+  clientType          String?           // Tipo de cliente
+  birthPlace          String?           // Naturalidade
+  matrimonialRegime   String?           // Regime matrimonial
+  fatherName          String?           // Nome do pai
+  motherName          String?           // Nome da mãe
+  sex                 String?           // Sexo ("Feminino", "Masculino")
+  licenseNumber       String?           // Número da carteira
+  licenseIssuingBody  String?           // Órgão emissor da carteira
+  issueDateIdentityCard DateTime?      // Data emissão RG
+  marriageDate        DateTime?         // Data do casamento
+  licenseIssueDate    DateTime?         // Data emissão carteira
+  mailingAddress      String?           // Endereço de correspondência
+  
   anexos         ClienteAnexo[]
   enderecos      ClienteEndereco[]
   rendas         ClienteRenda[]
@@ -228,6 +246,7 @@ model Cliente {
   @@index([nomeCompleto])
   @@index([ativo])
   @@index([dataCadastro])
+  @@index([dataAtualizacao])
   @@index([idEmpresa])
   @@index([idTipoCliente])
   @@index([nomeCompleto, ativo])
@@ -240,9 +259,13 @@ model ClienteTelefone {
   numero     String
   tipo       String?
   observacao String?
+  main       Boolean? @default(false)  // Telefone principal
+  idd        String?                   // Código internacional (+55)
   idCliente  Int
   cliente    Cliente @relation(fields: [idCliente], references: [idCliente])
 
+  @@index([idCliente])
+  @@index([main])
   @@map("cliente_telefones")
 }
 
@@ -254,11 +277,14 @@ model ClienteEndereco {
   bairro       String?
   cep          String?
   tipoEndereco String?
+  mail         Boolean?   @default(false)  // Endereço de correspondência
   idMunicipio  Int?
   idCliente    Int
   cliente      Cliente    @relation(fields: [idCliente], references: [idCliente])
   municipio    Municipio? @relation(fields: [idMunicipio], references: [idMunicipio])
 
+  @@index([idCliente])
+  @@index([mail])
   @@map("cliente_enderecos")
 }
 
@@ -268,9 +294,12 @@ model ClienteRenda {
   valorMensal    Decimal  @db.Decimal(18, 2)
   moeda          String?  @default("BRL")
   comprovada     Boolean?
+  kinship        String?  // Grau de parentesco (ex: "Cônjuge", "Filho")
   idCliente      Int
   cliente        Cliente  @relation(fields: [idCliente], references: [idCliente])
 
+  @@index([idCliente])
+  @@index([kinship])
   @@map("cliente_rendas")
 }
 

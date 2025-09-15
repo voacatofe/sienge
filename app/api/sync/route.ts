@@ -282,7 +282,24 @@ async function saveCustomers(
         estadoCivil: customer.civilStatus, // String direta: "Casado", "Solteiro"
         profissao: customer.profession, // String direta: "Engenheiro", "Advogado"
         dataCadastro: customer.createdAt,
-        dataAtualizacao: customer.updatedAt,
+        dataAtualizacao: customer.modifiedAt,
+
+        // Campos adicionais da API Sienge
+        foreigner: customer.foreigner,
+        internationalId: customer.internationalId,
+        issuingBody: customer.issuingBody,
+        clientType: customer.clientType,
+        birthPlace: customer.birthPlace,
+        matrimonialRegime: customer.matrimonialRegime,
+        fatherName: customer.fatherName,
+        motherName: customer.motherName,
+        sex: customer.sex,
+        licenseNumber: customer.licenseNumber,
+        licenseIssuingBody: customer.licenseIssuingBody,
+        issueDateIdentityCard: customer.issueDateIdentityCard,
+        marriageDate: customer.marriageDate,
+        licenseIssueDate: customer.licenseIssueDate,
+        mailingAddress: customer.mailingAddress,
       };
 
       // Log de exemplo para debug (apenas em desenvolvimento)
@@ -313,6 +330,32 @@ async function saveCustomers(
         dataCadastro: cleanCustomer.dataCadastro
           ? new Date(cleanCustomer.dataCadastro)
           : new Date(),
+        dataAtualizacao: cleanCustomer.dataAtualizacao
+          ? new Date(cleanCustomer.dataAtualizacao)
+          : null,
+
+        // Campos adicionais
+        foreigner: cleanCustomer.foreigner || null,
+        internationalId: cleanCustomer.internationalId || null,
+        issuingBody: cleanCustomer.issuingBody || null,
+        clientType: cleanCustomer.clientType || null,
+        birthPlace: cleanCustomer.birthPlace || null,
+        matrimonialRegime: cleanCustomer.matrimonialRegime || null,
+        fatherName: cleanCustomer.fatherName || null,
+        motherName: cleanCustomer.motherName || null,
+        sex: cleanCustomer.sex || null,
+        licenseNumber: cleanCustomer.licenseNumber || null,
+        licenseIssuingBody: cleanCustomer.licenseIssuingBody || null,
+        issueDateIdentityCard: cleanCustomer.issueDateIdentityCard
+          ? new Date(cleanCustomer.issueDateIdentityCard)
+          : null,
+        marriageDate: cleanCustomer.marriageDate
+          ? new Date(cleanCustomer.marriageDate)
+          : null,
+        licenseIssueDate: cleanCustomer.licenseIssueDate
+          ? new Date(cleanCustomer.licenseIssueDate)
+          : null,
+        mailingAddress: cleanCustomer.mailingAddress || null,
       };
 
       // Verificar se o cliente já existe
@@ -320,7 +363,7 @@ async function saveCustomers(
         where: { idCliente: cleanCustomer.idCliente },
       });
 
-      await prisma.cliente.upsert({
+      const savedCustomer = await prisma.cliente.upsert({
         where: { idCliente: cleanCustomer.idCliente },
         update: customerData,
         create: {
@@ -328,6 +371,27 @@ async function saveCustomers(
           ...customerData,
         },
       });
+
+      // Salvar telefones
+      if (customer.phones && customer.phones.length > 0) {
+        await saveCustomerPhones(savedCustomer.idCliente, customer.phones);
+      }
+
+      // Salvar endereços
+      if (customer.addresses && customer.addresses.length > 0) {
+        await saveCustomerAddresses(
+          savedCustomer.idCliente,
+          customer.addresses
+        );
+      }
+
+      // Salvar rendas familiares
+      if (customer.familyIncome && customer.familyIncome.length > 0) {
+        await saveCustomerFamilyIncome(
+          savedCustomer.idCliente,
+          customer.familyIncome
+        );
+      }
 
       if (existingCustomer) {
         updatedCount++;
@@ -359,6 +423,130 @@ async function saveCustomers(
   }
 
   return { inserted: insertedCount, updated: updatedCount, errors: errorCount };
+}
+
+// Função para salvar telefones do cliente
+async function saveCustomerPhones(
+  idCliente: number,
+  phones: any[]
+): Promise<void> {
+  try {
+    // Remover telefones existentes para evitar duplicatas
+    await prisma.clienteTelefone.deleteMany({
+      where: { idCliente },
+    });
+
+    // Inserir novos telefones
+    for (const phone of phones) {
+      await prisma.clienteTelefone.create({
+        data: {
+          idCliente,
+          numero: phone.number || '',
+          tipo: phone.type || null,
+          observacao: phone.note || null,
+          main: phone.main || false,
+          idd: phone.idd || null,
+        },
+      });
+    }
+
+    console.log(
+      `[Sync] Salvos ${phones.length} telefones para cliente ${idCliente}`
+    );
+  } catch (error) {
+    console.error(
+      `[Sync] Erro ao salvar telefones do cliente ${idCliente}:`,
+      error
+    );
+  }
+}
+
+// Função para salvar endereços do cliente
+async function saveCustomerAddresses(
+  idCliente: number,
+  addresses: any[]
+): Promise<void> {
+  try {
+    // Remover endereços existentes para evitar duplicatas
+    await prisma.clienteEndereco.deleteMany({
+      where: { idCliente },
+    });
+
+    // Inserir novos endereços
+    for (const address of addresses) {
+      // Buscar ou criar município se necessário
+      let idMunicipio = null;
+      if (address.cityId) {
+        // Tentar encontrar município pelo ID da API Sienge
+        const municipio = await prisma.municipio.findFirst({
+          where: {
+            nome: { contains: address.city, mode: 'insensitive' },
+            uf: address.state,
+          },
+        });
+        idMunicipio = municipio?.idMunicipio || null;
+      }
+
+      await prisma.clienteEndereco.create({
+        data: {
+          idCliente,
+          logradouro: address.streetName || '',
+          numero: address.number || '',
+          complemento: address.complement || null,
+          bairro: address.neighborhood || null,
+          cep: address.zipCode || null,
+          tipoEndereco: address.type || null,
+          mail: address.mail || false,
+          idMunicipio,
+        },
+      });
+    }
+
+    console.log(
+      `[Sync] Salvos ${addresses.length} endereços para cliente ${idCliente}`
+    );
+  } catch (error) {
+    console.error(
+      `[Sync] Erro ao salvar endereços do cliente ${idCliente}:`,
+      error
+    );
+  }
+}
+
+// Função para salvar rendas familiares do cliente
+async function saveCustomerFamilyIncome(
+  idCliente: number,
+  familyIncome: any[]
+): Promise<void> {
+  try {
+    // Remover rendas existentes para evitar duplicatas
+    await prisma.clienteRenda.deleteMany({
+      where: { idCliente },
+    });
+
+    // Inserir novas rendas
+    for (const income of familyIncome) {
+      await prisma.clienteRenda.create({
+        data: {
+          idCliente,
+          descricaoRenda: income.kinsName || '',
+          valorMensal: income.incomeValue || 0,
+          moeda: 'BRL',
+          comprovada: false, // Padrão false, pode ser ajustado conforme regra de negócio
+          kinship: income.kinship || null,
+        },
+      });
+    }
+
+    console.log(
+      `[Sync] Salvas ${familyIncome.length} rendas familiares para cliente ${idCliente}`
+    );
+  } catch (error) {
+    console.error(
+      `[Sync] Erro ao salvar rendas familiares do cliente ${idCliente}:`,
+      error
+    );
+  }
 }
 
 async function saveCompanies(
