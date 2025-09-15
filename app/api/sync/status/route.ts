@@ -2,10 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
-import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {
+    // Importar Prisma apenas quando necessário
+    const { prisma } = await import('@/lib/prisma');
+
     // Buscar o log de sincronização mais recente
     const latestSync = await prisma.syncLog.findFirst({
       where: {

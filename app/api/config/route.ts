@@ -2,11 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import bcrypt from 'bcryptjs';
 import axios from 'axios';
-import { prisma } from '@/lib/prisma';
-import {
-  validateCredentialsWithCache,
-  credentialsCache,
-} from '@/lib/cache/credentials-cache';
 import {
   checkRateLimit,
   credentialsRateLimiter,
@@ -170,6 +165,9 @@ export async function POST(request: NextRequest) {
     const saltRounds = 12;
     const hashedPassword = await bcrypt.hash(sanitizedPassword, saltRounds);
 
+    // Importar Prisma apenas quando necessário
+    const { prisma } = await import('@/lib/prisma');
+
     // Verificar se já existem credenciais para este subdomínio
     const existingCredentials = await prisma.apiCredentials.findUnique({
       where: { subdomain: sanitizedSubdomain },
@@ -246,6 +244,9 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   try {
+    // Importar Prisma apenas quando necessário
+    const { prisma } = await import('@/lib/prisma');
+
     const credentials = await prisma.apiCredentials.findFirst({
       select: {
         id: true,

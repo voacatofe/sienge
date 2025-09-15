@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
 import { siengeApiClient } from '@/lib/sienge-api-client';
 import { getSyncConfig } from '@/lib/config/sienge-api';
 import { SiengeEndpoint } from '@/lib/types/sienge-api';
@@ -1088,6 +1087,9 @@ async function saveIndexers(
 
 export async function POST(request: NextRequest) {
   try {
+    // Importar Prisma apenas quando necessário
+    const { prisma } = await import('@/lib/prisma');
+
     const body: SyncRequest = await request.json();
     const { entities = [] } = body;
 
