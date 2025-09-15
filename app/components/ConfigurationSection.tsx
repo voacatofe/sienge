@@ -379,7 +379,10 @@ export function ConfigurationSection({
 
     // Parâmetros específicos por endpoint (sem limit - será controlado pela paginação)
     const endpointParams: Record<string, Record<string, any>> = {
-      customers: {}, // Paginação automática vai buscar todos
+      customers: {
+        createdAfter: dateFilter,
+        createdBefore: today,
+      },
       companies: {},
       enterprises: {},
       units: {},
@@ -399,7 +402,10 @@ export function ConfigurationSection({
         startDate: dateFilter,
         endDate: today,
       },
-      'sales-contracts': {},
+      'sales-contracts': {
+        createdAfter: dateFilter,
+        createdBefore: today,
+      },
       sales: {
         createdAfter: dateFilter,
         createdBefore: today,
