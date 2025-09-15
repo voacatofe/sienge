@@ -19,7 +19,12 @@ export const ENDPOINT_MAPPINGS: Record<string, EndpointMapping> = {
     fieldMapping: {
       id: 'idCliente',
       name: 'nomeCompleto',
-      cpfCnpj: 'cpfCnpj',
+      cpfCnpj: {
+        field: 'cpfCnpj',
+        transform: (val: any) => val || null
+      },
+      cpf: 'cpfCnpj',
+      cnpj: 'cpfCnpj',
       email: 'email',
       active: { field: 'ativo', transform: (val: any) => val !== false },
       createdAt: {
@@ -80,6 +85,94 @@ export const ENDPOINT_MAPPINGS: Record<string, EndpointMapping> = {
       personType: 'personType',
       activityId: 'activityId',
       activityDescription: 'activityDescription',
+
+      // Mapeamento direto do primeiro telefone
+      mainPhone: {
+        field: 'phones',
+        transform: (val: any) => {
+          if (Array.isArray(val) && val.length > 0) {
+            const firstPhone = val[0];
+            return firstPhone.number || firstPhone.phone || firstPhone.telefone || null;
+          }
+          return null;
+        }
+      },
+      mainPhoneType: {
+        field: 'phones',
+        transform: (val: any) => {
+          if (Array.isArray(val) && val.length > 0) {
+            const firstPhone = val[0];
+            return firstPhone.type || firstPhone.tipo || null;
+          }
+          return null;
+        }
+      },
+
+      // Mapeamento direto do primeiro endereço
+      mainAddress: {
+        field: 'addresses',
+        transform: (val: any) => {
+          if (Array.isArray(val) && val.length > 0) {
+            const firstAddress = val[0];
+            const street = firstAddress.street || firstAddress.logradouro || '';
+            const number = firstAddress.number || firstAddress.numero || '';
+            const complement = firstAddress.complement || firstAddress.complemento || '';
+            return `${street}${number ? ', ' + number : ''}${complement ? ' - ' + complement : ''}`.trim() || null;
+          }
+          return null;
+        }
+      },
+      mainAddressCity: {
+        field: 'addresses',
+        transform: (val: any) => {
+          if (Array.isArray(val) && val.length > 0) {
+            const firstAddress = val[0];
+            return firstAddress.city || firstAddress.cidade || null;
+          }
+          return null;
+        }
+      },
+      mainAddressState: {
+        field: 'addresses',
+        transform: (val: any) => {
+          if (Array.isArray(val) && val.length > 0) {
+            const firstAddress = val[0];
+            return firstAddress.state || firstAddress.estado || null;
+          }
+          return null;
+        }
+      },
+      mainAddressZipCode: {
+        field: 'addresses',
+        transform: (val: any) => {
+          if (Array.isArray(val) && val.length > 0) {
+            const firstAddress = val[0];
+            return firstAddress.zipCode || firstAddress.cep || null;
+          }
+          return null;
+        }
+      },
+      mainAddressType: {
+        field: 'addresses',
+        transform: (val: any) => {
+          if (Array.isArray(val) && val.length > 0) {
+            const firstAddress = val[0];
+            const type = firstAddress.type || firstAddress.tipo || '';
+            return type === 'R' ? 'Residencial' : type === 'C' ? 'Comercial' : type;
+          }
+          return null;
+        }
+      },
+
+      // Arrays completos para processamento posterior se necessário
+      phones: {
+        field: 'phones',
+        transform: (val: any) => val || []
+      },
+      addresses: {
+        field: 'addresses',
+        transform: (val: any) => val || []
+      },
     },
   },
 
@@ -309,32 +402,22 @@ export const ENDPOINT_MAPPINGS: Record<string, EndpointMapping> = {
       site: 'site',
       active: { field: 'ativo', transform: (val: any) => val !== false },
       isActive: { field: 'ativo', transform: (val: any) => val !== false },
-      companyId: 'companyId',
-      company_id: 'companyId',
-      internalCompanyId: 'internalCompanyId',
-      internal_company_id: 'internalCompanyId',
-      companyName: 'companyName',
-      company_name: 'companyName',
-      buildingCostEstimationStatus: 'buildingCostEstimationStatus',
-      building_cost_estimation_status: 'buildingCostEstimationStatus',
-      buildingStatus: 'buildingStatus',
-      building_status: 'buildingStatus',
-      receivableRegister: 'receivableRegister',
-      receivable_register: 'receivableRegister',
-      enabledForIntegration: { field: 'enabledForIntegration', transform: (val: any) => val === true },
-      enabled_for_integration: { field: 'enabledForIntegration', transform: (val: any) => val === true },
-      addressDetails: 'addressDetails',
-      address_details: 'addressDetails',
-      createdAt: {
+      companyId: 'idEmpresa',
+      companyName: 'nomeEmpresa',
+      costDatabaseId: 'idBaseCustos',
+      costDatabaseDescription: 'descricaoBaseCustos',
+      buildingTypeId: 'idTipoObra',
+      buildingTypeDescription: 'descricaoTipoObra',
+      creationDate: {
         field: 'dataCadastro',
         transform: (val: any) => (val ? new Date(val) : new Date()),
       },
-      created_at: {
-        field: 'dataCadastro',
+      modificationDate: {
+        field: 'dataAtualizacao',
         transform: (val: any) => (val ? new Date(val) : new Date()),
       },
-      updatedAt: { field: 'dataAtualizacao', transform: () => new Date() },
-      updated_at: { field: 'dataAtualizacao', transform: () => new Date() },
+      createdBy: 'criadoPor',
+      modifiedBy: 'modificadoPor',
     },
   },
 
@@ -366,193 +449,88 @@ export const ENDPOINT_MAPPINGS: Record<string, EndpointMapping> = {
     primaryKey: 'id',
     fieldMapping: {
       id: 'id',
-      enterpriseId: 'enterpriseId',
-      enterprise_id: 'enterpriseId',
-      contractId: 'contractId',
-      contract_id: 'contractId',
-      indexerId: 'indexerId',
-      indexer_id: 'indexerId',
+      enterpriseId: {
+        field: 'idEmpreendimento',
+        transform: (val: any) => (val && val !== undefined) ? val : null
+      },
+      contractId: {
+        field: 'idContrato',
+        transform: (val: any) => (val && val !== undefined) ? val : null
+      },
+      indexerId: {
+        field: 'idIndexador',
+        transform: (val: any) => (val && val !== undefined) ? val : null
+      },
       name: 'nome',
       propertyType: 'tipoImovel',
-      property_type: 'tipoImovel',
       note: 'observacao',
       commercialStock: 'estoqueComercial',
-      commercial_stock: 'estoqueComercial',
-      active: { field: 'ativo', transform: (val: any) => val !== false },
-      isActive: { field: 'ativo', transform: (val: any) => val !== false },
-      // Campos adicionais da API (duplicados removidos)
-      classificationUnit: 'classificationUnit',
-      classification_unit: 'classificationUnit',
-      propertyTypeId: 'propertyTypeId',
-      property_type_id: 'propertyTypeId',
-      situationId: 'situationId',
-      situation_id: 'situationId',
-      condominiumValue: {
-        field: 'condominiumValue',
-        transform: (val: any) => (val ? parseFloat(val) : null),
-      },
-      condominium_value: {
-        field: 'condominiumValue',
-        transform: (val: any) => (val ? parseFloat(val) : null),
+      latitude: 'latitude',
+      longitude: 'longitude',
+      legalRegistrationNumber: 'matricula',
+      deliveryDate: {
+        field: 'dataEntrega',
+        transform: (val: any) => (val ? new Date(val) : null),
       },
       privateArea: {
-        field: 'privateArea',
+        field: 'areaPrivativa',
         transform: (val: any) => (val ? parseFloat(val) : null),
       },
-      private_area: {
-        field: 'privateArea',
+      commonArea: {
+        field: 'areaComum',
         transform: (val: any) => (val ? parseFloat(val) : null),
       },
-      totalArea: {
-        field: 'totalArea',
+      terrainArea: {
+        field: 'areaTerreno',
         transform: (val: any) => (val ? parseFloat(val) : null),
       },
-      total_area: {
-        field: 'totalArea',
+      nonProportionalCommonArea: {
+        field: 'areaComumNaoProporcional',
         transform: (val: any) => (val ? parseFloat(val) : null),
       },
-      builtArea: {
-        field: 'builtArea',
+      idealFraction: {
+        field: 'fracaoIdeal',
         transform: (val: any) => (val ? parseFloat(val) : null),
       },
-      built_area: {
-        field: 'builtArea',
+      idealFractionSquareMeter: {
+        field: 'fracaoIdealM2',
         transform: (val: any) => (val ? parseFloat(val) : null),
       },
-      usefulArea: {
-        field: 'usefulArea',
+      generalSaleValueFraction: {
+        field: 'fracaoVGV',
         transform: (val: any) => (val ? parseFloat(val) : null),
       },
-      useful_area: {
-        field: 'usefulArea',
+      indexedQuantity: {
+        field: 'quantidadeIndexada',
         transform: (val: any) => (val ? parseFloat(val) : null),
       },
-      garageSpaces: 'garageSpaces',
-      garage_spaces: 'garageSpaces',
-      bedrooms: 'bedrooms',
-      suites: 'suites',
-      bathrooms: 'bathrooms',
-      livingRooms: 'livingRooms',
-      living_rooms: 'livingRooms',
-      diningRooms: 'diningRooms',
-      dining_rooms: 'diningRooms',
-      kitchens: 'kitchens',
-      serviceArea: 'serviceArea',
-      service_area: 'serviceArea',
-      laundry: 'laundry',
-      balcony: 'balcony',
-      homeOffice: 'homeOffice',
-      home_office: 'homeOffice',
-      closet: 'closet',
-      pantry: 'pantry',
-      garden: 'garden',
-      terrace: 'terrace',
-      roof: 'roof',
-      basement: 'basement',
-      groundFloor: 'groundFloor',
-      ground_floor: 'groundFloor',
-      mezzanine: 'mezzanine',
-      roofGarden: 'roofGarden',
-      roof_garden: 'roofGarden',
-      socialRoom: 'socialRoom',
-      social_room: 'socialRoom',
-      gym: 'gym',
-      partyRoom: 'partyRoom',
-      party_room: 'partyRoom',
-      playground: 'playground',
-      barbecueArea: 'barbecueArea',
-      barbecue_area: 'barbecueArea',
-      swimmingPool: 'swimmingPool',
-      swimming_pool: 'swimmingPool',
-      sauna: 'sauna',
-      steamRoom: 'steamRoom',
-      steam_room: 'steamRoom',
-      jacuzzi: 'jacuzzi',
-      elevator: 'elevator',
-      concierge: 'concierge',
-      security: 'security',
-      camera: 'camera',
-      intercom: 'intercom',
-      generator: 'generator',
-      airConditioning: 'airConditioning',
-      air_conditioning: 'airConditioning',
-      heating: 'heating',
-      fireplace: 'fireplace',
-      solarHeating: 'solarHeating',
-      solar_heating: 'solarHeating',
-      solarPanel: 'solarPanel',
-      solar_panel: 'solarPanel',
-      waterTank: 'waterTank',
-      water_tank: 'waterTank',
-      gasTank: 'gasTank',
-      gas_tank: 'gasTank',
-      waterHeater: 'waterHeater',
-      water_heater: 'waterHeater',
-      waterSoftener: 'waterSoftener',
-      water_softener: 'waterSoftener',
-      waterFilter: 'waterFilter',
-      water_filter: 'waterFilter',
-      waterPump: 'waterPump',
-      water_pump: 'waterPump',
-      waterTreatment: 'waterTreatment',
-      water_treatment: 'waterTreatment',
-      sewageTreatment: 'sewageTreatment',
-      sewage_treatment: 'sewageTreatment',
-      rainwaterHarvesting: 'rainwaterHarvesting',
-      rainwater_harvesting: 'rainwaterHarvesting',
-      grayWaterReuse: 'grayWaterReuse',
-      gray_water_reuse: 'grayWaterReuse',
-      energyEfficiency: 'energyEfficiency',
-      energy_efficiency: 'energyEfficiency',
-      sustainability: 'sustainability',
-      accessibility: 'accessibility',
-      petFriendly: 'petFriendly',
-      pet_friendly: 'petFriendly',
-      furnished: 'furnished',
-      semiFurnished: 'semiFurnished',
-      semi_furnished: 'semiFurnished',
-      unfurnished: 'unfurnished',
-      readyToLive: 'readyToLive',
-      ready_to_live: 'readyToLive',
-      underConstruction: 'underConstruction',
-      under_construction: 'underConstruction',
-      planned: 'planned',
-      availableForSale: 'availableForSale',
-      available_for_sale: 'availableForSale',
-      availableForRent: 'availableForRent',
-      available_for_rent: 'availableForRent',
-      sold: 'sold',
-      rented: 'rented',
-      reserved: 'reserved',
-      technicalReserve: 'technicalReserve',
-      technical_reserve: 'technicalReserve',
-      exchange: 'exchange',
-      mutual: 'mutual',
-      proposal: 'proposal',
-      transferred: 'transferred',
-      soldToThirdParties: 'soldToThirdParties',
-      sold_to_third_parties: 'soldToThirdParties',
-      soldInPreContract: 'soldInPreContract',
-      sold_in_pre_contract: 'soldInPreContract',
-      // Dados adicionais (JSON)
-      additionalData: 'additionalData',
-      additional_data: 'additionalData',
-      childUnits: 'childUnits',
-      child_units: 'childUnits',
-      groupings: 'groupings',
-      specialValues: 'specialValues',
-      special_values: 'specialValues',
-      links: 'links',
+      prizedCompliance: {
+        field: 'adimplenciaPremiada',
+        transform: (val: any) => (val ? parseFloat(val) : null),
+      },
+      terrainValue: {
+        field: 'valorTerreno',
+        transform: (val: any) => (val ? parseFloat(val) : null),
+      },
+      floor: 'pavimento',
+      contractNumber: 'numeroContrato',
+      usableArea: {
+        field: 'areaUtil',
+        transform: (val: any) => (val ? parseFloat(val) : null),
+      },
+      iptuValue: {
+        field: 'valorIPTU',
+        transform: (val: any) => (val ? parseFloat(val) : null),
+      },
+      realEstateRegistration: 'inscricaoImobiliaria',
       createdAt: {
         field: 'dataCadastro',
         transform: (val: any) => (val ? new Date(val) : new Date()),
       },
-      created_at: {
-        field: 'dataCadastro',
-        transform: (val: any) => (val ? new Date(val) : new Date()),
+      updatedAt: {
+        field: 'dataAtualizacao',
+        transform: () => new Date(),
       },
-      updatedAt: { field: 'dataAtualizacao', transform: () => new Date() },
-      updated_at: { field: 'dataAtualizacao', transform: () => new Date() },
     },
   },
 

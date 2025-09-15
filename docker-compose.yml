@@ -81,7 +81,7 @@ services:
     volumes:
       - ./logs:/app/logs
     healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:3000/api/health']
+      test: ['CMD', 'curl', '-f', 'http://${NEXT_PUBLIC_PRIMARY_DOMAIN}:3000/api/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -115,7 +115,7 @@ services:
       db:
         condition: service_healthy
     healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:8080']
+      test: ['CMD', 'curl', '-f', 'http://${NEXT_PUBLIC_PRIMARY_DOMAIN}:8080']
       interval: 30s
       timeout: 10s
       retries: 3
