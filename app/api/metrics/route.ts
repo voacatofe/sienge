@@ -2,10 +2,12 @@ import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
-import { getApiMetrics } from '@/lib/logger/api-logger';
 
 export async function GET() {
   try {
+    // Importar função de métricas apenas quando necessário
+    const { getApiMetrics } = await import('@/lib/logger/api-logger');
+
     const metrics = getApiMetrics();
 
     return NextResponse.json({
