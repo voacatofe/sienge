@@ -9,7 +9,7 @@ interface PowerBILinksProps {
 interface DataSource {
   group: string;
   name: string;
-  endpoint: string;
+  table: string;
   description: string;
   icon: string;
   color: string;
@@ -32,16 +32,8 @@ export function PowerBILinksSection({ completedGroups }: PowerBILinksProps) {
       sources.push(
         {
           group: 'financial',
-          name: 'Resumo Financeiro',
-          endpoint: '/api/data/financial',
-          description: 'Visão geral de todas as entidades financeiras',
-          icon: '💰',
-          color: 'green',
-        },
-        {
-          group: 'financial',
           name: 'Títulos a Receber',
-          endpoint: '/api/data/financial?type=receivables',
+          table: 'titulo_receber',
           description: 'Dados completos de títulos a receber',
           icon: '📈',
           color: 'green',
@@ -49,7 +41,7 @@ export function PowerBILinksSection({ completedGroups }: PowerBILinksProps) {
         {
           group: 'financial',
           name: 'Títulos a Pagar',
-          endpoint: '/api/data/financial?type=payables',
+          table: 'titulo_pagar',
           description: 'Dados completos de títulos a pagar',
           icon: '📉',
           color: 'green',
@@ -57,9 +49,17 @@ export function PowerBILinksSection({ completedGroups }: PowerBILinksProps) {
         {
           group: 'financial',
           name: 'Contratos de Venda',
-          endpoint: '/api/data/financial?type=sales-contracts',
+          table: 'contrato_venda',
           description: 'Contratos de venda e comissões',
           icon: '📋',
+          color: 'green',
+        },
+        {
+          group: 'financial',
+          name: 'Comissões',
+          table: 'comissao_venda',
+          description: 'Comissões de vendas',
+          icon: '💰',
           color: 'green',
         }
       );
@@ -69,16 +69,8 @@ export function PowerBILinksSection({ completedGroups }: PowerBILinksProps) {
       sources.push(
         {
           group: 'customers',
-          name: 'Resumo Clientes',
-          endpoint: '/api/data/customers-group',
-          description: 'Visão geral de clientes e credores',
-          icon: '👥',
-          color: 'blue',
-        },
-        {
-          group: 'customers',
-          name: 'Clientes Detalhados',
-          endpoint: '/api/data/customers-group?type=customers',
+          name: 'Clientes',
+          table: 'cliente',
           description: 'Base completa de clientes',
           icon: '👤',
           color: 'blue',
@@ -86,9 +78,17 @@ export function PowerBILinksSection({ completedGroups }: PowerBILinksProps) {
         {
           group: 'customers',
           name: 'Credores',
-          endpoint: '/api/data/customers-group?type=creditors',
+          table: 'credor',
           description: 'Base de credores e fornecedores',
           icon: '🏪',
+          color: 'blue',
+        },
+        {
+          group: 'customers',
+          name: 'Cônjuges',
+          table: 'conjuge',
+          description: 'Dados de cônjuges',
+          icon: '👥',
           color: 'blue',
         }
       );
@@ -98,18 +98,26 @@ export function PowerBILinksSection({ completedGroups }: PowerBILinksProps) {
       sources.push(
         {
           group: 'registries',
-          name: 'Cadastros Básicos',
-          endpoint: '/api/data/registries',
-          description: 'Resumo de cadastros fundamentais',
-          icon: '📊',
+          name: 'Empresas',
+          table: 'empresa',
+          description: 'Dados das empresas',
+          icon: '🏢',
           color: 'purple',
         },
         {
           group: 'registries',
-          name: 'Empresas',
-          endpoint: '/api/data/registries?type=companies',
-          description: 'Dados das empresas',
-          icon: '🏢',
+          name: 'Empreendimentos',
+          table: 'empreendimento',
+          description: 'Dados dos empreendimentos',
+          icon: '🏗️',
+          color: 'purple',
+        },
+        {
+          group: 'registries',
+          name: 'Unidades',
+          table: 'unidade_imobiliaria',
+          description: 'Unidades imobiliárias',
+          icon: '🏠',
           color: 'purple',
         }
       );
@@ -130,31 +138,38 @@ export function PowerBILinksSection({ completedGroups }: PowerBILinksProps) {
   };
 
   const generatePowerBIInstructions = () => {
+    const dbHost = process.env.PRIMARY_DOMAIN || 'localhost';
+    const dbPort = process.env.DB_PORT_EXTERNAL || '5432';
+    const dbName = process.env.POSTGRES_DB || 'sienge_data';
+    const dbUser = process.env.POSTGRES_USER || 'sienge_app';
+
     return `
-# Como conectar no Power BI
+# Como conectar diretamente ao PostgreSQL no Power BI
 
 ## Passo 1: Obter Dados
 1. Abra o Power BI Desktop
-2. Clique em "Obter Dados" > "Web"
+2. Clique em "Obter Dados" > "Banco de dados" > "Banco de dados PostgreSQL"
 
 ## Passo 2: Configurar Conexão
-1. Cole uma das URLs abaixo na caixa de URL
-2. Clique em "OK"
-3. Na tela de autenticação, selecione "Anônimo" (nossas APIs são públicas)
+1. Servidor: ${dbHost}:${dbPort}
+2. Banco de dados: ${dbName}
+3. Modo de conectividade: Importar
+4. Clique em "OK"
 
-## Passo 3: Configurar Consulta (Opcional)
-1. No Editor de Consultas, você pode expandir os campos "data", "pagination" e "meta"
-2. Selecione apenas os campos que precisa
-3. Configure filtros adicionais se necessário
+## Passo 3: Autenticação
+1. Selecione "Banco de dados" como tipo de autenticação
+2. Usuário: ${dbUser}
+3. Senha: [sua senha do POSTGRES_PASSWORD]
+4. Clique em "Conectar"
 
-## URLs Disponíveis:
-${dataSources.map(source => `• ${source.name}: ${baseUrl}${source.endpoint}`).join('\n')}
+## Tabelas Disponíveis:
+${dataSources.map(source => `• ${source.name}: ${source.table}`).join('\n')}
 
 ## Dicas:
-• Use os endpoints com parâmetros para filtrar dados específicos
-• Exemplo: ${baseUrl}/api/data/financial?type=receivables&status=PENDENTE
-• Para paginação: adicione &page=1&limit=100
-• Para busca: adicione &search=termo
+• Use consultas SQL personalizadas para filtrar dados específicos
+• Exemplo: SELECT * FROM titulo_receber WHERE status = 'PENDENTE'
+• Configure atualização automática para dados sempre atualizados
+• Use relacionamentos entre tabelas para análises mais ricas
     `;
   };
 
@@ -182,18 +197,17 @@ ${dataSources.map(source => `• ${source.name}: ${baseUrl}${source.endpoint}`).
         </div>
         <div>
           <h3 className="text-lg font-semibold text-gray-900">
-            Links para Power BI
+            Conexão Direta ao PostgreSQL
           </h3>
           <p className="text-gray-600">
-            URLs das APIs sincronizadas para conectar no Power BI
+            Conecte diretamente ao banco PostgreSQL para máxima performance
           </p>
         </div>
       </div>
 
-      {/* Lista de endpoints disponíveis */}
+      {/* Lista de tabelas disponíveis */}
       <div className="space-y-3 mb-6">
         {dataSources.map((source, index) => {
-          const fullUrl = `${baseUrl}${source.endpoint}`;
           const colorClasses = {
             green: 'bg-green-50 text-green-700 border-green-200',
             blue: 'bg-blue-50 text-blue-700 border-blue-200',
@@ -213,15 +227,15 @@ ${dataSources.map(source => `• ${source.name}: ${baseUrl}${source.endpoint}`).
                     <p className="text-sm text-gray-600 mb-2">
                       {source.description}
                     </p>
-                    <code className="text-xs bg-white px-2 py-1 rounded border text-gray-700 break-all">
-                      {fullUrl}
+                    <code className="text-xs bg-white px-2 py-1 rounded border text-gray-700">
+                      {source.table}
                     </code>
                   </div>
                 </div>
                 <button
-                  onClick={() => copyToClipboard(fullUrl)}
+                  onClick={() => copyToClipboard(source.table)}
                   className="ml-2 p-2 hover:bg-white rounded transition-colors"
-                  title="Copiar URL"
+                  title="Copiar nome da tabela"
                 >
                   <svg
                     className="w-4 h-4"
@@ -265,11 +279,16 @@ ${dataSources.map(source => `• ${source.name}: ${baseUrl}${source.endpoint}`).
           Copiar Instruções Completas
         </button>
 
-        <a
-          href="/api/data/docs"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center justify-center"
+        <button
+          onClick={() => {
+            const dbHost = process.env.PRIMARY_DOMAIN || 'localhost';
+            const dbPort = process.env.DB_PORT_EXTERNAL || '5432';
+            const dbName = process.env.POSTGRES_DB || 'sienge_data';
+            const dbUser = process.env.POSTGRES_USER || 'sienge_app';
+            const credentials = `Servidor: ${dbHost}:${dbPort}\nBanco: ${dbName}\nUsuário: ${dbUser}\nSenha: [sua senha do POSTGRES_PASSWORD]`;
+            copyToClipboard(credentials);
+          }}
+          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center justify-center"
         >
           <svg
             className="w-4 h-4 mr-2"
@@ -281,36 +300,46 @@ ${dataSources.map(source => `• ${source.name}: ${baseUrl}${source.endpoint}`).
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth={2}
-              d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
             />
           </svg>
-          Ver Documentação
-        </a>
+          Copiar Credenciais
+        </button>
       </div>
 
       {/* Informações adicionais */}
       <div className="mt-6 p-4 bg-gray-50 rounded-lg">
         <h4 className="font-medium text-gray-900 mb-2">
-          💡 Dicas para Power BI:
+          💡 Dicas para Conexão Direta:
         </h4>
         <ul className="text-sm text-gray-600 space-y-1">
           <li>
-            • Use <strong>Obter Dados &gt; Web</strong> no Power BI Desktop
+            • Use <strong>Obter Dados &gt; Banco de dados PostgreSQL</strong>
           </li>
           <li>
-            • Selecione autenticação <strong>Anônima</strong>
+            • Servidor:{' '}
+            <strong>
+              {process.env.PRIMARY_DOMAIN || 'localhost'}:
+              {process.env.DB_PORT_EXTERNAL || '5432'}
+            </strong>
           </li>
           <li>
-            • Expanda o campo <strong>&quot;data&quot;</strong> para acessar os
-            registros
+            • Banco: <strong>{process.env.POSTGRES_DB || 'sienge_data'}</strong>
+          </li>
+          <li>
+            • Usuário:{' '}
+            <strong>{process.env.POSTGRES_USER || 'sienge_app'}</strong>
+          </li>
+          <li>
+            • Modo: <strong>Importar</strong> para melhor performance
           </li>
           <li>
             • Configure <strong>atualização automática</strong> para dados
             sempre atualizados
           </li>
           <li>
-            • Use parâmetros na URL para filtrar dados (ex:
-            ?status=PENDENTE&page=1&limit=1000)
+            • Use <strong>consultas SQL personalizadas</strong> para filtrar
+            dados específicos
           </li>
         </ul>
       </div>

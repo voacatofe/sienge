@@ -131,96 +131,50 @@ https://api.sienge.com.br/{subdominio}/public/api/v1
 
 ## 📊 **Resumo de Endpoints Implementados**
 
-| Tipo                       | Quantidade   | Descrição                                         |
-| -------------------------- | ------------ | ------------------------------------------------- |
-| **API Sienge (Externos)**  | 11 endpoints | Endpoints que chamamos na API externa do Sienge   |
-| **API Local Categorizada** | 22 endpoints | Endpoints da nossa API organizados por categorias |
-| **API Local Total**        | 27 endpoints | Total de endpoints incluindo não categorizados    |
+| Tipo                      | Quantidade   | Descrição                                       |
+| ------------------------- | ------------ | ----------------------------------------------- |
+| **API Sienge (Externos)** | 11 endpoints | Endpoints que chamamos na API externa do Sienge |
 
 ---
 
-## 🏗️ **APIs Locais - Estrutura Categorizada (22 endpoints categorizados)**
+## 🏗️ **APIs de Sincronização - Estrutura Simplificada**
 
-### **🏢 Entidades Principais**
+### **📥 APIs de Entrada (Sincronização)**
 
-- `/api/data/entidades/customers` - Consulta clientes locais
-- `/api/data/entidades/companies` - Consulta empresas locais
+- `/api/sienge/proxy` - Proxy genérico para qualquer endpoint da API Sienge
+- `/api/sienge/openapi` - Documentação OpenAPI/Swagger
+- `/api/sienge/test` - Teste de conectividade
 
-### **💰 Financeiro**
+### **🔧 APIs de Sistema**
 
-- `/api/data/financeiro/accounts-receivable` - Consulta títulos a receber locais
-- `/api/data/financeiro/accounts-payable` - Consulta títulos a pagar locais
-- `/api/data/financeiro/indexers` - Consulta indexadores locais
-- `/api/data/financeiro/payment-categories` - Consulta categorias de pagamento locais
-- `/api/data/financeiro/carriers` - Consulta portadores de recebimento locais
+- `/api/config` - Configurações do sistema
+- `/api/sync` - Sincronização de dados
+- `/api/health` - Health check
+- `/api/metrics` - Métricas do sistema
 
-### **📋 Vendas**
-
-- `/api/data/vendas/sales-contracts` - Consulta contratos de venda locais
-- `/api/data/vendas/commissions` - Consulta comissões de vendas locais
-
-### **🏛️ Organizacional**
-
-- `/api/data/organizacional/cost-centers` - Consulta centros de custo locais
-- `/api/data/organizacional/departments` - Consulta departamentos locais
-
-### **👥 Clientes (Auxiliares)**
-
-- `/api/data/clientes/tipos-cliente` - Consulta tipos de cliente locais
-- `/api/data/clientes/estados-civis` - Consulta estados civis locais
-- `/api/data/clientes/profissoes` - Consulta profissões locais
-- `/api/data/clientes/municipios` - Consulta municípios locais
-
-### **🏗️ Empreendimentos**
-
-- `/api/data/empreendimentos/empreendimentos` - Consulta empreendimentos locais
-- `/api/data/empreendimentos/unidades-imobiliarias` - Consulta unidades imobiliárias locais
-- `/api/data/empreendimentos/tipos-imovel` - Consulta tipos de imóvel locais
-
-### **🛒 Compras**
-
-- `/api/data/compras/credores` - Consulta credores/fornecedores locais
-- `/api/data/compras/pedidos-compra` - Consulta pedidos de compra locais
-
-### **⚙️ Configurações**
-
-- `/api/data/configuracoes/documentos-identificacao` - Consulta documentos de identificação locais
-- `/api/data/configuracoes/tipos-condicao-pagamento` - Consulta tipos de condição de pagamento locais
-
-## 🔧 **Endpoints Não Categorizados (5 endpoints)**
-
-- `/api/data` - Dashboard principal com estatísticas
-- `/api/data/docs` - Documentação da API
-- `/api/data/sync-logs` - Logs de sincronização
-- `/api/data/registries` - Cadastros básicos (empresas, departamentos, etc.)
-- `/api/data/customers-group` - Grupo de clientes e credores
+---
 
 ## ✅ **Status da Implementação**
 
-### **📁 Estrutura de Diretórios Categorizada**
+### **📁 Estrutura Simplificada**
 
 ```
-app/api/data/
-├── entidades/          # Entidades principais
-├── clientes/           # Dados auxiliares de clientes
-├── vendas/             # Contratos e comissões
-├── empreendimentos/    # Projetos e unidades
-├── compras/            # Fornecedores e pedidos
-├── financeiro/         # Contas a pagar/receber
-├── organizacional/     # Estrutura corporativa
-└── configuracoes/      # Configurações gerais
+app/api/
+├── sienge/              # APIs de sincronização com Sienge
+│   ├── proxy/           # Proxy genérico
+│   ├── openapi/         # Documentação OpenAPI
+│   └── test/            # Teste de conectividade
+├── config/              # Configurações do sistema
+├── sync/                # Sincronização de dados
+├── health/              # Health check
+└── metrics/             # Métricas do sistema
 ```
 
-### **🔧 Funcionalidades Implementadas**
+### **🎯 Foco em Sincronização**
 
-- ✅ **22 endpoints categorizados** com estrutura RESTful consistente
-- ✅ **Sistema de fallback HTTP** automático (GET → POST)
-- ✅ **Configurações centralizadas** em `lib/config/sienge-api.ts`
-- ✅ **Mapeamentos completos** ENTITY_TO_ENDPOINT
-- ✅ **Logs detalhados** para debugging e monitoramento
-- ✅ **TypeScript validado** sem erros de compilação
-- ✅ **Rate limiting** e retry logic implementados
-- ✅ **Paginação automática** para grandes volumes de dados
+- **APIs de Entrada**: Apenas `/api/sienge/*` para buscar dados do Sienge
+- **Conexão Direta**: Power BI conecta diretamente ao PostgreSQL
+- **Performance**: Máxima performance sem camadas intermediárias
 
 ## ⚙️ **Configurações Técnicas**
 
