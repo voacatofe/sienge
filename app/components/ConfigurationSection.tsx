@@ -443,7 +443,7 @@ export function ConfigurationSection({
         // Salvar os dados no banco de dados através da API /api/sync
         if (allData.length > 0) {
           try {
-            const syncResponse = await fetch('/api/sync', {
+            const syncResponse = await fetch('/api/sync/direct', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
