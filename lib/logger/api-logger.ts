@@ -256,6 +256,37 @@ export class ApiLogger {
       console.log(message);
     }
   }
+
+  // Métodos de conveniência para diferentes níveis de log
+  public info(message: string, data?: any): void {
+    if (process.env.NODE_ENV === 'development') {
+      if (data) {
+        console.log(`[INFO] ${message}`, data);
+      } else {
+        console.log(`[INFO] ${message}`);
+      }
+    }
+  }
+
+  public warn(message: string, data?: any): void {
+    if (process.env.NODE_ENV === 'development') {
+      if (data) {
+        console.warn(`[WARN] ${message}`, data);
+      } else {
+        console.warn(`[WARN] ${message}`);
+      }
+    }
+  }
+
+  public error(message: string, error?: any): void {
+    if (process.env.NODE_ENV === 'development') {
+      if (error) {
+        console.error(`[ERROR] ${message}`, error);
+      } else {
+        console.error(`[ERROR] ${message}`);
+      }
+    }
+  }
 }
 
 // Instância singleton

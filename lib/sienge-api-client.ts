@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosResponse } from 'axios';
+import axios, { AxiosInstance, AxiosResponse, AxiosRequestConfig } from 'axios';
 import axiosRetry from 'axios-retry';
 import Bottleneck from 'bottleneck';
 import { prisma } from '@/lib/prisma';
@@ -697,6 +697,11 @@ export class SiengeApiClient {
     });
 
     return response.data;
+  }
+
+  // Verificar se o cliente está inicializado
+  isInitialized(): boolean {
+    return this.credentials !== null && this.baseURL !== '';
   }
 
   // Verificar saúde da API

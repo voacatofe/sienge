@@ -5,7 +5,7 @@ import {
   hasEndpointMapping,
   getEndpointMapping,
 } from './direct/endpoint-mappings';
-import { siengeClient } from '../../../lib/sienge-api-client';
+import { siengeApiClient } from '../../../lib/sienge-api-client';
 import {
   GenericDataMapper,
   GenericEndpointConfig,
@@ -149,10 +149,11 @@ async function processWithLegacyMapping(
         if (item[apiField] !== undefined) {
           if (typeof dbField === 'string') {
             mappedData[dbField] = item[apiField];
-          } else if (typeof dbField === 'object' && dbField.field) {
+          } else if (typeof dbField === 'object' && dbField !== null && 'field' in dbField) {
             // Aplicar transformação se definida
-            mappedData[dbField.field] = dbField.transform
-              ? dbField.transform(item[apiField])
+            const fieldMapping = dbField as { field: string; transform?: (value: any) => any };
+            mappedData[fieldMapping.field] = fieldMapping.transform
+              ? fieldMapping.transform(item[apiField])
               : item[apiField];
           }
         }
@@ -306,8 +307,8 @@ export async function POST(request: NextRequest) {
           // Fallback para dados diretos se não há configuração genérica
           extractedData = Array.isArray(apiResponse)
             ? apiResponse
-            : apiResponse?.data && Array.isArray(apiResponse.data)
-              ? apiResponse.data
+            : (apiResponse as any)?.data && Array.isArray((apiResponse as any).data)
+              ? (apiResponse as any).data
               : [];
         }
 
@@ -415,19 +416,19 @@ export async function POST(request: NextRequest) {
 async function getApiDataForEntity(entity: string): Promise<any[]> {
   try {
     // Inicializar cliente da API se não estiver inicializado
-    if (!siengeClient.isInitialized()) {
-      await siengeClient.initialize();
+    if (!siengeApiClient.isInitialized()) {
+      await siengeApiClient.initialize();
     }
 
     // Buscar dados da API usando o método genérico
-    const apiData = await siengeClient.fetchEntityData(
+    const apiData = await siengeApiClient.fetchEntityData(
       entity,
       {},
       {
         usePagination: true,
         batchSize: 100,
         maxPages: 5,
-        onProgress: (page, total) => {
+        onProgress: (page: number, total: number) => {
           console.log(`Buscando ${entity} - Página ${page}/${total}`);
         },
       }

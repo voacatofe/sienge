@@ -1,8 +1,107 @@
 # Planejamento de Implementação - Automação de Schema Prisma
 
-## Visão Geral
+## 📚 COMO FAZEMOS HOJE - Sistema Atual de Integração
 
-Este documento apresenta o planejamento completo para implementar soluções de automação na criação e manutenção do schema Prisma no projeto Sienge, baseado na análise da estrutura atual e nas melhores práticas identificadas.
+### Arquitetura do Fluxo de Dados Atual
+
+```
+[API Sienge] → [Cliente HTTP] → [Mapeador de Dados] → [Prisma ORM] → [PostgreSQL]
+     ↓              ↓                    ↓                  ↓            ↓
+  (YAMLs)     (Rate Limiter)    (Transformações)      (Validação)   (Persistência)
+```
+
+### Componentes Principais em Produção
+
+#### 1. **SiengeApiClient** (`lib/sienge-api-client.ts`)
+- Gerencia comunicação HTTP com API Sienge
+- Rate limiting automático (200 req/min)
+- Retry com backoff exponencial (3 tentativas)
+- Autenticação Basic Auth
+- Paginação automática de resultados
+
+#### 2. **GenericDataMapper** (`lib/generic-data-mapper.ts`)
+- Sistema de mapeamento flexível API → Banco
+- Transformações de tipos (datas, decimais, booleanos)
+- Validação de campos obrigatórios
+- Suporte a campos alternativos (fallback)
+- Configurações por endpoint
+
+#### 3. **Schema Prisma** (`prisma/schema.prisma`)
+- 10+ modelos principais definidos
+- Relacionamentos complexos mapeados
+- Índices otimizados para queries
+- Campos JSON para dados não estruturados
+
+#### 4. **Sync Route** (`app/api/sync/route.ts`)
+- Orquestração do processo de sincronização
+- Controle de logs de sincronização
+- Tratamento de erros e rollback
+- Processamento em lote
+
+### Processo Manual Atual para Nova Integração
+
+#### PASSO 1: Análise do YAML
+```bash
+# Developer analisa manualmente o YAML
+api-docs/sienge_yamls/novo-endpoint-v1.yaml
+# Identifica campos, tipos, estrutura de resposta
+```
+
+#### PASSO 2: Criação Manual do Model Prisma
+```prisma
+// Developer cria manualmente no schema.prisma
+model NovoModelo {
+  id        Int      @id
+  campo1    String
+  campo2    DateTime
+  // ... mapeia cada campo manualmente
+}
+```
+
+#### PASSO 3: Configuração Manual do Mapeamento
+```typescript
+// Developer adiciona manualmente em generic-data-mapper.ts
+novo_endpoint: {
+  apiEndpoint: '/novo-endpoint',
+  model: 'novoModelo',
+  primaryKey: 'id',
+  fieldMappings: [
+    // mapeia campo por campo manualmente
+    { sourceField: 'field1', targetField: 'campo1' },
+    // ... dezenas de campos
+  ]
+}
+```
+
+#### PASSO 4: Migration e Testes
+```bash
+# Developer executa comandos
+npx prisma migrate dev
+# Testa manualmente a sincronização
+# Debug de erros de mapeamento
+# Ajustes iterativos
+```
+
+### Problemas Identificados no Processo Atual
+
+1. **Tempo de Implementação**: 4-8 horas por endpoint
+2. **Erros de Digitação**: Nomes de campos incorretos
+3. **Inconsistências**: Tipos diferentes entre API e banco
+4. **Manutenção**: Mudanças na API quebram integrações
+5. **Documentação**: Desatualizada rapidamente
+6. **Validação**: Apenas em runtime, não em build time
+
+### Métricas do Sistema Atual
+
+- **20+ endpoints** disponíveis na API Sienge
+- **Apenas 5 endpoints** integrados atualmente
+- **Tempo médio**: 6 horas por integração completa
+- **Taxa de erro**: ~15% em novos mapeamentos
+- **Retrabalho**: 2-3 iterações até funcionar corretamente
+
+## Visão Geral da Proposta de Automação
+
+Este documento apresenta o planejamento completo para automatizar o processo acima, eliminando trabalho manual e reduzindo erros através de geração automática de código baseada nos YAMLs da API.
 
 ## Análise da Estrutura Atual
 
