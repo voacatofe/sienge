@@ -52,16 +52,16 @@ services:
     restart: unless-stopped
     environment:
       - NODE_ENV=production
-      - DATABASE_URL
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sienge_app}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-sienge_data}?schema=public
       - POSTGRES_HOST=db
       - POSTGRES_PORT=5432
-      - POSTGRES_USER
-      - POSTGRES_PASSWORD
-      - POSTGRES_DB
-      - NEXT_PUBLIC_APP_URL
-      - SIENGE_SUBDOMAIN
-      - SIENGE_USERNAME
-      - SIENGE_PASSWORD
+      - POSTGRES_USER=${POSTGRES_USER:-sienge_app}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB:-sienge_data}
+      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
+      - SIENGE_SUBDOMAIN=${SIENGE_SUBDOMAIN}
+      - SIENGE_USERNAME=${SIENGE_USERNAME}
+      - SIENGE_PASSWORD=${SIENGE_PASSWORD}
       - SYNC_SCHEDULE=${SYNC_SCHEDULE:-0 2 * * *}
       - SYNC_BATCH_SIZE=${SYNC_BATCH_SIZE:-200}
       - SYNC_MAX_RETRIES=${SYNC_MAX_RETRIES:-3}
@@ -75,7 +75,7 @@ services:
     volumes:
       - ./logs:/app/logs
     healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://${NEXT_PUBLIC_PRIMARY_DOMAIN}:3000/api/health']
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/api/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -109,7 +109,7 @@ services:
       db:
         condition: service_healthy
     healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://${NEXT_PUBLIC_PRIMARY_DOMAIN}:8080']
+      test: ['CMD', 'curl', '-f', 'http://localhost:8080']
       interval: 30s
       timeout: 10s
       retries: 3
