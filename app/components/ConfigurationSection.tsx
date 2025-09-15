@@ -199,13 +199,36 @@ export function ConfigurationSection({
               ? testResult.data.length
               : 'não é array',
             dataType: typeof testResult.data,
+            dataKeys: testResult.data
+              ? Object.keys(testResult.data)
+              : 'sem dados',
+            dataStructure: testResult.data,
             fullResponse: testResult,
           });
 
           if (testResult.success) {
-            const dataLength = Array.isArray(testResult.data)
-              ? testResult.data.length
-              : 0;
+            // Verificar se os dados estão em result.data.items (estrutura padrão da API Sienge)
+            let actualData = testResult.data;
+            let dataLength = 0;
+
+            if (testResult.data && typeof testResult.data === 'object') {
+              // Se tem propriedade 'items', usar ela
+              if (Array.isArray(testResult.data.items)) {
+                actualData = testResult.data.items;
+                dataLength = testResult.data.items.length;
+              }
+              // Se tem propriedade 'data', usar ela
+              else if (Array.isArray(testResult.data.data)) {
+                actualData = testResult.data.data;
+                dataLength = testResult.data.data.length;
+              }
+              // Se é um array direto
+              else if (Array.isArray(testResult.data)) {
+                actualData = testResult.data;
+                dataLength = testResult.data.length;
+              }
+            }
+
             console.log(
               `✅ ${endpoint.name}: Acesso permitido (${dataLength} registros no teste)`
             );
@@ -251,7 +274,7 @@ export function ConfigurationSection({
 
     // Parâmetros específicos por endpoint
     const endpointParams: Record<string, Record<string, any>> = {
-      customers: { limit: 1000 },
+      customers: { limit: 200 }, // Máximo permitido pela API Sienge
       companies: { limit: 100 },
       enterprises: { limit: 100 },
       units: { limit: 1000 },
@@ -328,12 +351,33 @@ export function ConfigurationSection({
         });
 
         if (response.ok && result.success) {
-          const data = Array.isArray(result.data) ? result.data : [];
+          // Extrair dados da estrutura correta da API Sienge
+          let actualData = result.data;
+          let dataLength = 0;
+
+          if (result.data && typeof result.data === 'object') {
+            // Se tem propriedade 'items', usar ela
+            if (Array.isArray(result.data.items)) {
+              actualData = result.data.items;
+              dataLength = result.data.items.length;
+            }
+            // Se tem propriedade 'data', usar ela
+            else if (Array.isArray(result.data.data)) {
+              actualData = result.data.data;
+              dataLength = result.data.data.length;
+            }
+            // Se é um array direto
+            else if (Array.isArray(result.data)) {
+              actualData = result.data;
+              dataLength = result.data.length;
+            }
+          }
+
           setSyncProgress(prev => ({ ...prev, [endpoint.id]: 'completed' }));
           results.push({
             endpoint: endpoint.name,
             path: endpoint.path,
-            count: data.length,
+            count: dataLength,
             success: true,
           });
           successCount++;
