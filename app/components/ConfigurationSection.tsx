@@ -175,6 +175,74 @@ export function ConfigurationSection({
       { id: 'patrimony-fixed', name: 'Patrimônio', path: '/patrimony/fixed' },
     ];
 
+    // Primeiro: testar conectividade com cada endpoint
+    console.log('🔍 Testando conectividade com endpoints...');
+    const validEndpoints: typeof endpoints = [];
+
+    for (const endpoint of endpoints) {
+      setSyncProgress(prev => ({ ...prev, [endpoint.id]: 'syncing' }));
+
+      try {
+        // Teste simples com limite baixo
+        const testParams = new URLSearchParams({
+          endpoint: endpoint.path,
+          limit: '1', // Apenas 1 registro para teste
+        });
+
+        const testResponse = await fetch(`/api/sienge/proxy?${testParams}`);
+
+        if (testResponse.ok) {
+          const testResult = await testResponse.json();
+          console.log(`🔍 Debug ${endpoint.name}:`, {
+            success: testResult.success,
+            dataLength: Array.isArray(testResult.data)
+              ? testResult.data.length
+              : 'não é array',
+            dataType: typeof testResult.data,
+            fullResponse: testResult,
+          });
+
+          if (testResult.success) {
+            const dataLength = Array.isArray(testResult.data)
+              ? testResult.data.length
+              : 0;
+            console.log(
+              `✅ ${endpoint.name}: Acesso permitido (${dataLength} registros no teste)`
+            );
+            validEndpoints.push(endpoint);
+            setSyncProgress(prev => ({ ...prev, [endpoint.id]: 'completed' }));
+          } else {
+            console.log(
+              `❌ ${endpoint.name}: ${testResult.error || 'Erro desconhecido'}`
+            );
+            setSyncProgress(prev => ({ ...prev, [endpoint.id]: 'error' }));
+          }
+        } else {
+          console.log(`❌ ${endpoint.name}: HTTP ${testResponse.status}`);
+          setSyncProgress(prev => ({ ...prev, [endpoint.id]: 'error' }));
+        }
+      } catch (error) {
+        console.log(`❌ ${endpoint.name}: Erro de conexão`);
+        setSyncProgress(prev => ({ ...prev, [endpoint.id]: 'error' }));
+      }
+
+      // Aguardar um pouco entre testes
+      await new Promise(resolve => setTimeout(resolve, 200));
+    }
+
+    console.log(
+      `📊 Endpoints válidos encontrados: ${validEndpoints.length}/${endpoints.length}`
+    );
+
+    if (validEndpoints.length === 0) {
+      setSubmitStatus('error');
+      setErrorMessage('Nenhum endpoint está acessível com suas credenciais');
+      return;
+    }
+
+    // Agora sincronizar apenas os endpoints válidos
+    console.log('🔄 Iniciando sincronização dos endpoints válidos...');
+
     // Calcular data de 1 ano atrás
     const oneYearAgo = new Date();
     oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
@@ -229,8 +297,8 @@ export function ConfigurationSection({
     let successCount = 0;
     let errorCount = 0;
 
-    // Sincronizar cada endpoint
-    for (const endpoint of endpoints) {
+    // Sincronizar apenas os endpoints válidos
+    for (const endpoint of validEndpoints) {
       setSyncProgress(prev => ({ ...prev, [endpoint.id]: 'syncing' }));
 
       try {
@@ -249,6 +317,16 @@ export function ConfigurationSection({
         const response = await fetch(`/api/sienge/proxy?${queryParams}`);
         const result = await response.json();
 
+        console.log(`🔄 Sincronização ${endpoint.name}:`, {
+          success: result.success,
+          dataLength: Array.isArray(result.data)
+            ? result.data.length
+            : 'não é array',
+          dataType: typeof result.data,
+          params: params,
+          statusCode: response.status,
+        });
+
         if (response.ok && result.success) {
           const data = Array.isArray(result.data) ? result.data : [];
           setSyncProgress(prev => ({ ...prev, [endpoint.id]: 'completed' }));
@@ -266,7 +344,10 @@ export function ConfigurationSection({
             path: endpoint.path,
             count: 0,
             success: false,
-            error: result.error || 'Erro desconhecido',
+            error:
+              result.error ||
+              `HTTP ${response.status}: ${result.message || 'Erro desconhecido'}`,
+            statusCode: response.status,
           });
           errorCount++;
         }
@@ -284,6 +365,23 @@ export function ConfigurationSection({
 
       // Aguardar um pouco entre endpoints
       await new Promise(resolve => setTimeout(resolve, 500));
+    }
+
+    // Adicionar endpoints que falharam no teste de conectividade
+    const failedEndpoints = endpoints.filter(
+      ep => !validEndpoints.some(ve => ve.id === ep.id)
+    );
+    for (const endpoint of failedEndpoints) {
+      results.push({
+        endpoint: endpoint.name,
+        path: endpoint.path,
+        count: 0,
+        success: false,
+        error:
+          '403 Forbidden: Permission denied - Usuário não tem permissão para acessar este endpoint',
+        statusCode: 403,
+      });
+      errorCount++;
     }
 
     setSyncResults(results);
@@ -336,8 +434,24 @@ export function ConfigurationSection({
         </div>
 
         {/* Resumo da sincronização */}
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
-          <h4 className="font-medium text-green-800 mb-2">
+        <div
+          className={`border rounded-lg p-4 mb-4 ${
+            syncResults.filter(r => !r.success).length === 0
+              ? 'bg-green-50 border-green-200'
+              : syncResults.filter(r => r.success).length > 0
+                ? 'bg-yellow-50 border-yellow-200'
+                : 'bg-red-50 border-red-200'
+          }`}
+        >
+          <h4
+            className={`font-medium mb-2 ${
+              syncResults.filter(r => !r.success).length === 0
+                ? 'text-green-800'
+                : syncResults.filter(r => r.success).length > 0
+                  ? 'text-yellow-800'
+                  : 'text-red-800'
+            }`}
+          >
             Resumo da Sincronização:
           </h4>
           <div className="grid grid-cols-2 gap-4 text-sm">
@@ -346,7 +460,7 @@ export function ConfigurationSection({
             </div>
             <div>
               <span className="font-medium">Endpoints:</span>{' '}
-              {syncResults.length} sincronizados
+              {syncResults.length} testados
             </div>
             <div>
               <span className="font-medium">Sucessos:</span>{' '}
@@ -357,6 +471,28 @@ export function ConfigurationSection({
               {syncResults.filter(r => !r.success).length}
             </div>
           </div>
+
+          {/* Resumo de erros */}
+          {syncResults.filter(r => !r.success).length > 0 && (
+            <div className="mt-3 pt-3 border-t border-gray-200">
+              <div className="text-sm">
+                <span className="font-medium">Principais erros:</span>
+                <ul className="mt-1 space-y-1 text-xs">
+                  {Array.from(
+                    new Set(
+                      syncResults.filter(r => !r.success).map(r => r.error)
+                    )
+                  )
+                    .slice(0, 3)
+                    .map((error, index) => (
+                      <li key={index} className="text-red-700">
+                        • {error}
+                      </li>
+                    ))}
+                </ul>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Lista de resultados */}
@@ -367,20 +503,48 @@ export function ConfigurationSection({
           {syncResults.map((result, index) => (
             <div
               key={index}
-              className={`flex items-center justify-between p-2 rounded ${
-                result.success ? 'bg-green-50' : 'bg-red-50'
+              className={`p-3 rounded-lg border ${
+                result.success
+                  ? 'bg-green-50 border-green-200'
+                  : 'bg-red-50 border-red-200'
               }`}
             >
-              <div className="flex items-center">
-                <span
-                  className={`mr-2 ${result.success ? 'text-green-600' : 'text-red-600'}`}
-                >
-                  {result.success ? '✅' : '❌'}
-                </span>
-                <span className="font-medium">{result.endpoint}</span>
-              </div>
-              <div className="text-sm text-gray-600">
-                {result.success ? `${result.count} registros` : result.error}
+              <div className="flex items-start justify-between">
+                <div className="flex items-start">
+                  <span
+                    className={`mr-3 text-lg ${result.success ? 'text-green-600' : 'text-red-600'}`}
+                  >
+                    {result.success ? '✅' : '❌'}
+                  </span>
+                  <div className="flex-1">
+                    <div className="font-medium text-gray-900">
+                      {result.endpoint}
+                    </div>
+                    <div className="text-sm text-gray-600 mt-1">
+                      <code className="bg-white px-2 py-1 rounded text-xs">
+                        {result.path}
+                      </code>
+                    </div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  {result.success ? (
+                    <div className="text-sm text-green-700 font-medium">
+                      {result.count} registros
+                    </div>
+                  ) : (
+                    <div className="text-sm text-red-700">
+                      <div className="font-medium">
+                        {result.statusCode
+                          ? `HTTP ${result.statusCode}`
+                          : 'Erro'}
+                      </div>
+                      <div className="text-xs mt-1 max-w-xs break-words">
+                        {result.error}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           ))}
