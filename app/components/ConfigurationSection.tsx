@@ -157,8 +157,12 @@ export function ConfigurationSection({
           let pageData: any[] = [];
 
           if (result.data && typeof result.data === 'object') {
+            // Se tem propriedade 'results', usar ela (estrutura padrão da API Sienge)
+            if (Array.isArray(result.data.results)) {
+              pageData = result.data.results;
+            }
             // Se tem propriedade 'items', usar ela
-            if (Array.isArray(result.data.items)) {
+            else if (Array.isArray(result.data.items)) {
               pageData = result.data.items;
             }
             // Se tem propriedade 'data', usar ela
@@ -308,8 +312,13 @@ export function ConfigurationSection({
             let dataLength = 0;
 
             if (testResult.data && typeof testResult.data === 'object') {
+              // Se tem propriedade 'results', usar ela (estrutura padrão da API Sienge)
+              if (Array.isArray(testResult.data.results)) {
+                actualData = testResult.data.results;
+                dataLength = testResult.data.results.length;
+              }
               // Se tem propriedade 'items', usar ela
-              if (Array.isArray(testResult.data.items)) {
+              else if (Array.isArray(testResult.data.items)) {
                 actualData = testResult.data.items;
                 dataLength = testResult.data.items.length;
               }
