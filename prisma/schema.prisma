@@ -109,6 +109,24 @@ model Cliente {
   matrimonialRegime        String?  @map("matrimonialRegime")
   motherName               String?  @map("motherName")
 
+  // Campos adicionais da API Sienge (pessoa jurídica)
+  cityRegistrationNumber   String?  @map("cityRegistrationNumber")
+  cnaeNumber              String?  @map("cnaeNumber")
+  contactName             String?  @map("contactName")
+  creaNumber              String?  @map("creaNumber")
+  establishmentDate       DateTime? @map("establishmentDate")
+  fantasyName             String?  @map("fantasyName")
+  note                    String?  @map("note")
+  site                    String?  @map("site")
+  shareCapital            Decimal? @map("shareCapital")
+  stateRegistrationNumber String?  @map("stateRegistrationNumber")
+  technicalManager        String?  @map("technicalManager")
+  
+  // Campos gerais da API Sienge
+  personType              String?  @map("personType")
+  activityId              Int?     @map("activityId")
+  activityDescription     String?  @map("activityDescription")
+
   // Relacionamentos
   empresa                  Empresa? @relation(fields: [idEmpresa], references: [idEmpresa])
   telefones                ClienteTelefone[]
