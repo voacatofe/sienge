@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
-import { ENDPOINT_MAPPINGS, hasEndpointMapping, getEndpointMapping } from './endpoint-mappings';
+import {
+  ENDPOINT_MAPPINGS,
+  hasEndpointMapping,
+  getEndpointMapping,
+} from './endpoint-mappings';
 
 const prisma = new PrismaClient();
 
@@ -18,41 +22,50 @@ function validateRequiredParams(params: any) {
   return endpoint && data;
 }
 
-
-
 // Função genérica para processar qualquer endpoint
-async function processGenericEndpoint(endpoint: string, data: any[], syncLogId: number, prisma: any) {
+async function processGenericEndpoint(
+  endpoint: string,
+  data: any[],
+  syncLogId: number,
+  prisma: any
+) {
   const results = { inserted: 0, updated: 0, errors: 0 };
   const mapping = getEndpointMapping(endpoint);
-  
+
   if (!mapping) {
     console.log(`Endpoint ${endpoint} não tem mapeamento definido`);
     return { inserted: data.length, updated: 0, errors: 0 };
   }
-  
+
   for (const item of data) {
     try {
       const mappedData: any = {};
-      
+
       // Aplicar mapeamento de campos
-      for (const [sourceField, targetConfig] of Object.entries(mapping.fieldMapping)) {
+      for (const [sourceField, targetConfig] of Object.entries(
+        mapping.fieldMapping
+      )) {
         const sourceValue = item[sourceField];
-        
+
         if (typeof targetConfig === 'string') {
           mappedData[targetConfig] = sourceValue;
         } else if (typeof targetConfig === 'object' && targetConfig.field) {
-          mappedData[targetConfig.field] = targetConfig.transform ? targetConfig.transform(sourceValue) : sourceValue;
+          mappedData[targetConfig.field] = targetConfig.transform
+            ? targetConfig.transform(sourceValue)
+            : sourceValue;
         }
       }
-      
+
       // Verificar se o registro já existe
       const whereClause = { [mapping.primaryKey]: item.id };
-      const existingRecord = await (prisma as any)[mapping.model].findUnique({ where: whereClause });
-      
+      const existingRecord = await (prisma as any)[mapping.model].findUnique({
+        where: whereClause,
+      });
+
       if (existingRecord) {
         await (prisma as any)[mapping.model].update({
           where: whereClause,
-          data: mappedData
+          data: mappedData,
         });
         results.updated++;
       } else {
@@ -64,14 +77,12 @@ async function processGenericEndpoint(endpoint: string, data: any[], syncLogId: 
       results.errors++;
     }
   }
-  
+
   return results;
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const { prisma } = await import('@/lib/prisma');
-    
     const body: DirectSyncRequest = await request.json();
     const { endpoint, data } = body;
 
@@ -121,13 +132,20 @@ export async function POST(request: NextRequest) {
         case 'hooks':
         case 'patrimony-fixed':
           // Para endpoints sem tabelas específicas, apenas logar os dados recebidos
-          console.log(`Dados recebidos para ${endpoint}:`, data.length, 'registros');
+          console.log(
+            `Dados recebidos para ${endpoint}:`,
+            data.length,
+            'registros'
+          );
           result = { inserted: data.length, updated: 0, errors: 0 };
           break;
-        
+
         default:
           // Para outros endpoints, apenas logar por enquanto
-          console.log(`Endpoint ${endpoint} não implementado ainda. Dados recebidos:`, data.length);
+          console.log(
+            `Endpoint ${endpoint} não implementado ainda. Dados recebidos:`,
+            data.length
+          );
           result = { inserted: 0, updated: 0, errors: 0 };
       }
     }

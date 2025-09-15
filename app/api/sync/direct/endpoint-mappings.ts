@@ -13,7 +13,7 @@ export interface EndpointMapping {
 }
 
 export const ENDPOINT_MAPPINGS: Record<string, EndpointMapping> = {
-  'customers': {
+  customers: {
     model: 'cliente',
     primaryKey: 'idCliente',
     fieldMapping: {
@@ -22,11 +22,17 @@ export const ENDPOINT_MAPPINGS: Record<string, EndpointMapping> = {
       cpfCnpj: 'cpfCnpj',
       email: 'email',
       active: { field: 'ativo', transform: (val: any) => val !== false },
-      createdAt: { field: 'dataCadastro', transform: (val: any) => val ? new Date(val) : new Date() },
+      createdAt: {
+        field: 'dataCadastro',
+        transform: (val: any) => (val ? new Date(val) : new Date()),
+      },
       updatedAt: { field: 'dataAtualizacao', transform: () => new Date() },
       socialName: 'nomeSocial',
       rg: 'rg',
-      birthDate: { field: 'dataNascimento', transform: (val: any) => val ? new Date(val) : null },
+      birthDate: {
+        field: 'dataNascimento',
+        transform: (val: any) => (val ? new Date(val) : null),
+      },
       nationality: 'nacionalidade',
       maritalStatus: 'estadoCivilStr',
       profession: 'profissaoStr',
@@ -36,33 +42,48 @@ export const ENDPOINT_MAPPINGS: Record<string, EndpointMapping> = {
       clientType: 'clientType',
       fatherName: 'fatherName',
       internationalId: 'internationalId',
-      issueDateIdentityCard: { field: 'issueDateIdentityCard', transform: (val: any) => val ? new Date(val) : null },
+      issueDateIdentityCard: {
+        field: 'issueDateIdentityCard',
+        transform: (val: any) => (val ? new Date(val) : null),
+      },
       issuingBody: 'issuingBody',
-      licenseIssueDate: { field: 'licenseIssueDate', transform: (val: any) => val ? new Date(val) : null },
+      licenseIssueDate: {
+        field: 'licenseIssueDate',
+        transform: (val: any) => (val ? new Date(val) : null),
+      },
       licenseIssuingBody: 'licenseIssuingBody',
       licenseNumber: 'licenseNumber',
       mailingAddress: 'mailingAddress',
-      marriageDate: { field: 'marriageDate', transform: (val: any) => val ? new Date(val) : null },
+      marriageDate: {
+        field: 'marriageDate',
+        transform: (val: any) => (val ? new Date(val) : null),
+      },
       matrimonialRegime: 'matrimonialRegime',
       motherName: 'motherName',
       cityRegistrationNumber: 'cityRegistrationNumber',
       cnaeNumber: 'cnaeNumber',
       contactName: 'contactName',
       creaNumber: 'creaNumber',
-      establishmentDate: { field: 'establishmentDate', transform: (val: any) => val ? new Date(val) : null },
+      establishmentDate: {
+        field: 'establishmentDate',
+        transform: (val: any) => (val ? new Date(val) : null),
+      },
       fantasyName: 'fantasyName',
       note: 'note',
       site: 'site',
-      shareCapital: { field: 'shareCapital', transform: (val: any) => val ? parseFloat(val) : null },
+      shareCapital: {
+        field: 'shareCapital',
+        transform: (val: any) => (val ? parseFloat(val) : null),
+      },
       stateRegistrationNumber: 'stateRegistrationNumber',
       technicalManager: 'technicalManager',
       personType: 'personType',
       activityId: 'activityId',
-      activityDescription: 'activityDescription'
-    }
+      activityDescription: 'activityDescription',
+    },
   },
-  
-  'companies': {
+
+  companies: {
     model: 'empresa',
     primaryKey: 'idEmpresa',
     fieldMapping: {
@@ -79,11 +100,14 @@ export const ENDPOINT_MAPPINGS: Record<string, EndpointMapping> = {
       email: 'email',
       website: 'site',
       active: { field: 'ativo', transform: (val: any) => val !== false },
-      createdAt: { field: 'dataCadastro', transform: (val: any) => val ? new Date(val) : new Date() },
-      updatedAt: { field: 'dataAtualizacao', transform: () => new Date() }
-    }
+      createdAt: {
+        field: 'dataCadastro',
+        transform: (val: any) => (val ? new Date(val) : new Date()),
+      },
+      updatedAt: { field: 'dataAtualizacao', transform: () => new Date() },
+    },
   },
-  
+
   'sales-contracts': {
     model: 'contratoVenda',
     primaryKey: 'id',
@@ -97,44 +121,101 @@ export const ENDPOINT_MAPPINGS: Record<string, EndpointMapping> = {
       enterpriseName: 'enterpriseName',
       receivableBillId: 'receivableBillId',
       cancellationPayableBillId: 'cancellationPayableBillId',
-      contractDate: { field: 'contractDate', transform: (val: any) => val ? new Date(val) : null },
-      issueDate: { field: 'issueDate', transform: (val: any) => val ? new Date(val) : null },
-      accountingDate: { field: 'accountingDate', transform: (val: any) => val ? new Date(val) : null },
-      expectedDeliveryDate: { field: 'expectedDeliveryDate', transform: (val: any) => val ? new Date(val) : null },
-      keysDeliveredAt: { field: 'keysDeliveredAt', transform: (val: any) => val ? new Date(val) : null },
+      contractDate: {
+        field: 'contractDate',
+        transform: (val: any) => (val ? new Date(val) : null),
+      },
+      issueDate: {
+        field: 'issueDate',
+        transform: (val: any) => (val ? new Date(val) : null),
+      },
+      accountingDate: {
+        field: 'accountingDate',
+        transform: (val: any) => (val ? new Date(val) : null),
+      },
+      expectedDeliveryDate: {
+        field: 'expectedDeliveryDate',
+        transform: (val: any) => (val ? new Date(val) : null),
+      },
+      keysDeliveredAt: {
+        field: 'keysDeliveredAt',
+        transform: (val: any) => (val ? new Date(val) : null),
+      },
       number: 'number',
       externalId: 'externalId',
       correctionType: 'correctionType',
       situation: 'situation',
       discountType: 'discountType',
-      discountPercentage: { field: 'discountPercentage', transform: (val: any) => val ? parseFloat(val) : null },
-      value: { field: 'value', transform: (val: any) => val ? parseFloat(val) : null },
-      totalSellingValue: { field: 'totalSellingValue', transform: (val: any) => val ? parseFloat(val) : null },
-      cancellationDate: { field: 'cancellationDate', transform: (val: any) => val ? new Date(val) : null },
-      totalCancellationAmount: { field: 'totalCancellationAmount', transform: (val: any) => val ? parseFloat(val) : null },
+      discountPercentage: {
+        field: 'discountPercentage',
+        transform: (val: any) => (val ? parseFloat(val) : null),
+      },
+      value: {
+        field: 'value',
+        transform: (val: any) => (val ? parseFloat(val) : null),
+      },
+      totalSellingValue: {
+        field: 'totalSellingValue',
+        transform: (val: any) => (val ? parseFloat(val) : null),
+      },
+      cancellationDate: {
+        field: 'cancellationDate',
+        transform: (val: any) => (val ? new Date(val) : null),
+      },
+      totalCancellationAmount: {
+        field: 'totalCancellationAmount',
+        transform: (val: any) => (val ? parseFloat(val) : null),
+      },
       cancellationReason: 'cancellationReason',
       financialInstitutionNumber: 'financialInstitutionNumber',
-      financialInstitutionDate: { field: 'financialInstitutionDate', transform: (val: any) => val ? new Date(val) : null },
+      financialInstitutionDate: {
+        field: 'financialInstitutionDate',
+        transform: (val: any) => (val ? new Date(val) : null),
+      },
       proRataIndexer: 'proRataIndexer',
       interestType: 'interestType',
-      interestPercentage: { field: 'interestPercentage', transform: (val: any) => val ? parseFloat(val) : null },
-      fineRate: { field: 'fineRate', transform: (val: any) => val ? parseFloat(val) : null },
+      interestPercentage: {
+        field: 'interestPercentage',
+        transform: (val: any) => (val ? parseFloat(val) : null),
+      },
+      fineRate: {
+        field: 'fineRate',
+        transform: (val: any) => (val ? parseFloat(val) : null),
+      },
       lateInterestCalculationType: 'lateInterestCalculationType',
-      dailyLateInterestValue: { field: 'dailyLateInterestValue', transform: (val: any) => val ? parseFloat(val) : null },
+      dailyLateInterestValue: {
+        field: 'dailyLateInterestValue',
+        transform: (val: any) => (val ? parseFloat(val) : null),
+      },
       containsRemadeInstallments: 'containsRemadeInstallments',
       specialClause: 'specialClause',
-      salesContractCustomers: { field: 'salesContractCustomers', transform: (val: any) => val || null },
-      salesContractUnits: { field: 'salesContractUnits', transform: (val: any) => val || null },
-      paymentConditions: { field: 'paymentConditions', transform: (val: any) => val || null },
+      salesContractCustomers: {
+        field: 'salesContractCustomers',
+        transform: (val: any) => val || null,
+      },
+      salesContractUnits: {
+        field: 'salesContractUnits',
+        transform: (val: any) => val || null,
+      },
+      paymentConditions: {
+        field: 'paymentConditions',
+        transform: (val: any) => val || null,
+      },
       brokers: { field: 'brokers', transform: (val: any) => val || null },
-      linkedCommissions: { field: 'linkedCommissions', transform: (val: any) => val || null },
+      linkedCommissions: {
+        field: 'linkedCommissions',
+        transform: (val: any) => val || null,
+      },
       links: { field: 'links', transform: (val: any) => val || null },
-      createdAt: { field: 'dataCadastro', transform: (val: any) => val ? new Date(val) : new Date() },
-      updatedAt: { field: 'dataAtualizacao', transform: () => new Date() }
-    }
+      createdAt: {
+        field: 'dataCadastro',
+        transform: (val: any) => (val ? new Date(val) : new Date()),
+      },
+      updatedAt: { field: 'dataAtualizacao', transform: () => new Date() },
+    },
   },
-  
-  'income': {
+
+  income: {
     model: 'tituloReceber',
     primaryKey: 'idTituloReceber',
     fieldMapping: {
@@ -146,22 +227,66 @@ export const ENDPOINT_MAPPINGS: Record<string, EndpointMapping> = {
       documentNumber: 'numeroDocumento',
       number: 'numeroDocumento',
       documentIdentId: 'idDocumentoIdent',
-      issueDate: { field: 'dataEmissao', transform: (val: any) => val ? new Date(val) : new Date() },
-      dueDate: { field: 'dataVencimento', transform: (val: any) => val ? new Date(val) : new Date() },
-      originalValue: { field: 'valorOriginal', transform: (val: any) => val ? parseFloat(val) : 0 },
-      updatedValue: { field: 'valorAtualizado', transform: (val: any) => val ? parseFloat(val) : null },
+      issueDate: {
+        field: 'dataEmissao',
+        transform: (val: any) => (val ? new Date(val) : new Date()),
+      },
+      dueDate: {
+        field: 'dataVencimento',
+        transform: (val: any) => (val ? new Date(val) : new Date()),
+      },
+      originalValue: {
+        field: 'valorOriginal',
+        transform: (val: any) => (val ? parseFloat(val) : 0),
+      },
+      updatedValue: {
+        field: 'valorAtualizado',
+        transform: (val: any) => (val ? parseFloat(val) : null),
+      },
       indexerId: 'idIndexador',
-      interest: { field: 'juros', transform: (val: any) => val ? parseFloat(val) : null },
-      fine: { field: 'multa', transform: (val: any) => val ? parseFloat(val) : null },
-      discountGranted: { field: 'descontoConcedido', transform: (val: any) => val ? parseFloat(val) : null },
-      paidValue: { field: 'valorPago', transform: (val: any) => val ? parseFloat(val) : null },
-      paymentDate: { field: 'dataPagamento', transform: (val: any) => val ? new Date(val) : null },
+      interest: {
+        field: 'juros',
+        transform: (val: any) => (val ? parseFloat(val) : null),
+      },
+      fine: {
+        field: 'multa',
+        transform: (val: any) => (val ? parseFloat(val) : null),
+      },
+      discountGranted: {
+        field: 'descontoConcedido',
+        transform: (val: any) => (val ? parseFloat(val) : null),
+      },
+      paidValue: {
+        field: 'valorPago',
+        transform: (val: any) => (val ? parseFloat(val) : null),
+      },
+      paymentDate: {
+        field: 'dataPagamento',
+        transform: (val: any) => (val ? new Date(val) : null),
+      },
       status: { field: 'status', transform: (val: any) => val || 'pending' },
       observations: 'observacoes',
       notes: 'observacoes',
       carrierId: 'idPortador',
-      financialPlanId: 'idPlanoFinanceiro'
-    }
+      financialPlanId: 'idPlanoFinanceiro',
+      receivableBillId: 'receivableBillId',
+      documentId: 'documentId',
+      receivableBillValue: {
+        field: 'receivableBillValue',
+        transform: (val: any) => (val ? parseFloat(val) : null),
+      },
+      defaulting: {
+        field: 'defaulting',
+        transform: (val: any) => val === true,
+      },
+      subjudice: { field: 'subjudice', transform: (val: any) => val === true },
+      payOffDate: {
+        field: 'payOffDate',
+        transform: (val: any) => (val ? new Date(val) : null),
+      },
+      normal: { field: 'normal', transform: (val: any) => val !== false },
+      inBilling: { field: 'inBilling', transform: (val: any) => val === true },
+    },
   },
 
   // Exemplo de como adicionar um novo endpoint:
@@ -187,6 +312,8 @@ export function hasEndpointMapping(endpoint: string): boolean {
 }
 
 // Função utilitária para obter o mapeamento de um endpoint
-export function getEndpointMapping(endpoint: string): EndpointMapping | undefined {
+export function getEndpointMapping(
+  endpoint: string
+): EndpointMapping | undefined {
   return ENDPOINT_MAPPINGS[endpoint];
 }

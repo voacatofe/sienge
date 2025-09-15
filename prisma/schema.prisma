@@ -220,21 +220,23 @@ model PlanoFinanceiro {
 
 model PortadorRecebimento {
   idPortador        Int     @id @map("idPortador")
-  nomePortador      String  @map("nomePortador")
-  tipoPortador      String? @map("tipoPortador")
-  codigoPortador    String? @map("codigoPortador")
+  nome              String  @map("nome")
+  descricao         String? @map("descricao")
+  codigo            String? @map("codigo")
+  tipo              String? @map("tipo")
   ativo             Boolean @default(true) @map("ativo")
 
   // Relacionamentos
   titulosReceber    TituloReceber[]
 
-  @@index([nomePortador])
+  @@index([nome])
+  @@index([codigo])
   @@index([ativo])
   @@map("portadores_recebimento")
 }
 
 model TituloReceber {
-  idTituloReceber     Int      @id @map("idTituloReceber")
+  idTituloReceber     Int      @id @default(autoincrement()) @map("idTituloReceber")
   idContrato          Int?     @map("idContrato")
   idCliente           Int      @map("idCliente")
   idEmpresa           Int?     @map("idEmpresa")
@@ -254,6 +256,18 @@ model TituloReceber {
   observacoes         String?  @map("observacoes")
   idPortador          Int?     @map("idPortador")
   idPlanoFinanceiro   Int?     @map("idPlanoFinanceiro")
+  
+  // Campos adicionais da API Sienge
+  receivableBillId    Int?     @map("receivableBillId")
+  documentId          String?  @map("documentId")
+  documentNumber      String?  @map("documentNumber")
+  receivableBillValue Decimal? @map("receivableBillValue")
+  companyId           Int?     @map("companyId")
+  defaulting          Boolean  @default(false) @map("defaulting")
+  subjudice           Boolean  @default(false) @map("subjudice")
+  payOffDate          DateTime? @map("payOffDate")
+  normal              Boolean  @default(true) @map("normal")
+  inBilling           Boolean  @default(false) @map("inBilling")
 
   // Relacionamentos
   cliente             Cliente @relation(fields: [idCliente], references: [idCliente])
@@ -269,8 +283,14 @@ model TituloReceber {
   @@index([idCliente])
   @@index([idContrato])
   @@index([idPortador])
+  @@index([receivableBillId])
+  @@index([documentId])
+  @@index([companyId])
+  @@index([defaulting])
   @@index([status, dataVencimento])
   @@index([idCliente, status])
+  @@index([receivableBillId, status])
+  @@index([companyId, status])
   @@map("titulos_receber")
 }
 
@@ -344,6 +364,19 @@ model ContratoVenda {
   dailyLateInterestValue Decimal? @map("dailyLateInterestValue")
   containsRemadeInstallments Boolean? @map("containsRemadeInstallments")
   specialClause         String?  @map("specialClause")
+  
+  // Campos adicionais baseados na API
+  installmentPlan       String?  @map("installmentPlan")
+  paymentMethod         String?  @map("paymentMethod")
+  contractStatus        String?  @map("contractStatus")
+  totalInstallments     Int?     @map("totalInstallments")
+  paidInstallments      Int?     @map("paidInstallments")
+  remainingBalance      Decimal? @map("remainingBalance")
+  lastPaymentDate       DateTime? @map("lastPaymentDate")
+  nextPaymentDate       DateTime? @map("nextPaymentDate")
+  contractType          String?  @map("contractType")
+  salesRepresentative   String?  @map("salesRepresentative")
+  observations          String?  @map("observations")
   
   // Dados de clientes do contrato (JSON)
   salesContractCustomers Json?   @map("salesContractCustomers")
