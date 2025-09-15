@@ -209,7 +209,7 @@ async function saveCustomers(
       // Mapear dados da API para schema do banco
       const customerData = {
         idCliente: customer.id,
-        idEmpresa: null, // Não usar empresa por enquanto até ser configurada
+        idEmpresa: customer.enterpriseId || null, // Usar enterpriseId da API se disponível
         nomeCompleto: cleanCustomer.nomeCompleto || '',
         cpfCnpj: cleanCustomer.cpfCnpj || '',
         email: cleanCustomer.email || null,
