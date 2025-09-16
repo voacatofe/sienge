@@ -1,0 +1,342 @@
+// ============================================
+// DATA WAREHOUSE SCHEMA - SIENGE ANALYTICS
+// Star Schema para Business Intelligence
+// ============================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// TABELAS DE DIMENSÕES (dim_*)
+// ============================================
+
+// Dimensão Tempo - fundamental para análise temporal
+model DimTempo {
+  dateKey         Int      @id @map("date_key") // YYYYMMDD
+  fullDate        DateTime @map("full_date")
+  year            Int      @map("year")
+  quarter         Int      @map("quarter")
+  month           Int      @map("month")
+  monthName       String   @map("month_name")
+  day             Int      @map("day")
+  dayOfWeek       Int      @map("day_of_week")
+  dayOfWeekName   String   @map("day_of_week_name")
+  weekOfYear      Int      @map("week_of_year")
+  isWeekend       Boolean  @map("is_weekend")
+  isHoliday       Boolean  @default(false) @map("is_holiday")
+  semester        Int      @map("semester")
+
+  // Relacionamentos
+  factVendas      FactVendas[]
+  factFinanceiro  FactFinanceiro[]
+  factContratos   FactContratos[]
+
+  @@index([year, month])
+  @@index([quarter])
+  @@index([isWeekend])
+  @@map("dim_tempo")
+}
+
+// Dimensão Empresa
+model DimEmpresa {
+  empresaKey      Int      @id @map("empresa_key")
+  idEmpresa       Int      @unique @map("id_empresa")
+  nomeEmpresa     String   @map("nome_empresa")
+  cnpj            String?  @map("cnpj")
+  cidade          String?  @map("cidade")
+  estado          String?  @map("estado")
+  regiao          String?  @map("regiao") // Derivado do estado
+  porte           String?  @map("porte") // Pequeno/Médio/Grande
+  segmento        String?  @map("segmento") // Derivado do CNAE
+  ativo           Boolean  @default(true) @map("ativo")
+  dataInicioVigencia DateTime @default(now()) @map("data_inicio_vigencia")
+  dataFimVigencia    DateTime? @map("data_fim_vigencia")
+
+  // Relacionamentos
+  factVendas      FactVendas[]
+  factFinanceiro  FactFinanceiro[]
+  factContratos   FactContratos[]
+
+  @@index([estado, cidade])
+  @@index([porte])
+  @@index([ativo])
+  @@map("dim_empresa")
+}
+
+// Dimensão Cliente (com SCD Type 2 para manter histórico)
+model DimCliente {
+  clienteKey      Int      @id @map("cliente_key")
+  idCliente       Int      @map("id_cliente")
+  nomeCompleto    String   @map("nome_completo")
+  cpfCnpj         String?  @map("cpf_cnpj")
+  personType      String?  @map("person_type") // PF/PJ
+  idade           Int?     @map("idade") // Calculada
+  faixaEtaria     String?  @map("faixa_etaria") // 18-25, 26-35, etc
+  sexo            String?  @map("sexo")
+  estadoCivil     String?  @map("estado_civil")
+  profissao       String?  @map("profissao")
+  cidade          String?  @map("cidade")
+  estado          String?  @map("estado")
+  regiao          String?  @map("regiao")
+  segmentoCliente String?  @map("segmento_cliente") // VIP, Premium, Standard
+  scoreCredito    String?  @map("score_credito") // Alto, Médio, Baixo
+  ativo           Boolean  @default(true) @map("ativo")
+
+  // SCD Type 2 - Controle de versão
+  dataInicioVigencia DateTime @default(now()) @map("data_inicio_vigencia")
+  dataFimVigencia    DateTime? @map("data_fim_vigencia")
+  versaoAtual        Boolean  @default(true) @map("versao_atual")
+
+  // Relacionamentos
+  factVendas      FactVendas[]
+  factFinanceiro  FactFinanceiro[]
+  factContratos   FactContratos[]
+
+  @@index([idCliente, versaoAtual])
+  @@index([personType])
+  @@index([faixaEtaria, sexo])
+  @@index([regiao, estado])
+  @@map("dim_cliente")
+}
+
+// Dimensão Empreendimento
+model DimEmpreendimento {
+  empreendimentoKey Int      @id @map("empreendimento_key")
+  idEmpreendimento  Int      @unique @map("id_empreendimento")
+  nome              String   @map("nome")
+  nomeComercial     String?  @map("nome_comercial")
+  tipo              String?  @map("tipo")
+  cidade            String?  @map("cidade")
+  estado            String?  @map("estado")
+  regiao            String?  @map("regiao")
+  fase              String?  @map("fase") // Planejamento, Construção, Entrega
+  vgvTotal          Decimal? @map("vgv_total")
+  unidadesTotais    Int?     @map("unidades_totais")
+  areaTotal         Decimal? @map("area_total")
+  dataLancamento    DateTime? @map("data_lancamento")
+  dataEntregaPrevista DateTime? @map("data_entrega_prevista")
+  ativo             Boolean  @default(true) @map("ativo")
+
+  // Relacionamentos
+  factVendas        FactVendas[]
+  factContratos     FactContratos[]
+
+  @@index([tipo, fase])
+  @@index([regiao, estado])
+  @@index([dataLancamento])
+  @@map("dim_empreendimento")
+}
+
+// Dimensão Unidade
+model DimUnidade {
+  unidadeKey        Int      @id @map("unidade_key")
+  idUnidade         Int      @unique @map("id_unidade")
+  nome              String   @map("nome")
+  tipoImovel        String?  @map("tipo_imovel")
+  dormitorios       Int?     @map("dormitorios")
+  banheiros         Int?     @map("banheiros")
+  vagas             Int?     @map("vagas")
+  areaPrivativa     Decimal? @map("area_privativa")
+  areaTotal         Decimal? @map("area_total")
+  pavimento         String?  @map("pavimento")
+  posicao           String?  @map("posicao") // Norte, Sul, Leste, Oeste
+  vista             String?  @map("vista") // Mar, Cidade, Parque
+  valorVenda        Decimal? @map("valor_venda")
+  valorM2           Decimal? @map("valor_m2")
+  statusUnidade     String?  @map("status_unidade") // Disponível, Vendida, Reservada
+  dataEntrega       DateTime? @map("data_entrega")
+
+  // Relacionamentos com dimensões
+  empreendimentoKey Int     @map("empreendimento_key")
+  empreendimento    DimEmpreendimento @relation(fields: [empreendimentoKey], references: [empreendimentoKey])
+
+  // Relacionamentos com fatos
+  factVendas        FactVendas[]
+  factContratos     FactContratos[]
+
+  @@index([tipoImovel, dormitorios])
+  @@index([statusUnidade])
+  @@index([valorM2])
+  @@map("dim_unidade")
+}
+
+// Dimensão Produto/Plano de Pagamento
+model DimProduto {
+  produtoKey        Int      @id @map("produto_key")
+  idProduto         String   @unique @map("id_produto") // Derivado do contrato
+  nomeProduto       String   @map("nome_produto")
+  tipoProduto       String   @map("tipo_produto") // Apartamento, Casa, Comercial
+  categoria         String?  @map("categoria") // Econômico, Médio, Alto Padrão
+  formaPagamento    String?  @map("forma_pagamento") // À vista, Financiado, Misto
+  prazoMeses        Int?     @map("prazo_meses")
+  tipoFinanciamento String?  @map("tipo_financiamento") // CEF, SFH, SFI
+  indexador         String?  @map("indexador") // IPCA, TR, IGP-M
+  entrada           Decimal? @map("entrada")
+  percentualEntrada Decimal? @map("percentual_entrada")
+
+  // Relacionamentos
+  factVendas        FactVendas[]
+  factContratos     FactContratos[]
+
+  @@index([tipoProduto, categoria])
+  @@index([formaPagamento])
+  @@map("dim_produto")
+}
+
+// ============================================
+// TABELAS DE FATOS (fact_*)
+// ============================================
+
+// Fato de Vendas - Grão: Contrato de Venda
+model FactVendas {
+  vendaKey          BigInt   @id @default(autoincrement()) @map("venda_key")
+
+  // Chaves das dimensões
+  dataContratoKey   Int      @map("data_contrato_key")
+  empresaKey        Int      @map("empresa_key")
+  clienteKey        Int      @map("cliente_key")
+  empreendimentoKey Int      @map("empreendimento_key")
+  unidadeKey        Int      @map("unidade_key")
+  produtoKey        Int      @map("produto_key")
+
+  // Métricas de Vendas
+  valorContrato     Decimal  @map("valor_contrato")
+  valorEntrada      Decimal? @map("valor_entrada")
+  valorFinanciado   Decimal? @map("valor_financiado")
+  valorDesconto     Decimal? @map("valor_desconto")
+  valorVenda        Decimal  @map("valor_venda") // Valor final
+  valorM2           Decimal? @map("valor_m2")
+  comissaoTotal     Decimal? @map("comissao_total")
+  margemBruta       Decimal? @map("margem_bruta")
+
+  // Flags e Status
+  statusVenda       String   @map("status_venda")
+  tipoVenda         String   @map("tipo_venda") // Nova, Permuta, Distrato
+  canalVenda        String?  @map("canal_venda") // Stand, Online, Corretor
+  vendedorId        String?  @map("vendedor_id")
+
+  // Métricas Calculadas
+  tempoVenda        Int?     @map("tempo_venda") // Dias desde lançamento
+  cicloVenda        Int?     @map("ciclo_venda") // Dias de negociação
+
+  // Metadados
+  dataProcessamento DateTime @default(now()) @map("data_processamento")
+
+  // Relacionamentos
+  dataTempo         DimTempo          @relation(fields: [dataContratoKey], references: [dateKey])
+  empresa           DimEmpresa        @relation(fields: [empresaKey], references: [empresaKey])
+  cliente           DimCliente        @relation(fields: [clienteKey], references: [clienteKey])
+  empreendimento    DimEmpreendimento @relation(fields: [empreendimentoKey], references: [empreendimentoKey])
+  unidade           DimUnidade        @relation(fields: [unidadeKey], references: [unidadeKey])
+  produto           DimProduto        @relation(fields: [produtoKey], references: [produtoKey])
+
+  @@index([dataContratoKey])
+  @@index([empresaKey, empreendimentoKey])
+  @@index([statusVenda])
+  @@index([valorContrato])
+  @@map("fact_vendas")
+}
+
+// Fato Financeiro - Grão: Título a Receber
+model FactFinanceiro {
+  financeiroKey     BigInt   @id @default(autoincrement()) @map("financeiro_key")
+
+  // Chaves das dimensões
+  dataVencimentoKey Int      @map("data_vencimento_key")
+  dataPagamentoKey  Int?     @map("data_pagamento_key")
+  empresaKey        Int      @map("empresa_key")
+  clienteKey        Int      @map("cliente_key")
+
+  // Métricas Financeiras
+  valorOriginal     Decimal  @map("valor_original")
+  valorAtualizado   Decimal? @map("valor_atualizado")
+  valorPago         Decimal? @map("valor_pago")
+  valorJuros        Decimal? @map("valor_juros")
+  valorMulta        Decimal? @map("valor_multa")
+  valorDesconto     Decimal? @map("valor_desconto")
+  valorLiquido      Decimal? @map("valor_liquido")
+
+  // Status e Indicadores
+  statusTitulo      String   @map("status_titulo")
+  diasAtraso        Int?     @map("dias_atraso")
+  faixaAtraso       String?  @map("faixa_atraso") // Em dia, 1-30, 31-60, 61-90, 90+
+  tipoDocumento     String?  @map("tipo_documento")
+  portador          String?  @map("portador")
+  planoFinanceiro   String?  @map("plano_financeiro")
+
+  // Flags
+  isPago            Boolean  @default(false) @map("is_pago")
+  isVencido         Boolean  @default(false) @map("is_vencido")
+  isNegotiado       Boolean  @default(false) @map("is_negotiado")
+
+  // Metadados
+  dataProcessamento DateTime @default(now()) @map("data_processamento")
+
+  // Relacionamentos
+  dataVencimento    DimTempo   @relation("VencimentoTempo", fields: [dataVencimentoKey], references: [dateKey])
+  dataPagamento     DimTempo?  @relation("PagamentoTempo", fields: [dataPagamentoKey], references: [dateKey])
+  empresa           DimEmpresa @relation(fields: [empresaKey], references: [empresaKey])
+  cliente           DimCliente @relation(fields: [clienteKey], references: [clienteKey])
+
+  @@index([dataVencimentoKey])
+  @@index([dataPagamentoKey])
+  @@index([statusTitulo, faixaAtraso])
+  @@index([empresaKey, clienteKey])
+  @@map("fact_financeiro")
+}
+
+// Fato de Contratos - Grão: Contrato (para análise de pipeline)
+model FactContratos {
+  contratoKey       BigInt   @id @default(autoincrement()) @map("contrato_key")
+
+  // Chaves das dimensões
+  dataContratoKey   Int      @map("data_contrato_key")
+  dataAssinaturaKey Int?     @map("data_assinatura_key")
+  empresaKey        Int      @map("empresa_key")
+  clienteKey        Int      @map("cliente_key")
+  empreendimentoKey Int      @map("empreendimento_key")
+  unidadeKey        Int      @map("unidade_key")
+  produtoKey        Int      @map("produto_key")
+
+  // Métricas de Pipeline
+  valorContrato     Decimal  @map("valor_contrato")
+  probabilidade     Decimal? @map("probabilidade") // % de conversão
+  valorPonderado    Decimal? @map("valor_ponderado") // valor * probabilidade
+
+  // Status e Etapas
+  statusContrato    String   @map("status_contrato")
+  etapaPipeline     String   @map("etapa_pipeline") // Proposta, Negociação, Assinatura
+  motivoCancelamento String? @map("motivo_cancelamento")
+
+  // Tempo e Performance
+  diasNegociacao    Int?     @map("dias_negociacao")
+  diasAprovacao     Int?     @map("dias_aprovacao")
+
+  // Flags
+  isAssinado        Boolean  @default(false) @map("is_assinado")
+  isCancelado       Boolean  @default(false) @map("is_cancelado")
+  isDistrato        Boolean  @default(false) @map("is_distrato")
+
+  // Metadados
+  dataProcessamento DateTime @default(now()) @map("data_processamento")
+
+  // Relacionamentos
+  dataContrato      DimTempo          @relation("ContratoTempo", fields: [dataContratoKey], references: [dateKey])
+  dataAssinatura    DimTempo?         @relation("AssinaturaTempo", fields: [dataAssinaturaKey], references: [dateKey])
+  empresa           DimEmpresa        @relation(fields: [empresaKey], references: [empresaKey])
+  cliente           DimCliente        @relation(fields: [clienteKey], references: [clienteKey])
+  empreendimento    DimEmpreendimento @relation(fields: [empreendimentoKey], references: [empreendimentoKey])
+  unidade           DimUnidade        @relation(fields: [unidadeKey], references: [unidadeKey])
+  produto           DimProduto        @relation(fields: [produtoKey], references: [produtoKey])
+
+  @@index([dataContratoKey])
+  @@index([statusContrato, etapaPipeline])
+  @@index([empresaKey, empreendimentoKey])
+  @@map("fact_contratos")
+}
