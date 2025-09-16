@@ -16,13 +16,12 @@ log() {
 wait_for_db() {
     log "⏳ Aguardando banco de dados estar disponível..."
     
-    local max_attempts=30
+    local max_attempts=60  # Aumentar para 2 minutos
     local attempt=1
     
     while [ $attempt -le $max_attempts ]; do
-        # Usar curl para testar conectividade HTTP (mais simples que nc)
-        if curl -f -s http://${POSTGRES_HOST:-db}:${POSTGRES_PORT:-5432} >/dev/null 2>&1 || \
-           timeout 1 bash -c "</dev/tcp/${POSTGRES_HOST:-db}/${POSTGRES_PORT:-5432}" >/dev/null 2>&1; then
+        # Testar conectividade direta com PostgreSQL
+        if timeout 5 bash -c "</dev/tcp/${POSTGRES_HOST:-db}/${POSTGRES_PORT:-5432}" >/dev/null 2>&1; then
             log "✅ Banco de dados está disponível!"
             return 0
         fi

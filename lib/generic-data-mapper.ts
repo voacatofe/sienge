@@ -34,11 +34,12 @@ export const GENERIC_ENDPOINT_CONFIGS: Record<string, GenericEndpointConfig> = {
       { sourceField: 'id', targetField: 'idCliente', required: true },
       { sourceField: 'name', targetField: 'nomeCompleto', required: true },
       { sourceField: 'fullName', targetField: 'nomeCompleto', required: false }, // Campo alternativo
-      { 
-        sourceField: 'cpfCnpj', 
-        targetField: 'cpfCnpj', 
-        transform: (val: any) => val || '',
-        required: true 
+      {
+        sourceField: 'cpfCnpj',
+        targetField: 'cpfCnpj',
+        transform: (val: any) =>
+          val === undefined || val === null || val === '' ? null : val,
+        required: false,
       },
       { sourceField: 'cpf', targetField: 'cpfCnpj', required: false }, // Campo alternativo
       { sourceField: 'cnpj', targetField: 'cpfCnpj', required: false }, // Campo alternativo
@@ -321,7 +322,10 @@ export const GENERIC_ENDPOINT_CONFIGS: Record<string, GenericEndpointConfig> = {
       { sourceField: 'id', targetField: 'id', required: true },
       { sourceField: 'name', targetField: 'nome', required: true },
       { sourceField: 'commercialName', targetField: 'nomeComercial' },
-      { sourceField: 'enterpriseObservation', targetField: 'observacaoEmpreendimento' },
+      {
+        sourceField: 'enterpriseObservation',
+        targetField: 'observacaoEmpreendimento',
+      },
       { sourceField: 'cnpj', targetField: 'cnpj' },
       { sourceField: 'type', targetField: 'tipo' },
       { sourceField: 'adress', targetField: 'endereco' },
@@ -346,9 +350,15 @@ export const GENERIC_ENDPOINT_CONFIGS: Record<string, GenericEndpointConfig> = {
       { sourceField: 'companyId', targetField: 'idEmpresa' },
       { sourceField: 'companyName', targetField: 'nomeEmpresa' },
       { sourceField: 'costDatabaseId', targetField: 'idBaseCustos' },
-      { sourceField: 'costDatabaseDescription', targetField: 'descricaoBaseCustos' },
+      {
+        sourceField: 'costDatabaseDescription',
+        targetField: 'descricaoBaseCustos',
+      },
       { sourceField: 'buildingTypeId', targetField: 'idTipoObra' },
-      { sourceField: 'buildingTypeDescription', targetField: 'descricaoTipoObra' },
+      {
+        sourceField: 'buildingTypeDescription',
+        targetField: 'descricaoTipoObra',
+      },
       {
         sourceField: 'creationDate',
         targetField: 'dataCadastro',
@@ -415,7 +425,11 @@ export const GENERIC_ENDPOINT_CONFIGS: Record<string, GenericEndpointConfig> = {
     dataPath: 'data',
     fieldMappings: [
       { sourceField: 'id', targetField: 'id', required: true },
-      { sourceField: 'enterpriseId', targetField: 'idEmpreendimento', required: true },
+      {
+        sourceField: 'enterpriseId',
+        targetField: 'idEmpreendimento',
+        required: true,
+      },
       { sourceField: 'contractId', targetField: 'idContrato' },
       { sourceField: 'indexerId', targetField: 'idIndexador' },
       { sourceField: 'name', targetField: 'nome', required: true },
@@ -428,7 +442,7 @@ export const GENERIC_ENDPOINT_CONFIGS: Record<string, GenericEndpointConfig> = {
       {
         sourceField: 'deliveryDate',
         targetField: 'dataEntrega',
-        transform: (val: any) => val ? new Date(val) : null,
+        transform: (val: any) => (val ? new Date(val) : null),
       },
       {
         sourceField: 'privateArea',
@@ -492,7 +506,10 @@ export const GENERIC_ENDPOINT_CONFIGS: Record<string, GenericEndpointConfig> = {
         targetField: 'valorIPTU',
         transform: (val: any) => (val ? parseFloat(val) : null),
       },
-      { sourceField: 'realEstateRegistration', targetField: 'inscricaoImobiliaria' },
+      {
+        sourceField: 'realEstateRegistration',
+        targetField: 'inscricaoImobiliaria',
+      },
       {
         sourceField: 'createdAt',
         targetField: 'dataCadastro',

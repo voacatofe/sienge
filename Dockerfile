@@ -63,8 +63,8 @@ RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 # Copiar outros scripts necessários (mas não sobrescrever o entrypoint)
 COPY --from=builder /app/scripts ./scripts
 
-# Criar diretório de logs
-RUN mkdir -p logs && chown nextjs:nodejs logs
+# Criar diretório de logs com permissões corretas para subdiretórios
+RUN mkdir -p logs logs/sync-errors && chown -R nextjs:nodejs logs && chmod -R 755 logs
 
 # Alterar proprietário dos arquivos (mas manter entrypoint como root)
 RUN chown -R nextjs:nodejs /app

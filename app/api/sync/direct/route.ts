@@ -23,7 +23,6 @@ function validateRequiredParams(params: any) {
   return endpoint && data;
 }
 
-
 // Função genérica para processar qualquer endpoint
 async function processGenericEndpoint(
   endpoint: string,
@@ -59,16 +58,33 @@ async function processGenericEndpoint(
         }
       }
 
-      console.log(`[Sync Debug] Processing ${endpoint} - model: ${mapping.model}, mapped data:`, mappedData);
+      // Limpar valores undefined do mappedData antes de enviar para o Prisma
+      const cleanedData: any = {};
+      for (const [key, value] of Object.entries(mappedData)) {
+        if (value !== undefined) {
+          cleanedData[key] = value;
+        }
+      }
+
+      console.log(
+        `[Sync Debug] Processing ${endpoint} - model: ${mapping.model}, mapped data:`,
+        cleanedData
+      );
       console.log(`[Sync Debug] Prisma client available:`, !!prisma);
-      console.log(`[Sync Debug] Prisma ${mapping.model} available:`, !!(prisma as any)[mapping.model]);
+      console.log(
+        `[Sync Debug] Prisma ${mapping.model} available:`,
+        !!(prisma as any)[mapping.model]
+      );
 
       // Verificar se o registro já existe
       const primaryKeyValue = item[mapping.primaryKey] || item.id;
       const whereClause = { [mapping.primaryKey]: primaryKeyValue };
 
       if (!primaryKeyValue) {
-        console.warn(`[Sync] Primary key value is null/undefined for ${endpoint} item`, item);
+        console.warn(
+          `[Sync] Primary key value is null/undefined for ${endpoint} item`,
+          item
+        );
         continue;
       }
 
@@ -76,58 +92,89 @@ async function processGenericEndpoint(
       let existingRecord;
       try {
         if (mapping.model === 'empreendimento') {
-          existingRecord = await prisma.empreendimento.findUnique({ where: whereClause });
+          existingRecord = await prisma.empreendimento.findUnique({
+            where: whereClause,
+          });
         } else if (mapping.model === 'unidade') {
-          existingRecord = await prisma.unidade.findUnique({ where: whereClause });
+          existingRecord = await prisma.unidade.findUnique({
+            where: whereClause,
+          });
         } else if (mapping.model === 'webhook') {
-          existingRecord = await prisma.webhook.findUnique({ where: whereClause });
+          existingRecord = await prisma.webhook.findUnique({
+            where: whereClause,
+          });
         } else if (mapping.model === 'extratoConta') {
-          existingRecord = await prisma.extratoConta.findUnique({ where: whereClause });
+          existingRecord = await prisma.extratoConta.findUnique({
+            where: whereClause,
+          });
         } else if (mapping.model === 'contasReceber') {
-          existingRecord = await prisma.contasReceber.findUnique({ where: whereClause });
+          existingRecord = await prisma.contasReceber.findUnique({
+            where: whereClause,
+          });
         } else {
-          existingRecord = await (prisma as any)[mapping.model].findUnique({ where: whereClause });
+          existingRecord = await (prisma as any)[mapping.model].findUnique({
+            where: whereClause,
+          });
         }
       } catch (error) {
-        console.error(`[Sync] Error in findUnique for ${mapping.model}:`, error);
+        console.error(
+          `[Sync] Error in findUnique for ${mapping.model}:`,
+          error
+        );
         console.error(`[Sync] Where clause:`, whereClause);
-        console.error(`[Sync] Mapped data:`, mappedData);
+        console.error(`[Sync] Cleaned data:`, cleanedData);
         throw error;
       }
 
       if (existingRecord) {
         if (mapping.model === 'empreendimento') {
-          await prisma.empreendimento.update({ where: whereClause, data: mappedData });
+          await prisma.empreendimento.update({
+            where: whereClause,
+            data: cleanedData,
+          });
         } else if (mapping.model === 'unidade') {
-          await prisma.unidade.update({ where: whereClause, data: mappedData });
+          await prisma.unidade.update({
+            where: whereClause,
+            data: cleanedData,
+          });
         } else if (mapping.model === 'webhook') {
-          await prisma.webhook.update({ where: whereClause, data: mappedData });
+          await prisma.webhook.update({
+            where: whereClause,
+            data: cleanedData,
+          });
         } else if (mapping.model === 'extratoConta') {
-          await prisma.extratoConta.update({ where: whereClause, data: mappedData });
+          await prisma.extratoConta.update({
+            where: whereClause,
+            data: cleanedData,
+          });
         } else if (mapping.model === 'contasReceber') {
-          await prisma.contasReceber.update({ where: whereClause, data: mappedData });
+          await prisma.contasReceber.update({
+            where: whereClause,
+            data: cleanedData,
+          });
         } else {
-          await (prisma as any)[mapping.model].update({ where: whereClause, data: mappedData });
+          await (prisma as any)[mapping.model].update({
+            where: whereClause,
+            data: cleanedData,
+          });
         }
         results.updated++;
       } else {
         if (mapping.model === 'empreendimento') {
-          await prisma.empreendimento.create({ data: mappedData });
+          await prisma.empreendimento.create({ data: cleanedData });
         } else if (mapping.model === 'unidade') {
-          await prisma.unidade.create({ data: mappedData });
+          await prisma.unidade.create({ data: cleanedData });
         } else if (mapping.model === 'webhook') {
-          await prisma.webhook.create({ data: mappedData });
+          await prisma.webhook.create({ data: cleanedData });
         } else if (mapping.model === 'extratoConta') {
-          await prisma.extratoConta.create({ data: mappedData });
+          await prisma.extratoConta.create({ data: cleanedData });
         } else if (mapping.model === 'contasReceber') {
-          await prisma.contasReceber.create({ data: mappedData });
+          await prisma.contasReceber.create({ data: cleanedData });
         } else {
-          await (prisma as any)[mapping.model].create({ data: mappedData });
+          await (prisma as any)[mapping.model].create({ data: cleanedData });
         }
         results.inserted++;
       }
-
-
     } catch (error) {
       console.error(`Erro ao processar ${endpoint} ${item.id}:`, error);
       if (errorLogger) {
@@ -174,7 +221,13 @@ export async function POST(request: NextRequest) {
 
     // Processar dados usando o sistema genérico
     if (hasEndpointMapping(endpoint)) {
-      result = await processGenericEndpoint(endpoint, data, syncLog.id, prisma, errorLogger);
+      result = await processGenericEndpoint(
+        endpoint,
+        data,
+        syncLog.id,
+        prisma,
+        errorLogger
+      );
     } else {
       // Para endpoints sem mapeamento definido
       switch (endpoint) {
@@ -240,7 +293,9 @@ export async function POST(request: NextRequest) {
         updated: result.updated,
         errors: result.errors,
       },
-      errorSummary: errorLogger.hasErrors() ? errorLogger.generateSummary() : null,
+      errorSummary: errorLogger.hasErrors()
+        ? errorLogger.generateSummary()
+        : null,
     });
   } catch (error) {
     console.error('Erro na sincronização direta:', error);

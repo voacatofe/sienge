@@ -24,12 +24,12 @@
       "Bash(docker exec:*)",
       "Bash(docker logs:*)",
       "Bash(docker ps:*)",
-      "Bash(docker volume prune:*)"
+      "Bash(docker volume prune:*)",
+      "Bash(npm run dev:*)",
+      "Bash(docker build:*)"
     ],
     "deny": []
   },
   "enableAllProjectMcpServers": true,
-  "enabledMcpjsonServers": [
-    "task-master-ai"
-  ]
+  "enabledMcpjsonServers": ["task-master-ai", "puppeteer"]
 }

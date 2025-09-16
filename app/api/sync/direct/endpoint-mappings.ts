@@ -21,7 +21,8 @@ export const ENDPOINT_MAPPINGS: Record<string, EndpointMapping> = {
       name: 'nomeCompleto',
       cpfCnpj: {
         field: 'cpfCnpj',
-        transform: (val: any) => val || null
+        transform: (val: any) =>
+          val === undefined || val === null || val === '' ? null : val,
       },
       cpf: 'cpfCnpj',
       cnpj: 'cpfCnpj',
@@ -97,11 +98,15 @@ export const ENDPOINT_MAPPINGS: Record<string, EndpointMapping> = {
             const firstAddress = val[0];
             const street = firstAddress.street || firstAddress.logradouro || '';
             const number = firstAddress.number || firstAddress.numero || '';
-            const complement = firstAddress.complement || firstAddress.complemento || '';
-            return `${street}${number ? ', ' + number : ''}${complement ? ' - ' + complement : ''}`.trim() || null;
+            const complement =
+              firstAddress.complement || firstAddress.complemento || '';
+            return (
+              `${street}${number ? ', ' + number : ''}${complement ? ' - ' + complement : ''}`.trim() ||
+              null
+            );
           }
           return null;
-        }
+        },
       },
       mainAddressCity: {
         field: 'addresses',
@@ -111,7 +116,7 @@ export const ENDPOINT_MAPPINGS: Record<string, EndpointMapping> = {
             return firstAddress.city || firstAddress.cidade || null;
           }
           return null;
-        }
+        },
       },
       mainAddressState: {
         field: 'addresses',
@@ -121,7 +126,7 @@ export const ENDPOINT_MAPPINGS: Record<string, EndpointMapping> = {
             return firstAddress.state || firstAddress.estado || null;
           }
           return null;
-        }
+        },
       },
       mainAddressZipCode: {
         field: 'addresses',
@@ -131,7 +136,7 @@ export const ENDPOINT_MAPPINGS: Record<string, EndpointMapping> = {
             return firstAddress.zipCode || firstAddress.cep || null;
           }
           return null;
-        }
+        },
       },
       mainAddressType: {
         field: 'addresses',
@@ -139,20 +144,24 @@ export const ENDPOINT_MAPPINGS: Record<string, EndpointMapping> = {
           if (Array.isArray(val) && val.length > 0) {
             const firstAddress = val[0];
             const type = firstAddress.type || firstAddress.tipo || '';
-            return type === 'R' ? 'Residencial' : type === 'C' ? 'Comercial' : type;
+            return type === 'R'
+              ? 'Residencial'
+              : type === 'C'
+                ? 'Comercial'
+                : type;
           }
           return null;
-        }
+        },
       },
 
       // Campos JSON para telefones e endereços
       phones: {
         field: 'phones',
-        transform: (val: any) => val || []
+        transform: (val: any) => val || [],
       },
       addresses: {
         field: 'addresses',
-        transform: (val: any) => val || []
+        transform: (val: any) => val || [],
       },
     },
   },
@@ -419,15 +428,15 @@ export const ENDPOINT_MAPPINGS: Record<string, EndpointMapping> = {
       id: 'id',
       enterpriseId: {
         field: 'idEmpreendimento',
-        transform: (val: any) => (val && val !== undefined) ? val : null
+        transform: (val: any) => (val && val !== undefined ? val : null),
       },
       contractId: {
         field: 'idContrato',
-        transform: (val: any) => (val && val !== undefined) ? val : null
+        transform: (val: any) => (val && val !== undefined ? val : null),
       },
       indexerId: {
         field: 'idIndexador',
-        transform: (val: any) => (val && val !== undefined) ? val : null
+        transform: (val: any) => (val && val !== undefined ? val : null),
       },
       name: 'nome',
       propertyType: 'tipoImovel',
@@ -523,7 +532,10 @@ export const ENDPOINT_MAPPINGS: Record<string, EndpointMapping> = {
         transform: (val: any) => (val ? parseFloat(val) : 0),
       },
       companyId: 'companyId',
-      defaulting: { field: 'defaulting', transform: (val: any) => val === true },
+      defaulting: {
+        field: 'defaulting',
+        transform: (val: any) => val === true,
+      },
       subjudice: { field: 'subjudice', transform: (val: any) => val === true },
       normal: { field: 'normal', transform: (val: any) => val !== false },
       inBilling: { field: 'inBilling', transform: (val: any) => val === true },
@@ -621,12 +633,21 @@ export const ENDPOINT_MAPPINGS: Record<string, EndpointMapping> = {
         transform: (val: any) => (val ? new Date(val) : null),
       },
       shifts: { field: 'shifts', transform: (val: any) => val || null },
-      plannedTasks: { field: 'plannedTasks', transform: (val: any) => val || null },
-      detachedTasks: { field: 'detachedTasks', transform: (val: any) => val || null },
+      plannedTasks: {
+        field: 'plannedTasks',
+        transform: (val: any) => val || null,
+      },
+      detachedTasks: {
+        field: 'detachedTasks',
+        transform: (val: any) => val || null,
+      },
       events: { field: 'events', transform: (val: any) => val || null },
       crews: { field: 'crews', transform: (val: any) => val || null },
       equipments: { field: 'equipments', transform: (val: any) => val || null },
-      attachments: { field: 'attachments', transform: (val: any) => val || null },
+      attachments: {
+        field: 'attachments',
+        transform: (val: any) => val || null,
+      },
     },
   },
 
@@ -709,7 +730,7 @@ export const ENDPOINT_MAPPINGS: Record<string, EndpointMapping> = {
     },
   },
 
-  'hooks': {
+  hooks: {
     model: 'webhook',
     primaryKey: 'id',
     fieldMapping: {
@@ -728,12 +749,18 @@ export const ENDPOINT_MAPPINGS: Record<string, EndpointMapping> = {
       contractNumber: 'contractNumber',
       buildingId: 'buildingId',
       measurementNumber: 'measurementNumber',
-      authorized: { field: 'authorized', transform: (val: any) => val === true },
+      authorized: {
+        field: 'authorized',
+        transform: (val: any) => val === true,
+      },
       statusApproval: 'statusApproval',
       notes: 'notes',
       responsibleId: 'responsibleId',
       responsibleName: 'responsibleName',
-      consistent: { field: 'consistent', transform: (val: any) => val === true },
+      consistent: {
+        field: 'consistent',
+        transform: (val: any) => val === true,
+      },
       measurementDate: {
         field: 'measurementDate',
         transform: (val: any) => (val ? new Date(val) : new Date()),
