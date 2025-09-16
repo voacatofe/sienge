@@ -9,7 +9,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_HOST_AUTH_METHOD: md5
     ports:
-      - '${DB_PORT_EXTERNAL:-5432}:5432'
+      - '${DB_PORT_EXTERNAL:-5434}:5432'
     volumes:
       - postgres-data:/var/lib/postgresql/data
     networks:
@@ -67,7 +67,7 @@ services:
       - SYNC_BATCH_SIZE=${SYNC_BATCH_SIZE:-200}
       - SYNC_MAX_RETRIES=${SYNC_MAX_RETRIES:-3}
     ports:
-      - '${APP_PORT_EXTERNAL:-3000}:3000'
+      - '${APP_PORT_EXTERNAL:-3002}:3000'
     depends_on:
       db:
         condition: service_healthy

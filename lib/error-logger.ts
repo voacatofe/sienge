@@ -32,15 +32,39 @@ export class ErrorLogger {
   private logFilePath: string;
 
   constructor(logDir: string = 'logs/sync-errors') {
-    // Criar diretório de logs se não existir
-    const fullPath = path.resolve(logDir);
-    if (!fs.existsSync(fullPath)) {
-      fs.mkdirSync(fullPath, { recursive: true });
+    // Tentar criar diretório de logs, com fallbacks para problemas de permissão
+    let fullPath: string;
+
+    try {
+      fullPath = path.resolve(logDir);
+      if (!fs.existsSync(fullPath)) {
+        fs.mkdirSync(fullPath, { recursive: true });
+      }
+    } catch (error) {
+      console.warn(
+        `[ErrorLogger] Não foi possível criar diretório ${logDir}, usando /tmp:`,
+        error
+      );
+      try {
+        // Fallback 1: tentar usar /tmp
+        fullPath = path.resolve('/tmp/sienge-sync-errors');
+        if (!fs.existsSync(fullPath)) {
+          fs.mkdirSync(fullPath, { recursive: true });
+        }
+      } catch (error2) {
+        console.warn(
+          `[ErrorLogger] Não foi possível criar diretório /tmp, usando diretório atual:`,
+          error2
+        );
+        // Fallback 2: usar diretório atual
+        fullPath = path.resolve('./');
+      }
     }
 
     // Nome do arquivo com timestamp
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     this.logFilePath = path.join(fullPath, `sync-errors-${timestamp}.json`);
+    console.log(`[ErrorLogger] Log será salvo em: ${this.logFilePath}`);
   }
 
   /**
@@ -105,8 +129,15 @@ export class ErrorLogger {
   /**
    * Analisa padrões de erros comuns
    */
-  private analyzeErrorPatterns(): Array<{ pattern: string; count: number; examples: string[] }> {
-    const patterns = new Map<string, { count: number; examples: Set<string> }>();
+  private analyzeErrorPatterns(): Array<{
+    pattern: string;
+    count: number;
+    examples: string[];
+  }> {
+    const patterns = new Map<
+      string,
+      { count: number; examples: Set<string> }
+    >();
 
     // Padrões conhecidos de erros
     const knownPatterns = [
@@ -175,9 +206,10 @@ export class ErrorLogger {
         pattern.count++;
 
         if (pattern.examples.size < 3) {
-          const example = error.message.length > 100
-            ? `${error.entity}: ${error.message.substring(0, 100)}...`
-            : `${error.entity}: ${error.message}`;
+          const example =
+            error.message.length > 100
+              ? `${error.entity}: ${error.message.substring(0, 100)}...`
+              : `${error.entity}: ${error.message}`;
           pattern.examples.add(example);
         }
       }
@@ -203,11 +235,14 @@ export class ErrorLogger {
       'ForeignKeyConstraint',
     ];
 
-    return this.errors.filter(error =>
-      criticalTypes.includes(error.errorType) ||
-      error.message.includes('FATAL') ||
-      error.message.includes('CRITICAL')
-    ).slice(0, 10); // Limitar a 10 erros críticos
+    return this.errors
+      .filter(
+        error =>
+          criticalTypes.includes(error.errorType) ||
+          error.message.includes('FATAL') ||
+          error.message.includes('CRITICAL')
+      )
+      .slice(0, 10); // Limitar a 10 erros críticos
   }
 
   /**
@@ -252,24 +287,30 @@ export class ErrorLogger {
 
     if (summary.errorsByEntity.size > 0) {
       lines.push(`\n📋 ERROS POR ENTIDADE:`);
-      const sortedEntities = Array.from(summary.errorsByEntity.entries())
-        .sort((a, b) => b[1] - a[1]);
+      const sortedEntities = Array.from(summary.errorsByEntity.entries()).sort(
+        (a, b) => b[1] - a[1]
+      );
 
       for (const [entity, count] of sortedEntities) {
         const percentage = ((count / summary.totalErrors) * 100).toFixed(1);
-        const bar = '█'.repeat(Math.floor(count / summary.totalErrors * 30));
-        lines.push(`   ${entity.padEnd(20)} ${count.toString().padStart(5)} erros (${percentage}%) ${bar}`);
+        const bar = '█'.repeat(Math.floor((count / summary.totalErrors) * 30));
+        lines.push(
+          `   ${entity.padEnd(20)} ${count.toString().padStart(5)} erros (${percentage}%) ${bar}`
+        );
       }
     }
 
     if (summary.errorsByType.size > 0) {
       lines.push(`\n🔍 TIPOS DE ERRO:`);
-      const sortedTypes = Array.from(summary.errorsByType.entries())
-        .sort((a, b) => b[1] - a[1]);
+      const sortedTypes = Array.from(summary.errorsByType.entries()).sort(
+        (a, b) => b[1] - a[1]
+      );
 
       for (const [type, count] of sortedTypes) {
         const percentage = ((count / summary.totalErrors) * 100).toFixed(1);
-        lines.push(`   ${type.padEnd(25)} ${count.toString().padStart(5)} (${percentage}%)`);
+        lines.push(
+          `   ${type.padEnd(25)} ${count.toString().padStart(5)} (${percentage}%)`
+        );
       }
     }
 
@@ -277,7 +318,9 @@ export class ErrorLogger {
       lines.push(`\n🔥 PADRÕES DE ERRO MAIS COMUNS:`);
       for (let i = 0; i < Math.min(5, summary.commonErrors.length); i++) {
         const error = summary.commonErrors[i];
-        lines.push(`\n   ${i + 1}. ${error.pattern} (${error.count} ocorrências)`);
+        lines.push(
+          `\n   ${i + 1}. ${error.pattern} (${error.count} ocorrências)`
+        );
         for (const example of error.examples) {
           lines.push(`      • ${example}`);
         }
@@ -299,24 +342,28 @@ export class ErrorLogger {
     lines.push(`\n💡 RECOMENDAÇÕES:`);
 
     // Recomendações baseadas nos erros
-    const hasFK = Array.from(summary.errorsByType.keys()).some(t =>
-      t.includes('ForeignKey') || t.includes('constraint')
+    const hasFK = Array.from(summary.errorsByType.keys()).some(
+      t => t.includes('ForeignKey') || t.includes('constraint')
     );
     if (hasFK) {
       lines.push(`   • Verificar ordem de sincronização das entidades`);
-      lines.push(`   • Garantir que entidades dependentes sejam sincronizadas primeiro`);
+      lines.push(
+        `   • Garantir que entidades dependentes sejam sincronizadas primeiro`
+      );
     }
 
-    const hasValidation = Array.from(summary.errorsByType.keys()).some(t =>
-      t.includes('Validation') || t.includes('Invalid')
+    const hasValidation = Array.from(summary.errorsByType.keys()).some(
+      t => t.includes('Validation') || t.includes('Invalid')
     );
     if (hasValidation) {
-      lines.push(`   • Revisar mapeamento de campos entre API e banco de dados`);
+      lines.push(
+        `   • Revisar mapeamento de campos entre API e banco de dados`
+      );
       lines.push(`   • Verificar tipos de dados e formatos esperados`);
     }
 
-    const hasConnection = Array.from(summary.errorsByType.keys()).some(t =>
-      t.includes('Connection') || t.includes('Timeout')
+    const hasConnection = Array.from(summary.errorsByType.keys()).some(
+      t => t.includes('Connection') || t.includes('Timeout')
     );
     if (hasConnection) {
       lines.push(`   • Verificar conectividade com a API Sienge`);
@@ -324,7 +371,7 @@ export class ErrorLogger {
     }
 
     lines.push(`\n📁 Log completo salvo em: ${this.logFilePath}`);
-    lines.push('=' .repeat(80));
+    lines.push('='.repeat(80));
 
     return lines.join('\n');
   }
@@ -333,13 +380,25 @@ export class ErrorLogger {
    * Salva os erros em arquivo
    */
   saveToFile(): void {
-    const data = {
-      timestamp: new Date().toISOString(),
-      summary: this.generateSummary(),
-      errors: this.errors,
-    };
+    try {
+      const data = {
+        timestamp: new Date().toISOString(),
+        summary: this.generateSummary(),
+        errors: this.errors,
+      };
 
-    fs.writeFileSync(this.logFilePath, JSON.stringify(data, null, 2));
+      fs.writeFileSync(this.logFilePath, JSON.stringify(data, null, 2));
+      console.log(
+        `[ErrorLogger] Log salvo com sucesso em: ${this.logFilePath}`
+      );
+    } catch (error) {
+      console.warn(`[ErrorLogger] Erro ao salvar arquivo de log:`, error);
+      // Tentar salvar no console pelo menos
+      console.log(`[ErrorLogger] Dados que seriam salvos:`, {
+        totalErrors: this.errors.length,
+        errors: this.errors.slice(0, 5), // Apenas os primeiros 5 erros para não poluir muito
+      });
+    }
   }
 
   /**
