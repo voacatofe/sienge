@@ -32,10 +32,10 @@
   "runtimeVersion": "V8",
   "dataStudio": {
     "name": "Sienge Data Warehouse",
-    "logoUrl": "https://sienge-teste.hvlihi.easypanel.host/favicon.ico",
+    "logoUrl": "https://conector.catometrics.com.br/logo.png",
     "company": "Sienge",
-    "companyUrl": "https://sienge-teste.hvlihi.easypanel.host",
-    "addonUrl": "https://sienge-teste.hvlihi.easypanel.host/api/datawarehouse/vendas",
+    "companyUrl": "https://catometrics.com.br",
+    "addonUrl": "https://conector.catometrics.com.br/api/datawarehouse/vendas",
     "supportUrl": "mailto:suporte@sienge.com.br",
     "description": "Conector para acessar dados do Data Warehouse Sienge diretamente no Looker Studio. Dados dos últimos 12 meses automaticamente, atualizados diariamente às 6h.",
     "shortDescription": "Dados de vendas Sienge para Looker Studio",
@@ -70,7 +70,7 @@
 Cole o Deployment ID nesta URL:
 
 ```
-https://lookerstudio.google.com/datasources/create?connectorId=SEU_DEPLOYMENT_ID_AQUI
+https://lookerstudio.google.com/datasources/create?connectorId=AKfycbymjgNNbWkYOAPlVPF71YefmpuRNKTb_NRyU5ftvhkWZADaQDGzW0lklLqjJO0YAVLR
 ```
 
 **Exemplo:**

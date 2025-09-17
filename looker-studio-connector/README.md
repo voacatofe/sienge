@@ -35,7 +35,7 @@ https://lookerstudio.google.com/datasources/create?connectorId=SEU_DEPLOYMENT_ID
 O conector está configurado para acessar:
 
 ```
-https://sienge-teste.hvlihi.easypanel.host/api/datawarehouse/vendas
+https://conector.catometrics.com.br/api/datawarehouse/vendas
 ```
 
 Para alterar a URL da API, modifique a linha 245 em `Code.gs`:

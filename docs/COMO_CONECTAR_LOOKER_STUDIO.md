@@ -140,7 +140,7 @@ https://lookerstudio.google.com/datasources/create?connectorId=SEU_DEPLOYMENT_ID
 **Solução**:
 
 1. Testar função `testConnection()` no Apps Script
-2. Verificar se `https://sienge-teste.hvlihi.easypanel.host/api/datawarehouse/vendas` está online
+2. Verificar se `https://conector.catometrics.com.br/api/datawarehouse/vendas` está online
 
 ### **❌ "Authorization required"**
 

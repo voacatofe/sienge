@@ -26,6 +26,7 @@ function getSchema(request) {
       name: 'data_contrato',
       label: 'Data do Contrato',
       dataType: 'STRING',
+      group: 'Tempo de Venda',
       semantics: {
         conceptType: 'DIMENSION',
         semanticType: 'YEAR_MONTH_DAY'
@@ -35,6 +36,7 @@ function getSchema(request) {
       name: 'ano',
       label: 'Ano',
       dataType: 'NUMBER',
+      group: 'Tempo de Venda',
       semantics: {
         conceptType: 'DIMENSION',
         semanticType: 'YEAR'
@@ -44,6 +46,7 @@ function getSchema(request) {
       name: 'trimestre',
       label: 'Trimestre',
       dataType: 'STRING',
+      group: 'Tempo de Venda',
       semantics: {
         conceptType: 'DIMENSION'
       }
@@ -52,6 +55,7 @@ function getSchema(request) {
       name: 'mes',
       label: 'Mês',
       dataType: 'NUMBER',
+      group: 'Mês',
       semantics: {
         conceptType: 'DIMENSION',
         semanticType: 'MONTH'
@@ -61,6 +65,7 @@ function getSchema(request) {
       name: 'ano_mes',
       label: 'Ano-Mês',
       dataType: 'STRING',
+      group: 'Mês',
       semantics: {
         conceptType: 'DIMENSION',
         semanticType: 'YEAR_MONTH'
@@ -70,6 +75,7 @@ function getSchema(request) {
       name: 'nome_mes',
       label: 'Nome do Mês',
       dataType: 'STRING',
+      group: 'Mês',
       semantics: {
         conceptType: 'DIMENSION'
       }
@@ -80,6 +86,7 @@ function getSchema(request) {
       name: 'empresa_regiao',
       label: 'Região da Empresa',
       dataType: 'STRING',
+      group: 'Região da Empresa',
       semantics: {
         conceptType: 'DIMENSION'
       }
@@ -88,6 +95,7 @@ function getSchema(request) {
       name: 'empresa_estado',
       label: 'Estado da Empresa',
       dataType: 'STRING',
+      group: 'Estado da Empresa',
       semantics: {
         conceptType: 'DIMENSION'
       }
@@ -96,6 +104,7 @@ function getSchema(request) {
       name: 'empresa_cidade',
       label: 'Cidade da Empresa',
       dataType: 'STRING',
+      group: 'Cidade da Empresa',
       semantics: {
         conceptType: 'DIMENSION'
       }
@@ -104,6 +113,7 @@ function getSchema(request) {
       name: 'empresa_nome',
       label: 'Nome da Empresa',
       dataType: 'STRING',
+      group: 'Nome da Empresa',
       semantics: {
         conceptType: 'DIMENSION'
       }
@@ -114,6 +124,7 @@ function getSchema(request) {
       name: 'empreendimento_nome',
       label: 'Nome do Empreendimento',
       dataType: 'STRING',
+      group: 'Nome do Empreendimento',
       semantics: {
         conceptType: 'DIMENSION'
       }
@@ -122,6 +133,7 @@ function getSchema(request) {
       name: 'empreendimento_tipo',
       label: 'Tipo do Empreendimento',
       dataType: 'STRING',
+      group: 'Tipo de Contrato',
       semantics: {
         conceptType: 'DIMENSION'
       }
@@ -130,6 +142,7 @@ function getSchema(request) {
       name: 'unidade_tipo',
       label: 'Tipo da Unidade',
       dataType: 'STRING',
+      group: 'Tipo da Unidade',
       semantics: {
         conceptType: 'DIMENSION'
       }
@@ -138,6 +151,7 @@ function getSchema(request) {
       name: 'unidade_faixa_area',
       label: 'Faixa de Área da Unidade',
       dataType: 'STRING',
+      group: 'Faixa de Área da Unidade',
       semantics: {
         conceptType: 'DIMENSION'
       }
@@ -146,6 +160,7 @@ function getSchema(request) {
       name: 'cliente_principal',
       label: 'Cliente Principal',
       dataType: 'STRING',
+      group: 'Cliente Principal',
       semantics: {
         conceptType: 'DIMENSION'
       }
@@ -156,6 +171,7 @@ function getSchema(request) {
       name: 'performance_valor_contrato',
       label: 'Valor do Contrato',
       dataType: 'NUMBER',
+      group: 'Performance - Valor Contrato',
       semantics: {
         conceptType: 'METRIC',
         semanticType: 'CURRENCY_BRL'
@@ -165,6 +181,7 @@ function getSchema(request) {
       name: 'performance_valor_venda_total',
       label: 'Valor Total de Venda',
       dataType: 'NUMBER',
+      group: 'Performance - Valor Venda Total',
       semantics: {
         conceptType: 'METRIC',
         semanticType: 'CURRENCY_BRL'
@@ -174,6 +191,7 @@ function getSchema(request) {
       name: 'performance_valor_por_m2',
       label: 'Valor por M²',
       dataType: 'NUMBER',
+      group: 'Performance - Valor por M²',
       semantics: {
         conceptType: 'METRIC',
         semanticType: 'CURRENCY_BRL'
@@ -183,6 +201,7 @@ function getSchema(request) {
       name: 'performance_margem_bruta_percent',
       label: 'Margem Bruta (%)',
       dataType: 'NUMBER',
+      group: 'Performance - Margem Bruta (%)',
       semantics: {
         conceptType: 'METRIC',
         semanticType: 'PERCENT'
@@ -192,6 +211,7 @@ function getSchema(request) {
       name: 'performance_tempo_venda_dias',
       label: 'Tempo de Venda (dias)',
       dataType: 'NUMBER',
+      group: 'Performance - Tempo Venda (dias)',
       semantics: {
         conceptType: 'METRIC'
       }
@@ -202,6 +222,7 @@ function getSchema(request) {
       name: 'conversions_status_contrato',
       label: 'Status do Contrato',
       dataType: 'STRING',
+      group: 'Conversões - Status Contrato',
       semantics: {
         conceptType: 'DIMENSION'
       }
@@ -210,6 +231,7 @@ function getSchema(request) {
       name: 'conversions_contratos_ativos',
       label: 'Contratos Ativos',
       dataType: 'BOOLEAN',
+      group: 'Conversões - Contratos Ativos',
       semantics: {
         conceptType: 'DIMENSION'
       }
@@ -218,6 +240,7 @@ function getSchema(request) {
       name: 'conversions_contratos_cancelados',
       label: 'Contratos Cancelados',
       dataType: 'BOOLEAN',
+      group: 'Conversões - Contratos Cancelados',
       semantics: {
         conceptType: 'DIMENSION'
       }
@@ -226,6 +249,7 @@ function getSchema(request) {
       name: 'conversions_chaves_entregues',
       label: 'Chaves Entregues',
       dataType: 'BOOLEAN',
+      group: 'Chaves Entregues',
       semantics: {
         conceptType: 'DIMENSION'
       }
@@ -234,6 +258,7 @@ function getSchema(request) {
       name: 'conversions_contratos_assinados',
       label: 'Contratos Assinados',
       dataType: 'BOOLEAN',
+      group: 'Contratos Assinados',
       semantics: {
         conceptType: 'DIMENSION'
       }
@@ -244,6 +269,7 @@ function getSchema(request) {
       name: 'financial_desconto_percent',
       label: 'Desconto (%)',
       dataType: 'NUMBER',
+      group: 'Desconto (%)',
       semantics: {
         conceptType: 'METRIC',
         semanticType: 'PERCENT'
@@ -253,6 +279,7 @@ function getSchema(request) {
       name: 'financial_valor_desconto',
       label: 'Valor do Desconto',
       dataType: 'NUMBER',
+      group: 'Desconto (%)',
       semantics: {
         conceptType: 'METRIC',
         semanticType: 'CURRENCY_BRL'
@@ -262,6 +289,7 @@ function getSchema(request) {
       name: 'financial_forma_pagamento',
       label: 'Forma de Pagamento',
       dataType: 'STRING',
+      group: 'Forma de Pagamento',
       semantics: {
         conceptType: 'DIMENSION'
       }
@@ -270,6 +298,7 @@ function getSchema(request) {
       name: 'financial_taxa_juros_percent',
       label: 'Taxa de Juros (%)',
       dataType: 'NUMBER',
+      group: 'Taxa de Juros (%)',
       semantics: {
         conceptType: 'METRIC',
         semanticType: 'PERCENT'
@@ -279,6 +308,7 @@ function getSchema(request) {
       name: 'financial_total_parcelas',
       label: 'Total de Parcelas',
       dataType: 'NUMBER',
+      group: 'Total de Parcelas',
       semantics: {
         conceptType: 'METRIC'
       }
@@ -287,6 +317,7 @@ function getSchema(request) {
       name: 'financial_saldo_devedor',
       label: 'Saldo Devedor',
       dataType: 'NUMBER',
+      group: 'Saldo Devedor',
       semantics: {
         conceptType: 'METRIC',
         semanticType: 'CURRENCY_BRL'
@@ -298,6 +329,7 @@ function getSchema(request) {
       name: 'segmentation_faixa_valor',
       label: 'Faixa de Valor',
       dataType: 'STRING',
+      group: 'Faixa de Valor',
       semantics: {
         conceptType: 'DIMENSION'
       }
@@ -306,6 +338,7 @@ function getSchema(request) {
       name: 'segmentation_canal_venda',
       label: 'Canal de Venda',
       dataType: 'STRING',
+      group: 'Canal de Venda',
       semantics: {
         conceptType: 'DIMENSION'
       }
@@ -329,7 +362,7 @@ function getSchema(request) {
 function getData(request) {
   try {
     // URL da sua API - substitua pelo domínio correto
-    var API_URL = 'https://sienge-teste.hvlihi.easypanel.host/api/datawarehouse/vendas';
+    var API_URL = 'https://conector.catometrics.com.br/api/datawarehouse/vendas';
 
     // Buscar dados da API
     var response = UrlFetchApp.fetch(API_URL, {
@@ -508,7 +541,7 @@ function formatRowForLookerStudio(row, requestedFieldIds) {
 // Função de teste para verificar conectividade
 function testConnection() {
   try {
-    var API_URL = 'https://sienge-teste.hvlihi.easypanel.host/api/datawarehouse/vendas';
+    var API_URL = 'https://conector.catometrics.com.br/api/datawarehouse/vendas';
     var response = UrlFetchApp.fetch(API_URL);
     var data = JSON.parse(response.getContentText());
 
