@@ -436,7 +436,7 @@ export const ENDPOINT_MAPPINGS: Record<string, EndpointMapping> = {
       },
       indexerId: {
         field: 'idIndexador',
-        transform: (val: any) => (val && val !== undefined ? val : null),
+        transform: (val: any) => (val === 0 ? 1 : val || 1), // Tratar 0 como válido, usar 1 como default
       },
       name: 'nome',
       propertyType: 'tipoImovel',
@@ -447,6 +447,10 @@ export const ENDPOINT_MAPPINGS: Record<string, EndpointMapping> = {
       legalRegistrationNumber: 'matricula',
       deliveryDate: {
         field: 'dataEntrega',
+        transform: (val: any) => (val ? new Date(val) : null),
+      },
+      scheduledDeliveryDate: {
+        field: 'dataEntrega', // Mapear para mesmo campo por ora, ou criar nova coluna se necessário
         transform: (val: any) => (val ? new Date(val) : null),
       },
       privateArea: {
