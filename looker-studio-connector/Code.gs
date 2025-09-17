@@ -23,46 +23,6 @@ function getConfig() {
 function getSchema(request) {
   var fields = [
     // =====================================
-    // 🔑 GRUPO: IDENTIFICADORES
-    // =====================================
-    {
-      name: 'row_id',
-      label: 'ID da Linha',
-      dataType: 'STRING',
-      group: 'Identificadores',
-      semantics: {
-        conceptType: 'DIMENSION'
-      }
-    },
-    {
-      name: 'domain_type',
-      label: 'Tipo de Domínio',
-      dataType: 'STRING',
-      group: 'Identificadores',
-      semantics: {
-        conceptType: 'DIMENSION'
-      }
-    },
-    {
-      name: 'source_table',
-      label: 'Tabela de Origem',
-      dataType: 'STRING',
-      group: 'Identificadores',
-      semantics: {
-        conceptType: 'DIMENSION'
-      }
-    },
-    {
-      name: 'source_id',
-      label: 'ID de Origem',
-      dataType: 'NUMBER',
-      group: 'Identificadores',
-      semantics: {
-        conceptType: 'DIMENSION'
-      }
-    },
-
-    // =====================================
     // 📅 GRUPO: DATA
     // =====================================
     {
@@ -457,20 +417,6 @@ function formatRowForLookerStudio(row, requestedFieldIds) {
 
     // Mapear campos da API Master para o schema do Looker Studio
     switch (fieldId) {
-      // Identificadores
-      case 'row_id':
-        value = row['row_id'] || '';
-        break;
-      case 'domain_type':
-        value = row['domain_type'] || '';
-        break;
-      case 'source_table':
-        value = row['source_table'] || '';
-        break;
-      case 'source_id':
-        value = row['source_id'] ? parseInt(row['source_id']) : 0;
-        break;
-
       // Data
       case 'data_principal':
         // Formatar data para YYYYMMDD que o Looker Studio entende
