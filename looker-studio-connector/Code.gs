@@ -1,6 +1,7 @@
 /**
  * Sienge Data Warehouse Community Connector para Looker Studio
- * Conecta diretamente à API /api/datawarehouse/vendas
+ * Conecta diretamente à API Master unificada /api/datawarehouse/master
+ * Acesso a todos os domínios: contratos, financeiro, movimentos
  * Sem autenticação necessária - acesso automático
  */
 
@@ -23,10 +24,10 @@ function getSchema(request) {
   var fields = [
     // Dimensões Temporais
     {
-      name: 'data_contrato',
-      label: 'Data do Contrato',
+      name: 'data_principal',
+      label: 'Data Principal',
       dataType: 'STRING',
-      group: 'Tempo de Venda',
+      group: 'Data',
       semantics: {
         conceptType: 'DIMENSION',
         semanticType: 'YEAR_MONTH_DAY'
@@ -362,7 +363,7 @@ function getSchema(request) {
 function getData(request) {
   try {
     // URL da sua API - substitua pelo domínio correto
-    var API_URL = 'https://conector.catometrics.com.br/api/datawarehouse/vendas';
+    var API_URL = 'https://conector.catometrics.com.br/api/datawarehouse/master?domain=contratos';
 
     // Buscar dados da API
     var response = UrlFetchApp.fetch(API_URL, {
@@ -541,7 +542,7 @@ function formatRowForLookerStudio(row, requestedFieldIds) {
 // Função de teste para verificar conectividade
 function testConnection() {
   try {
-    var API_URL = 'https://conector.catometrics.com.br/api/datawarehouse/vendas';
+    var API_URL = 'https://conector.catometrics.com.br/api/datawarehouse/master?domain=contratos';
     var response = UrlFetchApp.fetch(API_URL);
     var data = JSON.parse(response.getContentText());
 

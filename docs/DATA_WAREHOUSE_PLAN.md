@@ -170,61 +170,213 @@ Análises possíveis:
 ### 🎯 **rpt_vendas_wide** (Dashboard Comercial)
 
 ```sql
+CREATE MATERIALIZED VIEW rpt_vendas_wide AS
 SELECT
-  -- Dimensões de tempo
-  dt.full_date, dt.year, dt.quarter, dt.month_name,
+  -- Dimensões Temporais
+  dt.full_date as data_contrato,          -- group='Tempo de Venda'
+  dt.year as ano,                         -- group='Tempo de Venda'
+  dt.quarter_name as trimestre,           -- group='Tempo de Venda'
+  dt.month as mes,                        -- group='Mês'
+  dt.year_month as ano_mes,               -- group='Mês'
+  dt.month_name as nome_mes,              -- group='Mês'
 
-  -- Dimensões de negócio
-  emp.nome_empresa, emp.regiao as empresa_regiao,
-  cli.nome_completo, cli.faixa_etaria, cli.segmento_cliente,
-  empr.nome as empreendimento, empr.tipo, empr.fase,
-  uni.tipo_imovel, uni.dormitorios, uni.area_privativa,
-  prod.forma_pagamento, prod.categoria,
+  -- Dimensões Geográficas/Empresariais
+  emp.regiao as empresa_regiao,           -- group='Região da Empresa'
+  emp.estado as empresa_estado,           -- group='Estado da Empresa'
+  emp.cidade as empresa_cidade,           -- group='Cidade da Empresa'
+  emp.nome as empresa_nome,               -- group='Nome da Empresa'
 
-  -- Métricas - Performance
-  fv.valor_contrato as "Performance — Valor Contrato",
-  fv.valor_venda as "Performance — Valor Venda",
-  fv.margem_bruta as "Performance — Margem Bruta",
-  fv.tempo_venda as "Performance — Tempo Venda (dias)",
+  -- Dimensões de Negócio
+  empr.nome as empreendimento_nome,       -- group='Nome do Empreendimento'
+  empr.tipo as empreendimento_tipo,       -- group='Tipo de Contrato'
+  uni.tipo_imovel as unidade_tipo,        -- group='Tipo da Unidade'
+  uni.faixa_area as unidade_faixa_area,   -- group='Faixa de Área da Unidade'
+  cli.nome_completo as cliente_principal, -- group='Cliente Principal'
 
-  -- Métricas - Conversões
-  CASE WHEN fv.status_venda = 'Assinado' THEN 1 ELSE 0 END as "Conversions — Vendas Efetivadas",
-  CASE WHEN fv.status_venda = 'Cancelado' THEN 1 ELSE 0 END as "Conversions — Cancelamentos",
-  fv.valor_m2 as "Conversions — Valor por M²",
+  -- Métricas de Performance
+  fv.valor_contrato,                      -- group='Performance - Valor Contrato'
+  fv.valor_venda_total,                   -- group='Performance - Valor Venda Total'
+  fv.valor_por_m2,                        -- group='Performance - Valor por M²'
+  fv.margem_bruta_percent,                -- group='Performance - Margem Bruta (%)'
+  fv.tempo_venda_dias,                    -- group='Performance - Tempo Venda (dias)'
 
-  -- Métricas - Financeiro
-  fv.valor_entrada as "Financial — Valor Entrada",
-  fv.valor_financiado as "Financial — Valor Financiado",
-  fv.comissao_total as "Financial — Comissão Total"
+  -- Métricas de Conversões
+  fv.status_contrato,                     -- group='Conversões - Status Contrato'
+  CASE WHEN fv.status = 'Ativo' THEN true ELSE false END as contratos_ativos,
+                                          -- group='Conversões - Contratos Ativos'
+  CASE WHEN fv.status = 'Cancelado' THEN true ELSE false END as contratos_cancelados,
+                                          -- group='Conversões - Contratos Cancelados'
+  CASE WHEN fv.chaves_entregues IS NOT NULL THEN true ELSE false END as chaves_entregues,
+                                          -- group='Chaves Entregues'
+  CASE WHEN fv.data_assinatura IS NOT NULL THEN true ELSE false END as contratos_assinados,
+                                          -- group='Contratos Assinados'
+
+  -- Métricas Financeiras
+  fv.desconto_percent,                    -- group='Desconto (%)'
+  fv.valor_desconto,                      -- group='Desconto (%)'
+  fv.forma_pagamento,                     -- group='Forma de Pagamento'
+  fv.taxa_juros_percent,                  -- group='Taxa de Juros (%)'
+  fv.total_parcelas,                      -- group='Total de Parcelas'
+  fv.saldo_devedor,                       -- group='Saldo Devedor'
+
+  -- Métricas de Segmentação
+  fv.faixa_valor,                         -- group='Faixa de Valor'
+  fv.canal_venda                          -- group='Canal de Venda'
 
 FROM fact_vendas fv
 JOIN dim_tempo dt ON dt.date_key = fv.data_contrato_key
 JOIN dim_empresa emp ON emp.empresa_key = fv.empresa_key
--- ... demais JOINs
+JOIN dim_cliente cli ON cli.cliente_key = fv.cliente_key
+JOIN dim_empreendimento empr ON empr.empreendimento_key = fv.empreendimento_key
+JOIN dim_unidade uni ON uni.unidade_key = fv.unidade_key
+-- Índices otimizados para Looker Studio
+WHERE dt.full_date >= CURRENT_DATE - INTERVAL '12 months';
+
+-- Criar índices para performance
+CREATE INDEX idx_rpt_vendas_wide_data ON rpt_vendas_wide (data_contrato);
+CREATE INDEX idx_rpt_vendas_wide_empresa ON rpt_vendas_wide (empresa_nome);
 ```
 
 ### 💰 **rpt_financeiro_wide** (Dashboard Financeiro)
 
 ```sql
--- Similar structure com métricas financeiras organizadas:
--- "Receivables — Valor Original"
--- "Receivables — Valor Pago"
--- "Performance — Taxa Inadimplência"
--- "Aging — 0-30 dias"
--- "Aging — 31-60 dias"
--- etc.
+CREATE MATERIALIZED VIEW rpt_financeiro_wide AS
+SELECT
+  -- Dimensões Temporais (mesmo padrão)
+  dt.full_date as data_vencimento,        -- group='Tempo de Venda'
+  dt.year as ano,                         -- group='Tempo de Venda'
+  dt.quarter_name as trimestre,           -- group='Tempo de Venda'
+  dt.month as mes,                        -- group='Mês'
+  dt.year_month as ano_mes,               -- group='Mês'
+  dt.month_name as nome_mes,              -- group='Mês'
+
+  -- Dimensões Empresariais (mesmo padrão)
+  emp.regiao as empresa_regiao,           -- group='Região da Empresa'
+  emp.estado as empresa_estado,           -- group='Estado da Empresa'
+  emp.cidade as empresa_cidade,           -- group='Cidade da Empresa'
+  emp.nome as empresa_nome,               -- group='Nome da Empresa'
+  empr.nome as empreendimento_nome,       -- group='Nome do Empreendimento'
+  cli.nome_completo as cliente_principal, -- group='Cliente Principal'
+
+  -- Métricas de Recebíveis
+  ff.valor_original,                      -- group='Recebíveis - Valor Original'
+  ff.valor_atualizado,                    -- group='Recebíveis - Valor Atualizado'
+  ff.valor_pago,                          -- group='Recebíveis - Valor Pago'
+  ff.valor_saldo,                         -- group='Recebíveis - Saldo Devedor'
+
+  -- Métricas de Performance Financeira
+  ff.taxa_inadimplencia,                  -- group='Performance - Taxa Inadimplência'
+  ff.dias_atraso,                         -- group='Performance - Dias Atraso'
+  ff.eficiencia_cobranca_percent,         -- group='Performance - Eficiência Cobrança (%)'
+
+  -- Métricas de Aging
+  CASE WHEN ff.dias_atraso BETWEEN 0 AND 30 THEN ff.valor_saldo ELSE 0 END as aging_0_30,
+                                          -- group='Aging - 0-30 dias'
+  CASE WHEN ff.dias_atraso BETWEEN 31 AND 60 THEN ff.valor_saldo ELSE 0 END as aging_31_60,
+                                          -- group='Aging - 31-60 dias'
+  CASE WHEN ff.dias_atraso BETWEEN 61 AND 90 THEN ff.valor_saldo ELSE 0 END as aging_61_90,
+                                          -- group='Aging - 61-90 dias'
+  CASE WHEN ff.dias_atraso > 90 THEN ff.valor_saldo ELSE 0 END as aging_90_plus,
+                                          -- group='Aging - 90+ dias'
+
+  -- Status e Conversões Financeiras
+  ff.status_titulo,                       -- group='Conversões - Status Título'
+  CASE WHEN ff.is_pago = true THEN true ELSE false END as titulos_pagos,
+                                          -- group='Conversões - Títulos Pagos'
+  CASE WHEN ff.is_vencido = true THEN true ELSE false END as titulos_vencidos,
+                                          -- group='Conversões - Títulos Vencidos'
+  CASE WHEN ff.is_negociado = true THEN true ELSE false END as titulos_negociados,
+                                          -- group='Conversões - Títulos Negociados'
+
+  -- Forma de Pagamento (consistência com vendas)
+  ff.forma_pagamento,                     -- group='Forma de Pagamento'
+  ff.tipo_portador                        -- group='Tipo Portador'
+
+FROM fact_financeiro ff
+JOIN dim_tempo dt ON dt.date_key = ff.data_vencimento_key
+JOIN dim_empresa emp ON emp.empresa_key = ff.empresa_key
+JOIN dim_cliente cli ON cli.cliente_key = ff.cliente_key
+JOIN dim_empreendimento empr ON empr.empreendimento_key = ff.empreendimento_key
+WHERE dt.full_date >= CURRENT_DATE - INTERVAL '24 months';
+
+-- Índices otimizados
+CREATE INDEX idx_rpt_financeiro_wide_data ON rpt_financeiro_wide (data_vencimento);
+CREATE INDEX idx_rpt_financeiro_wide_status ON rpt_financeiro_wide (status_titulo);
 ```
 
 ### 📊 **rpt_pipeline_wide** (Funil de Vendas)
 
 ```sql
--- Métricas de pipeline organizadas:
--- "Pipeline — Valor Total"
--- "Pipeline — Valor Ponderado"
--- "Conversion — Taxa Proposta → Negociação"
--- "Conversion — Taxa Negociação → Assinatura"
--- "Performance — Tempo Médio Negociação"
--- etc.
+CREATE MATERIALIZED VIEW rpt_pipeline_wide AS
+SELECT
+  -- Dimensões Temporais (padrão consistente)
+  dt.full_date as data_entrada_pipeline,  -- group='Tempo de Venda'
+  dt.year as ano,                         -- group='Tempo de Venda'
+  dt.quarter_name as trimestre,           -- group='Tempo de Venda'
+  dt.month as mes,                        -- group='Mês'
+  dt.year_month as ano_mes,               -- group='Mês'
+  dt.month_name as nome_mes,              -- group='Mês'
+
+  -- Dimensões Empresariais (padrão consistente)
+  emp.regiao as empresa_regiao,           -- group='Região da Empresa'
+  emp.estado as empresa_estado,           -- group='Estado da Empresa'
+  emp.cidade as empresa_cidade,           -- group='Cidade da Empresa'
+  emp.nome as empresa_nome,               -- group='Nome da Empresa'
+  empr.nome as empreendimento_nome,       -- group='Nome do Empreendimento'
+  uni.tipo_imovel as unidade_tipo,        -- group='Tipo da Unidade'
+  cli.nome_completo as cliente_principal, -- group='Cliente Principal'
+
+  -- Métricas de Pipeline
+  fc.valor_contrato,                      -- group='Pipeline - Valor Total'
+  fc.valor_ponderado,                     -- group='Pipeline - Valor Ponderado'
+  fc.probabilidade_percent,               -- group='Pipeline - Probabilidade (%)'
+
+  -- Status e Etapas do Pipeline
+  fc.etapa_pipeline,                      -- group='Pipeline - Etapa Atual'
+  fc.status_contrato,                     -- group='Conversões - Status Pipeline'
+
+  -- Métricas de Performance Pipeline
+  fc.dias_negociacao,                     -- group='Performance - Dias Negociação'
+  fc.dias_aprovacao,                      -- group='Performance - Dias Aprovação'
+  fc.tempo_medio_etapa,                   -- group='Performance - Tempo Médio Etapa'
+
+  -- Conversões do Pipeline
+  CASE WHEN fc.status = 'Proposta' THEN true ELSE false END as em_proposta,
+                                          -- group='Conversões - Em Proposta'
+  CASE WHEN fc.status = 'Negociacao' THEN true ELSE false END as em_negociacao,
+                                          -- group='Conversões - Em Negociação'
+  CASE WHEN fc.status = 'Aprovacao' THEN true ELSE false END as em_aprovacao,
+                                          -- group='Conversões - Em Aprovação'
+  CASE WHEN fc.is_assinado = true THEN true ELSE false END as contratos_assinados,
+                                          -- group='Contratos Assinados'
+  CASE WHEN fc.is_cancelado = true THEN true ELSE false END as contratos_cancelados,
+                                          -- group='Conversões - Contratos Cancelados'
+
+  -- Análise de Motivos
+  fc.motivo_cancelamento,                 -- group='Pipeline - Motivo Cancelamento'
+  fc.origem_lead,                         -- group='Pipeline - Origem Lead'
+
+  -- Métricas Financeiras Pipeline (consistência)
+  fc.forma_pagamento_prevista,            -- group='Forma de Pagamento'
+  fc.desconto_percent,                    -- group='Desconto (%)'
+
+  -- Vendedor e Canal
+  vend.nome as vendedor,                  -- group='Pipeline - Vendedor'
+  fc.canal_venda                          -- group='Canal de Venda'
+
+FROM fact_contratos fc
+JOIN dim_tempo dt ON dt.date_key = fc.data_entrada_key
+JOIN dim_empresa emp ON emp.empresa_key = fc.empresa_key
+JOIN dim_cliente cli ON cli.cliente_key = fc.cliente_key
+JOIN dim_empreendimento empr ON empr.empreendimento_key = fc.empreendimento_key
+JOIN dim_unidade uni ON uni.unidade_key = fc.unidade_key
+LEFT JOIN dim_vendedor vend ON vend.vendedor_key = fc.vendedor_key
+WHERE dt.full_date >= CURRENT_DATE - INTERVAL '18 months'
+  AND fc.status NOT IN ('Arquivado', 'Excluído');
+
+-- Índices para análise de funil
+CREATE INDEX idx_rpt_pipeline_wide_etapa ON rpt_pipeline_wide (etapa_pipeline);
+CREATE INDEX idx_rpt_pipeline_wide_vendedor ON rpt_pipeline_wide (vendedor);
 ```
 
 ## 🔄 Processo de ETL
@@ -259,78 +411,71 @@ REFRESH MATERIALIZED VIEW CONCURRENTLY rpt_financeiro_wide;
 # etc.
 ```
 
+## 🎯 Semantic Groups
+
+Campos organizados em categorias no Looker Studio:
+
+- **Performance**: Valor Contrato, Margem Bruta, Tempo Venda
+- **Conversions**: Status, Contratos Ativos/Cancelados, Chaves Entregues
+- **Financial**: Desconto, Forma Pagamento, Saldo Devedor
+- **Time**: Data, Ano, Trimestre, Mês
+- **Geography**: Empresa (Região, Estado, Cidade)
+- **Business**: Empreendimento, Unidade, Cliente
+
+
 ## 🎨 Conexão com Looker Studio
 
-### 1. **Configuração PostgreSQL**
-
-```sql
--- Criar usuário específico para BI
-CREATE USER looker_studio WITH PASSWORD 'senha_segura';
-
--- Dar permissões apenas nas views
-GRANT SELECT ON rpt_vendas_wide TO looker_studio;
-GRANT SELECT ON rpt_financeiro_wide TO looker_studio;
-GRANT SELECT ON rpt_pipeline_wide TO looker_studio;
-```
-
-### 2. **Custom Query no Looker Studio**
-
-```sql
-SELECT * FROM rpt_vendas_wide
-WHERE full_date BETWEEN @DS_START_DATE AND @DS_END_DATE
-```
-
-### 3. **Organização dos Campos**
+**Community Connector** - Um clique para conectar:
 
 ```
-📊 Performance
-├── Performance — Valor Contrato
-├── Performance — Margem Bruta
-├── Performance — Tempo Venda
-
-💰 Conversions
-├── Conversions — Vendas Efetivadas
-├── Conversions — Taxa Conversão
-├── Conversions — Valor por M²
-
-💳 Financial
-├── Financial — Valor Entrada
-├── Financial — Valor Financiado
-└── Financial — Comissão Total
+https://lookerstudio.google.com/datasources/create?connectorId=SEU_DEPLOYMENT_ID
 ```
+
+**API REST:** `/api/datawarehouse/vendas`
+- ✅ Automático - últimos 12 meses
+- ✅ Cache de 1 hora
+- ✅ Semantic Groups organizados
+- ✅ Sem autenticação
 
 ## 🚀 Benefícios
 
 ### ✅ **Performance**
 
-- Queries otimizadas com índices específicos
-- Views materializadas para consultas complexas
-- Dados pré-agregados no grão correto
+- API REST otimizada com cache de 1 hora
+- Dados pré-processados no Data Warehouse
+- Views materializadas como base dos dados
+- Response time otimizado para dashboards
 
 ### ✅ **Simplicidade no Looker Studio**
 
-- Uma fonte de dados por dashboard (abordagem inicial)
-- Campos organizados em categorias
-- Métricas pré-calculadas
+- **Community Connector** - um clique para conectar
+- Sem configuração manual de credenciais ou parâmetros
+- Campos organizados automaticamente em grupos semânticos
+- Métricas pré-calculadas disponíveis instantaneamente
 
 ### ✅ **Manutenibilidade**
 
-- Schema star simples e conhecido
+- **API REST centralizada** - uma fonte para todas as atualizações
+- Schema star simples no backend, API simplificada no frontend
 - ETL documentado e versionado
-- Separação clara entre staging e apresentação
+- **Community Connector atualizável** via Google Apps Script
+- Separação clara entre Data Warehouse e camada de apresentação
 
 ### ✅ **Escalabilidade**
 
-- Fácil adição de novas dimensões
-- Suporte a análises históricas (SCD)
-- Preparado para crescimento de volume
+- **Novos endpoints API** facilmente adicionáveis
+- **Community Connector extensível** para novos dados
+- Suporte a análises históricas (SCD) no backend
+- **Cache strategy** escalável para crescimento de volume
+- **Multiple dashboards** usando a mesma API base
 
-### ✅ **Evolução Estratégica**
+### ✅ **Evolução Estratégica baseada em API**
 
-- **Início**: Views separadas para desenvolvimento ágil e performance
-- **Futuro**: Consolidação em view única para máxima simplicidade
-- **Flexibilidade**: Manter ambas abordagens conforme necessidade
-- **Migração gradual**: Dashboards podem migrar quando view única estiver otimizada
+- **Atual**: API única `/api/datawarehouse/vendas` para dashboard comercial
+- **Próximo**: APIs especializadas `/financeiro`, `/pipeline`, `/executivo`
+- **Futuro**: API unificada `/master` consolidando todos os domínios
+- **Flexibilidade**: Community Connector pode consumir qualquer endpoint
+- **Migração suave**: Mudança apenas na URL do connector
 
 ## 📅 Roadmap de Implementação
 
@@ -346,24 +491,19 @@ WHERE full_date BETWEEN @DS_START_DATE AND @DS_END_DATE
 - [ ] Implementar fact_financeiro
 - [ ] Criar ETL inicial
 
-### **Fase 3 - Views e BI** (Semana 3)
+### **Fase 3 - Community Connector ✅**
+- [x] API `/api/datawarehouse/vendas`
+- [x] Community Connector para Looker Studio
+- [x] Semantic Groups organizados
 
-- [ ] Criar rpt_vendas_wide
-- [ ] Criar rpt_financeiro_wide
-- [ ] Conectar com Looker Studio
+### **Fase 4 - Próximas APIs**
+- [ ] `/api/datawarehouse/financeiro`
+- [ ] `/api/datawarehouse/pipeline`
+- [ ] `/api/datawarehouse/executivo`
 
-### **Fase 4 - Expansão** (Semana 4)
-
-- [ ] Implementar fact_contratos (pipeline)
-- [ ] Criar rpt_pipeline_wide
-- [ ] Automatizar ETL completo
-
-### **Fase 5 - Evolução Futura** (Longo Prazo)
-
-- [ ] Consolidar views separadas em uma única view unificada
-- [ ] Criar `rpt_sienge_master_wide` com todos os dados
-- [ ] Otimizar performance da view única com particionamento
-- [ ] Migrar dashboards para fonte única (se performance adequada)
+### **Fase 5 - API Unificada**
+- [ ] `/api/datawarehouse/master`
+- [ ] Performance otimizada
 
 ## 🎯 KPIs Principais Suportados
 
@@ -391,60 +531,53 @@ WHERE full_date BETWEEN @DS_START_DATE AND @DS_END_DATE
 
 ---
 
-## 🎯 Estratégia de Evolução: Views Separadas → View Única
+## 🎯 Estratégia de Evolução: APIs Especializadas → API Unificada
 
-### **Abordagem Inicial: Views Especializadas**
+### **Abordagem Atual: APIs Especializadas**
 
-```sql
--- Múltiplas views otimizadas por domínio
-rpt_vendas_wide      → Dashboard Comercial
-rpt_financeiro_wide  → Dashboard Financeiro
-rpt_pipeline_wide    → Dashboard Pipeline
-rpt_performance_wide → Dashboard Executivo
+```typescript
+// Múltiplas APIs otimizadas por domínio via Community Connector
+/api/datawarehouse/vendas      → Dashboard Comercial    ✅ IMPLEMENTADO
+/api/datawarehouse/financeiro  → Dashboard Financeiro   🔄 PRÓXIMO
+/api/datawarehouse/pipeline    → Dashboard Pipeline     🔄 PRÓXIMO
+/api/datawarehouse/executivo   → Dashboard Executivo    🔄 PRÓXIMO
 ```
 
-**Vantagens da abordagem inicial:**
+**Vantagens da abordagem por APIs:**
 
-- ✅ Desenvolvimento mais rápido e iterativo
-- ✅ Performance otimizada por domínio específico
-- ✅ Manutenção simplificada (alterações isoladas)
-- ✅ Testagem e validação mais fácil
+- ✅ **Desenvolvimento iterativo** - uma API por vez
+- ✅ **Performance otimizada** - cada endpoint serve dados específicos
+- ✅ **Community Connector simples** - um endpoint por dashboard
+- ✅ **Manutenção isolada** - mudanças não afetam outros domínios
+- ✅ **Testagem facilitada** - validação independente
 
-### **Evolução Futura: View Única Consolidada**
+### **Evolução Futura: API Unificada**
 
-```sql
--- Visão unificada para máxima simplicidade
-CREATE MATERIALIZED VIEW rpt_sienge_master_wide AS
-SELECT
-  -- Todas as dimensões de tempo, empresa, cliente, empreendimento
-  -- Todas as métricas: vendas + financeiro + pipeline + executivo
-  -- Flags de contexto para filtrar domínios específicos
-  'vendas' as domain_type,     -- Para filtrar dados de vendas
-  'financeiro' as domain_type, -- Para filtrar dados financeiros
-  -- etc.
-FROM (mega JOIN de todas as tabelas)
+```typescript
+// API única consolidada para máxima flexibilidade
+/api/datawarehouse/master?domains=vendas,financeiro&format=unified
 ```
 
-**Vantagens da view única futura:**
+**Vantagens da API única futura:**
 
-- ✅ **Uma única fonte** para todos os dashboards
-- ✅ **Cross-domain analytics** (vendas vs financeiro)
-- ✅ **Consistência total** entre dashboards
-- ✅ **Manutenção centralizada** de transformações
+- ✅ **Cross-domain analytics** via parâmetros
+- ✅ **Uma fonte** para dashboards complexos
+- ✅ **Consistência total** entre domínios
+- ✅ **Community Connector universal** - um connector, múltiplos dashboards
 
-### **Estratégia de Migração**
+### **Estratégia de Migração via API**
 
-1. **Curto prazo**: Desenvolver e validar views separadas
-2. **Médio prazo**: Criar view única experimental paralela
-3. **Longo prazo**: Migrar dashboards quando performance for adequada
-4. **Flexibilidade**: Manter ambas abordagens se necessário
+1. **Atual**: API Vendas validada e em produção
+2. **Próximo**: APIs especializadas (Financeiro, Pipeline, Executivo)
+3. **Futuro**: API Master consolidando todos os endpoints
+4. **Flexibilidade**: Community Connector pode alternar URLs conforme necessidade
 
-### **Critérios para Migração**
+### **Critérios para Migração de API**
 
-- [ ] View única com performance ≤ 30s para consultas típicas
-- [ ] Todos os casos de uso cobertos na view única
-- [ ] Estratégia de particionamento implementada (se necessário)
-- [ ] Aprovação dos usuários finais dos dashboards
+- [ ] **Performance ≤ 3s** para consultas típicas da API Master
+- [ ] **Todos os casos de uso** cobertos na API unificada
+- [ ] **Cache strategy avançada** implementada
+- [ ] **Validação pelos usuários** dos dashboards migrados
 
 ---
 

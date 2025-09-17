@@ -15,7 +15,7 @@ export function PowerBILinksSection({ syncResults }: PowerBILinksProps) {
     : typeof window !== 'undefined'
       ? window.location.origin
       : '';
-  const dataWarehouseUrl = `${baseUrl}/api/datawarehouse/vendas`;
+  const dataWarehouseUrl = `${baseUrl}/api/datawarehouse/master`;
 
   const copyToClipboard = () => {
     if (typeof navigator !== 'undefined') {

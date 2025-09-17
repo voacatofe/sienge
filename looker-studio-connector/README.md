@@ -35,13 +35,13 @@ https://lookerstudio.google.com/datasources/create?connectorId=SEU_DEPLOYMENT_ID
 O conector está configurado para acessar:
 
 ```
-https://conector.catometrics.com.br/api/datawarehouse/vendas
+https://conector.catometrics.com.br/api/datawarehouse/master?domain=contratos
 ```
 
 Para alterar a URL da API, modifique a linha 245 em `Code.gs`:
 
 ```javascript
-var API_URL = 'https://seu-dominio/api/datawarehouse/vendas';
+var API_URL = 'https://seu-dominio/api/datawarehouse/master?domain=contratos';
 ```
 
 ## 📊 **Campos Mapeados**
@@ -50,7 +50,7 @@ O conector mapeia automaticamente todos os campos da API para o formato esperado
 
 ### **Dimensões Temporais:**
 
-- data_contrato, ano, trimestre, mes, ano_mes, nome_mes
+- data_principal, ano, trimestre, mes, ano_mes, nome_mes
 
 ### **Dimensões Geográficas:**
 

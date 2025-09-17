@@ -140,7 +140,7 @@ https://lookerstudio.google.com/datasources/create?connectorId=SEU_DEPLOYMENT_ID
 **Solução**:
 
 1. Testar função `testConnection()` no Apps Script
-2. Verificar se `https://conector.catometrics.com.br/api/datawarehouse/vendas` está online
+2. Verificar se `https://conector.catometrics.com.br/api/datawarehouse/master` está online
 
 ### **❌ "Authorization required"**
 
@@ -174,7 +174,7 @@ https://lookerstudio.google.com/datasources/create?connectorId=SEU_DEPLOYMENT_ID
 
 ### **🔍 Para Diagnósticos:**
 
-1. **API Status**: Acesse diretamente `/api/datawarehouse/vendas`
+1. **API Status**: Acesse diretamente `/api/datawarehouse/master`
 2. **Apps Script Logs**: Aba "Execuções" no script.google.com
 3. **Teste de Conexão**: Execute `testConnection()` no Apps Script
 

@@ -1,0 +1,542 @@
+{
+  "semantic_groups_mapping": {
+    "description": "Mapeamento completo de campos para grupos semânticos na view única rpt_sienge_master_wide",
+    "version": "1.0",
+    "last_updated": "2025-01-17",
+    "target_view": "rpt_sienge_master_wide",
+    "total_groups": 8,
+    "total_fields": 42,
+
+    "groups": {
+      "Data": {
+        "description": "Dimensões temporais universais para todos os domínios",
+        "group_key": "Data",
+        "semantic_type": "TEMPORAL",
+        "fields": [
+          {
+            "name": "data_principal",
+            "label": "Data Principal",
+            "description": "Data principal da transação (contrato, vencimento ou movimento)",
+            "data_type": "DATE",
+            "concept_type": "DIMENSION",
+            "semantic_type": "YEAR_MONTH_DAY",
+            "sources": ["cv.contractDate", "tr.dataVencimento", "mb.bankMovementDate"]
+          },
+          {
+            "name": "ano",
+            "label": "Ano",
+            "description": "Ano extraído da data principal",
+            "data_type": "INTEGER",
+            "concept_type": "DIMENSION",
+            "semantic_type": "YEAR",
+            "sources": ["EXTRACT(YEAR FROM data_principal)"]
+          },
+          {
+            "name": "trimestre",
+            "label": "Trimestre",
+            "description": "Trimestre extraído da data principal",
+            "data_type": "INTEGER",
+            "concept_type": "DIMENSION",
+            "semantic_type": "QUARTER",
+            "sources": ["EXTRACT(QUARTER FROM data_principal)"]
+          },
+          {
+            "name": "mes",
+            "label": "Mês",
+            "description": "Mês extraído da data principal",
+            "data_type": "INTEGER",
+            "concept_type": "DIMENSION",
+            "semantic_type": "MONTH",
+            "sources": ["EXTRACT(MONTH FROM data_principal)"]
+          },
+          {
+            "name": "ano_mes",
+            "label": "Ano-Mês",
+            "description": "Ano e mês formatado (YYYY-MM)",
+            "data_type": "STRING",
+            "concept_type": "DIMENSION",
+            "semantic_type": "YEAR_MONTH",
+            "sources": ["TO_CHAR(data_principal, 'YYYY-MM')"]
+          },
+          {
+            "name": "nome_mes",
+            "label": "Nome do Mês",
+            "description": "Nome do mês por extenso",
+            "data_type": "STRING",
+            "concept_type": "DIMENSION",
+            "semantic_type": "MONTH_NAME",
+            "sources": ["TO_CHAR(data_principal, 'TMMonth')"]
+          }
+        ]
+      },
+
+      "Empresas": {
+        "description": "Dados master das empresas",
+        "group_key": "Empresas",
+        "semantic_type": "MASTER_DATA",
+        "fields": [
+          {
+            "name": "empresa_nome",
+            "label": "Nome da Empresa",
+            "description": "Razão social ou nome da empresa",
+            "data_type": "STRING",
+            "concept_type": "DIMENSION",
+            "semantic_type": "TEXT",
+            "sources": ["emp.nomeEmpresa", "cv.companyName", "mb.companyName"]
+          },
+          {
+            "name": "empresa_cidade",
+            "label": "Cidade da Empresa",
+            "description": "Cidade onde a empresa está localizada",
+            "data_type": "STRING",
+            "concept_type": "DIMENSION",
+            "semantic_type": "CITY",
+            "sources": ["emp.cidade"]
+          },
+          {
+            "name": "empresa_estado",
+            "label": "Estado da Empresa",
+            "description": "Estado (UF) onde a empresa está localizada",
+            "data_type": "STRING",
+            "concept_type": "DIMENSION",
+            "semantic_type": "STATE",
+            "sources": ["emp.estado"]
+          },
+          {
+            "name": "empresa_regiao",
+            "label": "Região da Empresa",
+            "description": "Região brasileira calculada a partir do estado",
+            "data_type": "STRING",
+            "concept_type": "DIMENSION",
+            "semantic_type": "REGION",
+            "sources": ["CASE WHEN emp.estado IN (...)"]
+          },
+          {
+            "name": "empresa_cnpj",
+            "label": "CNPJ da Empresa",
+            "description": "CNPJ da empresa",
+            "data_type": "STRING",
+            "concept_type": "DIMENSION",
+            "semantic_type": "TEXT",
+            "sources": ["emp.cnpj"]
+          }
+        ]
+      },
+
+      "Contratos": {
+        "description": "Dados específicos do domínio de contratos de venda",
+        "group_key": "Contratos",
+        "semantic_type": "BUSINESS_DOMAIN",
+        "fields": [
+          {
+            "name": "valor_contrato",
+            "label": "Valor do Contrato",
+            "description": "Valor total do contrato de venda",
+            "data_type": "DECIMAL",
+            "concept_type": "METRIC",
+            "semantic_type": "CURRENCY_BRL",
+            "sources": ["cv.value"]
+          },
+          {
+            "name": "status_contrato",
+            "label": "Status do Contrato",
+            "description": "Status atual do contrato",
+            "data_type": "STRING",
+            "concept_type": "DIMENSION",
+            "semantic_type": "TEXT",
+            "sources": ["cv.situation", "cv.contractStatus", "tr.status"]
+          },
+          {
+            "name": "tipo_contrato",
+            "label": "Tipo do Contrato",
+            "description": "Classificação do tipo de contrato",
+            "data_type": "STRING",
+            "concept_type": "DIMENSION",
+            "semantic_type": "TEXT",
+            "sources": ["cv.contractType"]
+          },
+          {
+            "name": "numero_contrato",
+            "label": "Número do Contrato",
+            "description": "Número de identificação do contrato",
+            "data_type": "STRING",
+            "concept_type": "DIMENSION",
+            "semantic_type": "TEXT",
+            "sources": ["cv.number", "tr.numeroDocumento", "mb.documentIdentificationNumber"]
+          },
+          {
+            "name": "contratos_ativos",
+            "label": "Contratos Ativos",
+            "description": "Flag indicando se o contrato está ativo",
+            "data_type": "BOOLEAN",
+            "concept_type": "DIMENSION",
+            "semantic_type": "BOOLEAN",
+            "sources": ["CASE WHEN status IN ('ativo', 'assinado', 'vigente')"]
+          },
+          {
+            "name": "chaves_entregues",
+            "label": "Chaves Entregues",
+            "description": "Flag indicando se as chaves foram entregues",
+            "data_type": "BOOLEAN",
+            "concept_type": "DIMENSION",
+            "semantic_type": "BOOLEAN",
+            "sources": ["cv.keysDeliveredAt IS NOT NULL"]
+          },
+          {
+            "name": "contratos_assinados",
+            "label": "Contratos Assinados",
+            "description": "Flag indicando se o contrato foi assinado",
+            "data_type": "BOOLEAN",
+            "concept_type": "DIMENSION",
+            "semantic_type": "BOOLEAN",
+            "sources": ["cv.contractDate IS NOT NULL"]
+          }
+        ]
+      },
+
+      "Financeiro": {
+        "description": "Dados financeiros incluindo aging e indicadores de cobrança",
+        "group_key": "Financeiro",
+        "semantic_type": "FINANCIAL_DOMAIN",
+        "fields": [
+          {
+            "name": "valor_original",
+            "label": "Valor Original",
+            "description": "Valor original do título ou transação",
+            "data_type": "DECIMAL",
+            "concept_type": "METRIC",
+            "semantic_type": "CURRENCY_BRL",
+            "sources": ["tr.valorOriginal", "mb.bankMovementAmount"]
+          },
+          {
+            "name": "valor_pago",
+            "label": "Valor Pago",
+            "description": "Valor efetivamente pago",
+            "data_type": "DECIMAL",
+            "concept_type": "METRIC",
+            "semantic_type": "CURRENCY_BRL",
+            "sources": ["tr.valorPago", "CASE WHEN mb.bankMovementOperationType = 'C'"]
+          },
+          {
+            "name": "saldo_devedor",
+            "label": "Saldo Devedor",
+            "description": "Saldo pendente de pagamento",
+            "data_type": "DECIMAL",
+            "concept_type": "METRIC",
+            "semantic_type": "CURRENCY_BRL",
+            "sources": ["valor_original - valor_pago", "cv.remainingBalance"]
+          },
+          {
+            "name": "taxa_inadimplencia",
+            "label": "Taxa de Inadimplência",
+            "description": "Taxa de inadimplência calculada por empresa",
+            "data_type": "DECIMAL",
+            "concept_type": "METRIC",
+            "semantic_type": "PERCENT",
+            "sources": ["Window function por empresa"]
+          },
+          {
+            "name": "dias_atraso",
+            "label": "Dias em Atraso",
+            "description": "Número de dias em atraso desde o vencimento",
+            "data_type": "INTEGER",
+            "concept_type": "METRIC",
+            "semantic_type": "NUMBER",
+            "sources": ["EXTRACT(DAY FROM CURRENT_DATE - tr.dataVencimento)"]
+          },
+          {
+            "name": "forma_pagamento",
+            "label": "Forma de Pagamento",
+            "description": "Forma de pagamento utilizada",
+            "data_type": "STRING",
+            "concept_type": "DIMENSION",
+            "semantic_type": "TEXT",
+            "sources": ["cv.paymentMethod", "mb.bankMovementHistoricName"]
+          },
+          {
+            "name": "taxa_juros",
+            "label": "Taxa de Juros",
+            "description": "Taxa de juros aplicada",
+            "data_type": "DECIMAL",
+            "concept_type": "METRIC",
+            "semantic_type": "PERCENT",
+            "sources": ["cv.interestPercentage", "tr.juros"]
+          },
+          {
+            "name": "aging_0_30",
+            "label": "Aging 0-30 dias",
+            "description": "Valor em atraso de 0 a 30 dias",
+            "data_type": "DECIMAL",
+            "concept_type": "METRIC",
+            "semantic_type": "CURRENCY_BRL",
+            "sources": ["CASE WHEN dias_atraso BETWEEN 0 AND 30"]
+          },
+          {
+            "name": "aging_31_60",
+            "label": "Aging 31-60 dias",
+            "description": "Valor em atraso de 31 a 60 dias",
+            "data_type": "DECIMAL",
+            "concept_type": "METRIC",
+            "semantic_type": "CURRENCY_BRL",
+            "sources": ["CASE WHEN dias_atraso BETWEEN 31 AND 60"]
+          },
+          {
+            "name": "aging_61_90",
+            "label": "Aging 61-90 dias",
+            "description": "Valor em atraso de 61 a 90 dias",
+            "data_type": "DECIMAL",
+            "concept_type": "METRIC",
+            "semantic_type": "CURRENCY_BRL",
+            "sources": ["CASE WHEN dias_atraso BETWEEN 61 AND 90"]
+          },
+          {
+            "name": "aging_90_plus",
+            "label": "Aging 90+ dias",
+            "description": "Valor em atraso acima de 90 dias",
+            "data_type": "DECIMAL",
+            "concept_type": "METRIC",
+            "semantic_type": "CURRENCY_BRL",
+            "sources": ["CASE WHEN dias_atraso > 90"]
+          }
+        ]
+      },
+
+      "Performance": {
+        "description": "Métricas de performance transversais aos domínios",
+        "group_key": "Performance",
+        "semantic_type": "PERFORMANCE_METRICS",
+        "fields": [
+          {
+            "name": "margem_bruta",
+            "label": "Margem Bruta (%)",
+            "description": "Margem bruta calculada em percentual",
+            "data_type": "DECIMAL",
+            "concept_type": "METRIC",
+            "semantic_type": "PERCENT",
+            "sources": ["(cv.totalSellingValue - cv.value) / cv.totalSellingValue * 100"]
+          },
+          {
+            "name": "tempo_venda",
+            "label": "Tempo de Venda (dias)",
+            "description": "Tempo decorrido desde cadastro do empreendimento até venda",
+            "data_type": "INTEGER",
+            "concept_type": "METRIC",
+            "semantic_type": "NUMBER",
+            "sources": ["EXTRACT(DAY FROM cv.contractDate - empr.dataCadastro)"]
+          },
+          {
+            "name": "valor_por_m2",
+            "label": "Valor por M²",
+            "description": "Valor do contrato dividido pela área da unidade",
+            "data_type": "DECIMAL",
+            "concept_type": "METRIC",
+            "semantic_type": "CURRENCY_BRL",
+            "sources": ["cv.value / uni.areaPrivativa"]
+          },
+          {
+            "name": "eficiencia_cobranca",
+            "label": "Eficiência de Cobrança (%)",
+            "description": "Percentual do valor original que foi efetivamente pago",
+            "data_type": "DECIMAL",
+            "concept_type": "METRIC",
+            "semantic_type": "PERCENT",
+            "sources": ["tr.valorPago / tr.valorOriginal * 100"]
+          }
+        ]
+      },
+
+      "Clientes": {
+        "description": "Dados dos clientes envolvidos nas transações",
+        "group_key": "Clientes",
+        "semantic_type": "CUSTOMER_DATA",
+        "fields": [
+          {
+            "name": "cliente_nome",
+            "label": "Nome do Cliente",
+            "description": "Nome completo do cliente",
+            "data_type": "STRING",
+            "concept_type": "DIMENSION",
+            "semantic_type": "TEXT",
+            "sources": ["cli.nomeCompleto", "mb.clientName"]
+          },
+          {
+            "name": "cliente_principal",
+            "label": "Cliente Principal",
+            "description": "Cliente principal do contrato ou transação",
+            "data_type": "STRING",
+            "concept_type": "DIMENSION",
+            "semantic_type": "TEXT",
+            "sources": ["cv.salesContractCustomers->0->>'customerName'", "cli.nomeCompleto"]
+          },
+          {
+            "name": "cliente_tipo",
+            "label": "Tipo de Cliente",
+            "description": "Classificação do tipo de cliente (PF/PJ)",
+            "data_type": "STRING",
+            "concept_type": "DIMENSION",
+            "semantic_type": "TEXT",
+            "sources": ["cli.personType"]
+          }
+        ]
+      },
+
+      "Empreendimentos": {
+        "description": "Dados dos empreendimentos e unidades",
+        "group_key": "Empreendimentos",
+        "semantic_type": "REAL_ESTATE_DATA",
+        "fields": [
+          {
+            "name": "empreendimento_nome",
+            "label": "Nome do Empreendimento",
+            "description": "Nome do empreendimento imobiliário",
+            "data_type": "STRING",
+            "concept_type": "DIMENSION",
+            "semantic_type": "TEXT",
+            "sources": ["empr.nome", "cv.enterpriseName"]
+          },
+          {
+            "name": "empreendimento_tipo",
+            "label": "Tipo do Empreendimento",
+            "description": "Classificação do tipo de empreendimento",
+            "data_type": "STRING",
+            "concept_type": "DIMENSION",
+            "semantic_type": "TEXT",
+            "sources": ["empr.tipo"]
+          },
+          {
+            "name": "unidade_tipo",
+            "label": "Tipo da Unidade",
+            "description": "Tipo da unidade imobiliária",
+            "data_type": "STRING",
+            "concept_type": "DIMENSION",
+            "semantic_type": "TEXT",
+            "sources": ["uni.tipoImovel"]
+          },
+          {
+            "name": "unidade_area",
+            "label": "Área da Unidade",
+            "description": "Área privativa da unidade em metros quadrados",
+            "data_type": "DECIMAL",
+            "concept_type": "METRIC",
+            "semantic_type": "NUMBER",
+            "sources": ["uni.areaPrivativa"]
+          },
+          {
+            "name": "faixa_area",
+            "label": "Faixa de Área",
+            "description": "Classificação da unidade por faixa de área",
+            "data_type": "STRING",
+            "concept_type": "DIMENSION",
+            "semantic_type": "TEXT",
+            "sources": ["CASE WHEN uni.areaPrivativa < 50 THEN 'Até 50m²'"]
+          }
+        ]
+      },
+
+      "Conversoes": {
+        "description": "Flags de conversão e status transversais",
+        "group_key": "Conversoes",
+        "semantic_type": "CONVERSION_FLAGS",
+        "fields": [
+          {
+            "name": "contratos_cancelados",
+            "label": "Contratos Cancelados",
+            "description": "Flag indicando se o contrato foi cancelado",
+            "data_type": "BOOLEAN",
+            "concept_type": "DIMENSION",
+            "semantic_type": "BOOLEAN",
+            "sources": ["CASE WHEN status IN ('cancelado', 'rescindido', 'baixado')"]
+          },
+          {
+            "name": "titulos_pagos",
+            "label": "Títulos Pagos",
+            "description": "Flag indicando se o título foi pago",
+            "data_type": "BOOLEAN",
+            "concept_type": "DIMENSION",
+            "semantic_type": "BOOLEAN",
+            "sources": ["tr.valorPago > 0", "mb.bankMovementOperationType = 'C'"]
+          },
+          {
+            "name": "titulos_vencidos",
+            "label": "Títulos Vencidos",
+            "description": "Flag indicando se o título está vencido e não pago",
+            "data_type": "BOOLEAN",
+            "concept_type": "DIMENSION",
+            "semantic_type": "BOOLEAN",
+            "sources": ["tr.dataVencimento < CURRENT_DATE AND tr.valorPago = 0"]
+          }
+        ]
+      }
+    },
+
+    "technical_fields": {
+      "description": "Campos técnicos para controle e auditoria",
+      "fields": [
+        {
+          "name": "row_id",
+          "label": "ID da Linha",
+          "description": "Identificador único da linha na view",
+          "data_type": "UUID",
+          "concept_type": "DIMENSION",
+          "purpose": "Identificação única"
+        },
+        {
+          "name": "domain_type",
+          "label": "Tipo de Domínio",
+          "description": "Indica origem dos dados: contratos, financeiro, movimentos",
+          "data_type": "STRING",
+          "concept_type": "DIMENSION",
+          "purpose": "Filtragem por domínio"
+        },
+        {
+          "name": "source_table",
+          "label": "Tabela de Origem",
+          "description": "Nome da tabela de origem dos dados",
+          "data_type": "STRING",
+          "concept_type": "DIMENSION",
+          "purpose": "Auditoria e debugging"
+        },
+        {
+          "name": "source_id",
+          "label": "ID Original",
+          "description": "ID do registro na tabela de origem",
+          "data_type": "INTEGER",
+          "concept_type": "DIMENSION",
+          "purpose": "Referência ao registro original"
+        }
+      ]
+    },
+
+    "api_integration": {
+      "description": "Configuração para integração com API REST",
+      "endpoint": "/api/datawarehouse/vendas",
+      "community_connector": {
+        "mapping_strategy": "Direct field mapping to Looker Studio semantic groups",
+        "group_property": "group",
+        "example_field": {
+          "name": "data_principal",
+          "label": "Data Principal",
+          "dataType": "STRING",
+          "group": "Data",
+          "semantics": {
+            "conceptType": "DIMENSION",
+            "semanticType": "YEAR_MONTH_DAY"
+          }
+        }
+      }
+    },
+
+    "validation_queries": {
+      "group_consistency": "SELECT COUNT(DISTINCT CASE WHEN data_principal IS NOT NULL THEN 'Data' END) FROM rpt_sienge_master_wide",
+      "domain_distribution": "SELECT domain_type, COUNT(*) FROM rpt_sienge_master_wide GROUP BY domain_type",
+      "data_quality": "SELECT COUNT(*) as total, COUNT(data_principal) as with_date, COUNT(empresa_nome) as with_company FROM rpt_sienge_master_wide"
+    },
+
+    "maintenance_notes": {
+      "refresh_schedule": "Daily at 6 AM via cron job",
+      "performance_monitoring": "Monitor query performance for data_principal >= CURRENT_DATE - INTERVAL '12 months'",
+      "new_field_guidelines": "New fields must be assigned to appropriate semantic group and maintain consistency across domains",
+      "breaking_change_policy": "Any changes to group names or field names require Community Connector update"
+    }
+  }
+}
