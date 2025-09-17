@@ -213,45 +213,36 @@ export function ConfigurationSection({
   };
 
   const syncAllEndpoints = async () => {
-    // Lista de endpoints organizada por ordem de dependência (FK)
-    // ORDEM CRÍTICA: Tabelas independentes primeiro, depois as dependentes
+    // Lista de endpoints com permissão de acesso
+    // Apenas endpoints que não retornam 403 (Permission denied)
     const endpoints = [
       // === FASE 1: TABELAS BASE (SEM DEPENDÊNCIAS) ===
       { id: 'companies', name: 'Empresas', path: '/companies', phase: 1 },
-      { id: 'enterprises', name: 'Empreendimentos', path: '/enterprises', phase: 1 },
-      
+      {
+        id: 'enterprises',
+        name: 'Empreendimentos',
+        path: '/enterprises',
+        phase: 1,
+      },
+
       // === FASE 2: TABELAS COM FK PARA FASE 1 ===
       { id: 'customers', name: 'Clientes', path: '/customers', phase: 2 },
-      { id: 'sales-contracts', name: 'Contratos de Venda', path: '/sales-contracts', phase: 2 },
-      
+      {
+        id: 'sales-contracts',
+        name: 'Contratos de Venda',
+        path: '/sales-contracts',
+        phase: 2,
+      },
+
       // === FASE 3: TABELAS COM FK PARA FASE 2 ===
       { id: 'units', name: 'Unidades', path: '/units', phase: 3 },
-      { id: 'accounts-receivable', name: 'Contas a Receber', path: '/accounts-receivable', phase: 3 },
-      
-      // === FASE 4: TABELAS COM FK PARA FASE 3 ===
-      // (Parcelas de Contas a Receber serão criadas automaticamente via ContasReceber)
-      
-      // === FASE 5: TABELAS INDEPENDENTES (SEM FK OBRIGATÓRIAS) ===
-      { id: 'income', name: 'Receitas', path: '/income', phase: 5 },
-      { id: 'sales', name: 'Vendas', path: '/sales', phase: 5 },
-      { id: 'bank-movement', name: 'Movimentos Bancários', path: '/bank-movement', phase: 5 },
-      { id: 'customer-extract-history', name: 'Extrato de Cliente', path: '/customer-extract-history', phase: 5 },
-      { id: 'accounts-statements', name: 'Extrato de Contas', path: '/accounts-statements', phase: 5 },
-      { id: 'construction-daily-report', name: 'Relatórios Diários de Obra', path: '/construction-daily-report', phase: 5 },
-      { id: 'patrimony-fixed', name: 'Patrimônio', path: '/patrimony/fixed', phase: 5 },
-      { id: 'building-cost-estimations', name: 'Orçamentos de Obra', path: '/building-cost-estimations', phase: 5 },
-      { id: 'building-projects-progress-logs', name: 'Logs de Progresso', path: '/building-projects/progress-logs', phase: 5 },
-      { id: 'measurement', name: 'Medições', path: '/measurement', phase: 5 },
-      { id: 'sites', name: 'Obras', path: '/sites', phase: 5 },
-      
-      // === FASE 6: ENDPOINTS AUXILIARES (SEM TABELAS NO BD) ===
-      { id: 'units-characteristics', name: 'Características de Unidade', path: '/units/characteristics', phase: 6 },
-      { id: 'units-situations', name: 'Situações de Unidade', path: '/units/situations', phase: 6 },
-      { id: 'supply-contracts-measurements-all', name: 'Medições de Contratos', path: '/supply-contracts/measurements/all', phase: 6 },
-      { id: 'supply-contracts-measurements-attachments-all', name: 'Anexos de Medição', path: '/supply-contracts/measurements/attachments/all', phase: 6 },
-      { id: 'construction-daily-report-event-type', name: 'Tipos de Ocorrência', path: '/construction-daily-report/event-type', phase: 6 },
-      { id: 'construction-daily-report-types', name: 'Tipos de Diário de Obra', path: '/construction-daily-report/types', phase: 6 },
-      { id: 'hooks', name: 'Webhooks', path: '/hooks', phase: 6 },
+      {
+        id: 'units-situations',
+        name: 'Situações de Unidade',
+        path: '/units/situations',
+        phase: 3,
+      },
+      { id: 'hooks', name: 'Webhooks', path: '/hooks', phase: 3 },
     ];
 
     // Primeiro: testar conectividade com cada endpoint
@@ -343,7 +334,9 @@ export function ConfigurationSection({
     }
 
     // Agora sincronizar apenas os endpoints válidos POR FASES
-    console.log('🔄 Iniciando sincronização dos endpoints válidos por fases...');
+    console.log(
+      '🔄 Iniciando sincronização dos endpoints válidos por fases...'
+    );
 
     // Calcular data de 1 ano atrás
     const oneYearAgo = new Date();
@@ -352,44 +345,27 @@ export function ConfigurationSection({
     const today = new Date().toISOString().split('T')[0];
 
     // Agrupar endpoints válidos por fase
-    const endpointsByPhase = validEndpoints.reduce((acc, endpoint) => {
-      const phase = endpoint.phase || 6; // Default para fase 6 se não especificado
-      if (!acc[phase]) acc[phase] = [];
-      acc[phase].push(endpoint);
-      return acc;
-    }, {} as Record<number, typeof validEndpoints>);
+    const endpointsByPhase = validEndpoints.reduce(
+      (acc, endpoint) => {
+        const phase = endpoint.phase || 6; // Default para fase 6 se não especificado
+        if (!acc[phase]) acc[phase] = [];
+        acc[phase].push(endpoint);
+        return acc;
+      },
+      {} as Record<number, typeof validEndpoints>
+    );
 
     console.log(`📋 Endpoints agrupados por fase:`, endpointsByPhase);
 
-    // Parâmetros específicos por endpoint
+    // Parâmetros específicos por endpoint (apenas endpoints com permissão)
     const endpointParams: Record<string, Record<string, any>> = {
       customers: { createdAfter: dateFilter, createdBefore: today },
       companies: {},
       enterprises: {},
       units: {},
-      'units-characteristics': {},
       'units-situations': {},
-      income: { startDate: dateFilter, endDate: today, selectionType: 'D' },
-      'bank-movement': { startDate: dateFilter, endDate: today },
-      'customer-extract-history': { startDueDate: dateFilter, endDueDate: today },
-      'accounts-statements': { startDate: dateFilter, endDate: today },
-      'accounts-receivable': { startDate: dateFilter, endDate: today },
       'sales-contracts': { createdAfter: dateFilter, createdBefore: today },
-      sales: { createdAfter: dateFilter, createdBefore: today, situation: 'SOLD' },
-      'supply-contracts-measurements-all': {},
-      'supply-contracts-measurements-attachments-all': {
-        measurementStartDate: dateFilter,
-        measurementEndDate: today,
-      },
-      'construction-daily-report-event-type': {},
-      'construction-daily-report-types': {},
-      'construction-daily-report': { startDate: dateFilter, endDate: today },
       hooks: {},
-      'patrimony-fixed': {},
-      'building-cost-estimations': { startDate: dateFilter, endDate: today },
-      'building-projects-progress-logs': { startDate: dateFilter, endDate: today },
-      measurement: { startDate: dateFilter, endDate: today },
-      sites: {},
     };
 
     const results: any[] = [];
@@ -397,15 +373,19 @@ export function ConfigurationSection({
     let errorCount = 0;
 
     // Sincronizar endpoints por fases (respeitando dependências FK)
-    const phases = Object.keys(endpointsByPhase).map(Number).sort((a, b) => a - b);
-    
+    const phases = Object.keys(endpointsByPhase)
+      .map(Number)
+      .sort((a, b) => a - b);
+
     for (const phase of phases) {
       const phaseEndpoints = endpointsByPhase[phase];
-      console.log(`🚀 Iniciando FASE ${phase} com ${phaseEndpoints.length} endpoints:`, 
-        phaseEndpoints.map(ep => ep.name));
+      console.log(
+        `🚀 Iniciando FASE ${phase} com ${phaseEndpoints.length} endpoints:`,
+        phaseEndpoints.map(ep => ep.name)
+      );
 
       // Processar todos os endpoints da fase em paralelo
-      const phasePromises = phaseEndpoints.map(async (endpoint) => {
+      const phasePromises = phaseEndpoints.map(async endpoint => {
         setSyncProgress(prev => ({ ...prev, [endpoint.id]: 'syncing' }));
 
         try {
@@ -428,17 +408,24 @@ export function ConfigurationSection({
                 },
                 body: JSON.stringify({
                   endpoint: endpoint.id,
-                  data: allData
-                })
+                  data: allData,
+                }),
               });
 
               if (!syncResponse.ok) {
-                throw new Error(`Erro ao salvar no banco: ${syncResponse.statusText}`);
+                throw new Error(
+                  `Erro ao salvar no banco: ${syncResponse.statusText}`
+                );
               }
 
-              console.log(`✅ FASE ${phase}: ${endpoint.name} - ${allData.length} registros salvos`);
+              console.log(
+                `✅ FASE ${phase}: ${endpoint.name} - ${allData.length} registros salvos`
+              );
             } catch (syncError) {
-              console.error(`❌ FASE ${phase}: Erro ao salvar ${endpoint.name}:`, syncError);
+              console.error(
+                `❌ FASE ${phase}: Erro ao salvar ${endpoint.name}:`,
+                syncError
+              );
               throw syncError;
             }
           }
@@ -471,16 +458,18 @@ export function ConfigurationSection({
       // Contar sucessos e erros da fase
       const phaseSuccessCount = phaseResults.filter(r => r.success).length;
       const phaseErrorCount = phaseResults.filter(r => !r.success).length;
-      
+
       successCount += phaseSuccessCount;
       errorCount += phaseErrorCount;
 
-      console.log(`✅ FASE ${phase} concluída: ${phaseSuccessCount} sucessos, ${phaseErrorCount} erros`);
+      console.log(
+        `✅ FASE ${phase} concluída: ${phaseSuccessCount} sucessos, ${phaseErrorCount} erros`
+      );
 
       // Aguardar um pouco entre fases para não sobrecarregar o banco
       if (phase < phases[phases.length - 1]) {
-        console.log(`⏳ Aguardando 2 segundos antes da próxima fase...`);
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        console.log(`⏳ Aguardando 1 segundo antes da próxima fase...`);
+        await new Promise(resolve => setTimeout(resolve, 1000));
       }
     }
 

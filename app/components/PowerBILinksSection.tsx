@@ -54,24 +54,55 @@ export function PowerBILinksSection({ syncResults }: PowerBILinksProps) {
             </strong>
           </li>
           <li>
-            • Banco: <strong>{process.env.NEXT_PUBLIC_POSTGRES_DB || 'sienge_data'}</strong>
+            • Banco:{' '}
+            <strong>
+              {process.env.NEXT_PUBLIC_POSTGRES_DB || 'sienge_data'}
+            </strong>
           </li>
           <li>
             • Usuário:{' '}
-            <strong>{process.env.NEXT_PUBLIC_POSTGRES_USER || 'sienge_app'}</strong>
+            <strong>
+              {process.env.NEXT_PUBLIC_POSTGRES_USER || 'sienge_app'}
+            </strong>
           </li>
           <li>
-            • Modo: <strong>Importar</strong> para melhor performance
+            • <strong>Tabelas principais:</strong> empresas, empreendimentos,
+            clientes, contratos_venda, unidades
+          </li>
+          <li>
+            • <strong>View principal:</strong> rpt_vendas_wide (otimizada para
+            dashboards)
           </li>
           <li>
             • Configure <strong>atualização automática</strong> para dados
             sempre atualizados
           </li>
-          <li>
-            • Use <strong>consultas SQL personalizadas</strong> para filtrar
-            dados específicos
-          </li>
         </ul>
+      </div>
+
+      {/* Resumo das tabelas sincronizadas */}
+      <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <h4 className="font-medium text-blue-900 mb-2">
+          📊 Dados Sincronizados:
+        </h4>
+        <div className="grid grid-cols-2 gap-4 text-sm">
+          <div>
+            <span className="font-medium text-blue-800">Dados Mestres:</span>
+            <ul className="mt-1 text-blue-700 space-y-1">
+              <li>• Empresas</li>
+              <li>• Empreendimentos</li>
+              <li>• Clientes</li>
+            </ul>
+          </div>
+          <div>
+            <span className="font-medium text-blue-800">Dados Comerciais:</span>
+            <ul className="mt-1 text-blue-700 space-y-1">
+              <li>• Contratos de Venda</li>
+              <li>• Unidades</li>
+              <li>• Situações de Unidade</li>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
   );
