@@ -32,16 +32,18 @@ function getSchema(request) {
       group: 'Data',
       semantics: {
         conceptType: 'DIMENSION',
+        semanticGroup: 'DATE_AND_TIME',
         semanticType: 'YEAR_MONTH_DAY'
       }
     },
     {
       name: 'ano',
       label: 'Ano',
-      dataType: 'NUMBER',
+      dataType: 'STRING',
       group: 'Data',
       semantics: {
         conceptType: 'DIMENSION',
+        semanticGroup: 'DATE_AND_TIME',
         semanticType: 'YEAR'
       }
     },
@@ -57,10 +59,11 @@ function getSchema(request) {
     {
       name: 'mes',
       label: 'Mês',
-      dataType: 'NUMBER',
+      dataType: 'STRING',
       group: 'Data',
       semantics: {
         conceptType: 'DIMENSION',
+        semanticGroup: 'DATE_AND_TIME',
         semanticType: 'MONTH'
       }
     },
@@ -71,6 +74,7 @@ function getSchema(request) {
       group: 'Data',
       semantics: {
         conceptType: 'DIMENSION',
+        semanticGroup: 'DATE_AND_TIME',
         semanticType: 'YEAR_MONTH'
       }
     },
@@ -421,23 +425,38 @@ function formatRowForLookerStudio(row, requestedFieldIds) {
       case 'data_principal':
         // Formatar data para YYYYMMDD que o Looker Studio entende
         if (row['data_principal']) {
-          var date = row['data_principal'].replace(/-/g, '');
-          value = date.length >= 8 ? date.substring(0, 8) : null;
+          // Remove hifens e pega apenas YYYYMMDD
+          var dateStr = String(row['data_principal']).replace(/-/g, '').replace(/T.*/, '');
+          value = dateStr.length >= 8 ? dateStr.substring(0, 8) : null;
+          console.log('data_principal original:', row['data_principal'], '-> formatada:', value);
         } else {
           value = null;
         }
         break;
       case 'ano':
-        value = row['ano'] || null;
+        // Converter para STRING como requerido pelo semantic type YEAR
+        value = row['ano'] ? String(row['ano']) : null;
         break;
       case 'trimestre':
         value = row['trimestre'] || null;
         break;
       case 'mes':
-        value = row['mes'] || null;
+        // Formatar mês com 2 dígitos como STRING
+        if (row['mes']) {
+          var mesNum = parseInt(row['mes']);
+          value = mesNum < 10 ? '0' + mesNum : String(mesNum);
+        } else {
+          value = null;
+        }
         break;
       case 'ano_mes':
-        value = row['ano_mes'] || null;
+        // Formatar para YYYYMM removendo o hífen
+        if (row['ano_mes']) {
+          value = String(row['ano_mes']).replace(/-/g, '');
+          console.log('ano_mes original:', row['ano_mes'], '-> formatado:', value);
+        } else {
+          value = null;
+        }
         break;
       case 'nome_mes':
         value = row['nome_mes'] || null;
@@ -544,7 +563,7 @@ function formatRowForLookerStudio(row, requestedFieldIds) {
   return formattedRow;
 }
 
-// Função de teste para verificar conectividade
+// Função de teste para verificar conectividade e formatação
 function testConnection() {
   try {
     var API_URL = 'https://conector.catometrics.com.br/api/datawarehouse/master';
@@ -553,10 +572,20 @@ function testConnection() {
 
     console.log('✅ API Response:', data.success);
     console.log('📊 Records Found:', data.data ? data.data.length : 0);
-    console.log('📈 Metadata:', data.metadata);
-    console.log('🎯 Domains Available:', data.metadata ? data.metadata.domain_statistics : 'N/A');
 
-    return 'Connection successful! Version 2.0 - Master API';
+    // Testar formatação de datas com primeiro registro
+    if (data.data && data.data.length > 0) {
+      var firstRow = data.data[0];
+      console.log('\n📅 Teste de Formatação de Datas:');
+      console.log('Original data_principal:', firstRow.data_principal);
+      console.log('Formatado YYYYMMDD:', firstRow.data_principal ? String(firstRow.data_principal).replace(/-/g, '').substring(0, 8) : 'null');
+      console.log('Original ano_mes:', firstRow.ano_mes);
+      console.log('Formatado YYYYMM:', firstRow.ano_mes ? String(firstRow.ano_mes).replace(/-/g, '') : 'null');
+      console.log('Ano como STRING:', String(firstRow.ano));
+      console.log('Mês formatado:', firstRow.mes < 10 ? '0' + firstRow.mes : String(firstRow.mes));
+    }
+
+    return 'Connection successful! Version 2.0 - Master API with Date Formatting';
   } catch (error) {
     console.error('❌ Connection Error:', error);
     return 'Connection failed: ' + error.message;

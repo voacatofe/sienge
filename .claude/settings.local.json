@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(psql:*)",
-      "Bash(\"C:\\Program Files\\PostgreSQL\\17\\bin\\psql.exe\" -U postgres -h localhost -p 5432 -d sienge_prod -c \"\\dt\")"
+      "Bash(\"C:\\Program Files\\PostgreSQL\\17\\bin\\psql.exe\" -U postgres -h localhost -p 5432 -d sienge_prod -c \"\\dt\")",
+      "WebSearch",
+      "WebFetch(domain:developers.google.com)"
     ],
     "deny": [],
     "ask": []
