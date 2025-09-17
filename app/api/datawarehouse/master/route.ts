@@ -44,7 +44,7 @@ export async function GET(request: Request) {
     `;
 
     // Executar query
-    const rawData = await prisma.$queryRawUnsafe(sql, ...params);
+    const rawData = await prisma.$queryRawUnsafe(sql, ...params) as any[];
 
     // Processar e limpar dados para compatibilidade com Looker Studio
     const data = rawData.map((row: any) => ({
