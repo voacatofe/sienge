@@ -100,7 +100,7 @@ export function PowerBILinksSection({ syncResults }: PowerBILinksProps) {
           <ol className="text-sm text-green-700 space-y-1 ml-3">
             <li>1. Clique no link direto acima</li>
             <li>2. Looker Studio abre automaticamente</li>
-            <li>3. Clique em <strong>"Conectar"</strong></li>
+            <li>3. Clique em <strong>{"Conectar"}</strong></li>
             <li>4. Dados carregam automaticamente → Pronto!</li>
           </ol>
         </div>
@@ -112,9 +112,9 @@ export function PowerBILinksSection({ syncResults }: PowerBILinksProps) {
           </h5>
           <ol className="text-sm text-green-700 space-y-1 ml-3">
             <li>1. Abra um relatório no Looker Studio</li>
-            <li>2. Clique em <strong>"Adicionar dados"</strong></li>
-            <li>3. Selecione <strong>"Partner connectors"</strong></li>
-            <li>4. Clique em <strong>"Crie seus próprios"</strong></li>
+            <li>2. Clique em <strong>{"Adicionar dados"}</strong></li>
+            <li>3. Selecione <strong>{"Partner connectors"}</strong></li>
+            <li>4. Clique em <strong>{"Crie seus próprios"}</strong></li>
             <li>5. Cole o Deployment ID: <code className="bg-gray-200 px-1 rounded text-xs">{lookerDeploymentId}</code></li>
             <li>6. Conecte e use os dados!</li>
           </ol>
@@ -164,14 +164,14 @@ export function PowerBILinksSection({ syncResults }: PowerBILinksProps) {
           <h5 className="font-semibold text-yellow-800 mb-2">📋 Passo a Passo:</h5>
           <ol className="text-sm text-yellow-800 space-y-2">
             <li>1. Abra o <strong>Power BI Desktop</strong></li>
-            <li>2. Clique em <strong>"Obter Dados"</strong> → <strong>"Web"</strong></li>
-            <li>3. Cole uma das URLs acima no campo <strong>"URL"</strong></li>
-            <li>4. Clique em <strong>"OK"</strong> → aguarde carregamento</li>
-            <li>5. No Navigator, selecione <strong>"data"</strong></li>
-            <li>6. Clique em <strong>"Transformar Dados"</strong> (Power Query)</li>
-            <li>7. Expanda a coluna <strong>"data"</strong> para ver todos os campos</li>
+            <li>2. Clique em <strong>{"Obter Dados"}</strong> → <strong>{"Web"}</strong></li>
+            <li>3. Cole uma das URLs acima no campo <strong>{"URL"}</strong></li>
+            <li>4. Clique em <strong>{"OK"}</strong> → aguarde carregamento</li>
+            <li>5. No Navigator, selecione <strong>{"data"}</strong></li>
+            <li>6. Clique em <strong>{"Transformar Dados"}</strong> (Power Query)</li>
+            <li>7. Expanda a coluna <strong>{"data"}</strong> para ver todos os campos</li>
             <li>8. Configure tipos de dados (datas, números, texto)</li>
-            <li>9. Clique em <strong>"Fechar e Aplicar"</strong></li>
+            <li>9. Clique em <strong>{"Fechar e Aplicar"}</strong></li>
           </ol>
         </div>
 
