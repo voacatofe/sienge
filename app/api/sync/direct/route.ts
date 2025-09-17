@@ -232,7 +232,11 @@ async function processGenericEndpoint(
 
     // Contar resultados
     batchResults.forEach(result => {
-      results[result]++;
+      if (result === 'error') {
+        results.errors++;
+      } else {
+        results[result]++;
+      }
     });
   }
 

@@ -20,8 +20,8 @@ declare global {
 // Configurações otimizadas do Prisma
 const prismaClientOptions = {
   log: process.env.NODE_ENV === 'development'
-    ? ['query', 'error', 'warn'] as const
-    : ['error'] as const,
+    ? ['query', 'error', 'warn'] as ('query' | 'error' | 'warn')[]
+    : ['error'] as ('error')[],
   errorFormat: process.env.NODE_ENV === 'development' ? 'pretty' as const : 'minimal' as const,
 };
 
@@ -175,7 +175,7 @@ class PrismaService {
    * Executa uma transação com retry automático
    */
   static async transaction<T>(
-    fn: (prisma: PrismaClient) => Promise<T>,
+    fn: (prisma: any) => Promise<T>,
     options?: {
       maxRetries?: number;
       timeout?: number;
