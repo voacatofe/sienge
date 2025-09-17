@@ -36,10 +36,15 @@
       "Bash(PGPASSWORD=kPnrGuFeJeuVprXzhhO2oLVE14f509KV psql:*)",
       "Bash(del \"C:\\Users\\darla\\OneDrive\\Documentos\\sienge\\test-mapping.js\")",
       "Bash(del \"C:\\Users\\darla\\OneDrive\\Documentos\\sienge\\sql\\views_materializadas_exemplo.sql\")",
-      "WebFetch(domain:developers.google.com)"
+      "WebFetch(domain:developers.google.com)",
+      "WebFetch(domain:conector.catometrics.com.br)",
+      "WebFetch(domain:localhost)"
     ],
     "deny": []
   },
   "enableAllProjectMcpServers": true,
-  "enabledMcpjsonServers": ["task-master-ai", "puppeteer"]
+  "enabledMcpjsonServers": [
+    "task-master-ai",
+    "puppeteer"
+  ]
 }

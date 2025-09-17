@@ -44,7 +44,31 @@ export async function GET(request: Request) {
     `;
 
     // Executar query
-    const data = await prisma.$queryRawUnsafe(sql, ...params);
+    const rawData = await prisma.$queryRawUnsafe(sql, ...params);
+
+    // Processar e limpar dados para compatibilidade com Looker Studio
+    const data = rawData.map((row: any) => ({
+      ...row,
+      // Converter datas para string no formato ISO
+      data_principal: row.data_principal ? new Date(row.data_principal).toISOString().split('T')[0] : null,
+
+      // Converter números decimais para formato limpo
+      valor_contrato: row.valor_contrato ? parseFloat(row.valor_contrato) : 0,
+      saldo_devedor: row.saldo_devedor ? parseFloat(row.saldo_devedor) : 0,
+      taxa_juros: row.taxa_juros ? parseFloat(row.taxa_juros) : 0,
+      margem_bruta: row.margem_bruta ? parseFloat(row.margem_bruta) : 0,
+      unidade_area: row.unidade_area ? parseFloat(row.unidade_area) : 0,
+
+      // Garantir que booleans sejam realmente boolean
+      contratos_ativos: row.contratos_ativos === true || row.contratos_ativos === 'true',
+      chaves_entregues: row.chaves_entregues === true || row.chaves_entregues === 'true',
+      contratos_assinados: row.contratos_assinados === true || row.contratos_assinados === 'true',
+      contratos_cancelados: row.contratos_cancelados === true || row.contratos_cancelados === 'true',
+
+      // Garantir que integers sejam números
+      total_parcelas: row.total_parcelas ? parseInt(row.total_parcelas) : 0,
+      parcelas_pagas: row.parcelas_pagas ? parseInt(row.parcelas_pagas) : 0,
+    }));
 
     // Obter metadados básicos
     const metadataResult = (await prisma.$queryRawUnsafe(
@@ -119,12 +143,12 @@ export async function GET(request: Request) {
           valor_total: Number(stat.valor_total),
         })),
         last_updated: metadata.last_refresh,
-        note: 'API Master unificada - combina contratos, financeiro e movimentos bancários',
+        note: 'API Master unificada - combina contratos, clientes, empreendimentos e unidades',
       },
       schema: {
         description: 'Data Warehouse Master - Vista Unificada Sienge',
-        grain: 'Transação (Contrato, Título ou Movimento)',
-        domains: ['contratos', 'financeiro', 'movimentos'],
+        grain: 'Registro (Contrato, Cliente, Empreendimento ou Unidade)',
+        domains: ['contratos', 'clientes', 'empreendimentos', 'unidades'],
         categories: {
           Data: {
             description: 'Dimensões temporais universais',
@@ -160,62 +184,55 @@ export async function GET(request: Request) {
             ],
           },
           Financeiro: {
-            description: 'Métricas financeiras e aging',
+            description: 'Métricas financeiras de contratos',
             fields: [
-              'valor_original',
-              'valor_pago',
               'saldo_devedor',
-              'taxa_inadimplencia',
-              'dias_atraso',
               'forma_pagamento',
               'taxa_juros',
-              'aging_0_30',
-              'aging_31_60',
-              'aging_61_90',
-              'aging_90_plus',
+              'total_parcelas',
+              'parcelas_pagas',
             ],
           },
           Performance: {
-            description: 'Métricas de performance e eficiência',
+            description: 'Métricas de performance de vendas',
             fields: [
               'margem_bruta',
-              'tempo_venda',
-              'valor_por_m2',
-              'eficiencia_cobranca',
             ],
           },
           Clientes: {
             description: 'Dimensões de clientes',
             fields: [
-              'cliente_nome',
               'cliente_principal',
-              'cliente_tipo',
             ],
           },
           Empreendimentos: {
-            description: 'Dimensões de empreendimentos e unidades',
+            description: 'Dimensões de empreendimentos',
             fields: [
               'empreendimento_nome',
               'empreendimento_tipo',
+            ],
+          },
+          Unidades: {
+            description: 'Dimensões de unidades imobiliárias',
+            fields: [
               'unidade_tipo',
               'unidade_area',
               'faixa_area',
             ],
           },
           Conversoes: {
-            description: 'Métricas de conversão e status',
+            description: 'Métricas de conversão de contratos',
             fields: [
               'contratos_cancelados',
-              'titulos_pagos',
-              'titulos_vencidos',
             ],
           },
         },
         usage: {
           all_domains: '/api/datawarehouse/master',
           contracts_only: '/api/datawarehouse/master?domain=contratos',
-          financial_only: '/api/datawarehouse/master?domain=financeiro',
-          movements_only: '/api/datawarehouse/master?domain=movimentos',
+          clients_only: '/api/datawarehouse/master?domain=clientes',
+          projects_only: '/api/datawarehouse/master?domain=empreendimentos',
+          units_only: '/api/datawarehouse/master?domain=unidades',
           filtered_by_company: '/api/datawarehouse/master?empresa=Nome%20da%20Empresa',
         },
       },
@@ -265,28 +282,31 @@ export async function OPTIONS() {
       url: '/api/datawarehouse/master',
       method: 'GET',
       parameters: {
-        domain: 'Filtrar por domínio: contratos, financeiro, movimentos (opcional)',
+        domain: 'Filtrar por domínio: contratos, clientes, empreendimentos, unidades (opcional)',
         empresa: 'Filtrar por nome da empresa (busca parcial, opcional)',
       },
       behavior: 'Sempre retorna dados dos últimos 12 meses automaticamente',
       refresh: 'Dados atualizados diariamente às 6h',
       domains: {
-        contratos: 'Contratos de venda e informações comerciais',
-        financeiro: 'Títulos a receber, aging e inadimplência',
-        movimentos: 'Movimentos bancários e fluxo de caixa',
+        contratos: 'Contratos de venda e informações comerciais (787 registros)',
+        clientes: 'Base de clientes e informações pessoais (818 registros)',
+        empreendimentos: 'Projetos imobiliários e desenvolvimento (201 registros)',
+        unidades: 'Inventário de unidades imobiliárias (1.213 registros)',
       },
       usage: {
         looker_studio: "Usar como 'Conector da Web' com esta URL",
         power_bi: "Usar como fonte de dados 'Web' com esta URL",
         all_data: '/api/datawarehouse/master',
         contracts_only: '/api/datawarehouse/master?domain=contratos',
-        financial_only: '/api/datawarehouse/master?domain=financeiro',
+        clients_only: '/api/datawarehouse/master?domain=clientes',
+        projects_only: '/api/datawarehouse/master?domain=empreendimentos',
+        units_only: '/api/datawarehouse/master?domain=unidades',
       },
       migration: {
         from: '/api/datawarehouse/vendas (deprecated)',
         to: '/api/datawarehouse/master',
         breaking_changes: 'Nova estrutura de campos e grupos semânticos',
-        compatibility: 'Use ?domain=contratos para comportamento similar ao anterior',
+        compatibility: 'Use ?domain=contratos para compatibilidade com API vendas anterior',
       },
       support: 'Para dúvidas, verifique a documentação ou logs do sistema',
     },
