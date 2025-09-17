@@ -38,7 +38,10 @@
       "Bash(del \"C:\\Users\\darla\\OneDrive\\Documentos\\sienge\\sql\\views_materializadas_exemplo.sql\")",
       "WebFetch(domain:developers.google.com)",
       "WebFetch(domain:conector.catometrics.com.br)",
-      "WebFetch(domain:localhost)"
+      "WebFetch(domain:localhost)",
+      "Bash(winget install:*)",
+      "Bash(choco install:*)",
+      "Bash(where psql)"
     ],
     "deny": []
   },
