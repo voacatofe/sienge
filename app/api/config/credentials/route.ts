@@ -3,7 +3,7 @@ import { z } from 'zod';
 import bcrypt from 'bcryptjs';
 import axios from 'axios';
 import { apiSuccess, apiError, withErrorHandler } from '@/lib/api-response';
-import { logger, createContextLogger } from '@/lib/logger';
+import { createContextLogger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma-singleton';
 
 const credentialsLogger = createContextLogger('CREDENTIALS');
@@ -47,7 +47,7 @@ async function validateSiengeCredentialsDirect(
     credentialsLogger.debug('Validating Sienge credentials', {
       subdomain,
       username,
-      baseURL
+      baseURL,
     });
 
     const response = await axios.get(`${baseURL}/companies`, {
@@ -63,7 +63,7 @@ async function validateSiengeCredentialsDirect(
 
     credentialsLogger.info('Sienge credentials validated successfully', {
       subdomain,
-      status: response.status
+      status: response.status,
     });
 
     return response.status === 200;
@@ -101,7 +101,7 @@ export async function POST(request: NextRequest) {
     const validationResult = credentialsSchema.safeParse(body);
     if (!validationResult.success) {
       credentialsLogger.warn('Invalid credentials data provided', {
-        errors: validationResult.error.issues
+        errors: validationResult.error.issues,
       });
 
       return apiError(
@@ -121,7 +121,7 @@ export async function POST(request: NextRequest) {
 
     credentialsLogger.info('Processing credentials update', {
       subdomain: sanitizedSubdomain,
-      username: sanitizedUsername
+      username: sanitizedUsername,
     });
 
     // Validar credenciais contra a API Sienge
@@ -134,7 +134,7 @@ export async function POST(request: NextRequest) {
     if (!isValid) {
       credentialsLogger.warn('Invalid Sienge credentials provided', {
         subdomain: sanitizedSubdomain,
-        username: sanitizedUsername
+        username: sanitizedUsername,
       });
 
       return apiError(
@@ -186,7 +186,9 @@ export async function POST(request: NextRequest) {
 
     // Invalidar cache se disponível
     try {
-      const { credentialsCache } = await import('@/lib/cache/credentials-cache');
+      const { credentialsCache } = await import(
+        '@/lib/cache/credentials-cache'
+      );
       credentialsCache.invalidateBySubdomain(sanitizedSubdomain);
     } catch (error) {
       // Cache não implementado ainda, ignorar erro
@@ -196,7 +198,7 @@ export async function POST(request: NextRequest) {
     credentialsLogger.info(`Credentials ${operation} successfully`, {
       subdomain: sanitizedSubdomain,
       username: sanitizedUsername,
-      operation
+      operation,
     });
 
     return apiSuccess(
@@ -204,7 +206,7 @@ export async function POST(request: NextRequest) {
         subdomain: sanitizedSubdomain,
         username: sanitizedUsername,
         operation,
-        isActive: true
+        isActive: true,
       },
       `Credenciais ${operation === 'created' ? 'salvas' : 'atualizadas'} com sucesso`
     );
@@ -233,7 +235,7 @@ export async function GET() {
 
     credentialsLogger.info('Credentials fetch completed', {
       hasCredentials,
-      subdomain: credentials?.subdomain
+      subdomain: credentials?.subdomain,
     });
 
     return apiSuccess(
@@ -249,7 +251,9 @@ export async function GET() {
             }
           : null,
       },
-      hasCredentials ? 'Credenciais encontradas' : 'Nenhuma credencial configurada',
+      hasCredentials
+        ? 'Credenciais encontradas'
+        : 'Nenhuma credencial configurada',
       undefined,
       'short' // Cache por 1 minuto
     );

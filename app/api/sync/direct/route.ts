@@ -1,13 +1,13 @@
 import { NextRequest } from 'next/server';
-import {
-  ENDPOINT_MAPPINGS,
-  hasEndpointMapping,
-  getEndpointMapping,
-} from './endpoint-mappings';
+import { hasEndpointMapping, getEndpointMapping } from './endpoint-mappings';
 // ErrorLogger removed - using centralized logger
 import { prisma } from '@/lib/prisma-singleton';
 import { logger, createContextLogger } from '@/lib/logger';
-import { apiSuccess, apiError, withErrorHandler, validateRequiredParams } from '@/lib/api-response';
+import {
+  apiSuccess,
+  apiError,
+  validateRequiredParams,
+} from '@/lib/api-response';
 
 const syncLogger = createContextLogger('SYNC_DIRECT');
 
@@ -101,7 +101,11 @@ async function executePrismaOperation(
         throw new Error(`Unsupported operation: ${operation}`);
     }
   } catch (error) {
-    syncLogger.error(`Prisma ${operation} failed for model ${model}`, error, params);
+    syncLogger.error(
+      `Prisma ${operation} failed for model ${model}`,
+      error,
+      params
+    );
     throw error;
   }
 }
@@ -112,19 +116,28 @@ async function executePrismaOperation(
 async function processItem(
   endpoint: string,
   item: any,
-  mapping: any,
+  mapping: any
 ): Promise<'inserted' | 'updated' | 'error'> {
   try {
     // Aplicar mapeamento de campos
     const mappedData: any = {};
 
-    for (const [sourceField, targetConfig] of Object.entries(mapping.fieldMapping)) {
+    for (const [sourceField, targetConfig] of Object.entries(
+      mapping.fieldMapping
+    )) {
       const sourceValue = item[sourceField];
 
       if (typeof targetConfig === 'string') {
         mappedData[targetConfig] = sourceValue;
-      } else if (typeof targetConfig === 'object' && targetConfig !== null && 'field' in targetConfig) {
-        const config = targetConfig as { field: string; transform?: (value: any) => any };
+      } else if (
+        typeof targetConfig === 'object' &&
+        targetConfig !== null &&
+        'field' in targetConfig
+      ) {
+        const config = targetConfig as {
+          field: string;
+          transform?: (value: any) => any;
+        };
         mappedData[config.field] = config.transform
           ? config.transform(sourceValue)
           : sourceValue;
@@ -153,7 +166,7 @@ async function processItem(
     syncLogger.debug(`Processing ${endpoint} item`, {
       id: primaryKeyValue,
       model: mapping.model,
-      operation: 'upsert'
+      operation: 'upsert',
     });
 
     // Verificar se registro existe
@@ -165,29 +178,25 @@ async function processItem(
 
     if (existingRecord) {
       // Atualizar registro existente
-      await executePrismaOperation(
-        mapping.model,
-        'update',
-        {
-          where: whereClause,
-          data: validatedData,
-        }
-      );
+      await executePrismaOperation(mapping.model, 'update', {
+        where: whereClause,
+        data: validatedData,
+      });
       return 'updated';
     } else {
       // Criar novo registro
-      await executePrismaOperation(
-        mapping.model,
-        'create',
-        { data: validatedData }
-      );
+      await executePrismaOperation(mapping.model, 'create', {
+        data: validatedData,
+      });
       return 'inserted';
     }
   } catch (error) {
     const itemId = item[mapping.primaryKey] || item.id || 'unknown';
     syncLogger.error(`Error processing ${endpoint} item ${itemId}`, error);
 
-    logger.error('SYNC_DIRECT', `Error processing ${endpoint} item`, error, { itemId });
+    logger.error('SYNC_DIRECT', `Error processing ${endpoint} item`, error, {
+      itemId,
+    });
 
     return 'error';
   }
@@ -199,7 +208,7 @@ async function processItem(
 async function processGenericEndpoint(
   endpoint: string,
   data: any[],
-  syncLogId: number,
+  syncLogId: number
 ): Promise<SyncResult> {
   const mapping = getEndpointMapping(endpoint);
 
@@ -212,7 +221,7 @@ async function processGenericEndpoint(
 
   syncLogger.info(`Processing ${data.length} items for ${endpoint}`, {
     model: mapping.model,
-    endpoint
+    endpoint,
   });
 
   // Processar itens em batches para melhor performance
@@ -222,7 +231,7 @@ async function processGenericEndpoint(
 
     syncLogger.debug(`Processing batch ${Math.floor(i / batchSize) + 1}`, {
       size: batch.length,
-      total: data.length
+      total: data.length,
     });
 
     // Processar batch em paralelo
@@ -286,7 +295,7 @@ export async function POST(request: NextRequest) {
 
     syncLogger.info(`Starting sync for endpoint ${endpoint}`, {
       itemCount: data.length,
-      endpoint
+      endpoint,
     });
 
     // Criar log de sincronização
@@ -303,11 +312,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Processar dados
-    const result = await processGenericEndpoint(
-      endpoint,
-      data,
-      syncLog.id,
-    );
+    const result = await processGenericEndpoint(endpoint, data, syncLog.id);
 
     // Atualizar log
     await prisma.syncLog.update({
@@ -328,14 +333,14 @@ export async function POST(request: NextRequest) {
     syncLogger.info(`Sync completed for ${endpoint}`, {
       ...result,
       duration,
-      processed: data.length
+      processed: data.length,
     });
 
     // Salvar log de erros se houver
     if (result.errors > 0) {
       syncLogger.warn('Errors occurred during sync', {
         errorCount: result.errors,
-        summary: 'Errors logged above'
+        summary: 'Errors logged above',
       });
     }
 
@@ -347,7 +352,8 @@ export async function POST(request: NextRequest) {
         updated: result.updated,
         errors: result.errors,
         duration,
-        errorSummary: result.errors > 0 ? `${result.errors} errors logged` : null,
+        errorSummary:
+          result.errors > 0 ? `${result.errors} errors logged` : null,
       },
       `Sincronização do endpoint ${endpoint} concluída`,
       {
@@ -355,18 +361,15 @@ export async function POST(request: NextRequest) {
         performance: {
           itemsPerSecond: Math.round(data.length / (duration / 1000)),
           avgTimePerItem: Math.round(duration / data.length),
-        }
+        },
       }
     );
   } catch (error) {
     const logger = createContextLogger('sync-direct');
     logger.error('Sync direct failed', error);
 
-    return apiError(
-      'SYNC_ERROR',
-      'Erro durante a sincronização',
-      500,
-      { error: error instanceof Error ? error.message : 'Unknown error' }
-    );
+    return apiError('SYNC_ERROR', 'Erro durante a sincronização', 500, {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
   }
 }

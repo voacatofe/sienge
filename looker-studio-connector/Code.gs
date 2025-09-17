@@ -563,6 +563,11 @@ function formatRowForLookerStudio(row, requestedFieldIds) {
   return formattedRow;
 }
 
+// 5. Função obrigatória para identificar usuários admin (obrigatório)
+function isAdminUser() {
+  return true; // Para desenvolvimento - mostra todos os detalhes de erro
+}
+
 // Função de teste para verificar conectividade e formatação
 function testConnection() {
   try {
