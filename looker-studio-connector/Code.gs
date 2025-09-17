@@ -565,7 +565,25 @@ function formatRowForLookerStudio(row, requestedFieldIds) {
 
 // 5. Função obrigatória para identificar usuários admin (obrigatório)
 function isAdminUser() {
-  return true; // Para desenvolvimento - mostra todos os detalhes de erro
+  // Lista de emails autorizados a ver detalhes completos de erro
+  var adminEmails = [
+    'darlan@catofe.com.br'        // Substitua pelo seu email
+
+  ];
+
+  try {
+    var userEmail = Session.getEffectiveUser().getEmail();
+    console.log('Verificando acesso admin para:', userEmail);
+
+    // Verificar se o email está na whitelist
+    var isAdmin = adminEmails.indexOf(userEmail) !== -1;
+    console.log('É admin?', isAdmin);
+
+    return isAdmin;
+  } catch (error) {
+    console.error('Erro ao verificar usuário admin:', error);
+    return false; // Em caso de erro, negar acesso aos detalhes
+  }
 }
 
 // Função de teste para verificar conectividade e formatação
