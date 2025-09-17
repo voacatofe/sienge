@@ -1,7 +1,12 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import bcrypt from 'bcryptjs';
 import axios from 'axios';
+import { apiSuccess, apiError, withErrorHandler } from '@/lib/api-response';
+import { logger, createContextLogger } from '@/lib/logger';
+import { prisma } from '@/lib/prisma-singleton';
+
+const credentialsLogger = createContextLogger('CREDENTIALS');
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -28,7 +33,9 @@ const credentialsSchema = z.object({
     .max(200, 'Senha deve ter no máximo 200 caracteres'),
 });
 
-// Função para validar credenciais contra a API Sienge
+/**
+ * Valida credenciais contra a API Sienge
+ */
 async function validateSiengeCredentialsDirect(
   subdomain: string,
   username: string,
@@ -37,7 +44,13 @@ async function validateSiengeCredentialsDirect(
   try {
     const baseURL = `https://api.sienge.com.br/${subdomain}/public/api/v1`;
 
-    const response = await axios.get(`${baseURL}/customers`, {
+    credentialsLogger.debug('Validating Sienge credentials', {
+      subdomain,
+      username,
+      baseURL
+    });
+
+    const response = await axios.get(`${baseURL}/companies`, {
       auth: {
         username,
         password,
@@ -45,41 +58,57 @@ async function validateSiengeCredentialsDirect(
       params: {
         limit: 1,
       },
-      timeout: 5000,
+      timeout: 10000, // Aumentado timeout para 10s
+    });
+
+    credentialsLogger.info('Sienge credentials validated successfully', {
+      subdomain,
+      status: response.status
     });
 
     return response.status === 200;
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      console.error('Erro na validação Sienge API:', {
+      credentialsLogger.error('Sienge API validation failed', error, {
         status: error.response?.status,
-        message: error.message,
         subdomain: subdomain,
       });
+
+      // Considerar válido se não for erro de autenticação
       return error.response?.status !== 401 && error.response?.status !== 403;
     }
+
+    credentialsLogger.error('Unexpected error during Sienge validation', error);
     return false;
   }
 }
 
+/**
+ * Sanitiza input do usuário
+ */
 function sanitizeInput(input: string): string {
   return input.trim().replace(/[<>]/g, '');
 }
 
+/**
+ * Salva ou atualiza credenciais
+ */
 export async function POST(request: NextRequest) {
-  try {
+  return withErrorHandler(async () => {
     const body = await request.json();
 
     // Validar dados de entrada
     const validationResult = credentialsSchema.safeParse(body);
     if (!validationResult.success) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Dados inválidos',
-          details: validationResult.error.issues,
-        },
-        { status: 400 }
+      credentialsLogger.warn('Invalid credentials data provided', {
+        errors: validationResult.error.issues
+      });
+
+      return apiError(
+        'VALIDATION_ERROR',
+        'Dados de credenciais inválidos',
+        400,
+        validationResult.error.issues
       );
     }
 
@@ -90,6 +119,11 @@ export async function POST(request: NextRequest) {
     const sanitizedUsername = sanitizeInput(username);
     const sanitizedPassword = sanitizeInput(password);
 
+    credentialsLogger.info('Processing credentials update', {
+      subdomain: sanitizedSubdomain,
+      username: sanitizedUsername
+    });
+
     // Validar credenciais contra a API Sienge
     const isValid = await validateSiengeCredentialsDirect(
       sanitizedSubdomain,
@@ -98,13 +132,15 @@ export async function POST(request: NextRequest) {
     );
 
     if (!isValid) {
-      return NextResponse.json(
-        {
-          success: false,
-          error:
-            'Credenciais inválidas ou sem permissão para acessar a API Sienge',
-        },
-        { status: 401 }
+      credentialsLogger.warn('Invalid Sienge credentials provided', {
+        subdomain: sanitizedSubdomain,
+        username: sanitizedUsername
+      });
+
+      return apiError(
+        'AUTHENTICATION_ERROR',
+        'Credenciais inválidas ou sem permissão para acessar a API Sienge',
+        401
       );
     }
 
@@ -112,13 +148,12 @@ export async function POST(request: NextRequest) {
     const saltRounds = 12;
     const hashedPassword = await bcrypt.hash(sanitizedPassword, saltRounds);
 
-    // Importar Prisma apenas quando necessário
-    const { prisma } = await import('@/lib/prisma');
-
     // Verificar se já existem credenciais
     const existingCredentials = await prisma.apiCredentials.findUnique({
       where: { subdomain: sanitizedSubdomain },
     });
+
+    let operation: string;
 
     if (existingCredentials) {
       // Atualizar credenciais existentes
@@ -131,6 +166,7 @@ export async function POST(request: NextRequest) {
           updatedAt: new Date(),
         },
       });
+      operation = 'updated';
     } else {
       // Criar novas credenciais
       await prisma.apiCredentials.create({
@@ -141,36 +177,46 @@ export async function POST(request: NextRequest) {
           isActive: true,
         },
       });
+      operation = 'created';
     }
 
     // Salvar senha em variável de ambiente temporária
     const envKey = `SIENGE_PASSWORD_${sanitizedSubdomain.toUpperCase()}`;
     process.env[envKey] = sanitizedPassword;
 
-    // Invalidar cache
-    const { credentialsCache } = await import('@/lib/cache/credentials-cache');
-    credentialsCache.invalidateBySubdomain(sanitizedSubdomain);
+    // Invalidar cache se disponível
+    try {
+      const { credentialsCache } = await import('@/lib/cache/credentials-cache');
+      credentialsCache.invalidateBySubdomain(sanitizedSubdomain);
+    } catch (error) {
+      // Cache não implementado ainda, ignorar erro
+      credentialsLogger.debug('Credentials cache not available', error);
+    }
 
-    return NextResponse.json({
-      success: true,
-      message: 'Credenciais salvas com sucesso',
+    credentialsLogger.info(`Credentials ${operation} successfully`, {
+      subdomain: sanitizedSubdomain,
+      username: sanitizedUsername,
+      operation
     });
-  } catch (error) {
-    console.error('Erro ao salvar credenciais:', error);
-    return NextResponse.json(
+
+    return apiSuccess(
       {
-        success: false,
-        error: 'Erro interno do servidor',
+        subdomain: sanitizedSubdomain,
+        username: sanitizedUsername,
+        operation,
+        isActive: true
       },
-      { status: 500 }
+      `Credenciais ${operation === 'created' ? 'salvas' : 'atualizadas'} com sucesso`
     );
-  }
+  }, 'CREDENTIALS_POST');
 }
 
+/**
+ * Busca credenciais existentes
+ */
 export async function GET() {
-  try {
-    // Importar Prisma apenas quando necessário
-    const { prisma } = await import('@/lib/prisma');
+  return withErrorHandler(async () => {
+    credentialsLogger.debug('Fetching existing credentials');
 
     const credentials = await prisma.apiCredentials.findFirst({
       select: {
@@ -183,28 +229,29 @@ export async function GET() {
       },
     });
 
-    return NextResponse.json({
-      success: true,
-      hasCredentials: !!credentials,
-      credentials: credentials
-        ? {
-            subdomain: credentials.subdomain,
-            username: credentials.apiUser,
-            isActive: credentials.isActive,
-            createdAt: credentials.createdAt,
-            updatedAt: credentials.updatedAt,
-          }
-        : null,
+    const hasCredentials = !!credentials;
+
+    credentialsLogger.info('Credentials fetch completed', {
+      hasCredentials,
+      subdomain: credentials?.subdomain
     });
-  } catch (error) {
-    console.error('Erro ao buscar credenciais:', error);
-    return NextResponse.json(
+
+    return apiSuccess(
       {
-        success: false,
-        hasCredentials: false,
-        error: 'Erro interno do servidor',
+        hasCredentials,
+        credentials: credentials
+          ? {
+              subdomain: credentials.subdomain,
+              username: credentials.apiUser,
+              isActive: credentials.isActive,
+              createdAt: credentials.createdAt,
+              updatedAt: credentials.updatedAt,
+            }
+          : null,
       },
-      { status: 500 }
+      hasCredentials ? 'Credenciais encontradas' : 'Nenhuma credencial configurada',
+      undefined,
+      'short' // Cache por 1 minuto
     );
-  }
+  }, 'CREDENTIALS_GET');
 }

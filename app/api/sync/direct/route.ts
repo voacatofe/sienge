@@ -1,13 +1,15 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { NextRequest } from 'next/server';
 import {
   ENDPOINT_MAPPINGS,
   hasEndpointMapping,
   getEndpointMapping,
 } from './endpoint-mappings';
-import { ErrorLogger } from '../../../../lib/error-logger';
+// ErrorLogger removed - using centralized logger
+import { prisma } from '@/lib/prisma-singleton';
+import { logger, createContextLogger } from '@/lib/logger';
+import { apiSuccess, apiError, withErrorHandler, validateRequiredParams } from '@/lib/api-response';
 
-const prisma = new PrismaClient();
+const syncLogger = createContextLogger('SYNC_DIRECT');
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -17,221 +19,270 @@ interface DirectSyncRequest {
   data: any[];
 }
 
-// Função para validar parâmetros obrigatórios
-function validateRequiredParams(params: any) {
-  const { endpoint, data } = params;
-  return endpoint && data;
+interface SyncResult {
+  inserted: number;
+  updated: number;
+  errors: number;
 }
 
-// Função para validar foreign keys antes da inserção
+/**
+ * Valida foreign keys antes da inserção
+ */
 async function validateForeignKeys(
   endpoint: string,
-  cleanedData: any,
-  prisma: any
+  cleanedData: any
 ): Promise<any> {
   // Validação específica para units (unidades)
   if (endpoint === 'units' && cleanedData.idContrato) {
-    const contractExists = await prisma.contratoVenda.findUnique({
-      where: { idContrato: cleanedData.idContrato },
-      select: { idContrato: true },
-    });
+    try {
+      const contractExists = await prisma.contratoVenda.findUnique({
+        where: { id: cleanedData.idContrato },
+        select: { id: true },
+      });
 
-    if (!contractExists) {
-      console.warn(
-        `[FK Validation] Contract ${cleanedData.idContrato} not found for unit ${cleanedData.id || 'unknown'}. Setting idContrato to null.`
-      );
+      if (!contractExists) {
+        syncLogger.warn(
+          `Contract ${cleanedData.idContrato} not found for unit ${cleanedData.id || 'unknown'}. Setting idContrato to null.`
+        );
+        cleanedData.idContrato = null;
+      }
+    } catch (error) {
+      syncLogger.error('Error validating contract FK', error);
       cleanedData.idContrato = null;
     }
   }
 
-  // Aqui podem ser adicionadas outras validações de FK para outros endpoints no futuro
+  // Validação para empreendimentos em contratos
+  if (endpoint === 'sales-contracts' && cleanedData.enterpriseId) {
+    try {
+      const enterpriseExists = await prisma.empreendimento.findUnique({
+        where: { id: cleanedData.enterpriseId },
+        select: { id: true },
+      });
+
+      if (!enterpriseExists) {
+        syncLogger.warn(
+          `Enterprise ${cleanedData.enterpriseId} not found for contract ${cleanedData.id || 'unknown'}. Setting enterpriseId to null.`
+        );
+        cleanedData.enterpriseId = null;
+      }
+    } catch (error) {
+      syncLogger.error('Error validating enterprise FK', error);
+      cleanedData.enterpriseId = null;
+    }
+  }
 
   return cleanedData;
 }
 
-// Função genérica para processar qualquer endpoint
+/**
+ * Executa operação CRUD usando delegate dinâmico do Prisma
+ */
+async function executePrismaOperation(
+  model: string,
+  operation: 'findUnique' | 'create' | 'update',
+  params: any
+): Promise<any> {
+  try {
+    const delegate = (prisma as any)[model];
+
+    if (!delegate) {
+      throw new Error(`Model ${model} not found in Prisma client`);
+    }
+
+    switch (operation) {
+      case 'findUnique':
+        return await delegate.findUnique(params);
+      case 'create':
+        return await delegate.create(params);
+      case 'update':
+        return await delegate.update(params);
+      default:
+        throw new Error(`Unsupported operation: ${operation}`);
+    }
+  } catch (error) {
+    syncLogger.error(`Prisma ${operation} failed for model ${model}`, error, params);
+    throw error;
+  }
+}
+
+/**
+ * Processa um item individual
+ */
+async function processItem(
+  endpoint: string,
+  item: any,
+  mapping: any,
+): Promise<'inserted' | 'updated' | 'error'> {
+  try {
+    // Aplicar mapeamento de campos
+    const mappedData: any = {};
+
+    for (const [sourceField, targetConfig] of Object.entries(mapping.fieldMapping)) {
+      const sourceValue = item[sourceField];
+
+      if (typeof targetConfig === 'string') {
+        mappedData[targetConfig] = sourceValue;
+      } else if (typeof targetConfig === 'object' && targetConfig.field) {
+        mappedData[targetConfig.field] = targetConfig.transform
+          ? targetConfig.transform(sourceValue)
+          : sourceValue;
+      }
+    }
+
+    // Limpar valores undefined
+    const cleanedData: any = {};
+    for (const [key, value] of Object.entries(mappedData)) {
+      if (value !== undefined) {
+        cleanedData[key] = value;
+      }
+    }
+
+    // Validar foreign keys
+    const validatedData = await validateForeignKeys(endpoint, cleanedData);
+
+    // Verificar chave primária
+    const primaryKeyValue = item[mapping.primaryKey] || item.id;
+    if (!primaryKeyValue) {
+      throw new Error(`Primary key ${mapping.primaryKey} is missing`);
+    }
+
+    const whereClause = { [mapping.primaryKey]: primaryKeyValue };
+
+    syncLogger.debug(`Processing ${endpoint} item`, {
+      id: primaryKeyValue,
+      model: mapping.model,
+      operation: 'upsert'
+    });
+
+    // Verificar se registro existe
+    const existingRecord = await executePrismaOperation(
+      mapping.model,
+      'findUnique',
+      { where: whereClause }
+    );
+
+    if (existingRecord) {
+      // Atualizar registro existente
+      await executePrismaOperation(
+        mapping.model,
+        'update',
+        {
+          where: whereClause,
+          data: validatedData,
+        }
+      );
+      return 'updated';
+    } else {
+      // Criar novo registro
+      await executePrismaOperation(
+        mapping.model,
+        'create',
+        { data: validatedData }
+      );
+      return 'inserted';
+    }
+  } catch (error) {
+    const itemId = item[mapping.primaryKey] || item.id || 'unknown';
+    syncLogger.error(`Error processing ${endpoint} item ${itemId}`, error);
+
+    logger.error(`Error processing ${endpoint} item`, { itemId, error });
+
+    return 'error';
+  }
+}
+
+/**
+ * Processa qualquer endpoint usando mapeamento genérico
+ */
 async function processGenericEndpoint(
   endpoint: string,
   data: any[],
   syncLogId: number,
-  prisma: any,
-  errorLogger?: ErrorLogger
-) {
-  const results = { inserted: 0, updated: 0, errors: 0 };
+): Promise<SyncResult> {
   const mapping = getEndpointMapping(endpoint);
 
   if (!mapping) {
-    console.log(`Endpoint ${endpoint} não tem mapeamento definido`);
+    syncLogger.warn(`No mapping defined for endpoint ${endpoint}`);
     return { inserted: data.length, updated: 0, errors: 0 };
   }
 
-  for (const item of data) {
-    try {
-      const mappedData: any = {};
+  const results: SyncResult = { inserted: 0, updated: 0, errors: 0 };
 
-      // Aplicar mapeamento de campos
-      for (const [sourceField, targetConfig] of Object.entries(
-        mapping.fieldMapping
-      )) {
-        const sourceValue = item[sourceField];
+  syncLogger.info(`Processing ${data.length} items for ${endpoint}`, {
+    model: mapping.model,
+    endpoint
+  });
 
-        if (typeof targetConfig === 'string') {
-          mappedData[targetConfig] = sourceValue;
-        } else if (typeof targetConfig === 'object' && targetConfig.field) {
-          mappedData[targetConfig.field] = targetConfig.transform
-            ? targetConfig.transform(sourceValue)
-            : sourceValue;
-        }
-      }
+  // Processar itens em batches para melhor performance
+  const batchSize = 50;
+  for (let i = 0; i < data.length; i += batchSize) {
+    const batch = data.slice(i, i + batchSize);
 
-      // Limpar valores undefined do mappedData antes de enviar para o Prisma
-      let cleanedData: any = {};
-      for (const [key, value] of Object.entries(mappedData)) {
-        if (value !== undefined) {
-          cleanedData[key] = value;
-        }
-      }
+    syncLogger.debug(`Processing batch ${Math.floor(i / batchSize) + 1}`, {
+      size: batch.length,
+      total: data.length
+    });
 
-      // Validar foreign keys antes da inserção
-      cleanedData = await validateForeignKeys(endpoint, cleanedData, prisma);
+    // Processar batch em paralelo
+    const batchResults = await Promise.all(
+      batch.map(item => processItem(endpoint, item, mapping))
+    );
 
-      console.log(
-        `[Sync Debug] Processing ${endpoint} - model: ${mapping.model}, mapped data:`,
-        cleanedData
-      );
-      console.log(`[Sync Debug] Prisma client available:`, !!prisma);
-      console.log(
-        `[Sync Debug] Prisma ${mapping.model} available:`,
-        !!(prisma as any)[mapping.model]
-      );
-
-      // Verificar se o registro já existe
-      const primaryKeyValue = item[mapping.primaryKey] || item.id;
-      const whereClause = { [mapping.primaryKey]: primaryKeyValue };
-
-      if (!primaryKeyValue) {
-        console.warn(
-          `[Sync] Primary key value is null/undefined for ${endpoint} item`,
-          item
-        );
-        continue;
-      }
-
-      // Use direct property access instead of bracket notation
-      let existingRecord;
-      try {
-        if (mapping.model === 'empreendimento') {
-          existingRecord = await prisma.empreendimento.findUnique({
-            where: whereClause,
-          });
-        } else if (mapping.model === 'unidade') {
-          existingRecord = await prisma.unidade.findUnique({
-            where: whereClause,
-          });
-        } else if (mapping.model === 'webhook') {
-          existingRecord = await prisma.webhook.findUnique({
-            where: whereClause,
-          });
-        } else if (mapping.model === 'extratoConta') {
-          existingRecord = await prisma.extratoConta.findUnique({
-            where: whereClause,
-          });
-        } else if (mapping.model === 'contasReceber') {
-          existingRecord = await prisma.contasReceber.findUnique({
-            where: whereClause,
-          });
-        } else {
-          existingRecord = await (prisma as any)[mapping.model].findUnique({
-            where: whereClause,
-          });
-        }
-      } catch (error) {
-        console.error(
-          `[Sync] Error in findUnique for ${mapping.model}:`,
-          error
-        );
-        console.error(`[Sync] Where clause:`, whereClause);
-        console.error(`[Sync] Cleaned data:`, cleanedData);
-        throw error;
-      }
-
-      if (existingRecord) {
-        if (mapping.model === 'empreendimento') {
-          await prisma.empreendimento.update({
-            where: whereClause,
-            data: cleanedData,
-          });
-        } else if (mapping.model === 'unidade') {
-          await prisma.unidade.update({
-            where: whereClause,
-            data: cleanedData,
-          });
-        } else if (mapping.model === 'webhook') {
-          await prisma.webhook.update({
-            where: whereClause,
-            data: cleanedData,
-          });
-        } else if (mapping.model === 'extratoConta') {
-          await prisma.extratoConta.update({
-            where: whereClause,
-            data: cleanedData,
-          });
-        } else if (mapping.model === 'contasReceber') {
-          await prisma.contasReceber.update({
-            where: whereClause,
-            data: cleanedData,
-          });
-        } else {
-          await (prisma as any)[mapping.model].update({
-            where: whereClause,
-            data: cleanedData,
-          });
-        }
-        results.updated++;
-      } else {
-        if (mapping.model === 'empreendimento') {
-          await prisma.empreendimento.create({ data: cleanedData });
-        } else if (mapping.model === 'unidade') {
-          await prisma.unidade.create({ data: cleanedData });
-        } else if (mapping.model === 'webhook') {
-          await prisma.webhook.create({ data: cleanedData });
-        } else if (mapping.model === 'extratoConta') {
-          await prisma.extratoConta.create({ data: cleanedData });
-        } else if (mapping.model === 'contasReceber') {
-          await prisma.contasReceber.create({ data: cleanedData });
-        } else {
-          await (prisma as any)[mapping.model].create({ data: cleanedData });
-        }
-        results.inserted++;
-      }
-    } catch (error) {
-      console.error(`Erro ao processar ${endpoint} ${item.id}:`, error);
-      if (errorLogger) {
-        errorLogger.logException(endpoint, item.id, error);
-      }
-      results.errors++;
-    }
+    // Contar resultados
+    batchResults.forEach(result => {
+      results[result]++;
+    });
   }
 
+  syncLogger.info(`Completed processing ${endpoint}`, results);
   return results;
 }
 
+/**
+ * Endpoint principal de sincronização direta
+ */
 export async function POST(request: NextRequest) {
-  const errorLogger = new ErrorLogger();
-
-  try {
+  return withErrorHandler(async () => {
     const body: DirectSyncRequest = await request.json();
-    const { endpoint, data } = body;
 
-    if (!endpoint || !data || !Array.isArray(data)) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: 'Parâmetros inválidos. Esperado: endpoint e data (array)',
-        },
-        { status: 400 }
+    // Validar parâmetros obrigatórios
+    const validation = validateRequiredParams(body, ['endpoint', 'data']);
+    if (!validation.valid) {
+      return apiError(
+        'VALIDATION_ERROR',
+        `Parâmetros obrigatórios ausentes: ${validation.missing?.join(', ')}`,
+        400
       );
     }
+
+    const { endpoint, data } = body;
+
+    // Validar se data é array
+    if (!Array.isArray(data)) {
+      return apiError(
+        'VALIDATION_ERROR',
+        'O campo "data" deve ser um array',
+        400
+      );
+    }
+
+    // Verificar se endpoint tem mapeamento
+    if (!hasEndpointMapping(endpoint)) {
+      return apiError(
+        'ENDPOINT_NOT_SUPPORTED',
+        `Endpoint ${endpoint} não possui mapeamento definido`,
+        400
+      );
+    }
+
+    const logger = createContextLogger('sync-direct');
+    const startTime = Date.now();
+
+    syncLogger.info(`Starting sync for endpoint ${endpoint}`, {
+      itemCount: data.length,
+      endpoint
+    });
 
     // Criar log de sincronização
     const syncLog = await prisma.syncLog.create({
@@ -246,52 +297,12 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    let result = { inserted: 0, updated: 0, errors: 0 };
-
-    // Processar dados usando o sistema genérico
-    if (hasEndpointMapping(endpoint)) {
-      result = await processGenericEndpoint(
-        endpoint,
-        data,
-        syncLog.id,
-        prisma,
-        errorLogger
-      );
-    } else {
-      // Para endpoints sem mapeamento definido
-      switch (endpoint) {
-        case 'enterprises':
-        case 'units':
-        case 'units-characteristics':
-        case 'units-situations':
-        case 'bank-movement':
-        case 'customer-extract-history':
-        case 'accounts-statements':
-        case 'sales':
-        case 'supply-contracts-measurements-all':
-        case 'supply-contracts-measurements-attachments-all':
-        case 'construction-daily-report-event-type':
-        case 'construction-daily-report-types':
-        case 'hooks':
-        case 'patrimony-fixed':
-          // Para endpoints sem tabelas específicas, apenas logar os dados recebidos
-          console.log(
-            `Dados recebidos para ${endpoint}:`,
-            data.length,
-            'registros'
-          );
-          result = { inserted: data.length, updated: 0, errors: 0 };
-          break;
-
-        default:
-          // Para outros endpoints, apenas logar por enquanto
-          console.log(
-            `Endpoint ${endpoint} não implementado ainda. Dados recebidos:`,
-            data.length
-          );
-          result = { inserted: 0, updated: 0, errors: 0 };
-      }
-    }
+    // Processar dados
+    const result = await processGenericEndpoint(
+      endpoint,
+      data,
+      syncLog.id,
+    );
 
     // Atualizar log
     await prisma.syncLog.update({
@@ -306,36 +317,42 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Exibir resumo de erros se houver
-    if (errorLogger.hasErrors()) {
-      console.log(errorLogger.formatSummaryForConsole());
-      errorLogger.saveToFile();
+    const duration = Date.now() - startTime;
+
+    // Log de resumo
+    syncLogger.info(`Sync completed for ${endpoint}`, {
+      ...result,
+      duration,
+      processed: data.length
+    });
+
+    // Salvar log de erros se houver
+    // Error summary already logged above
+      syncLogger.warn('Errors occurred during sync', {
+        errorCount: result.errors,
+        summary: 'Errors logged above'
+      });
+      // Errors already logged to centralized logger
     }
 
-    return NextResponse.json({
-      success: true,
-      message: `Sincronização do endpoint ${endpoint} concluída`,
-      result: {
+    return apiSuccess(
+      {
         endpoint,
         processed: data.length,
         inserted: result.inserted,
         updated: result.updated,
         errors: result.errors,
+        duration,
+        errorSummary: errors > 0 ? `${errors} errors logged` : null,
       },
-      errorSummary: errorLogger.hasErrors()
-        ? errorLogger.generateSummary()
-        : null,
-    });
-  } catch (error) {
-    console.error('Erro na sincronização direta:', error);
-
-    return NextResponse.json(
+      `Sincronização do endpoint ${endpoint} concluída`,
       {
-        success: false,
-        message: 'Erro durante a sincronização',
-        error: error instanceof Error ? error.message : 'Erro desconhecido',
-      },
-      { status: 500 }
+        syncLogId: syncLog.id,
+        performance: {
+          itemsPerSecond: Math.round(data.length / (duration / 1000)),
+          avgTimePerItem: Math.round(duration / data.length),
+        }
+      }
     );
-  }
+  }, 'SYNC_DIRECT');
 }

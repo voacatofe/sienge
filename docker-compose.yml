@@ -66,6 +66,8 @@ services:
       - SYNC_SCHEDULE=${SYNC_SCHEDULE:-0 2 * * *}
       - SYNC_BATCH_SIZE=${SYNC_BATCH_SIZE:-200}
       - SYNC_MAX_RETRIES=${SYNC_MAX_RETRIES:-3}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
     ports:
       - '${APP_PORT_EXTERNAL:-3002}:3000'
     depends_on:

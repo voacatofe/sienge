@@ -1,13 +1,8 @@
 import axios, { AxiosInstance, AxiosResponse, AxiosRequestConfig } from 'axios';
 import axiosRetry from 'axios-retry';
 import Bottleneck from 'bottleneck';
-import { prisma } from '@/lib/prisma';
-import {
-  apiLogger,
-  logApiRequest,
-  logApiError,
-  logRateLimitHit,
-} from '@/lib/logger/api-logger';
+import { prisma } from '@/lib/prisma-singleton';
+import { createContextLogger } from '@/lib/logger';
 
 // Extensão de tipos para Axios
 declare module 'axios' {
@@ -66,6 +61,7 @@ export class SiengeApiClient {
   private rateLimiter: Bottleneck;
   private credentials: SiengeCredentials | null = null;
   private baseURL: string = '';
+  private logger = createContextLogger('sienge-api');
 
   constructor() {
     this.rateLimiter = new Bottleneck({
@@ -108,7 +104,7 @@ export class SiengeApiClient {
         password: credentials.password,
       };
 
-      console.log(
+      this.logger.info(
         `Cliente Sienge API inicializado para: ${credentials.subdomain}`
       );
     } catch (error) {
@@ -138,7 +134,7 @@ export class SiengeApiClient {
           process.env.SIENGE_USERNAME &&
           process.env.SIENGE_PASSWORD
         ) {
-          apiLogger.warn(
+          this.logger.warn(
             '[Sienge API] Usando credenciais do .env como fallback (desenvolvimento)'
           );
           return {
@@ -176,7 +172,7 @@ export class SiengeApiClient {
         password: plainPassword,
       };
     } catch (error) {
-      apiLogger.error('Erro ao carregar credenciais:', error);
+      this.logger.error('Erro ao carregar credenciais:', error);
       throw error;
     }
   }
@@ -220,7 +216,7 @@ export class SiengeApiClient {
         const startTime = Date.now();
         config.metadata = { startTime };
 
-        logApiRequest({
+        this.logger.debug('API Request', {
           method: config.method?.toUpperCase() || 'UNKNOWN',
           url: config.url || '',
           requestSize: JSON.stringify(config.data || {}).length,
@@ -229,7 +225,7 @@ export class SiengeApiClient {
         return config;
       },
       error => {
-        logApiError({
+        this.logger.error('API Error', {
           method: error.config?.method?.toUpperCase() || 'UNKNOWN',
           url: error.config?.url || '',
           statusCode: error.response?.status,
@@ -246,7 +242,7 @@ export class SiengeApiClient {
         const startTime = response.config.metadata?.startTime || endTime;
         const responseTime = endTime - startTime;
 
-        logApiRequest({
+        this.logger.debug('API Request', {
           method: response.config.method?.toUpperCase() || 'UNKNOWN',
           url: response.config.url || '',
           statusCode: response.status,
@@ -261,7 +257,7 @@ export class SiengeApiClient {
         const startTime = error.config?.metadata?.startTime || endTime;
         const responseTime = endTime - startTime;
 
-        logApiError({
+        this.logger.error('API Error', {
           method: error.config?.method?.toUpperCase() || 'UNKNOWN',
           url: error.config?.url || '',
           statusCode: error.response?.status,
@@ -289,7 +285,7 @@ export class SiengeApiClient {
     } catch (error) {
       // Verificar se é erro de rate limiting
       if (error instanceof Error && error.message.includes('rate limit')) {
-        logRateLimitHit();
+        this.logger.warn('Rate limit hit');
       }
       throw error;
     }
@@ -311,7 +307,7 @@ export class SiengeApiClient {
 
     for (const method of methodsToTry) {
       try {
-        console.log(`[Sienge API] Tentando ${method} ${endpoint}`);
+        this.logger.info(`[Sienge API] Tentando ${method} ${endpoint}`);
 
         const config: AxiosRequestConfig = {
           method,
@@ -329,14 +325,14 @@ export class SiengeApiClient {
         }
 
         const response = await this.makeRequest<T>(config);
-        apiLogger.info(`[Sienge API] ✅ Sucesso com ${method} ${endpoint}`);
+        this.logger.info(`[Sienge API] ✅ Sucesso com ${method} ${endpoint}`);
         return response;
       } catch (error: any) {
         lastError = error;
 
         // Se for erro 405 (Method Not Allowed), tentar próximo método
         if (error.response?.status === 405) {
-          apiLogger.warn(
+          this.logger.warn(
             `[Sienge API] ❌ ${method} não suportado (405) para ${endpoint}, tentando próximo método...`
           );
           continue;
@@ -344,7 +340,7 @@ export class SiengeApiClient {
 
         // Se for erro 403 (Forbidden), pode ser problema de permissão
         if (error.response?.status === 403) {
-          apiLogger.warn(
+          this.logger.warn(
             `[Sienge API] ❌ Acesso negado (403) para ${endpoint} com ${method}`
           );
           continue;
@@ -356,7 +352,7 @@ export class SiengeApiClient {
     }
 
     // Se chegou aqui, todos os métodos falharam
-    apiLogger.error(
+    this.logger.error(
       `[Sienge API] ❌ Todos os métodos falharam para ${endpoint}`
     );
     throw lastError;
@@ -387,11 +383,11 @@ export class SiengeApiClient {
     const maxRecords = options.maxRecords || 200000; // Máximo 200k registros por padrão
     const timeoutMs = options.timeoutMs || 30 * 60 * 1000; // 30 minutos por padrão
 
-    apiLogger.info(
+    this.logger.info(
       `[Sienge API] Iniciando busca em ${endpoint} com parâmetros:`,
       params
     );
-    apiLogger.info(
+    this.logger.info(
       `[Sienge API] Limites: máx ${maxPages} páginas, máx ${maxRecords} registros, timeout ${timeoutMs / 1000 / 60}min`
     );
 
@@ -399,7 +395,7 @@ export class SiengeApiClient {
       try {
         // Verificar timeout
         if (Date.now() - startTime > timeoutMs) {
-          apiLogger.warn(
+          this.logger.warn(
             `[Sienge API] Timeout atingido após ${timeoutMs / 1000 / 60} minutos. Parando sincronização.`
           );
           break;
@@ -407,7 +403,7 @@ export class SiengeApiClient {
 
         // Verificar limite de páginas
         if (page > maxPages) {
-          apiLogger.warn(
+          this.logger.warn(
             `[Sienge API] Limite de páginas atingido (${maxPages}). Parando sincronização.`
           );
           break;
@@ -415,7 +411,7 @@ export class SiengeApiClient {
 
         // Verificar limite de registros
         if (allData.length >= maxRecords) {
-          apiLogger.warn(
+          this.logger.warn(
             `[Sienge API] Limite de registros atingido (${maxRecords}). Parando sincronização.`
           );
           break;
@@ -438,7 +434,7 @@ export class SiengeApiClient {
           options.preferredMethod || 'GET'
         );
 
-        apiLogger.info(
+        this.logger.info(
           `[Sienge API] Resposta da página ${page} (offset: ${offset}):`,
           {
             status: response.status,
@@ -476,7 +472,7 @@ export class SiengeApiClient {
             const currentOffset = metadata.offset || 0;
             const limit = metadata.limit || SIENGE_API_CONFIG.DEFAULT_PAGE_SIZE;
 
-            apiLogger.info(`[Sienge API] Metadata página ${page}:`, {
+            this.logger.info(`[Sienge API] Metadata página ${page}:`, {
               totalRecords,
               currentOffset,
               expectedOffset: offset,
@@ -493,7 +489,7 @@ export class SiengeApiClient {
 
             // Detectar loop infinito - se o offset não avançou
             if (page > 1 && currentOffset === 0) {
-              apiLogger.warn(
+              this.logger.warn(
                 `[Sienge API] LOOP DETECTADO na página ${page}! Offset ainda é 0. Parando sincronização.`
               );
               responseHasMore = false;
@@ -543,7 +539,7 @@ export class SiengeApiClient {
               Array.isArray(responseObj[key])
             );
             if (arrayProps.length > 0) {
-              console.log(
+              this.logger.info(
                 `[Sienge API] Encontrada propriedade array: ${arrayProps[0]}`
               );
               responseData = responseObj[arrayProps[0]];
@@ -559,7 +555,7 @@ export class SiengeApiClient {
 
         // Log do progresso com mais detalhes
         const elapsedMinutes = Math.round((Date.now() - startTime) / 1000 / 60);
-        apiLogger.info(
+        this.logger.info(
           `[Sienge API] Página ${page}: ${responseData?.length || 0} registros | Total: ${allData.length} | Tempo: ${elapsedMinutes}min | HasMore: ${responseHasMore}`
         );
 
@@ -580,20 +576,20 @@ export class SiengeApiClient {
             : (responseData?.length || 0) === 0
               ? 'dados vazios'
               : 'limite de registros atingido';
-          apiLogger.info(
+          this.logger.info(
             `[Sienge API] Paginação finalizada na página ${page}. Motivo: ${reason}`
           );
         }
 
         page++;
       } catch (error) {
-        apiLogger.error(`[Sienge API] Erro na página ${page}:`, error);
+        this.logger.error(`[Sienge API] Erro na página ${page}:`, error);
         throw error;
       }
     }
 
     const totalTimeMinutes = Math.round((Date.now() - startTime) / 1000 / 60);
-    apiLogger.info(
+    this.logger.info(
       `[Sienge API] Sincronização finalizada: ${allData.length} registros em ${totalTimeMinutes} minutos (${page - 1} páginas)`
     );
     return allData;
@@ -642,7 +638,7 @@ export class SiengeApiClient {
         return response.data;
       }
     } catch (error) {
-      apiLogger.error(`Erro ao buscar dados da entidade ${entityName}:`, error);
+      this.logger.error(`Erro ao buscar dados da entidade ${entityName}:`, error);
 
       // Se a API falhar, retornar array vazio em vez de quebrar
       if (usePagination) {

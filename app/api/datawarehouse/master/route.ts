@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../../../lib/prisma-singleton';
+import { createContextLogger } from '../../../lib/logger';
 
-const prisma = new PrismaClient();
+const logger = createContextLogger('datawarehouse-master');
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -18,10 +19,10 @@ export async function GET(request: Request) {
     const domainType = searchParams.get('domain') || 'all';
     const empresaFilter = searchParams.get('empresa');
 
-    console.log(
+    logger.info(
       `Buscando dados master de ${startDate.toISOString().split('T')[0]} até ${endDate.toISOString().split('T')[0]}`
     );
-    console.log(`Filtros: domain=${domainType}, empresa=${empresaFilter || 'todas'}`);
+    logger.info(`Filtros: domain=${domainType}, empresa=${empresaFilter || 'todas'}`);
 
     // Query dinâmica baseada na view única
     let whereClause = 'WHERE data_principal >= $1';
@@ -247,7 +248,7 @@ export async function GET(request: Request) {
       },
     });
   } catch (error) {
-    console.error('Erro ao buscar dados do Data Warehouse Master:', error);
+    logger.error('Erro ao buscar dados do Data Warehouse Master', { error });
 
     return NextResponse.json(
       {
@@ -267,8 +268,6 @@ export async function GET(request: Request) {
         },
       }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
 

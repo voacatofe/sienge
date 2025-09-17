@@ -124,7 +124,7 @@ export function ConfigurationSection({
     let hasMoreData = true;
     let totalFetched = 0;
 
-    console.log(`🔄 Iniciando paginação para ${endpointName}...`);
+    // console.log(`🔄 Iniciando paginação para ${endpointName}...`);
 
     while (hasMoreData) {
       try {
@@ -145,7 +145,7 @@ export function ConfigurationSection({
           ),
         });
 
-        console.log(
+        // console.log(
           `📄 ${endpointName} - Página ${Math.floor(offset / limit) + 1}: offset=${offset}, limit=${limit}`
         );
 
@@ -178,14 +178,14 @@ export function ConfigurationSection({
           allData.push(...pageData);
           totalFetched += pageData.length;
 
-          console.log(
+          // console.log(
             `✅ ${endpointName} - Página ${Math.floor(offset / limit) + 1}: ${pageData.length} registros (Total: ${totalFetched})`
           );
 
           // Verificar se há mais dados
           if (pageData.length < limit) {
             hasMoreData = false; // Última página
-            console.log(
+            // console.log(
               `🏁 ${endpointName} - Paginação completa: ${totalFetched} registros totais`
             );
           } else {
@@ -195,13 +195,13 @@ export function ConfigurationSection({
           // Aguardar um pouco entre páginas para não sobrecarregar a API
           await new Promise(resolve => setTimeout(resolve, 300));
         } else {
-          console.log(
+          // console.log(
             `❌ ${endpointName} - Erro na página ${Math.floor(offset / limit) + 1}: ${result.error || 'Erro desconhecido'}`
           );
           hasMoreData = false;
         }
       } catch (error) {
-        console.log(
+        // console.log(
           `❌ ${endpointName} - Erro de conexão na página ${Math.floor(offset / limit) + 1}:`,
           error
         );
@@ -246,7 +246,7 @@ export function ConfigurationSection({
     ];
 
     // Primeiro: testar conectividade com cada endpoint
-    console.log('🔍 Testando conectividade com endpoints...');
+    // console.log('🔍 Testando conectividade com endpoints...');
     const validEndpoints: typeof endpoints = [];
 
     for (const endpoint of endpoints) {
@@ -263,7 +263,7 @@ export function ConfigurationSection({
 
         if (testResponse.ok) {
           const testResult = await testResponse.json();
-          console.log(`🔍 Debug ${endpoint.name}:`, {
+          // console.log(`🔍 Debug ${endpoint.name}:`, {
             success: testResult.success,
             dataLength: Array.isArray(testResult.data)
               ? testResult.data.length
@@ -299,23 +299,23 @@ export function ConfigurationSection({
               }
             }
 
-            console.log(
+            // console.log(
               `✅ ${endpoint.name}: Acesso permitido (${dataLength} registros no teste)`
             );
             validEndpoints.push(endpoint);
             setSyncProgress(prev => ({ ...prev, [endpoint.id]: 'completed' }));
           } else {
-            console.log(
+            // console.log(
               `❌ ${endpoint.name}: ${testResult.error || 'Erro desconhecido'}`
             );
             setSyncProgress(prev => ({ ...prev, [endpoint.id]: 'error' }));
           }
         } else {
-          console.log(`❌ ${endpoint.name}: HTTP ${testResponse.status}`);
+          // console.log(`❌ ${endpoint.name}: HTTP ${testResponse.status}`);
           setSyncProgress(prev => ({ ...prev, [endpoint.id]: 'error' }));
         }
       } catch (error) {
-        console.log(`❌ ${endpoint.name}: Erro de conexão`);
+        // console.log(`❌ ${endpoint.name}: Erro de conexão`);
         setSyncProgress(prev => ({ ...prev, [endpoint.id]: 'error' }));
       }
 
@@ -323,7 +323,7 @@ export function ConfigurationSection({
       await new Promise(resolve => setTimeout(resolve, 200));
     }
 
-    console.log(
+    // console.log(
       `📊 Endpoints válidos encontrados: ${validEndpoints.length}/${endpoints.length}`
     );
 
@@ -334,7 +334,7 @@ export function ConfigurationSection({
     }
 
     // Agora sincronizar apenas os endpoints válidos POR FASES
-    console.log(
+    // console.log(
       '🔄 Iniciando sincronização dos endpoints válidos por fases...'
     );
 
@@ -355,7 +355,7 @@ export function ConfigurationSection({
       {} as Record<number, typeof validEndpoints>
     );
 
-    console.log(`📋 Endpoints agrupados por fase:`, endpointsByPhase);
+    // console.log(`📋 Endpoints agrupados por fase:`, endpointsByPhase);
 
     // Parâmetros específicos por endpoint (apenas endpoints com permissão)
     const endpointParams: Record<string, Record<string, any>> = {
@@ -379,7 +379,7 @@ export function ConfigurationSection({
 
     for (const phase of phases) {
       const phaseEndpoints = endpointsByPhase[phase];
-      console.log(
+      // console.log(
         `🚀 Iniciando FASE ${phase} com ${phaseEndpoints.length} endpoints:`,
         phaseEndpoints.map(ep => ep.name)
       );
@@ -418,7 +418,7 @@ export function ConfigurationSection({
                 );
               }
 
-              console.log(
+              // console.log(
                 `✅ FASE ${phase}: ${endpoint.name} - ${allData.length} registros salvos`
               );
             } catch (syncError) {
@@ -462,13 +462,13 @@ export function ConfigurationSection({
       successCount += phaseSuccessCount;
       errorCount += phaseErrorCount;
 
-      console.log(
+      // console.log(
         `✅ FASE ${phase} concluída: ${phaseSuccessCount} sucessos, ${phaseErrorCount} erros`
       );
 
       // Aguardar um pouco entre fases para não sobrecarregar o banco
       if (phase < phases[phases.length - 1]) {
-        console.log(`⏳ Aguardando 1 segundo antes da próxima fase...`);
+        // console.log(`⏳ Aguardando 1 segundo antes da próxima fase...`);
         await new Promise(resolve => setTimeout(resolve, 1000));
       }
     }

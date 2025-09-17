@@ -1,52 +1,63 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
+import { apiSuccess, apiError, withErrorHandler, validateRequiredParams } from '@/lib/api-response';
+import { createContextLogger } from '@/lib/logger';
+
+const proxyLogger = createContextLogger('SIENGE_PROXY');
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
 /**
- * Proxy genérico para a API Sienge
+ * Proxy genérico para a API Sienge (GET)
  * Permite fazer chamadas para qualquer endpoint da API Sienge
  */
 export async function GET(request: NextRequest) {
-  try {
+  return withErrorHandler(async () => {
     // Importar dependências apenas quando necessário
     const { siengeApiClient } = await import('@/lib/sienge-api-client');
-    const { validateSiengeParams } = await import(
-      '@/lib/validators/sienge-params'
-    );
+    const { validateSiengeParams } = await import('@/lib/validators/sienge-params');
 
     const { searchParams } = new URL(request.url);
 
     // O endpoint é passado como parâmetro
     const endpoint = searchParams.get('endpoint');
     if (!endpoint) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Endpoint não especificado',
-          message: 'O parâmetro endpoint é obrigatório',
-        },
-        { status: 400 }
+      return apiError(
+        'MISSING_PARAMETER',
+        'O parâmetro endpoint é obrigatório',
+        400
       );
     }
+
+    proxyLogger.info('Processing Sienge proxy request', {
+      endpoint,
+      paramCount: searchParams.size
+    });
 
     // Validar parâmetros obrigatórios e formato
     const validation = validateSiengeParams(endpoint, searchParams);
     if (!validation.isValid) {
-      return NextResponse.json(
+      proxyLogger.warn('Invalid Sienge parameters', {
+        endpoint,
+        errors: validation.errors,
+        missingParams: validation.missingParams
+      });
+
+      return apiError(
+        'VALIDATION_ERROR',
+        'Parâmetros de requisição inválidos',
+        400,
         {
-          success: false,
-          error: 'Parâmetros inválidos',
-          message: 'Erro de validação dos parâmetros',
-          details: validation.errors,
-          missingParams: validation.missingParams,
-        },
-        { status: 400 }
+          errors: validation.errors,
+          missingParams: validation.missingParams
+        }
       );
     }
 
     // Inicializar cliente
-    await siengeApiClient.initialize();
+    if (!siengeApiClient.isInitialized()) {
+      await siengeApiClient.initialize();
+    }
 
     // Coletar todos os parâmetros exceto o endpoint
     const params: any = {};
@@ -64,72 +75,117 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    console.log(
-      `[Sienge Proxy] Chamando endpoint: ${endpoint} com params:`,
+    proxyLogger.debug('Calling Sienge API', {
+      endpoint,
       params
-    );
-
-    const response = await siengeApiClient.fetchData(endpoint, params);
-
-    return NextResponse.json({
-      success: true,
-      endpoint: endpoint,
-      data: response,
-      params: params,
     });
-  } catch (error) {
-    console.error('[Sienge Proxy] Erro:', error);
-    return NextResponse.json(
+
+    const startTime = Date.now();
+    const response = await siengeApiClient.fetchData(endpoint, params);
+    const duration = Date.now() - startTime;
+
+    const responseSize = Array.isArray(response) ? response.length : 1;
+
+    proxyLogger.info('Sienge API call completed', {
+      endpoint,
+      duration,
+      responseSize,
+      success: true
+    });
+
+    return apiSuccess(
+      response,
+      `Dados obtidos do endpoint ${endpoint}`,
       {
-        success: false,
-        error: 'Erro ao chamar API Sienge',
-        message: error instanceof Error ? error.message : 'Erro desconhecido',
+        endpoint,
+        params,
+        performance: {
+          duration,
+          responseSize,
+          itemsPerSecond: Math.round(responseSize / (duration / 1000))
+        }
       },
-      { status: 500 }
+      'short' // Cache por 1 minuto
     );
-  }
+  }, 'SIENGE_PROXY_GET');
 }
 
+/**
+ * Proxy genérico para a API Sienge (POST)
+ * Permite criar dados em qualquer endpoint da API Sienge
+ */
 export async function POST(request: NextRequest) {
-  try {
+  return withErrorHandler(async () => {
     // Importar dependências apenas quando necessário
     const { siengeApiClient } = await import('@/lib/sienge-api-client');
 
     const body = await request.json();
-    const { endpoint, data, params } = body;
 
-    if (!endpoint) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Endpoint não especificado',
-          message: 'O campo endpoint é obrigatório no body',
-        },
-        { status: 400 }
+    // Validar parâmetros obrigatórios
+    const validation = validateRequiredParams(body, ['endpoint']);
+    if (!validation.valid) {
+      return apiError(
+        'VALIDATION_ERROR',
+        `Parâmetros obrigatórios ausentes: ${validation.missing?.join(', ')}`,
+        400
       );
     }
 
-    // Inicializar cliente
-    await siengeApiClient.initialize();
+    const { endpoint, data, params } = body;
 
-    console.log(`[Sienge Proxy] POST para endpoint: ${endpoint}`);
-
-    const response = await siengeApiClient.createData(endpoint, data);
-
-    return NextResponse.json({
-      success: true,
-      endpoint: endpoint,
-      data: response,
+    proxyLogger.info('Processing Sienge proxy POST request', {
+      endpoint,
+      hasData: !!data,
+      hasParams: !!params
     });
-  } catch (error) {
-    console.error('[Sienge Proxy] Erro:', error);
-    return NextResponse.json(
+
+    // Inicializar cliente
+    if (!siengeApiClient.isInitialized()) {
+      await siengeApiClient.initialize();
+    }
+
+    proxyLogger.debug('Creating data via Sienge API', {
+      endpoint,
+      dataSize: data ? JSON.stringify(data).length : 0
+    });
+
+    const startTime = Date.now();
+    const response = await siengeApiClient.createData(endpoint, data);
+    const duration = Date.now() - startTime;
+
+    proxyLogger.info('Sienge API POST completed', {
+      endpoint,
+      duration,
+      success: true
+    });
+
+    return apiSuccess(
+      response,
+      `Dados criados no endpoint ${endpoint}`,
       {
-        success: false,
-        error: 'Erro ao chamar API Sienge',
-        message: error instanceof Error ? error.message : 'Erro desconhecido',
-      },
-      { status: 500 }
+        endpoint,
+        operation: 'create',
+        performance: {
+          duration
+        }
+      }
     );
-  }
+  }, 'SIENGE_PROXY_POST');
+}
+
+/**
+ * Suporte a OPTIONS para CORS preflight
+ */
+export async function OPTIONS() {
+  return apiSuccess(
+    {
+      methods: ['GET', 'POST', 'OPTIONS'],
+      description: 'Proxy genérico para API Sienge',
+      usage: {
+        get: 'GET /api/sienge/proxy?endpoint=companies&limit=10',
+        post: 'POST /api/sienge/proxy { "endpoint": "companies", "data": {...} }'
+      }
+    },
+    'Métodos disponíveis no proxy Sienge'
+  );
 }
