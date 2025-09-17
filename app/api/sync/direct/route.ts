@@ -23,6 +23,32 @@ function validateRequiredParams(params: any) {
   return endpoint && data;
 }
 
+// Função para validar foreign keys antes da inserção
+async function validateForeignKeys(
+  endpoint: string,
+  cleanedData: any,
+  prisma: any
+): Promise<any> {
+  // Validação específica para units (unidades)
+  if (endpoint === 'units' && cleanedData.idContrato) {
+    const contractExists = await prisma.contratoVenda.findUnique({
+      where: { idContrato: cleanedData.idContrato },
+      select: { idContrato: true },
+    });
+
+    if (!contractExists) {
+      console.warn(
+        `[FK Validation] Contract ${cleanedData.idContrato} not found for unit ${cleanedData.id || 'unknown'}. Setting idContrato to null.`
+      );
+      cleanedData.idContrato = null;
+    }
+  }
+
+  // Aqui podem ser adicionadas outras validações de FK para outros endpoints no futuro
+
+  return cleanedData;
+}
+
 // Função genérica para processar qualquer endpoint
 async function processGenericEndpoint(
   endpoint: string,
@@ -59,12 +85,15 @@ async function processGenericEndpoint(
       }
 
       // Limpar valores undefined do mappedData antes de enviar para o Prisma
-      const cleanedData: any = {};
+      let cleanedData: any = {};
       for (const [key, value] of Object.entries(mappedData)) {
         if (value !== undefined) {
           cleanedData[key] = value;
         }
       }
+
+      // Validar foreign keys antes da inserção
+      cleanedData = await validateForeignKeys(endpoint, cleanedData, prisma);
 
       console.log(
         `[Sync Debug] Processing ${endpoint} - model: ${mapping.model}, mapped data:`,
