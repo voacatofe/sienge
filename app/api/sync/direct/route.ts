@@ -123,9 +123,10 @@ async function processItem(
 
       if (typeof targetConfig === 'string') {
         mappedData[targetConfig] = sourceValue;
-      } else if (typeof targetConfig === 'object' && targetConfig.field) {
-        mappedData[targetConfig.field] = targetConfig.transform
-          ? targetConfig.transform(sourceValue)
+      } else if (typeof targetConfig === 'object' && targetConfig !== null && 'field' in targetConfig) {
+        const config = targetConfig as { field: string; transform?: (value: any) => any };
+        mappedData[config.field] = config.transform
+          ? config.transform(sourceValue)
           : sourceValue;
       }
     }
@@ -186,7 +187,7 @@ async function processItem(
     const itemId = item[mapping.primaryKey] || item.id || 'unknown';
     syncLogger.error(`Error processing ${endpoint} item ${itemId}`, error);
 
-    logger.error(`Error processing ${endpoint} item`, { itemId, error });
+    logger.error('SYNC_DIRECT', `Error processing ${endpoint} item`, error, { itemId });
 
     return 'error';
   }
@@ -243,7 +244,7 @@ async function processGenericEndpoint(
  * Endpoint principal de sincronização direta
  */
 export async function POST(request: NextRequest) {
-  return withErrorHandler(async () => {
+  try {
     const body: DirectSyncRequest = await request.json();
 
     // Validar parâmetros obrigatórios
@@ -327,12 +328,11 @@ export async function POST(request: NextRequest) {
     });
 
     // Salvar log de erros se houver
-    // Error summary already logged above
+    if (result.errors > 0) {
       syncLogger.warn('Errors occurred during sync', {
         errorCount: result.errors,
         summary: 'Errors logged above'
       });
-      // Errors already logged to centralized logger
     }
 
     return apiSuccess(
@@ -343,7 +343,7 @@ export async function POST(request: NextRequest) {
         updated: result.updated,
         errors: result.errors,
         duration,
-        errorSummary: errors > 0 ? `${errors} errors logged` : null,
+        errorSummary: result.errors > 0 ? `${result.errors} errors logged` : null,
       },
       `Sincronização do endpoint ${endpoint} concluída`,
       {
@@ -354,5 +354,15 @@ export async function POST(request: NextRequest) {
         }
       }
     );
-  }, 'SYNC_DIRECT');
+  } catch (error) {
+    const logger = createContextLogger('sync-direct');
+    logger.error('Sync direct failed', error);
+
+    return apiError(
+      'SYNC_ERROR',
+      'Erro durante a sincronização',
+      500,
+      { error: error instanceof Error ? error.message : 'Unknown error' }
+    );
+  }
 }

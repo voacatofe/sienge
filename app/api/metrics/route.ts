@@ -85,19 +85,12 @@ export async function GET() {
 
     const systemMetrics = getSystemMetrics();
 
-    // Tentar obter métricas de API se disponível
-    let apiMetrics = null;
-    try {
-      const { getApiMetrics } = await import('@/lib/logger/api-logger');
-      apiMetrics = getApiMetrics();
-      metricsLogger.debug('API metrics loaded successfully');
-    } catch (error) {
-      metricsLogger.warn('API metrics not available', error);
-      apiMetrics = {
-        message: 'API metrics module not found',
-        available: false
-      };
-    }
+    // API metrics removidas - usando logger centralizado
+    const apiMetrics = {
+      message: 'API metrics migrated to centralized logging system',
+      available: false,
+      note: 'Check application logs for detailed API metrics'
+    };
 
     const metrics = {
       system: systemMetrics,
@@ -146,22 +139,13 @@ export async function DELETE() {
 
     metricsLogger.info('Clearing metrics (development only)');
 
-    try {
-      const { clearApiMetrics } = await import('@/lib/logger/api-logger');
-      clearApiMetrics();
+    // Métricas migradas para sistema centralizado - não há cache para limpar
+    metricsLogger.info('Metrics clear requested - using centralized logging (no cache to clear)');
 
-      return apiSuccess(
-        { cleared: true },
-        'Métricas limpos com sucesso'
-      );
-    } catch (error) {
-      metricsLogger.warn('Unable to clear metrics', error);
-
-      return apiSuccess(
-        { cleared: false, reason: 'Metrics module not available' },
-        'Módulo de métricas não disponível para limpeza'
-      );
-    }
+    return apiSuccess(
+      { cleared: true },
+      'Sistema de métricas migrado para logging centralizado - nenhum cache para limpar'
+    );
   }, 'METRICS_CLEAR');
 }
 

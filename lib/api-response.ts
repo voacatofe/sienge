@@ -107,10 +107,10 @@ export function apiError(
 /**
  * Wrapper para tratamento de erros em endpoints
  */
-export async function withErrorHandler<T>(
-  handler: () => Promise<NextResponse<T>>,
+export async function withErrorHandler(
+  handler: () => Promise<NextResponse<any>>,
   context: string
-): Promise<NextResponse<T | ApiErrorResponse>> {
+): Promise<NextResponse<any>> {
   try {
     return await handler();
   } catch (error) {

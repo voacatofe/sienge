@@ -124,7 +124,7 @@ export function ConfigurationSection({
     let hasMoreData = true;
     let totalFetched = 0;
 
-    // console.log(`🔄 Iniciando paginação para ${endpointName}...`);
+    // //console.log(`🔄 Iniciando paginação para ${endpointName}...`);
 
     while (hasMoreData) {
       try {
@@ -145,9 +145,6 @@ export function ConfigurationSection({
           ),
         });
 
-        // console.log(
-          `📄 ${endpointName} - Página ${Math.floor(offset / limit) + 1}: offset=${offset}, limit=${limit}`
-        );
 
         const response = await fetch(`/api/sienge/proxy?${queryParams}`);
         const result = await response.json();
@@ -178,16 +175,10 @@ export function ConfigurationSection({
           allData.push(...pageData);
           totalFetched += pageData.length;
 
-          // console.log(
-            `✅ ${endpointName} - Página ${Math.floor(offset / limit) + 1}: ${pageData.length} registros (Total: ${totalFetched})`
-          );
 
           // Verificar se há mais dados
           if (pageData.length < limit) {
             hasMoreData = false; // Última página
-            // console.log(
-              `🏁 ${endpointName} - Paginação completa: ${totalFetched} registros totais`
-            );
           } else {
             offset += limit; // Próxima página
           }
@@ -195,16 +186,9 @@ export function ConfigurationSection({
           // Aguardar um pouco entre páginas para não sobrecarregar a API
           await new Promise(resolve => setTimeout(resolve, 300));
         } else {
-          // console.log(
-            `❌ ${endpointName} - Erro na página ${Math.floor(offset / limit) + 1}: ${result.error || 'Erro desconhecido'}`
-          );
           hasMoreData = false;
         }
       } catch (error) {
-        // console.log(
-          `❌ ${endpointName} - Erro de conexão na página ${Math.floor(offset / limit) + 1}:`,
-          error
-        );
         hasMoreData = false;
       }
     }
@@ -246,7 +230,7 @@ export function ConfigurationSection({
     ];
 
     // Primeiro: testar conectividade com cada endpoint
-    // console.log('🔍 Testando conectividade com endpoints...');
+    // //console.log('🔍 Testando conectividade com endpoints...');
     const validEndpoints: typeof endpoints = [];
 
     for (const endpoint of endpoints) {
@@ -263,18 +247,6 @@ export function ConfigurationSection({
 
         if (testResponse.ok) {
           const testResult = await testResponse.json();
-          // console.log(`🔍 Debug ${endpoint.name}:`, {
-            success: testResult.success,
-            dataLength: Array.isArray(testResult.data)
-              ? testResult.data.length
-              : 'não é array',
-            dataType: typeof testResult.data,
-            dataKeys: testResult.data
-              ? Object.keys(testResult.data)
-              : 'sem dados',
-            dataStructure: testResult.data,
-            fullResponse: testResult,
-          });
 
           if (testResult.success) {
             // Verificar se os dados estão em result.data.items (estrutura padrão da API Sienge)
@@ -299,23 +271,17 @@ export function ConfigurationSection({
               }
             }
 
-            // console.log(
-              `✅ ${endpoint.name}: Acesso permitido (${dataLength} registros no teste)`
-            );
             validEndpoints.push(endpoint);
             setSyncProgress(prev => ({ ...prev, [endpoint.id]: 'completed' }));
           } else {
-            // console.log(
-              `❌ ${endpoint.name}: ${testResult.error || 'Erro desconhecido'}`
-            );
             setSyncProgress(prev => ({ ...prev, [endpoint.id]: 'error' }));
           }
         } else {
-          // console.log(`❌ ${endpoint.name}: HTTP ${testResponse.status}`);
+          // //console.log(`❌ ${endpoint.name}: HTTP ${testResponse.status}`);
           setSyncProgress(prev => ({ ...prev, [endpoint.id]: 'error' }));
         }
       } catch (error) {
-        // console.log(`❌ ${endpoint.name}: Erro de conexão`);
+        // //console.log(`❌ ${endpoint.name}: Erro de conexão`);
         setSyncProgress(prev => ({ ...prev, [endpoint.id]: 'error' }));
       }
 
@@ -323,9 +289,6 @@ export function ConfigurationSection({
       await new Promise(resolve => setTimeout(resolve, 200));
     }
 
-    // console.log(
-      `📊 Endpoints válidos encontrados: ${validEndpoints.length}/${endpoints.length}`
-    );
 
     if (validEndpoints.length === 0) {
       setSubmitStatus('error');
@@ -334,9 +297,6 @@ export function ConfigurationSection({
     }
 
     // Agora sincronizar apenas os endpoints válidos POR FASES
-    // console.log(
-      '🔄 Iniciando sincronização dos endpoints válidos por fases...'
-    );
 
     // Calcular data de 1 ano atrás
     const oneYearAgo = new Date();
@@ -355,7 +315,7 @@ export function ConfigurationSection({
       {} as Record<number, typeof validEndpoints>
     );
 
-    // console.log(`📋 Endpoints agrupados por fase:`, endpointsByPhase);
+    // //console.log(`📋 Endpoints agrupados por fase:`, endpointsByPhase);
 
     // Parâmetros específicos por endpoint (apenas endpoints com permissão)
     const endpointParams: Record<string, Record<string, any>> = {
@@ -379,10 +339,6 @@ export function ConfigurationSection({
 
     for (const phase of phases) {
       const phaseEndpoints = endpointsByPhase[phase];
-      // console.log(
-        `🚀 Iniciando FASE ${phase} com ${phaseEndpoints.length} endpoints:`,
-        phaseEndpoints.map(ep => ep.name)
-      );
 
       // Processar todos os endpoints da fase em paralelo
       const phasePromises = phaseEndpoints.map(async endpoint => {
@@ -418,9 +374,6 @@ export function ConfigurationSection({
                 );
               }
 
-              // console.log(
-                `✅ FASE ${phase}: ${endpoint.name} - ${allData.length} registros salvos`
-              );
             } catch (syncError) {
               console.error(
                 `❌ FASE ${phase}: Erro ao salvar ${endpoint.name}:`,
@@ -462,13 +415,9 @@ export function ConfigurationSection({
       successCount += phaseSuccessCount;
       errorCount += phaseErrorCount;
 
-      // console.log(
-        `✅ FASE ${phase} concluída: ${phaseSuccessCount} sucessos, ${phaseErrorCount} erros`
-      );
 
       // Aguardar um pouco entre fases para não sobrecarregar o banco
       if (phase < phases[phases.length - 1]) {
-        // console.log(`⏳ Aguardando 1 segundo antes da próxima fase...`);
         await new Promise(resolve => setTimeout(resolve, 1000));
       }
     }
