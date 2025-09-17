@@ -9,12 +9,26 @@ export function PowerBILinksSection({ syncResults }: PowerBILinksProps) {
     return null;
   }
 
+  // URL da API do Data Warehouse
+  const baseUrl = process.env.NEXT_PUBLIC_PRIMARY_DOMAIN
+    ? `https://${process.env.NEXT_PUBLIC_PRIMARY_DOMAIN}`
+    : typeof window !== 'undefined'
+      ? window.location.origin
+      : '';
+  const dataWarehouseUrl = `${baseUrl}/api/datawarehouse/vendas`;
+
+  const copyToClipboard = () => {
+    if (typeof navigator !== 'undefined') {
+      navigator.clipboard.writeText(dataWarehouseUrl);
+    }
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
       <div className="flex items-center mb-6">
-        <div className="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center mr-4">
+        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-4">
           <svg
-            className="w-5 h-5 text-yellow-600"
+            className="w-5 h-5 text-blue-600"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -23,83 +37,147 @@ export function PowerBILinksSection({ syncResults }: PowerBILinksProps) {
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth={2}
-              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+              d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
             />
           </svg>
         </div>
         <div>
           <h3 className="text-lg font-semibold text-gray-900">
-            Conexão Direta ao PostgreSQL
+            API do Data Warehouse
           </h3>
           <p className="text-gray-600">
-            Conecte diretamente ao banco PostgreSQL para máxima performance
+            Conecte via API REST para máxima flexibilidade e atualizações
+            automáticas
           </p>
         </div>
       </div>
 
-      {/* Informações de conexão */}
-      <div className="p-4 bg-gray-50 rounded-lg">
-        <h4 className="font-medium text-gray-900 mb-2">
-          💡 Dicas para Conexão Direta:
-        </h4>
-        <ul className="text-sm text-gray-600 space-y-1">
-          <li>
-            • Use <strong>Obter Dados &gt; Banco de dados PostgreSQL</strong>
-          </li>
-          <li>
-            • Servidor:{' '}
-            <strong>
-              {process.env.NEXT_PUBLIC_PRIMARY_DOMAIN || 'localhost'}:
-              {process.env.NEXT_PUBLIC_DB_PORT_EXTERNAL || '5432'}
-            </strong>
-          </li>
-          <li>
-            • Banco:{' '}
-            <strong>
-              {process.env.NEXT_PUBLIC_POSTGRES_DB || 'sienge_data'}
-            </strong>
-          </li>
-          <li>
-            • Usuário:{' '}
-            <strong>
-              {process.env.NEXT_PUBLIC_POSTGRES_USER || 'sienge_app'}
-            </strong>
-          </li>
-          <li>
-            • <strong>Tabelas principais:</strong> empresas, empreendimentos,
-            clientes, contratos_venda, unidades
-          </li>
-          <li>
-            • <strong>View principal:</strong> rpt_vendas_wide (otimizada para
-            dashboards)
-          </li>
-          <li>
-            • Configure <strong>atualização automática</strong> para dados
-            sempre atualizados
-          </li>
-        </ul>
+      {/* URL da API */}
+      <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg mb-4">
+        <h4 className="font-medium text-blue-900 mb-2">🔗 URL da API:</h4>
+        <div className="bg-white p-3 rounded border border-blue-300">
+          <code className="text-sm text-gray-800 break-all font-mono">
+            {dataWarehouseUrl}
+          </code>
+          <button
+            onClick={copyToClipboard}
+            className="ml-2 px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Copiar
+          </button>
+        </div>
+        <p className="text-xs text-blue-700 mt-2">
+          ✅ Dados dos últimos 12 meses automaticamente | ✅ Atualização diária
+          às 6h | ✅ Cache de 1 hora
+        </p>
       </div>
 
-      {/* Resumo das tabelas sincronizadas */}
-      <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-        <h4 className="font-medium text-blue-900 mb-2">
-          📊 Dados Sincronizados:
+      {/* Instruções para Looker Studio */}
+      <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+        <h4 className="font-medium text-green-900 mb-2 flex items-center">
+          📊 Para Looker Studio:
         </h4>
-        <div className="grid grid-cols-2 gap-4 text-sm">
+        <ol className="text-sm text-green-800 space-y-2">
+          <li>
+            1. Abra o Looker Studio e clique em <strong>&#34;Criar&#34;</strong>
+          </li>
+          <li>
+            2. Selecione <strong>&#34;Relatório&#34;</strong>
+          </li>
+          <li>
+            3. Clique em <strong>&#34;Conectores&#34;</strong> →{' '}
+            <strong>&#34;Conector da Web&#34;</strong>
+          </li>
+          <li>
+            4. Cole a URL da API acima no campo <strong>&#34;URL&#34;</strong>
+          </li>
+          <li>
+            5. Mantenha <strong>&#34;Método: GET&#34;</strong> e clique em{' '}
+            <strong>&#34;Conectar&#34;</strong>
+          </li>
+          <li>
+            6. Selecione <strong>&#34;data&#34;</strong> como tabela principal
+          </li>
+          <li>7. Configure campos de data e métricas conforme necessário</li>
+        </ol>
+      </div>
+
+      {/* Instruções para Power BI */}
+      <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+        <h4 className="font-medium text-yellow-900 mb-2 flex items-center">
+          ⚡ Para Power BI:
+        </h4>
+        <ol className="text-sm text-yellow-800 space-y-2">
+          <li>
+            1. Abra o Power BI Desktop e clique em{' '}
+            <strong>&#34;Obter Dados&#34;</strong>
+          </li>
+          <li>
+            2. Selecione <strong>&#34;Web&#34;</strong> na lista de conectores
+          </li>
+          <li>
+            3. Cole a URL da API no campo <strong>&#34;URL&#34;</strong>
+          </li>
+          <li>
+            4. Clique em <strong>&#34;OK&#34;</strong> e aguarde o carregamento
+          </li>
+          <li>
+            5. No Navigator, selecione <strong>&#34;data&#34;</strong> e clique
+            em <strong>&#34;Transformar Dados&#34;</strong>
+          </li>
+          <li>
+            6. No Power Query, expanda a coluna <strong>&#34;data&#34;</strong>
+          </li>
+          <li>7. Configure tipos de dados para colunas de data e valores</li>
+          <li>
+            8. Clique em <strong>&#34;Fechar e Aplicar&#34;</strong>
+          </li>
+        </ol>
+      </div>
+
+      {/* Resumo dos dados da API */}
+      <div className="p-4 bg-gray-50 rounded-lg">
+        <h4 className="font-medium text-gray-900 mb-2">
+          📈 Dados Disponíveis na API:
+        </h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
           <div>
-            <span className="font-medium text-blue-800">Dados Mestres:</span>
-            <ul className="mt-1 text-blue-700 space-y-1">
-              <li>• Empresas</li>
-              <li>• Empreendimentos</li>
-              <li>• Clientes</li>
+            <span className="font-medium text-gray-800">
+              📊 Métricas de Performance:
+            </span>
+            <ul className="mt-1 text-gray-600 space-y-1">
+              <li>• Valor Contrato e Vendas</li>
+              <li>• Margem Bruta e Tempo de Venda</li>
+              <li>• Valor por M²</li>
             </ul>
           </div>
           <div>
-            <span className="font-medium text-blue-800">Dados Comerciais:</span>
-            <ul className="mt-1 text-blue-700 space-y-1">
-              <li>• Contratos de Venda</li>
-              <li>• Unidades</li>
-              <li>• Situações de Unidade</li>
+            <span className="font-medium text-gray-800">
+              💰 Métricas Financeiras:
+            </span>
+            <ul className="mt-1 text-gray-600 space-y-1">
+              <li>• Descontos e Formas de Pagamento</li>
+              <li>• Taxa de Juros e Parcelas</li>
+              <li>• Saldo Devedor</li>
+            </ul>
+          </div>
+          <div>
+            <span className="font-medium text-gray-800">
+              📅 Dimensões Temporais:
+            </span>
+            <ul className="mt-1 text-gray-600 space-y-1">
+              <li>• Data, Ano, Trimestre, Mês</li>
+              <li>• Últimos 12 meses automaticamente</li>
+            </ul>
+          </div>
+          <div>
+            <span className="font-medium text-gray-800">
+              🏢 Dimensões de Negócio:
+            </span>
+            <ul className="mt-1 text-gray-600 space-y-1">
+              <li>• Empresas e Empreendimentos</li>
+              <li>• Unidades e Clientes</li>
+              <li>• Status e Tipos de Contrato</li>
             </ul>
           </div>
         </div>
