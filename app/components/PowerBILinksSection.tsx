@@ -75,31 +75,54 @@ export function PowerBILinksSection({ syncResults }: PowerBILinksProps) {
       {/* Instruções para Looker Studio */}
       <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
         <h4 className="font-medium text-green-900 mb-2 flex items-center">
-          📊 Para Looker Studio:
+          📊 Para Looker Studio (Community Connector):
         </h4>
-        <ol className="text-sm text-green-800 space-y-2">
-          <li>
-            1. Abra o Looker Studio e clique em <strong>&#34;Criar&#34;</strong>
-          </li>
-          <li>
-            2. Selecione <strong>&#34;Relatório&#34;</strong>
-          </li>
-          <li>
-            3. Clique em <strong>&#34;Conectores&#34;</strong> →{' '}
-            <strong>&#34;Conector da Web&#34;</strong>
-          </li>
-          <li>
-            4. Cole a URL da API acima no campo <strong>&#34;URL&#34;</strong>
-          </li>
-          <li>
-            5. Mantenha <strong>&#34;Método: GET&#34;</strong> e clique em{' '}
-            <strong>&#34;Conectar&#34;</strong>
-          </li>
-          <li>
-            6. Selecione <strong>&#34;data&#34;</strong> como tabela principal
-          </li>
-          <li>7. Configure campos de data e métricas conforme necessário</li>
-        </ol>
+        <div className="p-3 bg-white rounded border border-green-300 mb-3">
+          <p className="text-sm font-medium text-green-800 mb-2">
+            🔗 Link Direto do Conector (após deploy):
+          </p>
+          <code className="text-xs text-gray-800 break-all font-mono">
+            https://lookerstudio.google.com/datasources/create?connectorId=SEU_DEPLOYMENT_ID
+          </code>
+          <p className="text-xs text-green-700 mt-1">
+            ℹ️ Substitua SEU_DEPLOYMENT_ID pelo ID gerado no Google Apps Script
+          </p>
+        </div>
+
+        <div className="space-y-3">
+          <div>
+            <h5 className="font-semibold text-green-800 mb-1">
+              📋 Para Administradores:
+            </h5>
+            <ol className="text-sm text-green-700 space-y-1 ml-3">
+              <li>
+                1. Acesse <strong>script.google.com</strong>
+              </li>
+              <li>2. Crie novo projeto com nosso código do conector</li>
+              <li>3. Faça deploy como &#34;Aplicativo da web&#34;</li>
+              <li>4. Copie o Deployment ID e gere o link direto</li>
+            </ol>
+          </div>
+
+          <div>
+            <h5 className="font-semibold text-green-800 mb-1">
+              👥 Para Usuários Finais:
+            </h5>
+            <ol className="text-sm text-green-700 space-y-1 ml-3">
+              <li>1. Clique no link direto do conector</li>
+              <li>2. Looker Studio abre automaticamente</li>
+              <li>
+                3. Clique em &#34;Conectar&#34; → dados carregam automaticamente
+              </li>
+              <li>4. Pronto! Crie seus relatórios</li>
+            </ol>
+          </div>
+        </div>
+
+        <div className="mt-3 p-2 bg-green-100 rounded text-xs text-green-700">
+          ✅ <strong>Vantagens:</strong> Sem configuração manual • Dados
+          automáticos dos últimos 12 meses • Um clique para conectar
+        </div>
       </div>
 
       {/* Instruções para Power BI */}

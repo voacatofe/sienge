@@ -35,7 +35,8 @@
       "Bash(cat:*)",
       "Bash(PGPASSWORD=kPnrGuFeJeuVprXzhhO2oLVE14f509KV psql:*)",
       "Bash(del \"C:\\Users\\darla\\OneDrive\\Documentos\\sienge\\test-mapping.js\")",
-      "Bash(del \"C:\\Users\\darla\\OneDrive\\Documentos\\sienge\\sql\\views_materializadas_exemplo.sql\")"
+      "Bash(del \"C:\\Users\\darla\\OneDrive\\Documentos\\sienge\\sql\\views_materializadas_exemplo.sql\")",
+      "WebFetch(domain:developers.google.com)"
     ],
     "deny": []
   },
