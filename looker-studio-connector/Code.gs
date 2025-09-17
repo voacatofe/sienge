@@ -23,6 +23,46 @@ function getConfig() {
 function getSchema(request) {
   var fields = [
     // =====================================
+    // 🔑 GRUPO: IDENTIFICADORES
+    // =====================================
+    {
+      name: 'row_id',
+      label: 'ID da Linha',
+      dataType: 'STRING',
+      group: 'Identificadores',
+      semantics: {
+        conceptType: 'DIMENSION'
+      }
+    },
+    {
+      name: 'domain_type',
+      label: 'Tipo de Domínio',
+      dataType: 'STRING',
+      group: 'Identificadores',
+      semantics: {
+        conceptType: 'DIMENSION'
+      }
+    },
+    {
+      name: 'source_table',
+      label: 'Tabela de Origem',
+      dataType: 'STRING',
+      group: 'Identificadores',
+      semantics: {
+        conceptType: 'DIMENSION'
+      }
+    },
+    {
+      name: 'source_id',
+      label: 'ID de Origem',
+      dataType: 'NUMBER',
+      group: 'Identificadores',
+      semantics: {
+        conceptType: 'DIMENSION'
+      }
+    },
+
+    // =====================================
     // 📅 GRUPO: DATA
     // =====================================
     {
@@ -354,8 +394,11 @@ function getSchema(request) {
 // 4. Buscar dados (obrigatório) - conecta à API Master
 function getData(request) {
   try {
-    // URL da API Master - filtrando apenas contratos para compatibilidade
-    var API_URL = 'https://conector.catometrics.com.br/api/datawarehouse/master?domain=contratos';
+    console.log('Iniciando busca de dados...');
+    console.log('Campos solicitados:', request.fields.map(function(f) { return f.name; }));
+
+    // URL da API Master - todos os domínios unificados
+    var API_URL = 'https://conector.catometrics.com.br/api/datawarehouse/master';
 
     // Buscar dados da API
     var response = UrlFetchApp.fetch(API_URL, {
@@ -368,12 +411,17 @@ function getData(request) {
     });
 
     if (response.getResponseCode() !== 200) {
+      console.error('Erro na API:', response.getResponseCode());
+      console.error('Resposta:', response.getContentText());
       throw new Error('API Error: ' + response.getResponseCode() + ' - ' + response.getContentText());
     }
 
     var jsonResponse = JSON.parse(response.getContentText());
+    console.log('API retornou sucesso:', jsonResponse.success);
+    console.log('Total de registros:', jsonResponse.data ? jsonResponse.data.length : 0);
 
     if (!jsonResponse.success || !jsonResponse.data) {
+      console.error('API sem dados:', jsonResponse);
       throw new Error('API returned no data or error: ' + jsonResponse.message);
     }
 
@@ -385,6 +433,9 @@ function getData(request) {
     var rows = apiData.map(function(row) {
       return formatRowForLookerStudio(row, requestedFieldIds);
     });
+
+    console.log('Total de linhas processadas:', rows.length);
+    console.log('Amostra da primeira linha:', rows.length > 0 ? rows[0] : 'Sem dados');
 
     return {
       schema: request.fields,
@@ -406,9 +457,29 @@ function formatRowForLookerStudio(row, requestedFieldIds) {
 
     // Mapear campos da API Master para o schema do Looker Studio
     switch (fieldId) {
+      // Identificadores
+      case 'row_id':
+        value = row['row_id'] || '';
+        break;
+      case 'domain_type':
+        value = row['domain_type'] || '';
+        break;
+      case 'source_table':
+        value = row['source_table'] || '';
+        break;
+      case 'source_id':
+        value = row['source_id'] ? parseInt(row['source_id']) : 0;
+        break;
+
       // Data
       case 'data_principal':
-        value = row['data_principal'] || null;
+        // Formatar data para YYYYMMDD que o Looker Studio entende
+        if (row['data_principal']) {
+          var date = row['data_principal'].replace(/-/g, '');
+          value = date.length >= 8 ? date.substring(0, 8) : null;
+        } else {
+          value = null;
+        }
         break;
       case 'ano':
         value = row['ano'] || null;
@@ -428,33 +499,33 @@ function formatRowForLookerStudio(row, requestedFieldIds) {
 
       // Empresas
       case 'empresa_nome':
-        value = row['empresa_nome'] || null;
+        value = row['empresa_nome'] || '';
         break;
       case 'empresa_cidade':
-        value = row['empresa_cidade'] || null;
+        value = row['empresa_cidade'] || '';
         break;
       case 'empresa_estado':
-        value = row['empresa_estado'] || null;
+        value = row['empresa_estado'] || '';
         break;
       case 'empresa_regiao':
-        value = row['empresa_regiao'] || null;
+        value = row['empresa_regiao'] || '';
         break;
       case 'empresa_cnpj':
-        value = row['empresa_cnpj'] || null;
+        value = row['empresa_cnpj'] || '';
         break;
 
       // Contratos
       case 'valor_contrato':
-        value = parseFloat(row['valor_contrato']) || 0;
+        value = row['valor_contrato'] ? parseFloat(row['valor_contrato']) : 0;
         break;
       case 'status_contrato':
-        value = row['status_contrato'] || null;
+        value = row['status_contrato'] || '';
         break;
       case 'tipo_contrato':
-        value = row['tipo_contrato'] || null;
+        value = row['tipo_contrato'] || '';
         break;
       case 'numero_contrato':
-        value = row['numero_contrato'] || null;
+        value = row['numero_contrato'] || '';
         break;
       case 'contratos_ativos':
         value = Boolean(row['contratos_ativos']);
@@ -468,48 +539,48 @@ function formatRowForLookerStudio(row, requestedFieldIds) {
 
       // Financeiro
       case 'saldo_devedor':
-        value = parseFloat(row['saldo_devedor']) || 0;
+        value = row['saldo_devedor'] ? parseFloat(row['saldo_devedor']) : 0;
         break;
       case 'forma_pagamento':
-        value = row['forma_pagamento'] || null;
+        value = row['forma_pagamento'] || '';
         break;
       case 'taxa_juros':
-        value = parseFloat(row['taxa_juros']) || 0;
+        value = row['taxa_juros'] ? parseFloat(row['taxa_juros']) : 0;
         break;
       case 'total_parcelas':
-        value = parseInt(row['total_parcelas']) || 0;
+        value = row['total_parcelas'] ? parseInt(row['total_parcelas']) : 0;
         break;
       case 'parcelas_pagas':
-        value = parseInt(row['parcelas_pagas']) || 0;
+        value = row['parcelas_pagas'] ? parseInt(row['parcelas_pagas']) : 0;
         break;
 
       // Performance
       case 'margem_bruta':
-        value = parseFloat(row['margem_bruta']) || 0;
+        value = row['margem_bruta'] ? parseFloat(row['margem_bruta']) : 0;
         break;
 
       // Clientes
       case 'cliente_principal':
-        value = row['cliente_principal'] || null;
+        value = row['cliente_principal'] || '';
         break;
 
       // Empreendimentos
       case 'empreendimento_nome':
-        value = row['empreendimento_nome'] || null;
+        value = row['empreendimento_nome'] || '';
         break;
       case 'empreendimento_tipo':
-        value = row['empreendimento_tipo'] || null;
+        value = row['empreendimento_tipo'] || '';
         break;
 
       // Unidades
       case 'unidade_tipo':
-        value = row['unidade_tipo'] || null;
+        value = row['unidade_tipo'] || '';
         break;
       case 'unidade_area':
-        value = parseFloat(row['unidade_area']) || 0;
+        value = row['unidade_area'] ? parseFloat(row['unidade_area']) : 0;
         break;
       case 'faixa_area':
-        value = row['faixa_area'] || null;
+        value = row['faixa_area'] || '';
         break;
 
       // Conversões
@@ -530,7 +601,7 @@ function formatRowForLookerStudio(row, requestedFieldIds) {
 // Função de teste para verificar conectividade
 function testConnection() {
   try {
-    var API_URL = 'https://conector.catometrics.com.br/api/datawarehouse/master?domain=contratos';
+    var API_URL = 'https://conector.catometrics.com.br/api/datawarehouse/master';
     var response = UrlFetchApp.fetch(API_URL);
     var data = JSON.parse(response.getContentText());
 

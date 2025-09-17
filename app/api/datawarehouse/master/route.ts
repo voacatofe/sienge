@@ -103,7 +103,7 @@ export async function GET(request: Request) {
       SELECT
         domain_type,
         COUNT(*) as records,
-        SUM(COALESCE(valor_contrato, valor_original, 0)) as valor_total
+        SUM(COALESCE(valor_contrato, 0)) as valor_total
       FROM rpt_sienge_master_wide
       ${whereClause}
       GROUP BY domain_type

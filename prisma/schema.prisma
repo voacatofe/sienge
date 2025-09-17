@@ -68,9 +68,6 @@ model Empresa {
 
   // Relacionamentos
   clientes         Cliente[]
-  titulosReceber   TituloReceber[]
-  titulosPagar     TituloPagar[]
-  contasReceber    ContasReceber[]
 
   @@index([nomeEmpresa])
   @@index([cnpj])
@@ -124,7 +121,7 @@ model Cliente {
   shareCapital            Decimal? @map("shareCapital")
   stateRegistrationNumber String?  @map("stateRegistrationNumber")
   technicalManager        String?  @map("technicalManager")
-  
+
   // Campos gerais da API Sienge
   personType              String?  @map("personType")
   activityId              Int?     @map("activityId")
@@ -136,8 +133,6 @@ model Cliente {
 
   // Relacionamentos
   empresa                  Empresa? @relation(fields: [idEmpresa], references: [idEmpresa])
-  titulosReceber           TituloReceber[]
-  contasReceber            ContasReceber[]
 
   @@index([nomeCompleto])
   @@index([ativo])
@@ -147,150 +142,6 @@ model Cliente {
   @@index([idEmpresa, ativo])
   @@index([dataAtualizacao])
   @@map("clientes")
-}
-
-
-model Indexador {
-  idIndexador    Int     @id @map("idIndexador")
-  nomeIndexador  String  @map("nomeIndexador")
-  tipoIndexador  String? @map("tipoIndexador")
-  valorAtual     Decimal? @map("valorAtual")
-  dataAtualizacao DateTime? @map("dataAtualizacao")
-  ativo          Boolean @default(true) @map("ativo")
-
-  // Relacionamentos
-  titulosReceber TituloReceber[]
-  titulosPagar   TituloPagar[]
-
-  @@index([nomeIndexador])
-  @@index([ativo])
-  @@map("indexadores")
-}
-
-model PlanoFinanceiro {
-  idPlanoFinanceiro Int     @id @map("idPlanoFinanceiro")
-  nomePlano         String  @map("nomePlano")
-  tipoPlano         String? @map("tipoPlano")
-  codigoPlano       String? @map("codigoPlano")
-  ativo             Boolean @default(true) @map("ativo")
-
-  // Relacionamentos
-  titulosReceber    TituloReceber[]
-  titulosPagar      TituloPagar[]
-
-  @@index([nomePlano])
-  @@index([ativo])
-  @@map("planos_financeiros")
-}
-
-model PortadorRecebimento {
-  idPortador        Int     @id @map("idPortador")
-  nome              String  @map("nome")
-  descricao         String? @map("descricao")
-  codigo            String? @map("codigo")
-  tipo              String? @map("tipo")
-  ativo             Boolean @default(true) @map("ativo")
-
-  // Relacionamentos
-  titulosReceber    TituloReceber[]
-
-  @@index([nome])
-  @@index([codigo])
-  @@index([ativo])
-  @@map("portadores_recebimento")
-}
-
-model TituloReceber {
-  idTituloReceber     Int      @id @default(autoincrement()) @map("idTituloReceber")
-  idContrato          Int?     @map("idContrato")
-  idCliente           Int      @map("idCliente")
-  idEmpresa           Int?     @map("idEmpresa")
-  numeroDocumento     String   @map("numeroDocumento")
-  idDocumentoIdent    String?  @map("idDocumentoIdent")
-  dataEmissao         DateTime @map("dataEmissao")
-  dataVencimento      DateTime @map("dataVencimento")
-  valorOriginal       Decimal  @map("valorOriginal")
-  valorAtualizado     Decimal? @map("valorAtualizado")
-  idIndexador         Int?     @map("idIndexador")
-  juros               Decimal? @map("juros")
-  multa               Decimal? @map("multa")
-  descontoConcedido   Decimal? @map("descontoConcedido")
-  valorPago           Decimal? @map("valorPago")
-  dataPagamento       DateTime? @map("dataPagamento")
-  status              String   @map("status")
-  observacoes         String?  @map("observacoes")
-  idPortador          Int?     @map("idPortador")
-  idPlanoFinanceiro   Int?     @map("idPlanoFinanceiro")
-  
-  // Campos adicionais da API Sienge
-  receivableBillId    Int?     @map("receivableBillId")
-  documentId          String?  @map("documentId")
-  documentNumber      String?  @map("documentNumber")
-  receivableBillValue Decimal? @map("receivableBillValue")
-  companyId           Int?     @map("companyId")
-  defaulting          Boolean  @default(false) @map("defaulting")
-  subjudice           Boolean  @default(false) @map("subjudice")
-  payOffDate          DateTime? @map("payOffDate")
-  normal              Boolean  @default(true) @map("normal")
-  inBilling           Boolean  @default(false) @map("inBilling")
-
-  // Relacionamentos
-  cliente             Cliente @relation(fields: [idCliente], references: [idCliente])
-  empresa             Empresa? @relation(fields: [idEmpresa], references: [idEmpresa])
-  indexador           Indexador? @relation(fields: [idIndexador], references: [idIndexador])
-  portador            PortadorRecebimento? @relation(fields: [idPortador], references: [idPortador])
-  planoFinanceiro     PlanoFinanceiro? @relation(fields: [idPlanoFinanceiro], references: [idPlanoFinanceiro])
-
-  @@index([numeroDocumento])
-  @@index([status])
-  @@index([dataVencimento])
-  @@index([valorOriginal])
-  @@index([idCliente])
-  @@index([idContrato])
-  @@index([idPortador])
-  @@index([receivableBillId])
-  @@index([documentId])
-  @@index([companyId])
-  @@index([defaulting])
-  @@index([status, dataVencimento])
-  @@index([idCliente, status])
-  @@index([receivableBillId, status])
-  @@index([companyId, status])
-  @@map("titulos_receber")
-}
-
-model TituloPagar {
-  idTituloPagar         Int      @id @map("idTituloPagar")
-  idCredor              Int      @map("idCredor")
-  idEmpresaDevedora     Int?     @map("idEmpresaDevedora")
-  numeroDocumento       String   @map("numeroDocumento")
-  idDocumentoIdent      String?  @map("idDocumentoIdent")
-  dataEmissao           DateTime @map("dataEmissao")
-  dataVencimento        DateTime @map("dataVencimento")
-  valorOriginal         Decimal  @map("valorOriginal")
-  valorAtualizado       Decimal? @map("valorAtualizado")
-  idIndexador           Int?     @map("idIndexador")
-  idPlanoFinanceiro     Int?     @map("idPlanoFinanceiro")
-  observacao            String?  @map("observacao")
-  descontoObtido        Decimal? @map("descontoObtido")
-  valorPago             Decimal? @map("valorPago")
-  dataPagamento         DateTime? @map("dataPagamento")
-  status                String   @map("status")
-  idContratoSuprimento  Int?     @map("idContratoSuprimento")
-
-  // Relacionamentos
-  empresaDevedora       Empresa? @relation(fields: [idEmpresaDevedora], references: [idEmpresa])
-  indexador             Indexador? @relation(fields: [idIndexador], references: [idIndexador])
-  planoFinanceiro       PlanoFinanceiro? @relation(fields: [idPlanoFinanceiro], references: [idPlanoFinanceiro])
-
-  @@index([numeroDocumento])
-  @@index([status])
-  @@index([dataVencimento])
-  @@index([valorOriginal])
-  @@index([idCredor])
-  @@index([idEmpresaDevedora])
-  @@index([idContratoSuprimento])
-  @@map("titulos_pagar")
 }
 
 model ContratoVenda {
@@ -329,7 +180,7 @@ model ContratoVenda {
   dailyLateInterestValue Decimal? @map("dailyLateInterestValue")
   containsRemadeInstallments Boolean? @map("containsRemadeInstallments")
   specialClause         String?  @map("specialClause")
-  
+
   // Campos adicionais baseados na API
   installmentPlan       String?  @map("installmentPlan")
   paymentMethod         String?  @map("paymentMethod")
@@ -342,25 +193,25 @@ model ContratoVenda {
   contractType          String?  @map("contractType")
   salesRepresentative   String?  @map("salesRepresentative")
   observations          String?  @map("observations")
-  
+
   // Dados de clientes do contrato (JSON)
   salesContractCustomers Json?   @map("salesContractCustomers")
-  
+
   // Dados de unidades do contrato (JSON)
   salesContractUnits     Json?   @map("salesContractUnits")
-  
+
   // Dados de condições de pagamento (JSON)
   paymentConditions      Json?   @map("paymentConditions")
-  
+
   // Dados de corretores (JSON)
   brokers                Json?   @map("brokers")
-  
+
   // Dados de comissões (JSON)
   linkedCommissions      Json?   @map("linkedCommissions")
-  
+
   // Links para recursos relacionados (JSON)
   links                  Json?   @map("links")
-  
+
   // Campos de controle
   dataCadastro           DateTime @default(now()) @map("dataCadastro")
   dataAtualizacao        DateTime? @map("dataAtualizacao")
@@ -399,29 +250,15 @@ model Empreendimento {
   descricaoBaseCustos       String?  @map("descricaoBaseCustos")
   idTipoObra                Int?     @map("idTipoObra")
   descricaoTipoObra         String?  @map("descricaoTipoObra")
-  
+
   // Relacionamentos
   unidades                  Unidade[]
   contratos                 ContratoVenda[]
-  
+
   @@index([nome])
   @@index([tipo])
   @@index([idEmpresa])
   @@map("empreendimentos")
-}
-
-model Site {
-  id          Int      @id @map("id")
-  descricao   String   @map("descricao")
-  buildingId  String?  @map("buildingId")
-  ativo       Boolean  @default(true) @map("ativo")
-  dataCadastro DateTime @default(now()) @map("dataCadastro")
-  dataAtualizacao DateTime? @map("dataAtualizacao")
-  
-  @@index([descricao])
-  @@index([buildingId])
-  @@index([ativo])
-  @@map("sites")
 }
 
 model Unidade {
@@ -454,204 +291,16 @@ model Unidade {
   inscricaoImobiliaria  String?  @map("inscricaoImobiliaria")
   dataCadastro          DateTime @default(now()) @map("dataCadastro")
   dataAtualizacao       DateTime? @map("dataAtualizacao")
-  
+
   // Relacionamentos
   empreendimento        Empreendimento? @relation(fields: [idEmpreendimento], references: [id])
   contrato              ContratoVenda? @relation(fields: [idContrato], references: [id])
-  
+
   @@index([nome])
   @@index([idEmpreendimento])
   @@index([idContrato])
   @@index([estoqueComercial])
   @@map("unidades")
-}
-
-model ContasReceber {
-  id                    Int      @id @default(autoincrement()) @map("id")
-  customerId            Int      @map("customerId")
-  receivableBillId      Int      @unique @map("receivableBillId")
-  documentId            String?  @map("documentId")
-  documentNumber        String?  @map("documentNumber")
-  issueDate             DateTime @map("issueDate")
-  receivableBillValue   Decimal  @map("receivableBillValue")
-  companyId             Int?     @map("companyId")
-  defaulting            Boolean  @default(false) @map("defaulting")
-  subjudice             Boolean  @default(false) @map("subjudice")
-  normal                Boolean  @default(true) @map("normal")
-  inBilling             Boolean  @default(false) @map("inBilling")
-  note                  String?  @map("note")
-  payOffDate            DateTime? @map("payOffDate")
-  createdAt             DateTime @default(now()) @map("createdAt")
-  updatedAt             DateTime @updatedAt @map("updatedAt")
-
-  // Relacionamentos
-  cliente               Cliente @relation(fields: [customerId], references: [idCliente])
-  empresa               Empresa? @relation(fields: [companyId], references: [idEmpresa])
-  parcelas              ParcelaContasReceber[]
-
-  @@index([customerId])
-  @@index([receivableBillId])
-  @@index([companyId])
-  @@index([issueDate])
-  @@index([defaulting])
-  @@map("contas_receber")
-}
-
-model ParcelaContasReceber {
-  id                Int      @id @default(autoincrement()) @map("id")
-  receivableBillId  Int      @map("receivableBillId")
-  installmentId     Int      @map("installmentId")
-  carrierId         Int?     @map("carrierId")
-  conditionTypeId   String?  @map("conditionTypeId")
-  dueDate           DateTime @map("dueDate")
-  balanceDue        Decimal  @map("balanceDue")
-  generatedTicket   Boolean  @default(false) @map("generatedTicket")
-  createdAt         DateTime @default(now()) @map("createdAt")
-  updatedAt         DateTime @updatedAt @map("updatedAt")
-
-  // Relacionamentos
-  contaReceber      ContasReceber @relation(fields: [receivableBillId], references: [receivableBillId])
-
-  @@index([receivableBillId])
-  @@index([installmentId])
-  @@index([dueDate])
-  @@map("parcelas_contas_receber")
-}
-
-model MovimentoBancario {
-  id                            Int      @id @default(autoincrement()) @map("id")
-  bankMovementId                Int      @unique @map("bankMovementId")
-  billId                        Int?     @map("billId")
-  installmentId                 Int?     @map("installmentId")
-  bankMovementAmount            Decimal  @map("bankMovementAmount")
-  documentIdentificationId      String?  @map("documentIdentificationId")
-  documentIdentificationName    String?  @map("documentIdentificationName")
-  documentIdentificationNumber  String?  @map("documentIdentificationNumber")
-  bankMovementOriginId          String?  @map("bankMovementOriginId")
-  bankMovementHistoricId        String?  @map("bankMovementHistoricId")
-  bankMovementHistoricName      String?  @map("bankMovementHistoricName")
-  bankMovementOperationId       Int?     @map("bankMovementOperationId")
-  bankMovementOperationName     String?  @map("bankMovementOperationName")
-  bankMovementOperationType     String?  @map("bankMovementOperationType")
-  bankMovementReconcile         String?  @map("bankMovementReconcile")
-  bankMovementDate              DateTime @map("bankMovementDate")
-  billDate                      DateTime? @map("billDate")
-  accountNumber                 String?  @map("accountNumber")
-  companyId                     Int?     @map("companyId")
-  companyName                   String?  @map("companyName")
-  groupCompanyId                Int?     @map("groupCompanyId")
-  groupCompanyName              String?  @map("groupCompanyName")
-  holdingId                     Int?     @map("holdingId")
-  holdingName                   String?  @map("holdingName")
-  subsidiaryId                  Int?     @map("subsidiaryId")
-  subsidiaryName                String?  @map("subsidiaryName")
-  creditorId                    Int?     @map("creditorId")
-  creditorName                  String?  @map("creditorName")
-  clientId                      Int?     @map("clientId")
-  clientName                    String?  @map("clientName")
-  createdAt                     DateTime @default(now()) @map("createdAt")
-  updatedAt                     DateTime @updatedAt @map("updatedAt")
-
-  // Dados JSON para apropriações
-  financialCategories           Json?    @map("financialCategories")
-  departamentCosts             Json?    @map("departamentCosts")
-  buildingCosts                Json?    @map("buildingCosts")
-
-  @@index([bankMovementId])
-  @@index([bankMovementDate])
-  @@index([companyId])
-  @@index([clientId])
-  @@index([billDate])
-  @@map("movimentos_bancarios")
-}
-
-model DiarioObra {
-  id                    Int      @id @default(autoincrement()) @map("id")
-  constructionDailyId   Int      @unique @map("constructionDailyId")
-  buildingId            Int      @map("buildingId")
-  date                  DateTime @map("date")
-  responsibleId         String   @map("responsibleId")
-  rainfallIndex         Decimal? @map("rainfallIndex")
-  weekDay               String?  @map("weekDay")
-  notes                 String?  @map("notes")
-  createdBy             String?  @map("createdBy")
-  createdAt             DateTime @default(now()) @map("createdAt")
-  modifiedBy            String?  @map("modifiedBy")
-  modifiedAt            DateTime? @map("modifiedAt")
-
-  // Dados JSON para turnos, tarefas, ocorrências, equipes e equipamentos
-  shifts                Json?    @map("shifts")
-  plannedTasks          Json?    @map("plannedTasks")
-  detachedTasks         Json?    @map("detachedTasks")
-  events                Json?    @map("events")
-  crews                 Json?    @map("crews")
-  equipments            Json?    @map("equipments")
-  attachments           Json?    @map("attachments")
-
-  @@index([buildingId])
-  @@index([date])
-  @@index([constructionDailyId])
-  @@map("diarios_obra")
-}
-
-model TipoOcorrencia {
-  id          Int     @id @map("id")
-  description String  @map("description")
-  isActive    Boolean @default(true) @map("isActive")
-
-  @@index([isActive])
-  @@map("tipos_ocorrencia")
-}
-
-model TipoDiarioObra {
-  id          Int     @id @map("id")
-  description String  @map("description")
-  isActive    Boolean @default(true) @map("isActive")
-  type        String  @map("type") // Event, Crew, Equipment
-
-  @@index([isActive])
-  @@index([type])
-  @@map("tipos_diario_obra")
-}
-
-model AtivoFixo {
-  id                            Int      @id @map("patrimonyId")
-  detail                        String?  @map("detail")
-  observation                   String?  @map("observation")
-  costCenter                    Int?     @map("costCenter")
-  situation                     String?  @map("situation")
-  preservation                  String?  @map("preservation")
-  propertyRegistration          String?  @map("propertyRegistration")
-  landRegistration              String?  @map("landRegistration")
-  previousOswner                String?  @map("previousOswner")
-  privateArea                   Decimal? @map("privateArea")
-  commonArea                    Decimal? @map("commonArea")
-  address                       String?  @map("address")
-  addressNumber                 String?  @map("addressNumber")
-  addressComplement             String?  @map("addressComplement")
-  neighborhood                  String?  @map("neighborhood")
-  city                          String?  @map("city")
-  postalCode                    String?  @map("postalCode")
-  incorporationForm             String?  @map("incorporationForm")
-  incorporationDate             DateTime? @map("incorporationDate")
-  incorporationValue            Decimal? @map("incorporationValue")
-  accountancyIncorporationAccount String? @map("accountancyIncorporationAccount")
-  accountancyIdentity           String?  @map("accountancyIdentity")
-  accountancyOrigin             String?  @map("accountancyOrigin")
-  accountancyUsageIndicator     String?  @map("accountancyUsageIndicator")
-  depreciationInitialDate       DateTime? @map("depreciationInitialDate")
-  depreciationDebitAccount      String?  @map("depreciationDebitAccount")
-  depreciationCreditAccount     String?  @map("depreciationCreditAccount")
-  depreciationValue             Int?     @map("depreciationValue")
-  depreciationLastDate          DateTime? @map("depreciationLastDate")
-  depreciationActualValue       Decimal? @map("depreciationActualValue")
-  createdAt                     DateTime @default(now()) @map("createdAt")
-  updatedAt                     DateTime @updatedAt @map("updatedAt")
-
-  @@index([costCenter])
-  @@index([situation])
-  @@index([incorporationDate])
-  @@map("ativos_fixos")
 }
 
 model Webhook {
@@ -664,92 +313,4 @@ model Webhook {
 
   @@index([url])
   @@map("webhooks")
-}
-
-model MedicaoContrato {
-  id                          Int      @id @default(autoincrement()) @map("id")
-  documentId                  String   @map("documentId")
-  contractNumber              String   @map("contractNumber")
-  buildingId                  Int      @map("buildingId")
-  measurementNumber           Int      @map("measurementNumber")
-  authorized                  Boolean  @default(false) @map("authorized")
-  statusApproval              String   @map("statusApproval")
-  notes                       String?  @map("notes")
-  responsibleId               String?  @map("responsibleId")
-  responsibleName             String?  @map("responsibleName")
-  consistent                  Boolean  @default(false) @map("consistent")
-  measurementDate             DateTime @map("measurementDate")
-  dueDate                     DateTime? @map("dueDate")
-  materialCost                Decimal? @map("materialCost")
-  laborCost                   Decimal? @map("laborCost")
-  measuredTotal               Decimal? @map("measuredTotal")
-  indexesPriceChange          Decimal? @map("indexesPriceChange")
-  directBillingValue          Decimal? @map("directBillingValue")
-  subtotal                    Decimal? @map("subtotal")
-  securityDepositValue        Decimal? @map("securityDepositValue")
-  exchangeValue               Decimal? @map("exchangeValue")
-  earnestMoneyValue           Decimal? @map("earnestMoneyValue")
-  discountsValue              Decimal? @map("discountsValue")
-  taxValue                    Decimal? @map("taxValue")
-  netValue                    Decimal? @map("netValue")
-  contractSupplierId          Int?     @map("contractSupplierId")
-  contractCustomerId          Int?     @map("contractCustomerId")
-  released                    Boolean  @default(false) @map("released")
-  finalized                   Boolean  @default(false) @map("finalized")
-  createdAt                   DateTime @default(now()) @map("createdAt")
-  updatedAt                   DateTime @updatedAt @map("updatedAt")
-
-  // Dados JSON para apropriações
-  buildingAppropriations      Json?    @map("buildingAppropriations")
-
-  @@index([documentId, contractNumber, buildingId, measurementNumber])
-  @@index([measurementDate])
-  @@index([contractSupplierId])
-  @@index([contractCustomerId])
-  @@map("medicoes_contrato")
-}
-
-model AnexoMedicaoContrato {
-  id                Int      @id @default(autoincrement()) @map("id")
-  documentId        String   @map("documentId")
-  buildingId        Int      @map("buildingId")
-  contractNumber    String   @map("contractNumber")
-  measurementNumber Int      @map("measurementNumber")
-  attachmentNumber  Int      @map("attachmentNumber")
-  name              String   @map("name")
-  description       String?  @map("description")
-  createdAt         DateTime @default(now()) @map("createdAt")
-  updatedAt         DateTime @updatedAt @map("updatedAt")
-
-  @@index([documentId, contractNumber, buildingId, measurementNumber])
-  @@index([attachmentNumber])
-  @@map("anexos_medicao_contrato")
-}
-
-model ExtratoConta {
-  id                   Int      @id @default(autoincrement()) @map("id")
-  value                Decimal  @map("value")
-  date                 DateTime @map("date")
-  documentNumber       String?  @map("documentNumber")
-  description          String?  @map("description")
-  documentId           String?  @map("documentId")
-  type                 String   @map("type") // Income ou Expense
-  reconciliationDate   DateTime? @map("reconciliationDate")
-  billId               Int?     @map("billId")
-  installmentNumber    Int?     @map("installmentNumber")
-  statementOrigin      String?  @map("statementOrigin")
-  statementType        String?  @map("statementType")
-  statementTypeNotes   String?  @map("statementTypeNotes")
-  createdAt            DateTime @default(now()) @map("createdAt")
-  updatedAt            DateTime @updatedAt @map("updatedAt")
-
-  // Dados JSON para apropriações financeiras
-  budgetCategories     Json?    @map("budgetCategories")
-  links                Json?    @map("links")
-
-  @@index([date])
-  @@index([type])
-  @@index([billId])
-  @@index([reconciliationDate])
-  @@map("extratos_conta")
 }
