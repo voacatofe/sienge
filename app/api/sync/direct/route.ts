@@ -291,13 +291,22 @@ async function processItem(
 
     if (existingRecord) {
       // Atualizar registro existente
+      // Criar cópia dos dados SEM a primary key para o UPDATE
+      const updateData: any = {};
+      for (const [key, value] of Object.entries(validatedData)) {
+        // Não incluir a primary key no data do update
+        if (key !== mapping.primaryKey && key !== 'id') {
+          updateData[key] = value;
+        }
+      }
+
       await executePrismaOperation(mapping.model, 'update', {
         where: whereClause,
-        data: validatedData,
+        data: updateData,
       });
       return { status: 'updated' };
     } else {
-      // Criar novo registro
+      // Criar novo registro - mantém todos os campos incluindo ID
       await executePrismaOperation(mapping.model, 'create', {
         data: validatedData,
       });
