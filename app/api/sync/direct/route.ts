@@ -8,6 +8,7 @@ import {
   apiError,
   validateRequiredParams,
 } from '@/lib/api-response';
+import { getSaoPauloNow } from '@/lib/date-helper';
 
 const syncLogger = createContextLogger('SYNC_DIRECT');
 
@@ -610,6 +611,7 @@ export async function POST(request: NextRequest) {
     const syncLog = await prisma.syncLog.create({
       data: {
         entityType: endpoint,
+        syncStartedAt: getSaoPauloNow(),
         status: 'in_progress',
         recordsProcessed: 0,
         recordsInserted: 0,
@@ -626,7 +628,7 @@ export async function POST(request: NextRequest) {
     await prisma.syncLog.update({
       where: { id: syncLog.id },
       data: {
-        syncCompletedAt: new Date(),
+        syncCompletedAt: getSaoPauloNow(),
         recordsProcessed: data.length,
         recordsInserted: result.inserted,
         recordsUpdated: result.updated,

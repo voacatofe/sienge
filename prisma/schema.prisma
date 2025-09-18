@@ -1000,7 +1000,7 @@ model CentroCusto {
 model PlanoFinanceiro {
   id                       String    @id @map("id")
   nome                     String    @map("nome")
-  tipoConta                String?   @map("tipo_conta") // T ou R
+  tipoConta                String?   @map("tipo_conta") // T, R ou M
   flRedutora               String?   @map("fl_redutora") // S ou N
   flAtiva                  String?   @map("fl_ativa") // S ou N
   flAdiantamento           String?   @map("fl_adiantamento") // S ou N

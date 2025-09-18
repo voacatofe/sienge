@@ -1,6 +1,8 @@
 // Configuração de mapeamentos para endpoints do Sienge
 // Para adicionar um novo endpoint, basta adicionar uma nova entrada neste objeto
 
+import { getSaoPauloNow } from '@/lib/date-helper';
+
 export interface FieldMapping {
   field?: string;
   transform?: (value: any) => any;
@@ -35,7 +37,10 @@ export const ENDPOINT_MAPPINGS: Record<string, EndpointMapping> = {
         field: 'dataCadastro',
         transform: (val: any) => (val ? new Date(val) : new Date()),
       },
-      updatedAt: { field: 'dataAtualizacao', transform: () => new Date() },
+      updatedAt: {
+        field: 'dataAtualizacao',
+        transform: () => getSaoPauloNow(),
+      },
       socialName: 'nomeSocial',
       numberIdentityCard: 'rg',
       birthDate: {
@@ -212,7 +217,10 @@ export const ENDPOINT_MAPPINGS: Record<string, EndpointMapping> = {
         field: 'dataCadastro',
         transform: (val: any) => (val ? new Date(val) : new Date()),
       },
-      updatedAt: { field: 'dataAtualizacao', transform: () => new Date() },
+      updatedAt: {
+        field: 'dataAtualizacao',
+        transform: () => getSaoPauloNow(),
+      },
     },
   },
 
@@ -329,7 +337,10 @@ export const ENDPOINT_MAPPINGS: Record<string, EndpointMapping> = {
         field: 'dataCadastro',
         transform: () => new Date(),
       },
-      updatedAt: { field: 'dataAtualizacao', transform: () => new Date() },
+      updatedAt: {
+        field: 'dataAtualizacao',
+        transform: () => getSaoPauloNow(),
+      },
     },
   },
 
@@ -529,7 +540,10 @@ export const ENDPOINT_MAPPINGS: Record<string, EndpointMapping> = {
         field: 'dataCriacao',
         transform: (val: any) => (val ? new Date(val) : new Date()),
       },
-      updatedAt: { field: 'dataAtualizacao', transform: () => new Date() },
+      updatedAt: {
+        field: 'dataAtualizacao',
+        transform: () => getSaoPauloNow(),
+      },
     },
   },
 
@@ -575,7 +589,10 @@ export const ENDPOINT_MAPPINGS: Record<string, EndpointMapping> = {
         field: 'dataCriacao',
         transform: (val: any) => (val ? new Date(val) : new Date()),
       },
-      updatedAt: { field: 'dataAtualizacao', transform: () => new Date() },
+      updatedAt: {
+        field: 'dataAtualizacao',
+        transform: () => getSaoPauloNow(),
+      },
     },
   },
 
@@ -718,7 +735,10 @@ export const ENDPOINT_MAPPINGS: Record<string, EndpointMapping> = {
         field: 'dataCriacao',
         transform: (val: any) => (val ? new Date(val) : new Date()),
       },
-      updatedAt: { field: 'dataAtualizacao', transform: () => new Date() },
+      updatedAt: {
+        field: 'dataAtualizacao',
+        transform: () => getSaoPauloNow(),
+      },
     },
   },
 };

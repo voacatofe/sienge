@@ -149,7 +149,53 @@ Use `task-master next` to find the next available task and `task-master set-stat
 
 ## Testing Approach
 
-While no test framework is currently configured, testing should focus on:
+### Test Organization
+
+**IMPORTANT: All tests must be created and organized in the centralized `tests/` directory structure:**
+
+```
+tests/
+├── api/           # Jest/TypeScript unit tests for API routes
+├── scripts/       # Node.js/TypeScript integration test scripts
+├── python/        # Python API test scripts
+├── looker-studio/ # Google Apps Script tests
+├── data/          # Test data files (JSON, mock data)
+└── sql/           # SQL test scripts
+```
+
+### Testing Framework
+
+Jest is configured via `jest.config.js` to run tests from the `tests/` directory:
+
+- Pattern: `<rootDir>/tests/**/*.test.ts` and `<rootDir>/tests/**/*.test.tsx`
+- Environment: `jest-environment-node`
+- Setup: `jest.setup.js` for test configuration
+
+### Test Categories
+
+1. **API Route Tests** (`tests/api/`) - Jest unit tests with mocked dependencies:
+   - Authentication and credentials validation
+   - Sync endpoint functionality
+   - Health monitoring and metrics
+   - Error handling and edge cases
+
+2. **Integration Scripts** (`tests/scripts/`) - End-to-end testing scripts:
+   - Complete sync workflows
+   - Database operation validation
+   - New endpoint verification
+   - Error recovery scenarios
+
+3. **External API Tests** (`tests/python/`) - Python scripts for Sienge API testing:
+   - Endpoint availability and response validation
+   - Authentication flow testing
+   - Rate limiting verification
+
+4. **Test Data** (`tests/data/`) - Centralized test datasets:
+   - Mock API responses
+   - Sample database records
+   - Test configuration files
+
+### Key Testing Focus Areas
 
 1. API integration reliability (mocked Sienge responses)
 2. Data transformation accuracy (endpoint mappings)

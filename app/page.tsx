@@ -3,11 +3,15 @@
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { PowerBILinksSection } from './components/PowerBILinksSection';
+import { SyncLogsHistory } from './components/SyncLogsHistory';
 
 // Carregar ConfigurationSection dinamicamente para evitar problemas de SSR
 const ConfigurationSection = dynamic(
-  () => import('./components/ConfigurationSection').then(mod => ({ default: mod.ConfigurationSection })),
-  { 
+  () =>
+    import('./components/ConfigurationSection').then(mod => ({
+      default: mod.ConfigurationSection,
+    })),
+  {
     ssr: false,
     loading: () => (
       <div className="bg-white rounded-lg shadow-md p-6 mb-8">
@@ -19,16 +23,17 @@ const ConfigurationSection = dynamic(
           <div className="h-10 bg-gray-200 rounded"></div>
         </div>
       </div>
-    )
+    ),
   }
 );
 
 export default function Home() {
   const [syncCompleted, setSyncCompleted] = useState(false);
   const [syncResults, setSyncResults] = useState<any[]>([]);
+  const [isConfigured, setIsConfigured] = useState(false);
 
-  const handleConfigurationChange = () => {
-    // Callback para quando a configuração mudar (se necessário no futuro)
+  const handleConfigurationChange = (configured: boolean) => {
+    setIsConfigured(configured);
   };
 
   const handleSyncCompleted = (results: any[]) => {
@@ -55,6 +60,9 @@ export default function Home() {
           onConfigurationChange={handleConfigurationChange}
           onSyncCompleted={handleSyncCompleted}
         />
+
+        {/* Sync Logs History Section - aparece quando configurado */}
+        <SyncLogsHistory isVisible={isConfigured} />
 
         {/* Power BI Links Section */}
         {syncCompleted && <PowerBILinksSection syncResults={syncResults} />}
