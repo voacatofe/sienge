@@ -1,8 +1,8 @@
 const cron = require('node-cron');
 
 // Configuração
-const APP_URL = process.env.APP_URL || 'http://localhost:3000';
-const SYNC_TIME = process.env.SYNC_TIME || '0 2 * * *'; // 2:00 AM todos os dias
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+const SYNC_TIME = process.env.SYNC_SCHEDULE || '0 2 * * *'; // 2:00 AM todos os dias
 
 console.log('🚀 Iniciando sistema de sincronização diária...');
 console.log(`📅 Agendado para: ${SYNC_TIME} (formato cron)`);
