@@ -1,0 +1,600 @@
+{
+  "timestamp": "2025-09-18T06:35:58.462036",
+  "subdomain": "abf",
+  "stats": {
+    "total_tested": 42,
+    "successful": 19,
+    "failed_404": 5,
+    "failed_403": 17,
+    "failed_400": 0,
+    "failed_401": 0,
+    "failed_other": 1,
+    "total_records": 70
+  },
+  "results": [
+    {
+      "name": "Clientes",
+      "endpoint": "/customers",
+      "url": "https://api.sienge.com.br/abf/public/api/v1/customers",
+      "params": {
+        "limit": 5,
+        "offset": 0
+      },
+      "status": 200,
+      "records": 5,
+      "error": null,
+      "response_structure": "results + metadata",
+      "total_available": 2624
+    },
+    {
+      "name": "Empresas",
+      "endpoint": "/companies",
+      "url": "https://api.sienge.com.br/abf/public/api/v1/companies",
+      "params": {
+        "limit": 5,
+        "offset": 0
+      },
+      "status": 200,
+      "records": 5,
+      "error": null,
+      "response_structure": "results + metadata",
+      "total_available": 16
+    },
+    {
+      "name": "Empreendimentos",
+      "endpoint": "/enterprises",
+      "url": "https://api.sienge.com.br/abf/public/api/v1/enterprises",
+      "params": {
+        "limit": 5,
+        "offset": 0
+      },
+      "status": 200,
+      "records": 5,
+      "error": null,
+      "response_structure": "results + metadata",
+      "total_available": 217
+    },
+    {
+      "name": "Unidades",
+      "endpoint": "/units",
+      "url": "https://api.sienge.com.br/abf/public/api/v1/units",
+      "params": {
+        "limit": 5,
+        "offset": 0
+      },
+      "status": 200,
+      "records": 5,
+      "error": null,
+      "response_structure": "results + metadata",
+      "total_available": 2669
+    },
+    {
+      "name": "Contratos de Venda",
+      "endpoint": "/sales-contracts",
+      "url": "https://api.sienge.com.br/abf/public/api/v1/sales-contracts",
+      "params": {
+        "limit": 5,
+        "offset": 0
+      },
+      "status": 200,
+      "records": 5,
+      "error": null,
+      "response_structure": "results + metadata",
+      "total_available": 2149
+    },
+    {
+      "name": "Credores",
+      "endpoint": "/creditors",
+      "url": "https://api.sienge.com.br/abf/public/api/v1/creditors",
+      "params": {
+        "limit": 5,
+        "offset": 0
+      },
+      "status": 200,
+      "records": 5,
+      "error": null,
+      "response_structure": "results + metadata",
+      "total_available": 7637
+    },
+    {
+      "name": "Tipos de Cliente",
+      "endpoint": "/customer-types",
+      "url": "https://api.sienge.com.br/abf/public/api/v1/customer-types",
+      "params": {
+        "limit": 5,
+        "offset": 0
+      },
+      "status": 403,
+      "records": 0,
+      "error": "Forbidden - No permission",
+      "response_structure": null
+    },
+    {
+      "name": "Indexadores",
+      "endpoint": "/indexers",
+      "url": "https://api.sienge.com.br/abf/public/api/v1/indexers",
+      "params": {
+        "limit": 5,
+        "offset": 0
+      },
+      "status": 403,
+      "records": 0,
+      "error": "Forbidden - No permission",
+      "response_structure": null
+    },
+    {
+      "name": "Webhooks",
+      "endpoint": "/hooks",
+      "url": "https://api.sienge.com.br/abf/public/api/v1/hooks",
+      "params": {
+        "limit": 5,
+        "offset": 0
+      },
+      "status": 200,
+      "records": 5,
+      "error": null,
+      "response_structure": "results + metadata",
+      "total_available": 15
+    },
+    {
+      "name": "Sites",
+      "endpoint": "/sites",
+      "url": "https://api.sienge.com.br/abf/public/api/v1/sites",
+      "params": {
+        "limit": 5,
+        "offset": 0
+      },
+      "status": 403,
+      "records": 0,
+      "error": "Forbidden - No permission",
+      "response_structure": null
+    },
+    {
+      "name": "Contas Correntes",
+      "endpoint": "/checking-accounts",
+      "url": "https://api.sienge.com.br/abf/public/api/v1/checking-accounts",
+      "params": {
+        "limit": 5,
+        "offset": 0
+      },
+      "status": 403,
+      "records": 0,
+      "error": "Forbidden - No permission",
+      "response_structure": null
+    },
+    {
+      "name": "Centros de Custo",
+      "endpoint": "/cost-centers",
+      "url": "https://api.sienge.com.br/abf/public/api/v1/cost-centers",
+      "params": {
+        "limit": 5,
+        "offset": 0
+      },
+      "status": 403,
+      "records": 0,
+      "error": "Forbidden - No permission",
+      "response_structure": null
+    },
+    {
+      "name": "Títulos a Pagar",
+      "endpoint": "/bills",
+      "url": "https://api.sienge.com.br/abf/public/api/v1/bills",
+      "params": {
+        "startDate": "2025-08-19",
+        "endDate": "2025-09-18",
+        "limit": 5,
+        "offset": 0
+      },
+      "status": 200,
+      "records": 5,
+      "error": null,
+      "response_structure": "results + metadata",
+      "total_available": 2387
+    },
+    {
+      "name": "Extrato de Contas",
+      "endpoint": "/accounts-statements",
+      "url": "https://api.sienge.com.br/abf/public/api/v1/accounts-statements",
+      "params": {
+        "startDate": "2025-08-19",
+        "endDate": "2025-09-18",
+        "limit": 5,
+        "offset": 0
+      },
+      "status": 200,
+      "records": 5,
+      "error": null,
+      "response_structure": "results + metadata",
+      "total_available": 5061
+    },
+    {
+      "name": "Saldos de Contas",
+      "endpoint": "/accounts-balances",
+      "url": "https://api.sienge.com.br/abf/public/api/v1/accounts-balances",
+      "params": {
+        "balanceDate": "2025-09-18",
+        "limit": 5,
+        "offset": 0
+      },
+      "status": 403,
+      "records": 0,
+      "error": "Forbidden - No permission",
+      "response_structure": null
+    },
+    {
+      "name": "Income (Bulk)",
+      "endpoint": "/income",
+      "url": "https://api.sienge.com.br/abf/public/api/bulk-data/v1/income",
+      "params": {
+        "startDate": "2025-08-19",
+        "endDate": "2025-09-18",
+        "selectionType": "D",
+        "limit": 5,
+        "offset": 0
+      },
+      "status": 200,
+      "records": 0,
+      "error": null,
+      "response_structure": "object with keys: ['data']"
+    },
+    {
+      "name": "Income (API V1)",
+      "endpoint": "/income",
+      "url": "https://api.sienge.com.br/abf/public/api/v1/income",
+      "params": {
+        "startDate": "2025-08-19",
+        "endDate": "2025-09-18",
+        "selectionType": "D",
+        "limit": 5,
+        "offset": 0
+      },
+      "status": 404,
+      "records": 0,
+      "error": "Not found",
+      "response_structure": null
+    },
+    {
+      "name": "Movimentos Bancários (Bulk)",
+      "endpoint": "/bank-movement",
+      "url": "https://api.sienge.com.br/abf/public/api/bulk-data/v1/bank-movement",
+      "params": {
+        "startDate": "2025-08-19",
+        "endDate": "2025-09-18",
+        "limit": 5,
+        "offset": 0
+      },
+      "status": 200,
+      "records": 0,
+      "error": null,
+      "response_structure": "object with keys: ['data']"
+    },
+    {
+      "name": "Extrato Cliente (Bulk)",
+      "endpoint": "/customer-extract-history",
+      "url": "https://api.sienge.com.br/abf/public/api/bulk-data/v1/customer-extract-history",
+      "params": {
+        "startDueDate": "2025-08-19",
+        "endDueDate": "2025-09-18",
+        "limit": 5,
+        "offset": 0
+      },
+      "status": 200,
+      "records": 0,
+      "error": null,
+      "response_structure": "object with keys: ['data']"
+    },
+    {
+      "name": "Vendas (Bulk)",
+      "endpoint": "/sales",
+      "url": "https://api.sienge.com.br/abf/public/api/bulk-data/v1/sales",
+      "params": {
+        "enterpriseId": 1,
+        "createdAfter": "2025-08-19",
+        "createdBefore": "2025-09-18",
+        "situation": "SOLD",
+        "limit": 5,
+        "offset": 0
+      },
+      "status": 200,
+      "records": 0,
+      "error": null,
+      "response_structure": "object with keys: ['data']"
+    },
+    {
+      "name": "Comissões",
+      "endpoint": "/commissions",
+      "url": "https://api.sienge.com.br/abf/public/api/v1/commissions",
+      "params": {
+        "offset": 0,
+        "limit": 5
+      },
+      "status": 403,
+      "records": 0,
+      "error": "Forbidden - No permission",
+      "response_structure": null
+    },
+    {
+      "name": "Fechamento Contábil",
+      "endpoint": "/closingaccountancy",
+      "url": "https://api.sienge.com.br/abf/public/api/v1/closingaccountancy",
+      "params": {
+        "monthYear": "09/2025",
+        "limit": 5,
+        "offset": 0
+      },
+      "status": 403,
+      "records": 0,
+      "error": "Forbidden - No permission",
+      "response_structure": null
+    },
+    {
+      "name": "Lançamentos Contábeis",
+      "endpoint": "/accountancy/entries",
+      "url": "https://api.sienge.com.br/abf/public/api/v1/accountancy/entries",
+      "params": {
+        "companyId": 1,
+        "limit": 5,
+        "offset": 0
+      },
+      "status": 403,
+      "records": 0,
+      "error": "Forbidden - No permission",
+      "response_structure": null
+    },
+    {
+      "name": "Contas Contábeis",
+      "endpoint": "/accountancy/accounts",
+      "url": "https://api.sienge.com.br/abf/public/api/v1/accountancy/accounts",
+      "params": {
+        "limit": 5,
+        "offset": 0
+      },
+      "status": 403,
+      "records": 0,
+      "error": "Forbidden - No permission",
+      "response_structure": null
+    },
+    {
+      "name": "Bens Imóveis",
+      "endpoint": "/patrimony/fixed",
+      "url": "https://api.sienge.com.br/abf/public/api/v1/patrimony/fixed",
+      "params": {
+        "limit": 5,
+        "offset": 0
+      },
+      "status": 403,
+      "records": 0,
+      "error": "Forbidden - No permission",
+      "response_structure": null
+    },
+    {
+      "name": "Bens Móveis",
+      "endpoint": "/patrimony/movable",
+      "url": "https://api.sienge.com.br/abf/public/api/v1/patrimony/movable",
+      "params": {
+        "limit": 5,
+        "offset": 0
+      },
+      "status": 403,
+      "records": 0,
+      "error": "Forbidden - No permission",
+      "response_structure": null
+    },
+    {
+      "name": "Diário de Obra",
+      "endpoint": "/construction-daily-report",
+      "url": "https://api.sienge.com.br/abf/public/api/v1/construction-daily-report",
+      "params": {
+        "limit": 5,
+        "offset": 0
+      },
+      "status": 403,
+      "records": 0,
+      "error": "Forbidden - No permission",
+      "response_structure": null
+    },
+    {
+      "name": "Tipos de Diário",
+      "endpoint": "/construction-daily-report/types",
+      "url": "https://api.sienge.com.br/abf/public/api/v1/construction-daily-report/types",
+      "params": {
+        "limit": 5,
+        "offset": 0
+      },
+      "status": 403,
+      "records": 0,
+      "error": "Forbidden - No permission",
+      "response_structure": null
+    },
+    {
+      "name": "Tipos de Ocorrência",
+      "endpoint": "/construction-daily-report/event-type",
+      "url": "https://api.sienge.com.br/abf/public/api/v1/construction-daily-report/event-type",
+      "params": {
+        "limit": 5,
+        "offset": 0
+      },
+      "status": 403,
+      "records": 0,
+      "error": "Forbidden - No permission",
+      "response_structure": null
+    },
+    {
+      "name": "Registro de Medições",
+      "endpoint": "/building-projects/progress-logs",
+      "url": "https://api.sienge.com.br/abf/public/api/v1/building-projects/progress-logs",
+      "params": {
+        "limit": 5,
+        "offset": 0
+      },
+      "status": 403,
+      "records": 0,
+      "error": "Forbidden - No permission",
+      "response_structure": null
+    },
+    {
+      "name": "Contratos Suprimento",
+      "endpoint": "/supply-contracts/all",
+      "url": "https://api.sienge.com.br/abf/public/api/v1/supply-contracts/all",
+      "params": {
+        "limit": 5,
+        "offset": 0
+      },
+      "status": 200,
+      "records": 5,
+      "error": null,
+      "response_structure": "results + metadata",
+      "total_available": 1541
+    },
+    {
+      "name": "Medições Contratos",
+      "endpoint": "/supply-contracts/measurements/all",
+      "url": "https://api.sienge.com.br/abf/public/api/v1/supply-contracts/measurements/all",
+      "params": {
+        "limit": 5,
+        "offset": 0
+      },
+      "status": 200,
+      "records": 5,
+      "error": null,
+      "response_structure": "results + metadata",
+      "total_available": 7917
+    },
+    {
+      "name": "Anexos Medições",
+      "endpoint": "/supply-contracts/measurements/attachments/all",
+      "url": "https://api.sienge.com.br/abf/public/api/v1/supply-contracts/measurements/attachments/all",
+      "params": {
+        "measurementStartDate": "2025-08-19",
+        "measurementEndDate": "2025-09-18",
+        "limit": 5,
+        "offset": 0
+      },
+      "status": 200,
+      "records": 5,
+      "error": null,
+      "response_structure": "results + metadata",
+      "total_available": 5
+    },
+    {
+      "name": "Locação de Imóveis",
+      "endpoint": "/property-rental",
+      "url": "https://api.sienge.com.br/abf/public/api/v1/property-rental",
+      "params": {
+        "limit": 5,
+        "offset": 0
+      },
+      "status": 403,
+      "records": 0,
+      "error": "Forbidden - No permission",
+      "response_structure": null
+    },
+    {
+      "name": "Contas a Receber",
+      "endpoint": "/accounts-receivable",
+      "url": "https://api.sienge.com.br/abf/public/api/v1/accounts-receivable",
+      "params": {
+        "limit": 5,
+        "offset": 0
+      },
+      "status": 404,
+      "records": 0,
+      "error": "Not found",
+      "response_structure": null
+    },
+    {
+      "name": "Características Unidades",
+      "endpoint": "/units/characteristics",
+      "url": "https://api.sienge.com.br/abf/public/api/v1/units/characteristics",
+      "params": {
+        "limit": 5,
+        "offset": 0
+      },
+      "status": 200,
+      "records": 0,
+      "error": null,
+      "response_structure": "results + metadata",
+      "total_available": 0
+    },
+    {
+      "name": "Situações Unidades",
+      "endpoint": "/units/situations",
+      "url": "https://api.sienge.com.br/abf/public/api/v1/units/situations",
+      "params": {
+        "limit": 5,
+        "offset": 0
+      },
+      "status": 200,
+      "records": 5,
+      "error": null,
+      "response_structure": "results + metadata",
+      "total_available": 5
+    },
+    {
+      "name": "Projetos",
+      "endpoint": "/projects",
+      "url": "https://api.sienge.com.br/abf/public/api/v1/projects",
+      "params": {
+        "limit": 5,
+        "offset": 0
+      },
+      "status": 404,
+      "records": 0,
+      "error": "Not found",
+      "response_structure": null
+    },
+    {
+      "name": "Notas Eletrônicas",
+      "endpoint": "/eletronic-invoice-bills",
+      "url": "https://api.sienge.com.br/abf/public/api/v1/eletronic-invoice-bills",
+      "params": {
+        "limit": 5,
+        "offset": 0
+      },
+      "status": 405,
+      "records": 0,
+      "error": "Status 405",
+      "response_structure": null
+    },
+    {
+      "name": "Condomínios",
+      "endpoint": "/condominiums",
+      "url": "https://api.sienge.com.br/abf/public/api/v1/condominiums",
+      "params": {
+        "limit": 5,
+        "offset": 0
+      },
+      "status": 404,
+      "records": 0,
+      "error": "Not found",
+      "response_structure": null
+    },
+    {
+      "name": "Portadores",
+      "endpoint": "/bearers",
+      "url": "https://api.sienge.com.br/abf/public/api/v1/bearers",
+      "params": {
+        "limit": 5,
+        "offset": 0
+      },
+      "status": 200,
+      "records": 5,
+      "error": null,
+      "response_structure": "results + metadata",
+      "total_available": 5
+    },
+    {
+      "name": "Documentos",
+      "endpoint": "/documents",
+      "url": "https://api.sienge.com.br/abf/public/api/v1/documents",
+      "params": {
+        "limit": 5,
+        "offset": 0
+      },
+      "status": 404,
+      "records": 0,
+      "error": "Not found",
+      "response_structure": null
+    }
+  ]
+}

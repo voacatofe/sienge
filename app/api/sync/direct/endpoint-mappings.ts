@@ -479,6 +479,212 @@ export const ENDPOINT_MAPPINGS: Record<string, EndpointMapping> = {
       events: { field: 'events', transform: (val: any) => val || [] },
     },
   },
+
+  bearers: {
+    model: 'portador',
+    primaryKey: 'id',
+    fieldMapping: {
+      id: 'id',
+      name: 'nome',
+    },
+  },
+
+  creditors: {
+    model: 'credor',
+    primaryKey: 'id',
+    fieldMapping: {
+      id: 'id',
+      name: 'nome',
+      fantasyName: 'nomeFantasia',
+      cpfCnpj: 'cpfCnpj',
+      email: 'email',
+      phone: 'telefone',
+      phone2: 'telefone2',
+      address: 'endereco',
+      number: 'numero',
+      complement: 'complemento',
+      district: 'bairro',
+      city: 'cidade',
+      state: 'estado',
+      postalCode: 'cep',
+      bankCode: 'codigoBanco',
+      agency: 'agencia',
+      account: 'conta',
+      accountDigit: 'digitoConta',
+      accountType: 'tipoConta',
+      note: 'observacao',
+      active: { field: 'ativo', transform: (val: any) => val !== false },
+      createdAt: {
+        field: 'dataCriacao',
+        transform: (val: any) => (val ? new Date(val) : new Date()),
+      },
+      updatedAt: { field: 'dataAtualizacao', transform: () => new Date() },
+    },
+  },
+
+  bills: {
+    model: 'tituloPagar',
+    primaryKey: 'id',
+    fieldMapping: {
+      id: 'id',
+      companyId: 'empresaId',
+      bearerId: 'portadorId',
+      creditorId: 'credorId',
+      documentNumber: 'numeroDocumento',
+      documentType: 'tipoDocumento',
+      issueDate: {
+        field: 'dataEmissao',
+        transform: (val: any) => (val ? new Date(val) : null),
+      },
+      dueDate: {
+        field: 'dataVencimento',
+        transform: (val: any) => (val ? new Date(val) : null),
+      },
+      paymentDate: {
+        field: 'dataPagamento',
+        transform: (val: any) => (val ? new Date(val) : null),
+      },
+      originalValue: {
+        field: 'valorOriginal',
+        transform: (val: any) => (val ? parseFloat(val) : 0),
+      },
+      discountValue: {
+        field: 'valorDesconto',
+        transform: (val: any) => (val ? parseFloat(val) : 0),
+      },
+      interestValue: {
+        field: 'valorJuros',
+        transform: (val: any) => (val ? parseFloat(val) : 0),
+      },
+      paidValue: {
+        field: 'valorPago',
+        transform: (val: any) => (val ? parseFloat(val) : 0),
+      },
+      currentValue: {
+        field: 'valorAtual',
+        transform: (val: any) => (val ? parseFloat(val) : 0),
+      },
+      status: 'status',
+      barcode: 'codigoBarras',
+      note: 'observacao',
+      costCenterId: 'centroCustoId',
+      accountId: 'contaId',
+      categoryId: 'categoriaId',
+      paymentMethod: 'formaPagamento',
+      installments: {
+        field: 'parcelas',
+        transform: (val: any) => val || [],
+      },
+      attachments: {
+        field: 'anexos',
+        transform: (val: any) => val || [],
+      },
+      createdAt: {
+        field: 'dataCriacao',
+        transform: (val: any) => (val ? new Date(val) : new Date()),
+      },
+      updatedAt: { field: 'dataAtualizacao', transform: () => new Date() },
+    },
+  },
+
+  'accounts-statements': {
+    model: 'extratoContas',
+    primaryKey: 'id',
+    fieldMapping: {
+      id: 'id',
+      companyId: 'empresaId',
+      accountId: 'contaId',
+      date: {
+        field: 'dataMovimento',
+        transform: (val: any) => (val ? new Date(val) : null),
+      },
+      description: 'descricao',
+      documentNumber: 'numeroDocumento',
+      value: {
+        field: 'valor',
+        transform: (val: any) => (val ? parseFloat(val) : 0),
+      },
+      movementType: 'tipoMovimento',
+      category: 'categoria',
+      costCenterId: 'centroCustoId',
+      balance: {
+        field: 'saldo',
+        transform: (val: any) => (val ? parseFloat(val) : 0),
+      },
+      isReconciled: { field: 'conciliado', transform: (val: any) => !!val },
+      reference: 'referencia',
+      payee: 'beneficiario',
+      tags: {
+        field: 'tags',
+        transform: (val: any) => val || [],
+      },
+      createdAt: {
+        field: 'dataCriacao',
+        transform: (val: any) => (val ? new Date(val) : new Date()),
+      },
+      updatedAt: { field: 'dataAtualizacao', transform: () => new Date() },
+    },
+  },
+
+  'supply-contracts': {
+    model: 'contratoSuprimento',
+    primaryKey: 'id',
+    fieldMapping: {
+      id: 'id',
+      companyId: 'empresaId',
+      contractNumber: 'numeroContrato',
+      supplierName: 'nomeFornecedor',
+      supplierId: 'fornecedorId',
+      contractDate: {
+        field: 'dataContrato',
+        transform: (val: any) => (val ? new Date(val) : null),
+      },
+      startDate: {
+        field: 'dataInicio',
+        transform: (val: any) => (val ? new Date(val) : null),
+      },
+      endDate: {
+        field: 'dataFim',
+        transform: (val: any) => (val ? new Date(val) : null),
+      },
+      totalValue: {
+        field: 'valorTotal',
+        transform: (val: any) => (val ? parseFloat(val) : 0),
+      },
+      executedValue: {
+        field: 'valorExecutado',
+        transform: (val: any) => (val ? parseFloat(val) : 0),
+      },
+      remainingValue: {
+        field: 'valorRestante',
+        transform: (val: any) => (val ? parseFloat(val) : 0),
+      },
+      status: 'status',
+      contractType: 'tipoContrato',
+      paymentTerms: 'condicoesPagamento',
+      retentionPercentage: {
+        field: 'percentualRetencao',
+        transform: (val: any) => (val ? parseFloat(val) : 0),
+      },
+      object: 'objeto',
+      note: 'observacao',
+      costCenterId: 'centroCustoId',
+      projectId: 'projetoId',
+      measurements: {
+        field: 'medicoes',
+        transform: (val: any) => val || [],
+      },
+      attachments: {
+        field: 'anexos',
+        transform: (val: any) => val || [],
+      },
+      createdAt: {
+        field: 'dataCriacao',
+        transform: (val: any) => (val ? new Date(val) : new Date()),
+      },
+      updatedAt: { field: 'dataAtualizacao', transform: () => new Date() },
+    },
+  },
 };
 
 // Função utilitária para adicionar novos mapeamentos dinamicamente

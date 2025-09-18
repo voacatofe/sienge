@@ -1,0 +1,1147 @@
+openapi: 3.1.0
+info:
+  title: Sienge API – Endpoints de Consulta Unificados
+  version: 0.2.0
+  description:
+    Esta especificação reúne apenas os principais endpoints de consulta
+    (método GET) de diversos módulos da API do Sienge. Cada path incluído aqui foi
+    extraído de um arquivo OpenAPI individual fornecido pela documentação oficial.
+servers:
+  - url: https://api.sienge.com.br/{SIENGE_SUBDOMAIN}/public/api/v
+    description: Servidor padrão (substituir {SIENGE_SUBDOMAIN} pelo nome do cliente)
+paths:
+  /commissions:
+    get:
+      operationId: getComissions
+      tags:
+        - Parcelas das Comissões
+      summary: Busca as parcelas das comissões por filtro.
+      parameters:
+        - in: query
+          type: integer
+          name: unitId
+          description: O código do id da unidade.
+        - in: query
+          type: integer
+          name: contractId
+          description: O número do contrato a ser filtrado
+        - in: query
+          type: integer
+          name: brokerId
+          description: O número do corretor a ser filtrado
+        - in: query
+          type: integer
+          name: companyId
+          description: O número da empresa a ser filtrada
+        - in: query
+          type: integer
+          name: enterpriseId
+          description: O número do empreendimento a ser filtrado
+        - in: query
+          type: string
+          name: startingDueDate
+          description:
+            'Data inicial de vencimento para filtrar comissões de acordo
+            com a parcela vigente. Formato: yyyy-MM-dd.'
+        - in: query
+          type: string
+          name: endingDueDate
+          description:
+            'Data final de vencimento para filtrar comissões de acordo com
+            a parcela vigente. Formato: yyyy-MM-dd.'
+        - in: query
+          type: integer
+          name: offset
+          required: true
+          description:
+            O número de itens a pular antes de começar a coletar o conjunto
+            de resultados
+        - in: query
+          type: integer
+          name: limit
+          required: true
+          description: O número de itens a serem devolvidos
+        - in: query
+          type: string
+          name: commissionFilterType
+          enum:
+            - ALL
+            - PAID
+            - CANCELLED
+            - AWAITING_AUTHORIZATION
+            - AWAITING_RELEASE
+            - RELEASED
+          description:
+            "Enums:\n  `ALL` - Filtra por todas as comissões.\n  `PAID` -\
+            \ Filtra pelas comissões pagas.\n  `CANCELLED` - Filtra pelas comissões\
+            \ canceladas.\n  `AWAITING_AUTHORIZATION` - Filtra pelas comissões que estão\
+            \ aguardando autorização.\n  `AWAITING_RELEASE` - Filtra pelas comissões\
+            \ que estão aguardando liberação.\n  `RELEASED` - Filtra pelas comissões\
+            \ liberadas."
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Parcelas encontradas
+          schema:
+            $ref: '#/definitions/CommissionGet'
+        '400':
+          description: Requisição mal formada
+          schema:
+            $ref: '#/definitions/ResponseMessage'
+        '404':
+          description: Não encontrado
+          schema:
+            $ref: '#/definitions/ResponseMessage'
+        '500':
+          description: Erro interno no servidor
+          schema:
+            $ref: '#/definitions/ResponseMessage'
+  /building-projects/progress-logs:
+    get:
+      operationId: getBuildingProjectsProgressLogs
+      tags:
+        - Registro de Medição
+      summary: Consulta progressos do Planejamento de Obras.
+      parameters:
+        - in: query
+          name: buildingId
+          description: Código da Obra
+          required: false
+          type: integer
+          format: int32
+        - in: query
+          name: buildingUnitId
+          description:
+            Unidade Construtiva da Obra.  Ao informar uma Unidade Construtiva,
+            o resultado da consulta será somente as Medições que possuirem Itens medidos
+            para a Unidade Construtiva informada. O uso desse parâmetro obriga que seja
+            informado um valor no parâmetro buildingId.
+          required: false
+          type: integer
+          format: int32
+        - in: query
+          name: measurementStartDate
+          description:
+            'Data de início da busca (data da Medição) no formato: yyyy-MM-dd.
+            Exemplo: 2022-03-01'
+          required: false
+          type: string
+        - in: query
+          name: measurementEndDate
+          description:
+            'Data de fim da busca (data da Medição) no formato: yyyy-MM-dd.
+            Exemplo: 2022-03-11'
+          required: false
+          type: string
+        - in: query
+          name: consistent
+          description:
+            Busca somente Medições consistentes quando true ou somente inconsistentes
+            quando false
+          required: false
+          type: boolean
+        - in: query
+          name: limit
+          description:
+            Quantidade máxima de resultados da pesquisa a serem retornados.
+            Valor default é 100 e o valor máximo permitido é 200
+          required: false
+          type: integer
+          default: 100
+          maximum: 200
+          minimum: 1
+          format: int32
+        - in: query
+          name: offset
+          description:
+            Deslocamento entre o começo da lista e um dado elemento. Valor
+            default é 0
+          required: false
+          type: integer
+          default: 0
+          format: int32
+      responses:
+        '200':
+          description: Operação bem sucedida
+          schema:
+            $ref: '#/definitions/ListOfProgressLogDtosFotGet'
+        '400':
+          description: Requisição mal formada
+          schema:
+            $ref: '#/definitions/ApiError'
+        '500':
+          description: Erro interno no servidor
+          schema:
+            $ref: '#/definitions/ApiError'
+  /accountancy/accounts:
+    get:
+      tags:
+        - Contas
+      description: Lista as contas ordenadas por código.
+      operationId: loadAllAccounts
+      produces:
+        - application/json
+      parameters:
+        - name: companyId
+          in: query
+          type: integer
+          description: Código da empresa.
+        - name: id
+          in: query
+          type: integer
+          description: Código reduzido da conta.
+        - name: uniqueNumber
+          in: query
+          type: string
+          description: 'Código contábil da conta com a máscara contábil. Exemplo: 1.2.01.01.0150'
+        - name: accountType
+          in: query
+          type: string
+          enum:
+            - ANALYTICAL
+            - SYNTHETIC
+          description:
+            Tipo de conta contábil, podendo ser ANALYTICAL ou SYNTHETIC.
+            Caso não seja passado nenhum parametro em accountType, ambas as contas são
+            retornadas
+        - name: limit
+          in: query
+          description:
+            Quantidade máxima de resultados da pesquisa a serem retornados.
+            Valor default é 100 e o valor máximo permitido é 200.
+          required: false
+          type: integer
+          default: 100
+          maximum: 200
+          minimum: 1
+          format: int32
+        - name: offset
+          in: query
+          description:
+            Deslocamento entre o começo da lista e um dado elemento. Valor
+            default é 0.
+          required: false
+          type: integer
+          default: 0
+          format: int32
+      responses:
+        '200':
+          description: Resultado da pesquisa retornado com sucesso
+          schema:
+            $ref: '#/definitions/PaginationResult'
+        '400':
+          description: Requisição mal formada
+          schema:
+            $ref: '#/definitions/ApiError'
+        '500':
+          description: Erro interno
+          schema:
+            $ref: '#/definitions/ApiError'
+  /patrimony/fixed:
+    get:
+      operationId: getPatrimonyFixed
+      tags:
+        - Bens imóveis
+      description: Lista os bens ordenados por código do patrimônio.
+      produces:
+        - application/json
+      parameters:
+        - name: patrimonyId
+          in: query
+          type: integer
+          description: Código do patrimônio.
+        - name: costCenter
+          in: query
+          type: string
+          description: Empreendimento/Centro de custo
+        - name: detail
+          in: query
+          type: string
+          description: Detalhamento
+        - name: situation
+          in: query
+          type: string
+          enum:
+            - A
+            - B
+          description: Situação do bem podendo ser A - Ativo ou B - Baixados
+        - name: limit
+          in: query
+          description:
+            Quantidade máxima de resultados da pesquisa a serem retornados.
+            Valor default é 100 e o valor máximo permitido é 200.
+          required: false
+          type: integer
+          default: 100
+          maximum: 200
+          minimum: 1
+          format: int32
+        - name: offset
+          in: query
+          description:
+            Deslocamento entre o começo da lista e um dado elemento. Valor
+            default é 0.
+          required: false
+          type: integer
+          default: 0
+          format: int32
+      responses:
+        '200':
+          description: Resultado da pesquisa retornado com sucesso
+          schema:
+            $ref: '#/definitions/PaginationResult'
+        '400':
+          description: Requisição mal formada
+          schema:
+            $ref: '#/definitions/ApiError'
+        '500':
+          description: Erro interno
+          schema:
+            $ref: '#/definitions/ApiError'
+  /patrimony/movable:
+    get:
+      operationId: getPatrimonyMovable
+      tags:
+        - Bens móveis
+      description: Lista os bens ordenados por código do patrimônio.
+      produces:
+        - application/json
+      parameters:
+        - name: patrimonyId
+          in: query
+          type: integer
+          description: Código do patrimônio.
+        - name: barCode
+          in: query
+          type: string
+          description: Código de barras/RFID.
+        - name: costCenter
+          in: query
+          type: string
+          description: Empreendimento/Centro de custo
+        - name: model
+          in: query
+          type: integer
+          description: Modelo
+        - name: plateId
+          in: query
+          type: string
+          description: Plaqueta/Placa
+        - name: situation
+          in: query
+          type: string
+          enum:
+            - A
+            - B
+          description: Situação do bem podendo ser A - Ativo ou B - Baixados
+        - name: limit
+          in: query
+          description:
+            Quantidade máxima de resultados da pesquisa a serem retornados.
+            Valor default é 100 e o valor máximo permitido é 200.
+          required: false
+          type: integer
+          default: 100
+          maximum: 200
+          minimum: 1
+          format: int32
+        - name: offset
+          in: query
+          description:
+            Deslocamento entre o começo da lista e um dado elemento. Valor
+            default é 0.
+          required: false
+          type: integer
+          default: 0
+          format: int32
+      responses:
+        '200':
+          description: Resultado da pesquisa retornado com sucesso
+          schema:
+            $ref: '#/definitions/PaginationResult'
+        '400':
+          description: Requisição mal formada
+          schema:
+            $ref: '#/definitions/ApiError'
+        '500':
+          description: Erro interno
+          schema:
+            $ref: '#/definitions/ApiError'
+  /cost-centers:
+    get:
+      tags:
+        - cost-centers
+      summary: Busca todos os centros de custos no Sienge ordenados pelo codigo id
+      operationId: getAllCostCenters
+      parameters:
+        - name: limit
+          in: query
+          description:
+            Quantidade máxima de resultados da pesquisa a serem retornados.
+            Valor default é 100 e o valor máximo permitdo é 200.
+          required: false
+          type: integer
+          default: 100
+          maximum: 200
+          minimum: 1
+          format: int32
+        - name: offset
+          in: query
+          description:
+            Deslocamento entre o começo da lista e um dado elemento. Valor
+            default é 0.
+          required: false
+          type: integer
+          default: 0
+          format: int32
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Credor encontrado
+          schema:
+            $ref: '#/definitions/GetResponseCostCenters'
+        '400':
+          description: Requisição mal formada
+          schema:
+            $ref: '#/definitions/ResponseMenssage'
+        '500':
+          description: Erro interno no servidor
+          schema:
+            $ref: '#/definitions/ResponseMenssage'
+  /checking-accounts:
+    get:
+      tags:
+        - Checking Accounts
+      summary: Busca uma lista de contas-correntes ordenando pelo número da conta
+      operationId: getCheckingAccounts
+      parameters:
+        - name: companyId
+          in: query
+          description: Código da empresa cadastrada no Sienge
+          required: false
+          type: integer
+        - name: accountNumber
+          in: query
+          description: Número da conta-corrente
+          required: false
+          type: string
+        - name: accountStatus
+          in: query
+          description:
+            'Os status de uma conta corrente são: "ENABLED" - Ativa, "DISABLED"
+            - Inativa. Caso não seja passado nenhum status por padrão os valores devolvidos
+            serão as contas ativas ("ENABLED"). Pode-se ainda passar "ALL" para trazer
+            as contas "Ativas" e "Inativas".'
+          required: false
+          type: string
+        - name: limit
+          in: query
+          description:
+            Quantidade máxima de resultados da pesquisa a serem retornados.
+            Valor default é 100 e o valor máximo permitdo é 200.
+          required: false
+          type: integer
+          default: 100
+          maximum: 200
+          minimum: 1
+          format: int32
+        - name: offset
+          in: query
+          description:
+            Deslocamento entre o começo da lista e um dado elemento. Valor
+            default é 0.
+          required: false
+          type: integer
+          default: 0
+          format: int32
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Contas-correntes encontradas
+          schema:
+            $ref: '#/definitions/GetResponseDocument'
+        '400':
+          description: Requisição mal formada
+          schema:
+            $ref: '#/definitions/ResponseMenssage'
+        '500':
+          description: Erro interno no servidor
+          schema:
+            $ref: '#/definitions/ResponseMenssage'
+  /supply-contracts/all:
+    get:
+      operationId: getSupplyContractsAll
+      tags:
+        - Contratos
+      summary: Consulta lista de contratos
+      consumes:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/contractStartDate'
+        - $ref: '#/parameters/contractEndDate'
+        - $ref: '#/parameters/companyId'
+        - $ref: '#/parameters/buildingId'
+        - $ref: '#/parameters/limit'
+        - $ref: '#/parameters/offset'
+        - $ref: '#/parameters/statusApproval'
+        - $ref: '#/parameters/authorization'
+        - $ref: '#/parameters/consistency'
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            allOf:
+              - $ref: '#/definitions/PaginationResultSupplyContractsAll'
+            properties:
+              results:
+                type: array
+                description: Lista de contratos retornados como resultado da pesquisa.
+                items:
+                  $ref: '#/definitions/ContractDTO'
+        '400':
+          $ref: '#/responses/400'
+        '404':
+          $ref: '#/responses/404'
+        '500':
+          $ref: '#/responses/500'
+  /creditors:
+    get:
+      tags:
+        - Creditors
+      summary: Busca o credor no Sienge
+      operationId: getAllCreditors
+      parameters:
+        - name: cpf
+          in: query
+          description: CPF do credor sem máscara, somento números.
+          required: false
+          type: string
+        - name: cnpj
+          in: query
+          description: CNPJ do credor sem máscara, somento números.
+          required: false
+          type: string
+        - name: creditor
+          in: query
+          description:
+            'Pode pesquisar por um desses três: nome do credor, nome fantasia
+            do credor ou código do credor.'
+          required: false
+          type: string
+        - name: limit
+          in: query
+          description:
+            Quantidade máxima de resultados da pesquisa a serem retornados.
+            Valor default é 100 e o valor máximo permitdo é 200.
+          required: false
+          type: integer
+          default: 100
+          maximum: 200
+          minimum: 1
+          format: int32
+        - name: offset
+          in: query
+          description:
+            Deslocamento entre o começo da lista e um dado elemento. Valor
+            default é 0.
+          required: false
+          type: integer
+          default: 0
+          format: int32
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Credor encontrado
+          schema:
+            $ref: '#/definitions/GetResponseCreditors'
+        '400':
+          description: Requisição mal formada
+          schema:
+            $ref: '#/definitions/ResponseMessage'
+        '500':
+          description: Erro interno no servidor
+          schema:
+            $ref: '#/definitions/ResponseMessage'
+  /accounts-statements:
+    get:
+      tags:
+        - Extrato de conta
+      summary:
+        Retorna a lista de movimentações financeiras associados a contas do  Sienge,
+        com data dentro do periodo informado nos parâmetros.
+      operationId: listStatements
+      produces:
+        - application/json
+      parameters:
+        - name: startDate
+          in: query
+          description: Data de inicio do relatório de extrato de contas
+          required: true
+          type: string
+          format: 'date (Formato ISO 8601 yyyy-MM-dd | Exemplo: 2018-01-01)'
+        - name: endDate
+          in: query
+          description: Data de fim do relatório de extrato de contas
+          required: true
+          type: string
+          format: 'date (Formato ISO 8601 yyyy-MM-dd | Exemplo: 2018-01-01)'
+        - name: accountNumber
+          in: query
+          description: Número da conta cadastrada no Sienge
+          required: false
+          type: string
+        - name: companyId
+          in: query
+          description: Código da empresa cadastrada no Sienge
+          required: false
+          type: integer
+        - name: companyGroupId
+          in: query
+          description: Código do grupo de empresas cadastrado no Sienge
+          required: false
+          type: integer
+          format: int32
+        - name: limit
+          in: query
+          description:
+            Quantidade máxima de resultados da pesquisa a serem retornados.  Valor
+            padrão é 100 e o valor máximo permitdo é 300.
+          type: integer
+          format: int32
+          required: false
+        - name: offset
+          in: query
+          description:
+            Deslocamento entre o começo da lista e um dado elemento.  Valor
+            padrão é 0.
+          type: integer
+          format: int32
+          required: false
+      responses:
+        '200':
+          description: Resultado da pesquisa retornado com sucesso
+          schema:
+            $ref: '#/definitions/GetResponseAccountStatement'
+        '400':
+          description: Requisição mal formada
+          schema:
+            $ref: '#/definitions/ApiError'
+        '500':
+          description: Erro interno
+          schema:
+            $ref: '#/definitions/ApiError'
+  /closingaccountancy:
+    get:
+      tags:
+        - Saldos Consolidados Atualizados
+      description: Busca empresas com saldos consolidados atualizados
+      operationId: getClosingAccountancy
+      parameters:
+        - name: companyId
+          in: query
+          type: integer
+          description: Código da empresa
+        - name: accountId
+          in: query
+          type: string
+          description: Código contábil ou código reduzido da conta
+        - name: monthYear
+          in: query
+          type: string
+          required: true
+          format: monthYear (Formato ISO 8601 MM-yyyy)
+          description: Período do saldo consolidado (mês/ano).
+        - name: limit
+          in: query
+          description:
+            Quantidade máxima de resultados da pesquisa a serem retornados.
+            Valor máximo permitido é 200.
+          type: integer
+          default: 100
+          maximum: 200
+          minimum: 1
+          format: int32
+        - name: offset
+          in: query
+          description: Deslocamento entre o começo da lista e um dado elemento.
+          type: integer
+          default: 0
+          format: int32
+      responses:
+        '200':
+          description: Saldo consolidado encontrado
+          schema:
+            $ref: '#/definitions/PaginationResultEntry'
+        '400':
+          description: Requisição mal formada
+          schema:
+            $ref: '#/definitions/ApiError'
+        '404':
+          description: O recurso requisitado não foi encontrado
+          schema:
+            $ref: '#/definitions/ApiError'
+        '422':
+          description: Entidade não processada
+          schema:
+            $ref: '#/definitions/ApiError'
+        '500':
+          description: Erro interno
+          schema:
+            $ref: '#/definitions/ApiError'
+  /indexers:
+    get:
+      tags:
+        - Indexadores
+      summary: Busca uma lista de indexadores
+      operationId: getIndexers
+      parameters:
+        - name: limit
+          in: query
+          description:
+            Quantidade máxima de resultados da pesquisa a serem retornados.
+            Valor default são 100 e o valor máximo permitdo são 200.
+          required: false
+          type: integer
+          default: 100
+          maximum: 200
+          minimum: 1
+          format: int32
+        - name: offset
+          in: query
+          description:
+            Deslocamento entre o começo da lista e um dado elemento. Valor
+            default são 0.
+          required: false
+          type: integer
+          default: 0
+          format: int32
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Indexadores encontrados
+          schema:
+            $ref: '#/definitions/GetResponseDocument'
+        '400':
+          description: Requisição mal formada
+          schema:
+            $ref: '#/definitions/ResponseMenssage'
+        '500':
+          description: Erro interno no servidor
+          schema:
+            $ref: '#/definitions/ResponseMenssage'
+  /accountancy/entries:
+    get:
+      tags:
+        - Lançamentos da Contabilidade
+      summary: Busca lançamentos contábeis
+      operationId: getAccountancyEntries
+      parameters:
+        - name: companyId
+          in: query
+          type: integer
+          required: true
+          description: Código da empresa
+        - name: limit
+          in: query
+          description:
+            Quantidade máxima de resultados da pesquisa a serem retornados.
+            Valor máximo permitido é 200.
+          type: integer
+          default: 100
+          maximum: 200
+          minimum: 1
+          format: int32
+        - name: offset
+          in: query
+          description: Deslocamento entre o começo da lista e um dado elemento.
+          type: integer
+          default: 0
+          format: int32
+        - name: entryBatchId
+          in: query
+          type: integer
+          format: int32
+          description: Código do lote
+        - name: entryType
+          in: query
+          type: string
+          description: Tipo do lançamento, podendo ser (N)ormal, (S)ocietário ou (F)iscal.
+        - name: costCenter
+          in: query
+          description: Centro de custo
+          type: integer
+        - name: startDate
+          in: query
+          type: string
+          format: startDate (Formato ISO 8601 yyyy-MM-dd)
+          description: Data inicial do lançamento
+        - name: endDate
+          in: query
+          type: string
+          format: endDate (Formato ISO 8601 yyyy-MM-dd)
+          description: Data final do lançamento
+        - name: account
+          description: Conta contábil, podendo ser débito ou crédito
+          in: query
+          type: string
+      responses:
+        '200':
+          description: Lançamento encontrado
+          schema:
+            $ref: '#/definitions/PaginationResultEntry'
+        '400':
+          description: Requisição mal formada
+          schema:
+            $ref: '#/definitions/ApiError'
+        '404':
+          description: O recurso requisitado não foi encontrado
+          schema:
+            $ref: '#/definitions/ApiError'
+        '422':
+          description: Entidade não processada
+          schema:
+            $ref: '#/definitions/ApiError'
+        '500':
+          description: Erro interno
+          schema:
+            $ref: '#/definitions/ApiError'
+  /property-rental:
+    get:
+      tags:
+        - Locação de Imóveis
+      summary: Lista de locação de imóveis.
+      operationId: get
+      parameters:
+        - in: query
+          name: offset
+          description:
+            Deslocamento entre o começo da lista e um dado elemento. Valor
+            default é 0.
+          required: false
+          type: integer
+          default: 0
+          format: int32
+        - in: query
+          name: limit
+          description:
+            Quantidade máxima de resultados da pesquisa a serem retornados.
+            Valor default é 100 e o valor máximo permitido é 200.
+          required: false
+          type: integer
+          default: 100
+          maximum: 200
+          minimum: 1
+          format: int32
+        - name: contractSeqId
+          in: query
+          type: integer
+          required: false
+          description: Filtrar por código sequencial do contrato
+        - name: companyId
+          in: query
+          type: integer
+          required: false
+          description: Filtrar por código da empresa
+        - name: enterpriseId
+          in: query
+          type: integer
+          required: false
+          description: Filtrar por código de empreendimento
+        - name: rentalContractNumber
+          in: query
+          type: string
+          required: false
+          description: Filtrar por código do contrato
+        - name: unitId
+          in: query
+          type: integer
+          required: false
+          description: Filtrar por código da unidade
+        - name: customerId
+          in: query
+          type: integer
+          required: false
+          description: Filtrar por código do cliente
+        - name: situation
+          in: query
+          type: string
+          enum:
+            - SOLICITADO
+            - AUTORIZADO
+            - EMITIDO
+            - FINALIZADO
+            - CANCELADO
+          required: false
+          description: Filtrar por situação
+          items:
+            enum:
+              - SOLICITADO
+              - AUTORIZADO
+              - EMITIDO
+              - FINALIZADO
+              - CANCELADO
+      responses:
+        '200':
+          description: Lista de contrato de locação de imóveis
+          schema:
+            $ref: '#/definitions/ListPropertyRental'
+  /accounts-balances:
+    get:
+      tags:
+        - Saldo de conta
+      summary:
+        Retorna a lista de saldos das contas do Sienge, na data informada nos
+        parâmetros.
+      operationId: listBalances
+      produces:
+        - application/json
+      parameters:
+        - name: balanceDate
+          in: query
+          description: Data do saldo das contas
+          required: true
+          type: string
+          format: 'date (Formato ISO 8601 yyyy-MM-dd | Exemplo: 2018-01-01)'
+        - name: accountNumber
+          in: query
+          description: Número da conta cadastrada no Sienge
+          required: false
+          type: string
+        - name: accountStatus
+          in: query
+          description:
+            'Os status de uma conta corrente são: "ENABLED" - Ativa, "DISABLED"
+            - Inativa. Caso não seja passado nenhum status por padrão os valores devolvidos
+            serão as contas ativas ("ENABLED"). Pode-se ainda passar "ALL" para trazer
+            as contas "Ativas" e "Inativas".'
+          required: false
+          type: string
+        - name: companyId
+          in: query
+          description: Código da empresa cadastrada no Sienge
+          required: false
+          type: integer
+        - name: companyGroupId
+          in: query
+          description: Código do grupo de empresas cadastrado no Sienge
+          required: false
+          type: integer
+          format: int32
+        - name: showLastBalanceIfNotExistBalance
+          in: query
+          description:
+            "Flag para mostrar saldo de data anterior a data informada, útil\
+            \ para quando a conta não possuir saldo na data informada\n  * `S` - Mostrar\
+            \ saldo da data anterior a data informada\n"
+          enum:
+            - S
+          required: false
+          type: string
+          format: Max size 1
+        - name: limit
+          in: query
+          description:
+            Quantidade máxima de resultados da pesquisa a serem retornados.  Valor
+            padrão é 100 e o valor máximo permitdo é 300.
+          type: integer
+          format: int32
+          required: false
+        - name: offset
+          in: query
+          description:
+            Deslocamento entre o começo da lista e um dado elemento.  Valor
+            padrão é 0.
+          type: integer
+          format: int32
+          required: false
+      responses:
+        '200':
+          description: Resultado da pesquisa retornado com sucesso
+          schema:
+            $ref: '#/definitions/GetResponseAccountBalance'
+        '400':
+          description: Requisição mal formada
+          schema:
+            $ref: '#/definitions/ApiError'
+        '500':
+          description: Erro interno
+          schema:
+            $ref: '#/definitions/ApiError'
+  /customer-types:
+    get:
+      tags:
+        - Tipos de Clientes
+      summary: Busca uma lista de tipos de clientes
+      operationId: getCustomerTypes
+      parameters:
+        - name: limit
+          in: query
+          description:
+            Quantidade máxima de resultados da pesquisa a serem retornados.
+            Valor default é 100 e o valor máximo permitdo é 200.
+          required: false
+          type: integer
+          default: 100
+          maximum: 200
+          minimum: 1
+          format: int32
+        - name: offset
+          in: query
+          description:
+            Deslocamento entre o começo da lista e um dado elemento. Valor
+            default é 0.
+          required: false
+          type: integer
+          default: 0
+          format: int32
+        - name: id
+          in: query
+          description: Filtro por código do tipo de cliente.
+          required: false
+          type: integer
+        - name: description
+          in: query
+          description: Filtro por tipos de cliente.
+          required: false
+          type: string
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Tipos de clientes encontrados
+          schema:
+            $ref: '#/definitions/GetResponseDocument'
+        '400':
+          description: Requisição mal formada
+          schema:
+            $ref: '#/definitions/ResponseMessage'
+        '500':
+          description: Erro interno no servidor
+          schema:
+            $ref: '#/definitions/ResponseMessage'
+  /bills:
+    get:
+      tags:
+        - Títulos a pagar
+      summary: Busca os títulos no Sienge
+      operationId: getBills
+      parameters:
+        - name: startDate
+          in: query
+          description: Data inicial de emissão para consulta de títulos
+          required: true
+          type: string
+          format: 'date (Formato ISO 8601 yyyy-MM-dd | Exemplo: 2018-01-01)'
+        - name: endDate
+          in: query
+          description: Data final de emissão para consulta de títulos
+          required: true
+          type: string
+          format: 'date (Formato ISO 8601 yyyy-MM-dd | Exemplo: 2018-01-01)'
+        - name: debtorId
+          in: query
+          description: Código da empresa cadastrada no Sienge
+          required: false
+          type: integer
+        - name: creditorId
+          in: query
+          description: Código do credor cadastrado no Sienge
+          required: false
+          type: integer
+        - name: costCenterId
+          in: query
+          description: Código do centro de custo cadastrado no Sienge
+          required: false
+          type: integer
+        - name: documentsIdentificationId
+          in: query
+          description: Códigos do documento cadastrado no Sienge
+          required: false
+          type: array
+          format: Max size 4
+          items:
+            type: string
+        - name: documentNumber
+          in: query
+          description: Número do documento vinculado ao título cadastrado no Sienge
+          required: false
+          type: string
+          format: Max size 20
+        - name: status
+          in: query
+          description:
+            "Tipo de consistência do título cadastrado no Sienge: \n * `S`\
+            \ - Completo\n * `N` - Incompleto\n * `I` - Em inclusão\n"
+          enum:
+            - S
+            - N
+            - I
+          required: false
+          type: string
+          format: Max size 1
+        - name: originId
+          in: query
+          description:
+            "Código de origem do título cadastrado no Sienge\n * `AC` - Administração\
+            \ de Compras\n * `RA` - Administração de Obras \n * `AI` - Apuração de Impostos\n\
+            \ * `CO` - Comercial\n * `CF` - Conhecimento de Frete\n * `CP` - Contas\
+            \ a Pagar\n * `ME` - Contratos e Medições\n * `MO` - Controle de Mão de\
+            \ Obra\n * `DV` - Devolução de Nota Fiscal\n * `RF` - Financiamento Bancário\n\
+            \ * `FP` - Folha de Pagamento\n * `FE` - Frota de Equipamentos\n * `GI`\
+            \ - Guia de Impostos\n * `LO` - Locação de Imóveis\n * `SE` - Sistemas Externos\n"
+          required: false
+          enum:
+            - AC
+            - RA
+            - AI
+            - CO
+            - CF
+            - CP
+            - ME
+            - MO
+            - DV
+            - RF
+            - FP
+            - FE
+            - GI
+            - LO
+            - SE
+          type: string
+          format: Max size 2
+        - name: limit
+          in: query
+          description:
+            Quantidade máxima de resultados da pesquisa a serem retornados.  Valor
+            padrão é 100 e o valor máximo permitdo é 200.
+          type: integer
+          format: int32
+          required: false
+        - name: offset
+          in: query
+          description:
+            Deslocamento entre o começo da lista e um dado elemento.  Valor
+            padrão é 0.
+          type: integer
+          format: int32
+          required: false
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Resultado da pesquisa retornado com sucesso
+          schema:
+            $ref: '#/definitions/Bills'
+        '404':
+          description: Requisição mal formada
+          schema:
+            $ref: '#/definitions/ResponseMenssage'
+        '500':
+          description: Erro interno no servidor
+          schema:
+            $ref: '#/definitions/ResponseMenssage'
+components: {}

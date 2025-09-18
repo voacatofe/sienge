@@ -1,0 +1,627 @@
+[
+  {
+    "type": "function",
+    "function": {
+      "name": "sienge_get_commissions",
+      "description": "Busca as parcelas das comissões por filtro.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "unitId": {
+            "type": "string",
+            "description": "O código do id da unidade."
+          },
+          "contractId": {
+            "type": "string",
+            "description": "O número do contrato a ser filtrado"
+          },
+          "brokerId": {
+            "type": "string",
+            "description": "O número do corretor a ser filtrado"
+          },
+          "companyId": {
+            "type": "string",
+            "description": "O número da empresa a ser filtrada"
+          },
+          "enterpriseId": {
+            "type": "string",
+            "description": "O número do empreendimento a ser filtrado"
+          },
+          "startingDueDate": {
+            "type": "string",
+            "description": "Data inicial de vencimento para filtrar comissões de acordo com a parcela vigente. Formato: yyyy-MM-dd."
+          },
+          "endingDueDate": {
+            "type": "string",
+            "description": "Data final de vencimento para filtrar comissões de acordo com a parcela vigente. Formato: yyyy-MM-dd."
+          },
+          "offset": {
+            "type": "string",
+            "description": "O número de itens a pular antes de começar a coletar o conjunto de resultados"
+          },
+          "limit": {
+            "type": "string",
+            "description": "O número de itens a serem devolvidos"
+          },
+          "commissionFilterType": {
+            "type": "string",
+            "description": "Enums:\n  `ALL` - Filtra por todas as comissões.\n  `PAID` - Filtra pelas comissões pagas.\n  `CANCELLED` - Filtra pelas comissões canceladas.\n  `AWAITING_AUTHORIZATION` - Filtra pelas comissões que estão aguardando autorização.\n  `AWAITING_RELEASE` - Filtra pelas comissões que estão aguardando liberação.\n  `RELEASED` - Filtra pelas comissões liberadas."
+          }
+        },
+        "required": ["offset", "limit"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "sienge_get_building_projects_progress_logs",
+      "description": "Consulta progressos do Planejamento de Obras.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "buildingId": {
+            "type": "string",
+            "description": "Código da Obra"
+          },
+          "buildingUnitId": {
+            "type": "string",
+            "description": "Unidade Construtiva da Obra.  Ao informar uma Unidade Construtiva, o resultado da consulta será somente as Medições que possuirem Itens medidos para a Unidade Construtiva informada. O uso desse parâmetro obriga que seja informado um valor no parâmetro buildingId."
+          },
+          "measurementStartDate": {
+            "type": "string",
+            "description": "Data de início da busca (data da Medição) no formato: yyyy-MM-dd. Exemplo: 2022-03-01"
+          },
+          "measurementEndDate": {
+            "type": "string",
+            "description": "Data de fim da busca (data da Medição) no formato: yyyy-MM-dd. Exemplo: 2022-03-11"
+          },
+          "consistent": {
+            "type": "string",
+            "description": "Busca somente Medições consistentes quando true ou somente inconsistentes quando false"
+          },
+          "limit": {
+            "type": "string",
+            "description": "Quantidade máxima de resultados da pesquisa a serem retornados. Valor default é 100 e o valor máximo permitido é 200"
+          },
+          "offset": {
+            "type": "string",
+            "description": "Deslocamento entre o começo da lista e um dado elemento. Valor default é 0"
+          }
+        }
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "sienge_get_accountancy_accounts",
+      "description": "Lista as contas ordenadas por código.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "companyId": {
+            "type": "string",
+            "description": "Código da empresa."
+          },
+          "id": {
+            "type": "string",
+            "description": "Código reduzido da conta."
+          },
+          "uniqueNumber": {
+            "type": "string",
+            "description": "Código contábil da conta com a máscara contábil. Exemplo: 1.2.01.01.0150"
+          },
+          "accountType": {
+            "type": "string",
+            "description": "Tipo de conta contábil, podendo ser ANALYTICAL ou SYNTHETIC. Caso não seja passado nenhum parametro em accountType, ambas as contas são retornadas"
+          },
+          "limit": {
+            "type": "string",
+            "description": "Quantidade máxima de resultados da pesquisa a serem retornados. Valor default é 100 e o valor máximo permitido é 200."
+          },
+          "offset": {
+            "type": "string",
+            "description": "Deslocamento entre o começo da lista e um dado elemento. Valor default é 0."
+          }
+        }
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "sienge_get_patrimony_fixed",
+      "description": "Lista os bens ordenados por código do patrimônio.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "patrimonyId": {
+            "type": "string",
+            "description": "Código do patrimônio."
+          },
+          "costCenter": {
+            "type": "string",
+            "description": "Empreendimento/Centro de custo"
+          },
+          "detail": {
+            "type": "string",
+            "description": "Detalhamento"
+          },
+          "situation": {
+            "type": "string",
+            "description": "Situação do bem podendo ser A - Ativo ou B - Baixados"
+          },
+          "limit": {
+            "type": "string",
+            "description": "Quantidade máxima de resultados da pesquisa a serem retornados. Valor default é 100 e o valor máximo permitido é 200."
+          },
+          "offset": {
+            "type": "string",
+            "description": "Deslocamento entre o começo da lista e um dado elemento. Valor default é 0."
+          }
+        }
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "sienge_get_patrimony_movable",
+      "description": "Lista os bens ordenados por código do patrimônio.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "patrimonyId": {
+            "type": "string",
+            "description": "Código do patrimônio."
+          },
+          "barCode": {
+            "type": "string",
+            "description": "Código de barras/RFID."
+          },
+          "costCenter": {
+            "type": "string",
+            "description": "Empreendimento/Centro de custo"
+          },
+          "model": {
+            "type": "string",
+            "description": "Modelo"
+          },
+          "plateId": {
+            "type": "string",
+            "description": "Plaqueta/Placa"
+          },
+          "situation": {
+            "type": "string",
+            "description": "Situação do bem podendo ser A - Ativo ou B - Baixados"
+          },
+          "limit": {
+            "type": "string",
+            "description": "Quantidade máxima de resultados da pesquisa a serem retornados. Valor default é 100 e o valor máximo permitido é 200."
+          },
+          "offset": {
+            "type": "string",
+            "description": "Deslocamento entre o começo da lista e um dado elemento. Valor default é 0."
+          }
+        }
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "sienge_get_cost_centers",
+      "description": "Busca todos os centros de custos no Sienge ordenados pelo codigo id",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "string",
+            "description": "Quantidade máxima de resultados da pesquisa a serem retornados. Valor default é 100 e o valor máximo permitdo é 200."
+          },
+          "offset": {
+            "type": "string",
+            "description": "Deslocamento entre o começo da lista e um dado elemento. Valor default é 0."
+          }
+        }
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "sienge_get_checking_accounts",
+      "description": "Busca uma lista de contas-correntes ordenando pelo número da conta",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "companyId": {
+            "type": "string",
+            "description": "Código da empresa cadastrada no Sienge"
+          },
+          "accountNumber": {
+            "type": "string",
+            "description": "Número da conta-corrente"
+          },
+          "accountStatus": {
+            "type": "string",
+            "description": "Os status de uma conta corrente são: \"ENABLED\" - Ativa, \"DISABLED\" - Inativa. Caso não seja passado nenhum status por padrão os valores devolvidos serão as contas ativas (\"ENABLED\"). Pode-se ainda passar \"ALL\" para trazer as contas \"Ativas\" e \"Inativas\"."
+          },
+          "limit": {
+            "type": "string",
+            "description": "Quantidade máxima de resultados da pesquisa a serem retornados. Valor default é 100 e o valor máximo permitdo é 200."
+          },
+          "offset": {
+            "type": "string",
+            "description": "Deslocamento entre o começo da lista e um dado elemento. Valor default é 0."
+          }
+        }
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "sienge_get_supply_contracts_all",
+      "description": "Consulta lista de contratos",
+      "parameters": {
+        "type": "object",
+        "properties": {}
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "sienge_get_creditors",
+      "description": "Busca o credor no Sienge",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "cpf": {
+            "type": "string",
+            "description": "CPF do credor sem máscara, somento números."
+          },
+          "cnpj": {
+            "type": "string",
+            "description": "CNPJ do credor sem máscara, somento números."
+          },
+          "creditor": {
+            "type": "string",
+            "description": "Pode pesquisar por um desses três: nome do credor, nome fantasia do credor ou código do credor."
+          },
+          "limit": {
+            "type": "string",
+            "description": "Quantidade máxima de resultados da pesquisa a serem retornados. Valor default é 100 e o valor máximo permitdo é 200."
+          },
+          "offset": {
+            "type": "string",
+            "description": "Deslocamento entre o começo da lista e um dado elemento. Valor default é 0."
+          }
+        }
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "sienge_get_accounts_statements",
+      "description": "Retorna a lista de movimentações financeiras associados a contas do  Sienge, com data dentro do periodo informado nos parâmetros.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "startDate": {
+            "type": "string",
+            "description": "Data de inicio do relatório de extrato de contas"
+          },
+          "endDate": {
+            "type": "string",
+            "description": "Data de fim do relatório de extrato de contas"
+          },
+          "accountNumber": {
+            "type": "string",
+            "description": "Número da conta cadastrada no Sienge"
+          },
+          "companyId": {
+            "type": "string",
+            "description": "Código da empresa cadastrada no Sienge"
+          },
+          "companyGroupId": {
+            "type": "string",
+            "description": "Código do grupo de empresas cadastrado no Sienge"
+          },
+          "limit": {
+            "type": "string",
+            "description": "Quantidade máxima de resultados da pesquisa a serem retornados.  Valor padrão é 100 e o valor máximo permitdo é 300."
+          },
+          "offset": {
+            "type": "string",
+            "description": "Deslocamento entre o começo da lista e um dado elemento.  Valor padrão é 0."
+          }
+        },
+        "required": ["startDate", "endDate"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "sienge_get_closingaccountancy",
+      "description": "Busca empresas com saldos consolidados atualizados",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "companyId": {
+            "type": "string",
+            "description": "Código da empresa"
+          },
+          "accountId": {
+            "type": "string",
+            "description": "Código contábil ou código reduzido da conta"
+          },
+          "monthYear": {
+            "type": "string",
+            "description": "Período do saldo consolidado (mês/ano)."
+          },
+          "limit": {
+            "type": "string",
+            "description": "Quantidade máxima de resultados da pesquisa a serem retornados. Valor máximo permitido é 200."
+          },
+          "offset": {
+            "type": "string",
+            "description": "Deslocamento entre o começo da lista e um dado elemento."
+          }
+        },
+        "required": ["monthYear"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "sienge_get_indexers",
+      "description": "Busca uma lista de indexadores",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "string",
+            "description": "Quantidade máxima de resultados da pesquisa a serem retornados. Valor default são 100 e o valor máximo permitdo são 200."
+          },
+          "offset": {
+            "type": "string",
+            "description": "Deslocamento entre o começo da lista e um dado elemento. Valor default são 0."
+          }
+        }
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "sienge_get_accountancy_entries",
+      "description": "Busca lançamentos contábeis",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "companyId": {
+            "type": "string",
+            "description": "Código da empresa"
+          },
+          "limit": {
+            "type": "string",
+            "description": "Quantidade máxima de resultados da pesquisa a serem retornados. Valor máximo permitido é 200."
+          },
+          "offset": {
+            "type": "string",
+            "description": "Deslocamento entre o começo da lista e um dado elemento."
+          },
+          "entryBatchId": {
+            "type": "string",
+            "description": "Código do lote"
+          },
+          "entryType": {
+            "type": "string",
+            "description": "Tipo do lançamento, podendo ser (N)ormal, (S)ocietário ou (F)iscal."
+          },
+          "costCenter": {
+            "type": "string",
+            "description": "Centro de custo"
+          },
+          "startDate": {
+            "type": "string",
+            "description": "Data inicial do lançamento"
+          },
+          "endDate": {
+            "type": "string",
+            "description": "Data final do lançamento"
+          },
+          "account": {
+            "type": "string",
+            "description": "Conta contábil, podendo ser débito ou crédito"
+          }
+        },
+        "required": ["companyId"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "sienge_get_property_rental",
+      "description": "Lista de locação de imóveis.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "offset": {
+            "type": "string",
+            "description": "Deslocamento entre o começo da lista e um dado elemento. Valor default é 0."
+          },
+          "limit": {
+            "type": "string",
+            "description": "Quantidade máxima de resultados da pesquisa a serem retornados. Valor default é 100 e o valor máximo permitido é 200."
+          },
+          "contractSeqId": {
+            "type": "string",
+            "description": "Filtrar por código sequencial do contrato"
+          },
+          "companyId": {
+            "type": "string",
+            "description": "Filtrar por código da empresa"
+          },
+          "enterpriseId": {
+            "type": "string",
+            "description": "Filtrar por código de empreendimento"
+          },
+          "rentalContractNumber": {
+            "type": "string",
+            "description": "Filtrar por código do contrato"
+          },
+          "unitId": {
+            "type": "string",
+            "description": "Filtrar por código da unidade"
+          },
+          "customerId": {
+            "type": "string",
+            "description": "Filtrar por código do cliente"
+          },
+          "situation": {
+            "type": "string",
+            "description": "Filtrar por situação"
+          }
+        }
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "sienge_get_accounts_balances",
+      "description": "Retorna a lista de saldos das contas do Sienge, na data informada nos parâmetros.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "balanceDate": {
+            "type": "string",
+            "description": "Data do saldo das contas"
+          },
+          "accountNumber": {
+            "type": "string",
+            "description": "Número da conta cadastrada no Sienge"
+          },
+          "accountStatus": {
+            "type": "string",
+            "description": "Os status de uma conta corrente são: \"ENABLED\" - Ativa, \"DISABLED\" - Inativa. Caso não seja passado nenhum status por padrão os valores devolvidos serão as contas ativas (\"ENABLED\"). Pode-se ainda passar \"ALL\" para trazer as contas \"Ativas\" e \"Inativas\"."
+          },
+          "companyId": {
+            "type": "string",
+            "description": "Código da empresa cadastrada no Sienge"
+          },
+          "companyGroupId": {
+            "type": "string",
+            "description": "Código do grupo de empresas cadastrado no Sienge"
+          },
+          "showLastBalanceIfNotExistBalance": {
+            "type": "string",
+            "description": "Flag para mostrar saldo de data anterior a data informada, útil para quando a conta não possuir saldo na data informada\n  * `S` - Mostrar saldo da data anterior a data informada\n"
+          },
+          "limit": {
+            "type": "string",
+            "description": "Quantidade máxima de resultados da pesquisa a serem retornados.  Valor padrão é 100 e o valor máximo permitdo é 300."
+          },
+          "offset": {
+            "type": "string",
+            "description": "Deslocamento entre o começo da lista e um dado elemento.  Valor padrão é 0."
+          }
+        },
+        "required": ["balanceDate"]
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "sienge_get_customer_types",
+      "description": "Busca uma lista de tipos de clientes",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "string",
+            "description": "Quantidade máxima de resultados da pesquisa a serem retornados. Valor default é 100 e o valor máximo permitdo é 200."
+          },
+          "offset": {
+            "type": "string",
+            "description": "Deslocamento entre o começo da lista e um dado elemento. Valor default é 0."
+          },
+          "id": {
+            "type": "string",
+            "description": "Filtro por código do tipo de cliente."
+          },
+          "description": {
+            "type": "string",
+            "description": "Filtro por tipos de cliente."
+          }
+        }
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "sienge_get_bills",
+      "description": "Busca os títulos no Sienge",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "startDate": {
+            "type": "string",
+            "description": "Data inicial de emissão para consulta de títulos"
+          },
+          "endDate": {
+            "type": "string",
+            "description": "Data final de emissão para consulta de títulos"
+          },
+          "debtorId": {
+            "type": "string",
+            "description": "Código da empresa cadastrada no Sienge"
+          },
+          "creditorId": {
+            "type": "string",
+            "description": "Código do credor cadastrado no Sienge"
+          },
+          "costCenterId": {
+            "type": "string",
+            "description": "Código do centro de custo cadastrado no Sienge"
+          },
+          "documentsIdentificationId": {
+            "type": "string",
+            "description": "Códigos do documento cadastrado no Sienge"
+          },
+          "documentNumber": {
+            "type": "string",
+            "description": "Número do documento vinculado ao título cadastrado no Sienge"
+          },
+          "status": {
+            "type": "string",
+            "description": "Tipo de consistência do título cadastrado no Sienge: \n * `S` - Completo\n * `N` - Incompleto\n * `I` - Em inclusão\n"
+          },
+          "originId": {
+            "type": "string",
+            "description": "Código de origem do título cadastrado no Sienge\n * `AC` - Administração de Compras\n * `RA` - Administração de Obras \n * `AI` - Apuração de Impostos\n * `CO` - Comercial\n * `CF` - Conhecimento de Frete\n * `CP` - Contas a Pagar\n * `ME` - Contratos e Medições\n * `MO` - Controle de Mão de Obra\n * `DV` - Devolução de Nota Fiscal\n * `RF` - Financiamento Bancário\n * `FP` - Folha de Pagamento\n * `FE` - Frota de Equipamentos\n * `GI` - Guia de Impostos\n * `LO` - Locação de Imóveis\n * `SE` - Sistemas Externos\n"
+          },
+          "limit": {
+            "type": "string",
+            "description": "Quantidade máxima de resultados da pesquisa a serem retornados.  Valor padrão é 100 e o valor máximo permitdo é 200."
+          },
+          "offset": {
+            "type": "string",
+            "description": "Deslocamento entre o começo da lista e um dado elemento.  Valor padrão é 0."
+          }
+        },
+        "required": ["startDate", "endDate"]
+      }
+    }
+  }
+]

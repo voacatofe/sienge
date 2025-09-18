@@ -68,6 +68,8 @@ model Empresa {
 
   // Relacionamentos
   clientes         Cliente[]
+  titulosPagar     TituloPagar[]
+  contratosSuprimento ContratoSuprimento[]
 
   @@index([nomeEmpresa])
   @@index([cnpj])
@@ -773,4 +775,170 @@ model UnidadeLink {
   @@index([unidadeId])
   @@index([rel])
   @@map("unidade_links")
+}
+
+// ============================================
+// TABELAS FINANCEIRAS E DE FORNECEDORES
+// ============================================
+
+model Portador {
+  id    Int    @id @map("id")
+  nome  String @map("nome")
+
+  @@map("portadores")
+}
+
+model Credor {
+  id                    Int      @id @map("id")
+  nome                  String   @map("nome")
+  nomeFantasia          String?  @map("nome_fantasia")
+  cpf                   String?  @map("cpf")
+  cnpj                  String?  @map("cnpj")
+  fornecedor            String?  @map("fornecedor")
+  corretor              String?  @map("corretor")
+  funcionario           String?  @map("funcionario")
+  ativo                 Boolean  @default(true) @map("ativo")
+  inscricaoEstadual     String?  @map("inscricao_estadual")
+  tipoInscricaoEstadual String?  @map("tipo_inscricao_estadual")
+  tipoPagamentoId       Int?     @map("tipo_pagamento_id")
+
+  // Endereço embutido
+  enderecoCidadeId      Int?     @map("endereco_cidade_id")
+  enderecoCidadeNome    String?  @map("endereco_cidade_nome")
+  enderecoRua           String?  @map("endereco_rua")
+  enderecoNumero        String?  @map("endereco_numero")
+  enderecoComplemento   String?  @map("endereco_complemento")
+  enderecoBairro        String?  @map("endereco_bairro")
+  enderecoEstado        String?  @map("endereco_estado")
+  enderecoCep           String?  @map("endereco_cep")
+
+  // Arrays como JSON
+  telefones             Json?    @map("telefones")
+
+  // Control fields
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+
+  // Relacionamentos
+  titulosPagar          TituloPagar[]
+  contratosSuprimento   ContratoSuprimento[]
+
+  @@index([nome])
+  @@index([cnpj])
+  @@index([cpf])
+  @@index([ativo])
+  @@map("credores")
+}
+
+model TituloPagar {
+  id                       Int       @id @map("id")
+  devedorId                Int?      @map("devedor_id")
+  credorId                 Int?      @map("credor_id")
+  documentoIdentificacaoId String?   @map("documento_identificacao_id")
+  numeroDocumento          String?   @map("numero_documento")
+  dataEmissao              DateTime? @map("data_emissao")
+  numeroParcelas           Int?      @map("numero_parcelas")
+  valorTotalNota           Decimal?  @map("valor_total_nota") @db.Decimal(15, 2)
+  observacoes              String?   @map("observacoes") @db.Text
+  desconto                 Decimal?  @map("desconto") @db.Decimal(15, 2)
+  status                   String?   @map("status")
+  origemId                 String?   @map("origem_id")
+  usuarioCadastroId        String?   @map("usuario_cadastro_id")
+  usuarioCadastroNome      String?   @map("usuario_cadastro_nome")
+  dataCadastro             DateTime? @map("data_cadastro")
+  usuarioAlteracaoId       String?   @map("usuario_alteracao_id")
+  usuarioAlteracaoNome     String?   @map("usuario_alteracao_nome")
+  dataAlteracao            DateTime? @map("data_alteracao")
+  numeroChaveAcesso        String?   @map("numero_chave_acesso")
+
+  // Control fields
+  createdAt                DateTime  @default(now()) @map("created_at")
+  updatedAt                DateTime  @updatedAt @map("updated_at")
+
+  // Relacionamentos
+  credor                   Credor?   @relation(fields: [credorId], references: [id])
+  empresa                  Empresa?  @relation(fields: [devedorId], references: [idEmpresa])
+  extratos                 ExtratoContas[]
+
+  @@index([credorId])
+  @@index([devedorId])
+  @@index([dataEmissao])
+  @@index([status])
+  @@index([origemId])
+  @@map("titulos_pagar")
+}
+
+model ExtratoContas {
+  id                       Int       @id @map("id")
+  valor                    Decimal?  @map("valor") @db.Decimal(15, 2)
+  data                     DateTime  @map("data")
+  numeroDocumento          String?   @map("numero_documento")
+  descricao                String?   @map("descricao")
+  documentoId              String?   @map("documento_id")
+  tipo                     String?   @map("tipo") // Income/Expense
+  dataReconciliacao        DateTime? @map("data_reconciliacao")
+  tituloId                 Int?      @map("titulo_id")
+  numeroParcela            Int?      @map("numero_parcela")
+  origemExtrato            String?   @map("origem_extrato")
+  tipoExtrato              String?   @map("tipo_extrato")
+  observacoesExtrato       String?   @map("observacoes_extrato")
+
+  // Arrays como JSON
+  categoriasOrcamentarias  Json?     @map("categorias_orcamentarias")
+
+  // Control fields
+  createdAt                DateTime  @default(now()) @map("created_at")
+  updatedAt                DateTime  @updatedAt @map("updated_at")
+
+  // Relacionamentos
+  titulo                   TituloPagar? @relation(fields: [tituloId], references: [id])
+
+  @@index([tituloId])
+  @@index([data])
+  @@index([tipo])
+  @@map("extrato_contas")
+}
+
+model ContratoSuprimento {
+  id                       Int       @id @default(autoincrement()) @map("id")
+  documentoId              String?   @map("documento_id")
+  numeroContrato           String    @unique @map("numero_contrato")
+  fornecedorId             Int?      @map("fornecedor_id")
+  clienteId                Int?      @map("cliente_id")
+  empresaId                Int?      @map("empresa_id")
+  empresaNome              String?   @map("empresa_nome")
+  responsavelId            String?   @map("responsavel_id")
+  responsavelNome          String?   @map("responsavel_nome")
+  status                   String?   @map("status")
+  statusId                 String?   @map("status_id")
+  statusAprovacao          String?   @map("status_aprovacao")
+  autorizado               Boolean   @default(false) @map("autorizado")
+  dataContrato             DateTime? @map("data_contrato")
+  dataInicio               DateTime? @map("data_inicio")
+  dataFim                  DateTime? @map("data_fim")
+  objeto                   String?   @map("objeto") @db.Text
+  observacoesInternas      String?   @map("observacoes_internas") @db.Text
+  tipoContrato             String?   @map("tipo_contrato")
+  tipoRegistro             String?   @map("tipo_registro")
+  tipoItem                 String?   @map("tipo_item")
+  valorTotalMaoObra        Decimal?  @map("valor_total_mao_obra") @db.Decimal(15, 2)
+  valorTotalMaterial       Decimal?  @map("valor_total_material") @db.Decimal(15, 2)
+  consistente              Boolean   @default(true) @map("consistente")
+
+  // Arrays como JSON
+  edificios                Json?     @map("edificios")
+
+  // Control fields
+  createdAt                DateTime  @default(now()) @map("created_at")
+  updatedAt                DateTime  @updatedAt @map("updated_at")
+
+  // Relacionamentos
+  fornecedor               Credor?   @relation(fields: [fornecedorId], references: [id])
+  empresa                  Empresa?  @relation(fields: [empresaId], references: [idEmpresa])
+
+  @@index([fornecedorId])
+  @@index([empresaId])
+  @@index([status])
+  @@index([dataContrato])
+  @@map("contratos_suprimento")
 }

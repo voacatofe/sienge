@@ -93,6 +93,25 @@ export async function GET(request: NextRequest) {
         example: `${baseUrl}/api/sienge/proxy?endpoint=/hooks&limit=1000`,
       },
       // ===== ENDPOINTS DE DADOS FINANCEIROS POR PERÍODO =====
+      bearers: {
+        description: 'Busca lista completa de portadores (bulk data)',
+        path: '/bearers',
+        bulkData: true,
+        example: `${baseUrl}/api/sienge/proxy?endpoint=/bearers&limit=1000`,
+      },
+      creditors: {
+        description: 'Busca lista completa de credores (bulk data)',
+        path: '/creditors',
+        bulkData: true,
+        example: `${baseUrl}/api/sienge/proxy?endpoint=/creditors&limit=1000`,
+      },
+      bills: {
+        description: 'Busca títulos a pagar por período (bulk data)',
+        path: '/bills',
+        bulkData: true,
+        required: ['startDate', 'endDate'],
+        example: `${baseUrl}/api/sienge/proxy?endpoint=/bills&startDate=2024-01-01&endDate=2024-12-31`,
+      },
       income: {
         description: 'Busca receitas por período (bulk data)',
         path: '/income',
@@ -135,6 +154,12 @@ export async function GET(request: NextRequest) {
         example: `${baseUrl}/api/sienge/proxy?endpoint=/sales&enterpriseId=123&createdAfter=2024-01-01&createdBefore=2024-12-31&situation=SOLD`,
       },
       // ===== ENDPOINTS DE MEDIÇÕES E ANEXOS =====
+      'supply-contracts/all': {
+        description: 'Consulta todos os contratos de suprimento (bulk data)',
+        path: '/supply-contracts/all',
+        bulkData: true,
+        example: `${baseUrl}/api/sienge/proxy?endpoint=/supply-contracts/all&limit=1000`,
+      },
       'supply-contracts/measurements/all': {
         description: 'Consulta todas as medições de contratos (bulk data)',
         path: '/supply-contracts/measurements/all',
