@@ -177,16 +177,96 @@ export class SiengeApiClient {
     }
   }
 
-  // Método temporário para recuperar senha - SUBSTITUIR POR SOLUÇÃO SEGURA EM PRODUÇÃO
+  /**
+   * Obtém a senha para autenticação de uma fonte segura
+   * Prioriza credenciais criptografadas no banco de dados
+   */
   private async getPasswordFromSecureStorage(
     subdomain: string
   ): Promise<string | null> {
-    // IMPLEMENTAÇÃO TEMPORÁRIA: usar cache em memória
-    // EM PRODUÇÃO: usar AWS Secrets Manager, Azure Key Vault, etc.
+    try {
+      // PRIORIDADE 1: Buscar credenciais criptografadas no banco de dados
+      const credentials = await prisma.apiCredentials.findUnique({
+        where: { subdomain: subdomain },
+        select: {
+          apiPasswordEncrypted: true,
+          encryptionIv: true,
+          encryptionTag: true,
+          encryptionSalt: true,
+          apiPasswordHash: true, // Fallback temporário
+        },
+      });
 
-    // Procurar por uma variável de ambiente específica do subdomínio
-    const envKey = `SIENGE_PASSWORD_${subdomain.toUpperCase()}`;
-    return process.env[envKey] || null;
+      if (credentials) {
+        // Verificar se temos dados de criptografia AES-256
+        if (
+          credentials.apiPasswordEncrypted &&
+          credentials.encryptionIv &&
+          credentials.encryptionTag &&
+          credentials.encryptionSalt
+        ) {
+          // Descriptografar senha usando AES-256
+          const { decryptPassword } = await import('@/lib/crypto');
+          const decryptedPassword = decryptPassword({
+            encrypted: credentials.apiPasswordEncrypted,
+            iv: credentials.encryptionIv,
+            tag: credentials.encryptionTag,
+            salt: credentials.encryptionSalt,
+          });
+
+          this.logger.info('Password decrypted from database for subdomain', {
+            subdomain,
+          });
+          return decryptedPassword;
+        } else {
+          this.logger.warn(
+            'Database credentials found but encryption fields missing',
+            { subdomain }
+          );
+        }
+      }
+
+      // PRIORIDADE 2: Senha configurada via frontend (salva temporariamente quando usuário configura)
+      const frontendPasswordKey = `SIENGE_PASSWORD_${subdomain.toUpperCase()}`;
+      const frontendPassword = process.env[frontendPasswordKey];
+
+      if (frontendPassword) {
+        this.logger.info(
+          'Using password configured via frontend interface (temporary env var)'
+        );
+        return frontendPassword;
+      }
+
+      // PRIORIDADE 3: Senha genérica das variáveis de ambiente (fallback)
+      const envPassword = process.env.SIENGE_PASSWORD;
+
+      if (envPassword) {
+        this.logger.warn(
+          'Using fallback password from environment variables (frontend not configured)'
+        );
+        return envPassword;
+      }
+
+      // Debug logging para diagnóstico
+      this.logger.error('No password found in any source', {
+        subdomain,
+        frontendPasswordKey,
+        hasDbCredentials: !!credentials,
+        hasEncryptedFields: !!credentials?.apiPasswordEncrypted,
+        availableEnvVars: Object.keys(process.env).filter(key =>
+          key.startsWith('SIENGE_')
+        ),
+      });
+
+      return null;
+    } catch (error) {
+      this.logger.error(
+        'Error retrieving password from secure storage:',
+        error,
+        { subdomain }
+      );
+      return null;
+    }
   }
 
   // Configurar lógica de retry
@@ -638,7 +718,10 @@ export class SiengeApiClient {
         return response.data;
       }
     } catch (error) {
-      this.logger.error(`Erro ao buscar dados da entidade ${entityName}:`, error);
+      this.logger.error(
+        `Erro ao buscar dados da entidade ${entityName}:`,
+        error
+      );
 
       // Se a API falhar, retornar array vazio em vez de quebrar
       if (usePagination) {

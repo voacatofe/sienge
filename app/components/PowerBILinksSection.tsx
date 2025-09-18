@@ -18,15 +18,24 @@ export function PowerBILinksSection({ syncResults }: PowerBILinksProps) {
 
   // URLs das APIs disponíveis
   const apiUrls = {
+    // API Master (domínios principais)
     master: `${baseUrl}/api/datawarehouse/master`,
     contratos: `${baseUrl}/api/datawarehouse/master?domain=contratos`,
     clientes: `${baseUrl}/api/datawarehouse/master?domain=clientes`,
     empreendimentos: `${baseUrl}/api/datawarehouse/master?domain=empreendimentos`,
-    unidades: `${baseUrl}/api/datawarehouse/master?domain=unidades`
+    unidades: `${baseUrl}/api/datawarehouse/master?domain=unidades`,
+
+    // API Financeira (novos domínios)
+    financial: `${baseUrl}/api/datawarehouse/financial`,
+    empresas: `${baseUrl}/api/datawarehouse/financial?domain=empresas`,
+    centrosCusto: `${baseUrl}/api/datawarehouse/financial?domain=centro-custos`,
+    planosFinanceiros: `${baseUrl}/api/datawarehouse/financial?domain=planos-financeiros`,
+    extratosContas: `${baseUrl}/api/datawarehouse/financial?domain=extratos-contas`,
   };
 
   // Deployment ID do Looker Studio (configurável via variável de ambiente)
-  const lookerDeploymentId = process.env.NEXT_PUBLIC_LOOKER_DEPLOYMENT_ID || 'SEU_DEPLOYMENT_ID';
+  const lookerDeploymentId =
+    process.env.NEXT_PUBLIC_LOOKER_DEPLOYMENT_ID || 'SEU_DEPLOYMENT_ID';
   const lookerConnectorUrl = `https://lookerstudio.google.com/datasources/create?connectorId=${lookerDeploymentId}`;
 
   const copyToClipboard = (text: string) => {
@@ -87,7 +96,8 @@ export function PowerBILinksSection({ syncResults }: PowerBILinksProps) {
           </div>
           {lookerDeploymentId === 'SEU_DEPLOYMENT_ID' && (
             <p className="text-xs text-red-600 mt-2">
-              ⚠️ Configure a variável NEXT_PUBLIC_LOOKER_DEPLOYMENT_ID no EasyPanel
+              ⚠️ Configure a variável NEXT_PUBLIC_LOOKER_DEPLOYMENT_ID no
+              EasyPanel
             </p>
           )}
         </div>
@@ -100,7 +110,9 @@ export function PowerBILinksSection({ syncResults }: PowerBILinksProps) {
           <ol className="text-sm text-green-700 space-y-1 ml-3">
             <li>1. Clique no link direto acima</li>
             <li>2. Looker Studio abre automaticamente</li>
-            <li>3. Clique em <strong>{"Conectar"}</strong></li>
+            <li>
+              3. Clique em <strong>{'Conectar'}</strong>
+            </li>
             <li>4. Dados carregam automaticamente → Pronto!</li>
           </ol>
         </div>
@@ -112,16 +124,28 @@ export function PowerBILinksSection({ syncResults }: PowerBILinksProps) {
           </h5>
           <ol className="text-sm text-green-700 space-y-1 ml-3">
             <li>1. Abra um relatório no Looker Studio</li>
-            <li>2. Clique em <strong>{"Adicionar dados"}</strong></li>
-            <li>3. Selecione <strong>{"Partner connectors"}</strong></li>
-            <li>4. Clique em <strong>{"Crie seus próprios"}</strong></li>
-            <li>5. Cole o Deployment ID: <code className="bg-gray-200 px-1 rounded text-xs">{lookerDeploymentId}</code></li>
+            <li>
+              2. Clique em <strong>{'Adicionar dados'}</strong>
+            </li>
+            <li>
+              3. Selecione <strong>{'Partner connectors'}</strong>
+            </li>
+            <li>
+              4. Clique em <strong>{'Crie seus próprios'}</strong>
+            </li>
+            <li>
+              5. Cole o Deployment ID:{' '}
+              <code className="bg-gray-200 px-1 rounded text-xs">
+                {lookerDeploymentId}
+              </code>
+            </li>
             <li>6. Conecte e use os dados!</li>
           </ol>
         </div>
 
         <div className="p-2 bg-green-100 rounded text-xs text-green-700">
-          ✅ <strong>Vantagens:</strong> Sem configuração manual • Grupos semânticos organizados • Um clique para conectar
+          ✅ <strong>Vantagens:</strong> Sem configuração manual • Grupos
+          semânticos organizados • Um clique para conectar
         </div>
       </div>
 
@@ -133,18 +157,30 @@ export function PowerBILinksSection({ syncResults }: PowerBILinksProps) {
 
         {/* URLs Disponíveis */}
         <div className="mb-4 space-y-3">
-          <h5 className="font-semibold text-yellow-800">🔗 URLs Disponíveis:</h5>
+          <h5 className="font-semibold text-yellow-800">
+            🔗 URLs Disponíveis:
+          </h5>
 
           {Object.entries({
-            'Todos os Domínios': apiUrls.master,
-            'Apenas Contratos': apiUrls.contratos,
-            'Apenas Clientes': apiUrls.clientes,
-            'Apenas Empreendimentos': apiUrls.empreendimentos,
-            'Apenas Unidades': apiUrls.unidades
+            'Master - Todos os Domínios': apiUrls.master,
+            'Master - Apenas Contratos': apiUrls.contratos,
+            'Master - Apenas Clientes': apiUrls.clientes,
+            'Master - Apenas Empreendimentos': apiUrls.empreendimentos,
+            'Master - Apenas Unidades': apiUrls.unidades,
+            'Financeiro - Todos os Domínios': apiUrls.financial,
+            'Financeiro - Apenas Empresas': apiUrls.empresas,
+            'Financeiro - Centros de Custo': apiUrls.centrosCusto,
+            'Financeiro - Planos Financeiros': apiUrls.planosFinanceiros,
+            'Financeiro - Extratos de Contas': apiUrls.extratosContas,
           }).map(([label, url]) => (
-            <div key={label} className="p-2 bg-white rounded border border-yellow-300">
+            <div
+              key={label}
+              className="p-2 bg-white rounded border border-yellow-300"
+            >
               <div className="flex justify-between items-center">
-                <span className="text-sm font-medium text-yellow-800">{label}:</span>
+                <span className="text-sm font-medium text-yellow-800">
+                  {label}:
+                </span>
                 <button
                   onClick={() => copyToClipboard(url)}
                   className="px-2 py-1 text-xs bg-yellow-600 text-white rounded hover:bg-yellow-700"
@@ -161,22 +197,43 @@ export function PowerBILinksSection({ syncResults }: PowerBILinksProps) {
 
         {/* Passo a Passo */}
         <div className="mb-4">
-          <h5 className="font-semibold text-yellow-800 mb-2">📋 Passo a Passo:</h5>
+          <h5 className="font-semibold text-yellow-800 mb-2">
+            📋 Passo a Passo:
+          </h5>
           <ol className="text-sm text-yellow-800 space-y-2">
-            <li>1. Abra o <strong>Power BI Desktop</strong></li>
-            <li>2. Clique em <strong>{"Obter Dados"}</strong> → <strong>{"Web"}</strong></li>
-            <li>3. Cole uma das URLs acima no campo <strong>{"URL"}</strong></li>
-            <li>4. Clique em <strong>{"OK"}</strong> → aguarde carregamento</li>
-            <li>5. No Navigator, selecione <strong>{"data"}</strong></li>
-            <li>6. Clique em <strong>{"Transformar Dados"}</strong> (Power Query)</li>
-            <li>7. Expanda a coluna <strong>{"data"}</strong> para ver todos os campos</li>
+            <li>
+              1. Abra o <strong>Power BI Desktop</strong>
+            </li>
+            <li>
+              2. Clique em <strong>{'Obter Dados'}</strong> →{' '}
+              <strong>{'Web'}</strong>
+            </li>
+            <li>
+              3. Cole uma das URLs acima no campo <strong>{'URL'}</strong>
+            </li>
+            <li>
+              4. Clique em <strong>{'OK'}</strong> → aguarde carregamento
+            </li>
+            <li>
+              5. No Navigator, selecione <strong>{'data'}</strong>
+            </li>
+            <li>
+              6. Clique em <strong>{'Transformar Dados'}</strong> (Power Query)
+            </li>
+            <li>
+              7. Expanda a coluna <strong>{'data'}</strong> para ver todos os
+              campos
+            </li>
             <li>8. Configure tipos de dados (datas, números, texto)</li>
-            <li>9. Clique em <strong>{"Fechar e Aplicar"}</strong></li>
+            <li>
+              9. Clique em <strong>{'Fechar e Aplicar'}</strong>
+            </li>
           </ol>
         </div>
 
         <div className="p-2 bg-yellow-100 rounded text-xs text-yellow-700">
-          💡 <strong>Dica:</strong> Use URLs específicas por domínio para análises focadas • Todos os dados dos últimos 12 meses
+          💡 <strong>Dica:</strong> Use URLs específicas por domínio para
+          análises focadas • Todos os dados dos últimos 12 meses
         </div>
       </div>
 
@@ -186,63 +243,144 @@ export function PowerBILinksSection({ syncResults }: PowerBILinksProps) {
           🎯 Domínios e Dados Disponíveis
         </h4>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+        <div className="space-y-6">
+          {/* Domínios Master */}
           <div>
-            <span className="font-medium text-gray-800">📋 Contratos:</span>
-            <ul className="mt-1 text-gray-600 space-y-1 text-xs">
-              <li>• Valor, Status, Tipo de Contrato</li>
-              <li>• Contratos Ativos/Assinados</li>
-              <li>• Margem Bruta, Saldo Devedor</li>
-            </ul>
+            <h5 className="font-semibold text-gray-900 mb-3 border-b border-gray-200 pb-1">
+              📊 API Master (Domínios Principais)
+            </h5>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              <div>
+                <span className="font-medium text-gray-800">📋 Contratos:</span>
+                <ul className="mt-1 text-gray-600 space-y-1 text-xs">
+                  <li>• Valor, Status, Tipo de Contrato</li>
+                  <li>• Contratos Ativos/Assinados</li>
+                  <li>• Margem Bruta, Saldo Devedor</li>
+                </ul>
+              </div>
+
+              <div>
+                <span className="font-medium text-gray-800">👥 Clientes:</span>
+                <ul className="mt-1 text-gray-600 space-y-1 text-xs">
+                  <li>• Nome e dados do cliente principal</li>
+                  <li>• Histórico de cadastros</li>
+                </ul>
+              </div>
+
+              <div>
+                <span className="font-medium text-gray-800">
+                  🏗️ Empreendimentos:
+                </span>
+                <ul className="mt-1 text-gray-600 space-y-1 text-xs">
+                  <li>• Nome e tipo do projeto</li>
+                  <li>• Dados de desenvolvimento</li>
+                </ul>
+              </div>
+
+              <div>
+                <span className="font-medium text-gray-800">🏠 Unidades:</span>
+                <ul className="mt-1 text-gray-600 space-y-1 text-xs">
+                  <li>• Tipo, área e faixa de área</li>
+                  <li>• Inventário imobiliário</li>
+                </ul>
+              </div>
+            </div>
           </div>
 
+          {/* Domínios Financeiros */}
           <div>
-            <span className="font-medium text-gray-800">👥 Clientes:</span>
-            <ul className="mt-1 text-gray-600 space-y-1 text-xs">
-              <li>• Nome e dados do cliente principal</li>
-              <li>• Histórico de cadastros</li>
-            </ul>
+            <h5 className="font-semibold text-gray-900 mb-3 border-b border-gray-200 pb-1">
+              💰 API Financeira (Novos Domínios)
+            </h5>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              <div>
+                <span className="font-medium text-gray-800">🏢 Empresas:</span>
+                <ul className="mt-1 text-gray-600 space-y-1 text-xs">
+                  <li>• Nome, CNPJ, Inscrições</li>
+                  <li>• Endereço e contatos</li>
+                  <li>• Status ativo/inativo</li>
+                </ul>
+              </div>
+
+              <div>
+                <span className="font-medium text-gray-800">
+                  🎯 Centros de Custo:
+                </span>
+                <ul className="mt-1 text-gray-600 space-y-1 text-xs">
+                  <li>• Departamentos e setores</li>
+                  <li>• Building sectors (JSON)</li>
+                  <li>• Contas disponíveis</li>
+                </ul>
+              </div>
+
+              <div>
+                <span className="font-medium text-gray-800">
+                  📊 Planos Financeiros:
+                </span>
+                <ul className="mt-1 text-gray-600 space-y-1 text-xs">
+                  <li>• Categorias de contas</li>
+                  <li>• Tipo: Receita/Despesa</li>
+                  <li>• Flags: Redutora, Adiantamento</li>
+                </ul>
+              </div>
+
+              <div>
+                <span className="font-medium text-gray-800">
+                  💳 Extratos de Contas:
+                </span>
+                <ul className="mt-1 text-gray-600 space-y-1 text-xs">
+                  <li>• Movimentações financeiras</li>
+                  <li>• Valores e tipos</li>
+                  <li>• Vínculos com centro/plano</li>
+                </ul>
+              </div>
+            </div>
           </div>
 
+          {/* Dimensões Temporais */}
           <div>
-            <span className="font-medium text-gray-800">🏗️ Empreendimentos:</span>
-            <ul className="mt-1 text-gray-600 space-y-1 text-xs">
-              <li>• Nome e tipo do projeto</li>
-              <li>• Dados de desenvolvimento</li>
-            </ul>
-          </div>
+            <h5 className="font-semibold text-gray-900 mb-3 border-b border-gray-200 pb-1">
+              📅 Dimensões Temporais
+            </h5>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              <div>
+                <span className="font-medium text-gray-800">
+                  📅 Master API:
+                </span>
+                <ul className="mt-1 text-gray-600 space-y-1 text-xs">
+                  <li>• Data, ano, trimestre, mês</li>
+                  <li>• Últimos 12 meses automaticamente</li>
+                </ul>
+              </div>
 
-          <div>
-            <span className="font-medium text-gray-800">🏠 Unidades:</span>
-            <ul className="mt-1 text-gray-600 space-y-1 text-xs">
-              <li>• Tipo, área e faixa de área</li>
-              <li>• Inventário imobiliário</li>
-            </ul>
-          </div>
-
-          <div>
-            <span className="font-medium text-gray-800">🏢 Empresas:</span>
-            <ul className="mt-1 text-gray-600 space-y-1 text-xs">
-              <li>• Nome, cidade, estado, região</li>
-              <li>• CNPJ e dados organizacionais</li>
-            </ul>
-          </div>
-
-          <div>
-            <span className="font-medium text-gray-800">📅 Temporais:</span>
-            <ul className="mt-1 text-gray-600 space-y-1 text-xs">
-              <li>• Data, ano, trimestre, mês</li>
-              <li>• Últimos 12 meses automaticamente</li>
-            </ul>
+              <div>
+                <span className="font-medium text-gray-800">
+                  📅 Financial API:
+                </span>
+                <ul className="mt-1 text-gray-600 space-y-1 text-xs">
+                  <li>• Created_at, Updated_at</li>
+                  <li>• Dados desde sincronização</li>
+                </ul>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className="mt-4 p-3 bg-blue-50 rounded border-l-4 border-blue-400">
-          <p className="text-sm text-blue-800">
-            <strong>📊 Total de Registros:</strong> 1.235 registros (últimos 12 meses) |
-            <strong> 🔄 Atualização:</strong> Diária às 6h |
-            <strong> ⚡ Cache:</strong> 1 hora
-          </p>
+        <div className="mt-4 space-y-2">
+          <div className="p-3 bg-blue-50 rounded border-l-4 border-blue-400">
+            <p className="text-sm text-blue-800">
+              <strong>📊 API Master:</strong> 1.235 registros (últimos 12 meses)
+              |<strong> 🔄 Atualização:</strong> Diária às 6h |
+              <strong> ⚡ Cache:</strong> 1 hora
+            </p>
+          </div>
+          <div className="p-3 bg-green-50 rounded border-l-4 border-green-400">
+            <p className="text-sm text-green-800">
+              <strong>💰 API Financeira:</strong> 234 registros (tempo real) |
+              <strong> 🔄 Atualização:</strong> Via sincronização |
+              <strong> ⚡ Cache:</strong> 30 minutos
+            </p>
+          </div>
         </div>
       </div>
     </div>

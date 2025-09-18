@@ -123,6 +123,10 @@ export function ConfigurationSection({
     const limit = 200; // Máximo permitido pela API
     let hasMoreData = true;
     let totalFetched = 0;
+    let emptyPagesCount = 0;
+    const MAX_EMPTY_PAGES = 3;
+    const startTime = Date.now();
+    const MAX_SYNC_TIME = 5 * 60 * 1000; // 5 minutos por endpoint
 
     // Adicionar parâmetros obrigatórios para accounts-statements
     if (endpointPath === '/accounts-statements') {
@@ -132,10 +136,19 @@ export function ConfigurationSection({
       baseParams.endDate = new Date().toISOString().split('T')[0];
     }
 
-    // //console.log(`🔄 Iniciando paginação para ${endpointName}...`);
+    console.log(`🔄 Iniciando paginação para ${endpointName}...`);
 
     while (hasMoreData) {
       try {
+        // Verificar timeout de segurança
+        if (Date.now() - startTime > MAX_SYNC_TIME) {
+          console.warn(
+            `⏰ Timeout para ${endpointName}. Parando sincronização.`
+          );
+          break;
+        }
+
+        const currentPage = Math.floor(offset / limit) + 1;
         const paginatedParams = {
           ...baseParams,
           limit: limit,
@@ -151,6 +164,13 @@ export function ConfigurationSection({
             },
             {} as Record<string, string>
           ),
+        });
+
+        console.log(`[SYNC] ${endpointName} - Página ${currentPage}:`, {
+          offset,
+          limit,
+          totalFetched,
+          emptyPages: emptyPagesCount,
         });
 
         const response = await fetch(`/api/sienge/proxy?${queryParams}`);
@@ -179,25 +199,88 @@ export function ConfigurationSection({
             }
           }
 
+          // Log detalhado da resposta
+          console.log(
+            `[SYNC] ${endpointName} - Página ${currentPage} recebida:`,
+            {
+              receivedCount: pageData.length,
+              hasMetadata: !!result.data?.resultSetMetadata,
+              totalFetched: totalFetched + pageData.length,
+            }
+          );
+
+          // Verificar se recebeu dados vazios
+          if (pageData.length === 0) {
+            emptyPagesCount++;
+            console.warn(
+              `[SYNC] ${endpointName} - Página vazia ${emptyPagesCount}/${MAX_EMPTY_PAGES}`
+            );
+
+            if (emptyPagesCount >= MAX_EMPTY_PAGES) {
+              console.warn(
+                `🛑 Muitas páginas vazias para ${endpointName}. Parando sincronização.`
+              );
+              hasMoreData = false;
+              break;
+            }
+          } else {
+            emptyPagesCount = 0; // Reset se recebeu dados
+          }
+
           allData.push(...pageData);
           totalFetched += pageData.length;
 
-          // Verificar se há mais dados
-          if (pageData.length < limit) {
-            hasMoreData = false; // Última página
+          // Melhor detecção de fim de paginação usando metadata da API
+          const metadata =
+            result.data?.resultSetMetadata || result.data?.metadata;
+          if (metadata) {
+            const total = metadata.count || metadata.totalRecords || 0;
+            const currentOffset = metadata.offset || offset;
+            hasMoreData =
+              currentOffset + pageData.length < total && pageData.length > 0;
+
+            console.log(`[SYNC] ${endpointName} - Metadata:`, {
+              total,
+              currentOffset,
+              expectedOffset: offset,
+              hasMore: hasMoreData,
+            });
           } else {
-            offset += limit; // Próxima página
+            // Fallback para lógica original melhorada
+            if (pageData.length === 0) {
+              hasMoreData = false; // Sem dados, parar imediatamente
+            } else if (pageData.length < limit) {
+              hasMoreData = false; // Última página
+            } else {
+              offset += limit; // Próxima página
+            }
+          }
+
+          // Se usando metadata, atualizar offset corretamente
+          if (metadata && hasMoreData) {
+            offset += limit;
           }
 
           // Aguardar um pouco entre páginas para não sobrecarregar a API
           await new Promise(resolve => setTimeout(resolve, 300));
         } else {
+          console.error(`[SYNC] ${endpointName} - Erro na resposta:`, {
+            status: response.status,
+            success: result.success,
+            error: result.error,
+          });
           hasMoreData = false;
         }
       } catch (error) {
+        console.error(`[SYNC] ${endpointName} - Erro na requisição:`, error);
         hasMoreData = false;
       }
     }
+
+    const elapsedMinutes = Math.round((Date.now() - startTime) / 1000 / 60);
+    console.log(
+      `✅ [SYNC] ${endpointName} finalizado: ${totalFetched} registros em ${elapsedMinutes}min`
+    );
 
     return allData;
   };

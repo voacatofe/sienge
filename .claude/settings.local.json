@@ -32,7 +32,8 @@
       "Bash(curl:*)",
       "Bash(npx tsc:*)",
       "Bash(del \"C:\\Users\\darla\\OneDrive\\Documentos\\sienge\\app\\api\\test-models\\route.ts\")",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(docker exec:*)"
     ],
     "deny": [],
     "ask": []

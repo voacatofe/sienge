@@ -16,12 +16,20 @@ model ApiCredentials {
   subdomain       String   @unique
   apiUser         String   @map("api_user")
   apiPasswordHash String   @map("api_password_hash")
+
+  // Campos para criptografia AES-256 reversível
+  apiPasswordEncrypted String? @map("api_password_encrypted")
+  encryptionIv         String? @map("encryption_iv")
+  encryptionTag        String? @map("encryption_tag")
+  encryptionSalt       String? @map("encryption_salt")
+
   createdAt       DateTime @default(now()) @map("created_at")
   updatedAt       DateTime @updatedAt @map("updated_at")
   isActive        Boolean  @default(true) @map("is_active")
 
   @@index([subdomain])
   @@index([isActive])
+  @@index([subdomain, apiPasswordEncrypted], name: "idx_api_credentials_subdomain_encrypted")
   @@map("api_credentials")
 }
 

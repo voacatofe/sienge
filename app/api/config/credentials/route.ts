@@ -5,6 +5,7 @@ import axios from 'axios';
 import { apiSuccess, apiError, withErrorHandler } from '@/lib/api-response';
 import { createContextLogger } from '@/lib/logger';
 import { prisma } from '@/lib/prisma-singleton';
+import { encryptPassword, decryptPassword } from '@/lib/crypto';
 
 const credentialsLogger = createContextLogger('CREDENTIALS');
 
@@ -144,7 +145,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Criptografar a senha
+    // Criptografar a senha usando AES-256 (reversível)
+    const encryptedPasswordData = encryptPassword(sanitizedPassword);
+
+    // Manter hash bcrypt para compatibilidade temporária
     const saltRounds = 12;
     const hashedPassword = await bcrypt.hash(sanitizedPassword, saltRounds);
 
@@ -162,6 +166,11 @@ export async function POST(request: NextRequest) {
         data: {
           apiUser: sanitizedUsername,
           apiPasswordHash: hashedPassword,
+          // Campos de criptografia AES-256
+          apiPasswordEncrypted: encryptedPasswordData.encrypted,
+          encryptionIv: encryptedPasswordData.iv,
+          encryptionTag: encryptedPasswordData.tag,
+          encryptionSalt: encryptedPasswordData.salt,
           isActive: true,
           updatedAt: new Date(),
         },
@@ -174,6 +183,11 @@ export async function POST(request: NextRequest) {
           subdomain: sanitizedSubdomain,
           apiUser: sanitizedUsername,
           apiPasswordHash: hashedPassword,
+          // Campos de criptografia AES-256
+          apiPasswordEncrypted: encryptedPasswordData.encrypted,
+          encryptionIv: encryptedPasswordData.iv,
+          encryptionTag: encryptedPasswordData.tag,
+          encryptionSalt: encryptedPasswordData.salt,
           isActive: true,
         },
       });
