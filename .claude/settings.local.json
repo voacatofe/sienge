@@ -18,7 +18,10 @@
       "Bash(grep:*)",
       "Bash(python:*)",
       "Bash(npx prisma migrate dev:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(psql:*)",
+      "WebSearch",
+      "Bash(npm run dev:*)"
     ],
     "deny": [],
     "ask": []
