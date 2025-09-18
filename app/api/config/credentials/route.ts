@@ -194,9 +194,7 @@ export async function POST(request: NextRequest) {
       operation = 'created';
     }
 
-    // Salvar senha em variável de ambiente temporária
-    const envKey = `SIENGE_PASSWORD_${sanitizedSubdomain.toUpperCase()}`;
-    process.env[envKey] = sanitizedPassword;
+    // Senha será acessada diretamente do banco via descriptografia AES-256
 
     // Invalidar cache se disponível
     try {

@@ -226,18 +226,7 @@ export class SiengeApiClient {
         }
       }
 
-      // PRIORIDADE 2: Senha configurada via frontend (salva temporariamente quando usuário configura)
-      const frontendPasswordKey = `SIENGE_PASSWORD_${subdomain.toUpperCase()}`;
-      const frontendPassword = process.env[frontendPasswordKey];
-
-      if (frontendPassword) {
-        this.logger.info(
-          'Using password configured via frontend interface (temporary env var)'
-        );
-        return frontendPassword;
-      }
-
-      // PRIORIDADE 3: Senha genérica das variáveis de ambiente (fallback)
+      // PRIORIDADE 2: Senha genérica das variáveis de ambiente (fallback apenas)
       const envPassword = process.env.SIENGE_PASSWORD;
 
       if (envPassword) {
@@ -250,7 +239,6 @@ export class SiengeApiClient {
       // Debug logging para diagnóstico
       this.logger.error('No password found in any source', {
         subdomain,
-        frontendPasswordKey,
         hasDbCredentials: !!credentials,
         hasEncryptedFields: !!credentials?.apiPasswordEncrypted,
         availableEnvVars: Object.keys(process.env).filter(key =>
