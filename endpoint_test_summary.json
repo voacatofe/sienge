@@ -1,0 +1,226 @@
+{
+  "test_date": "2025-09-18T14:04:46.906100",
+  "subdomain": "abf",
+  "statistics": {
+    "total": 32,
+    "accessible": 16,
+    "denied": 0,
+    "not_found": 16
+  },
+  "results": {
+    "customers": {
+      "status": "✅",
+      "code": 200,
+      "message": "Acesso liberado",
+      "count": 1
+    },
+    "companies": {
+      "status": "✅",
+      "code": 200,
+      "message": "Acesso liberado",
+      "count": 1
+    },
+    "sales-contracts": {
+      "status": "✅",
+      "code": 200,
+      "message": "Acesso liberado",
+      "count": 1
+    },
+    "enterprises": {
+      "status": "✅",
+      "code": 200,
+      "message": "Acesso liberado",
+      "count": 1
+    },
+    "units": {
+      "status": "✅",
+      "code": 200,
+      "message": "Acesso liberado",
+      "count": 1
+    },
+    "hooks": {
+      "status": "✅",
+      "code": 200,
+      "message": "Acesso liberado",
+      "count": 1
+    },
+    "creditors": {
+      "status": "✅",
+      "code": 200,
+      "message": "Acesso liberado",
+      "count": 1
+    },
+    "bills": {
+      "status": "⚠️",
+      "code": 400,
+      "message": "Status 400",
+      "count": 0
+    },
+    "accounts-statements": {
+      "status": "⚠️",
+      "code": 400,
+      "message": "Status 400",
+      "count": 0
+    },
+    "supply-contracts": {
+      "status": "✅",
+      "code": 200,
+      "message": "Acesso liberado",
+      "count": 1
+    },
+    "customer-types": {
+      "status": "✅",
+      "code": 200,
+      "message": "Acesso liberado",
+      "count": 0
+    },
+    "accounts-receivable": {
+      "status": "⚠️",
+      "code": 404,
+      "message": "Não encontrado",
+      "count": 0
+    },
+    "accounts-receivable-bills": {
+      "status": "✅",
+      "code": 200,
+      "message": "Acesso liberado",
+      "count": 1
+    },
+    "commissions": {
+      "status": "✅",
+      "code": 200,
+      "message": "Acesso liberado",
+      "count": 1
+    },
+    "cost-centers": {
+      "status": "✅",
+      "code": 200,
+      "message": "Acesso liberado",
+      "count": 1
+    },
+    "checking-accounts": {
+      "status": "✅",
+      "code": 200,
+      "message": "Acesso liberado",
+      "count": 1
+    },
+    "indexers": {
+      "status": "✅",
+      "code": 200,
+      "message": "Acesso liberado",
+      "count": 1
+    },
+    "accountancy-accounts": {
+      "status": "✅",
+      "code": 200,
+      "message": "Acesso liberado",
+      "count": 1
+    },
+    "accountancy-entries": {
+      "status": "⚠️",
+      "code": 400,
+      "message": "Status 400",
+      "count": 0
+    },
+    "accounts-balances": {
+      "status": "⚠️",
+      "code": 400,
+      "message": "Status 400",
+      "count": 0
+    },
+    "building-projects": {
+      "status": "✅",
+      "code": 200,
+      "message": "Acesso liberado",
+      "count": 1
+    },
+    "construction-daily-reports": {
+      "status": "⚠️",
+      "code": 404,
+      "message": "Não encontrado",
+      "count": 0
+    },
+    "fixed-assets": {
+      "status": "⚠️",
+      "code": 404,
+      "message": "Não encontrado",
+      "count": 0
+    },
+    "measurements": {
+      "status": "⚠️",
+      "code": 404,
+      "message": "Não encontrado",
+      "count": 0
+    },
+    "movable-assets": {
+      "status": "⚠️",
+      "code": 404,
+      "message": "Não encontrado",
+      "count": 0
+    },
+    "property-rentals": {
+      "status": "⚠️",
+      "code": 404,
+      "message": "Não encontrado",
+      "count": 0
+    },
+    "sites": {
+      "status": "⚠️",
+      "code": 422,
+      "message": "Status 422",
+      "count": 0
+    },
+    "bulk-bank-movements": {
+      "status": "⚠️",
+      "code": 404,
+      "message": "Não encontrado",
+      "count": 0
+    },
+    "bulk-building-costs": {
+      "status": "⚠️",
+      "code": 404,
+      "message": "Não encontrado",
+      "count": 0
+    },
+    "bulk-customer-history": {
+      "status": "⚠️",
+      "code": 404,
+      "message": "Não encontrado",
+      "count": 0
+    },
+    "bulk-income": {
+      "status": "⚠️",
+      "code": 404,
+      "message": "Não encontrado",
+      "count": 0
+    },
+    "bulk-sales": {
+      "status": "⚠️",
+      "code": 404,
+      "message": "Não encontrado",
+      "count": 0
+    }
+  },
+  "new_available_endpoints": [
+    "customer-types",
+    "accounts-receivable-bills",
+    "commissions",
+    "cost-centers",
+    "checking-accounts",
+    "indexers",
+    "accountancy-accounts",
+    "building-projects"
+  ],
+  "implemented_endpoints_status": {
+    "customers": "✅",
+    "companies": "✅",
+    "sales-contracts": "✅",
+    "enterprises": "✅",
+    "units": "✅",
+    "hooks": "✅",
+    "creditors": "✅",
+    "bills": "⚠️",
+    "accounts-statements": "⚠️",
+    "supply-contracts": "✅"
+  }
+}
