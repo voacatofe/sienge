@@ -379,10 +379,20 @@ export function ConfigurationSection({
 
       try {
         // Teste simples com limite baixo
-        const testParams = new URLSearchParams({
+        const testParamsObj: Record<string, string> = {
           endpoint: endpoint.path,
           limit: '1', // Apenas 1 registro para teste
-        });
+        };
+
+        // Adicionar parâmetros obrigatórios para accounts-statements
+        if (endpoint.id === 'accounts-statements') {
+          const oneYearAgo = new Date();
+          oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+          testParamsObj.startDate = oneYearAgo.toISOString().split('T')[0];
+          testParamsObj.endDate = new Date().toISOString().split('T')[0];
+        }
+
+        const testParams = new URLSearchParams(testParamsObj);
 
         const testResponse = await fetch(`/api/sienge/proxy?${testParams}`);
 
@@ -466,6 +476,7 @@ export function ConfigurationSection({
       'units-situations': {},
       'sales-contracts': { createdAfter: dateFilter, createdBefore: today },
       hooks: {},
+      'accounts-statements': { startDate: dateFilter, endDate: today },
     };
 
     const results: any[] = [];
