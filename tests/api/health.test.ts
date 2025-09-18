@@ -45,8 +45,7 @@ describe('/api/health', () => {
     siengeApiClient.isInitialized.mockReturnValue(true);
     siengeApiClient.testConnection.mockResolvedValue(true);
 
-    const request = new NextRequest('http://localhost:3000/api/health');
-    const response = await GET(request);
+    const response = await GET();
     const data = await response.json();
 
     expect(response.status).toBe(200);
@@ -65,8 +64,7 @@ describe('/api/health', () => {
     siengeApiClient.isInitialized.mockReturnValue(true);
     siengeApiClient.testConnection.mockResolvedValue(true);
 
-    const request = new NextRequest('http://localhost:3000/api/health');
-    const response = await GET(request);
+    const response = await GET();
     const data = await response.json();
 
     expect(response.status).toBe(503);
@@ -83,10 +81,11 @@ describe('/api/health', () => {
     // Mock API failure
     checkDBHealth.mockResolvedValue({ status: 'healthy', responseTime: 25 });
     siengeApiClient.isInitialized.mockReturnValue(false);
-    siengeApiClient.initialize.mockRejectedValue(new Error('API connection failed'));
+    siengeApiClient.initialize.mockRejectedValue(
+      new Error('API connection failed')
+    );
 
-    const request = new NextRequest('http://localhost:3000/api/health');
-    const response = await GET(request);
+    const response = await GET();
     const data = await response.json();
 
     expect(response.status).toBe(503);
@@ -104,8 +103,7 @@ describe('/api/health', () => {
     siengeApiClient.isInitialized.mockReturnValue(true);
     siengeApiClient.testConnection.mockResolvedValue(true);
 
-    const request = new NextRequest('http://localhost:3000/api/health');
-    const response = await GET(request);
+    const response = await GET();
     const data = await response.json();
 
     expect(data.system).toBeDefined();

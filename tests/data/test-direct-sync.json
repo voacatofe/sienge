@@ -1,0 +1,11 @@
+{
+  "endpoint": "cost-centers",
+  "data": [
+    {
+      "id": 50001,
+      "name": "Centro de Teste - Novo",
+      "cnpj": "12345678000199",
+      "idCompany": 1
+    }
+  ]
+}

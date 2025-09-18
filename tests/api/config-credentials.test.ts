@@ -59,8 +59,7 @@ describe('/api/config/credentials', () => {
 
       prisma.apiCredentials.findFirst.mockResolvedValue(mockCredentials);
 
-      const request = new NextRequest('http://localhost:3000/api/config/credentials');
-      const response = await GET(request);
+      const response = await GET();
       const data = await response.json();
 
       expect(response.status).toBe(200);
@@ -76,8 +75,7 @@ describe('/api/config/credentials', () => {
 
       prisma.apiCredentials.findFirst.mockResolvedValue(null);
 
-      const request = new NextRequest('http://localhost:3000/api/config/credentials');
-      const response = await GET(request);
+      const response = await GET();
       const data = await response.json();
 
       expect(response.status).toBe(200);
@@ -109,11 +107,14 @@ describe('/api/config/credentials', () => {
         isValid: true,
       });
 
-      const request = new NextRequest('http://localhost:3000/api/config/credentials', {
-        method: 'POST',
-        body: JSON.stringify(requestBody),
-        headers: { 'Content-Type': 'application/json' },
-      });
+      const request = new NextRequest(
+        'http://localhost:3000/api/config/credentials',
+        {
+          method: 'POST',
+          body: JSON.stringify(requestBody),
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
 
       const response = await POST(request);
       const data = await response.json();
@@ -147,11 +148,14 @@ describe('/api/config/credentials', () => {
         isValid: true,
       });
 
-      const request = new NextRequest('http://localhost:3000/api/config/credentials', {
-        method: 'POST',
-        body: JSON.stringify(requestBody),
-        headers: { 'Content-Type': 'application/json' },
-      });
+      const request = new NextRequest(
+        'http://localhost:3000/api/config/credentials',
+        {
+          method: 'POST',
+          body: JSON.stringify(requestBody),
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
 
       const response = await POST(request);
       const data = await response.json();
@@ -172,11 +176,14 @@ describe('/api/config/credentials', () => {
 
       siengeApiClient.testCredentials.mockResolvedValue(false);
 
-      const request = new NextRequest('http://localhost:3000/api/config/credentials', {
-        method: 'POST',
-        body: JSON.stringify(requestBody),
-        headers: { 'Content-Type': 'application/json' },
-      });
+      const request = new NextRequest(
+        'http://localhost:3000/api/config/credentials',
+        {
+          method: 'POST',
+          body: JSON.stringify(requestBody),
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
 
       const response = await POST(request);
       const data = await response.json();
@@ -193,11 +200,14 @@ describe('/api/config/credentials', () => {
         // password missing
       };
 
-      const request = new NextRequest('http://localhost:3000/api/config/credentials', {
-        method: 'POST',
-        body: JSON.stringify(requestBody),
-        headers: { 'Content-Type': 'application/json' },
-      });
+      const request = new NextRequest(
+        'http://localhost:3000/api/config/credentials',
+        {
+          method: 'POST',
+          body: JSON.stringify(requestBody),
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
 
       const response = await POST(request);
       const data = await response.json();

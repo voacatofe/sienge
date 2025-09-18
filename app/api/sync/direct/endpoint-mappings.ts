@@ -315,17 +315,19 @@ export const ENDPOINT_MAPPINGS: Record<string, EndpointMapping> = {
         transform: (val: any) => val || null,
       },
       links: { field: 'links', transform: (val: any) => val || null },
+      // Mapeamento único para datas do Sienge
       creationDate: {
-        field: 'data_criacao_sienge',
+        field: 'dataCriacaoSienge',
         transform: (val: any) => (val ? new Date(val) : null),
       },
       lastUpdateDate: {
-        field: 'data_ultima_atualizacao_sienge',
+        field: 'dataUltimaAtualizacaoSienge',
         transform: (val: any) => (val ? new Date(val) : null),
       },
+      // Campos de auditoria locais (sempre gerados)
       createdAt: {
         field: 'dataCadastro',
-        transform: (val: any) => (val ? new Date(val) : new Date()),
+        transform: () => new Date(),
       },
       updatedAt: { field: 'dataAtualizacao', transform: () => new Date() },
     },

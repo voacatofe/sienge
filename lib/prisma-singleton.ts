@@ -19,10 +19,14 @@ declare global {
 
 // Configurações otimizadas do Prisma
 const prismaClientOptions = {
-  log: process.env.NODE_ENV === 'development'
-    ? ['query', 'error', 'warn'] as ('query' | 'error' | 'warn')[]
-    : ['error'] as ('error')[],
-  errorFormat: process.env.NODE_ENV === 'development' ? 'pretty' as const : 'minimal' as const,
+  log:
+    process.env.NODE_ENV === 'development'
+      ? (['query', 'error', 'warn'] as ('query' | 'error' | 'warn')[])
+      : (['error'] as 'error'[]),
+  errorFormat:
+    process.env.NODE_ENV === 'development'
+      ? ('pretty' as const)
+      : ('minimal' as const),
 };
 
 class PrismaService {
@@ -114,12 +118,13 @@ class PrismaService {
 
     const client = PrismaService.getInstance();
 
-    PrismaService.connectionPromise = client.$connect()
+    PrismaService.connectionPromise = client
+      .$connect()
       .then(() => {
         client.isConnected = true;
         logger.info('PRISMA', 'Database connected successfully');
       })
-      .catch((error) => {
+      .catch(error => {
         logger.error('PRISMA', 'Failed to connect to database', error);
         throw error;
       })
@@ -195,13 +200,19 @@ class PrismaService {
         });
       } catch (error) {
         lastError = error as Error;
-        logger.warn('PRISMA', `Transaction failed, retry ${i + 1}/${maxRetries}`, {
-          error: lastError.message,
-        });
+        logger.warn(
+          'PRISMA',
+          `Transaction failed, retry ${i + 1}/${maxRetries}`,
+          {
+            error: lastError.message,
+          }
+        );
 
         // Aguardar antes de tentar novamente (backoff exponencial)
         if (i < maxRetries - 1) {
-          await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000));
+          await new Promise(resolve =>
+            setTimeout(resolve, Math.pow(2, i) * 1000)
+          );
         }
       }
     }
@@ -222,7 +233,8 @@ class PrismaService {
   }
 }
 
-// Exportar a instância singleton
+// Exportar a instância singleton diretamente
+// O PrismaService já gerencia a inicialização lazy
 export const prisma = PrismaService.getInstance();
 
 // Exportar funções utilitárias

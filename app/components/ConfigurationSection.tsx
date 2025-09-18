@@ -124,6 +124,14 @@ export function ConfigurationSection({
     let hasMoreData = true;
     let totalFetched = 0;
 
+    // Adicionar parâmetros obrigatórios para accounts-statements
+    if (endpointPath === '/accounts-statements') {
+      const oneYearAgo = new Date();
+      oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+      baseParams.startDate = oneYearAgo.toISOString().split('T')[0];
+      baseParams.endDate = new Date().toISOString().split('T')[0];
+    }
+
     // //console.log(`🔄 Iniciando paginação para ${endpointName}...`);
 
     while (hasMoreData) {
@@ -144,7 +152,6 @@ export function ConfigurationSection({
             {} as Record<string, string>
           ),
         });
-
 
         const response = await fetch(`/api/sienge/proxy?${queryParams}`);
         const result = await response.json();
@@ -174,7 +181,6 @@ export function ConfigurationSection({
 
           allData.push(...pageData);
           totalFetched += pageData.length;
-
 
           // Verificar se há mais dados
           if (pageData.length < limit) {
@@ -227,6 +233,26 @@ export function ConfigurationSection({
         phase: 3,
       },
       { id: 'hooks', name: 'Webhooks', path: '/hooks', phase: 3 },
+
+      // === FASE 4: NOVOS ENDPOINTS FINANCEIROS ===
+      {
+        id: 'cost-centers',
+        name: 'Centros de Custo',
+        path: '/cost-centers',
+        phase: 4,
+      },
+      {
+        id: 'payment-categories',
+        name: 'Planos Financeiros',
+        path: '/payment-categories',
+        phase: 4,
+      },
+      {
+        id: 'accounts-statements',
+        name: 'Extratos de Contas',
+        path: '/accounts-statements',
+        phase: 5,
+      },
     ];
 
     // Primeiro: testar conectividade com cada endpoint
@@ -288,7 +314,6 @@ export function ConfigurationSection({
       // Aguardar um pouco entre testes
       await new Promise(resolve => setTimeout(resolve, 200));
     }
-
 
     if (validEndpoints.length === 0) {
       setSubmitStatus('error');
@@ -373,7 +398,6 @@ export function ConfigurationSection({
                   `Erro ao salvar no banco: ${syncResponse.statusText}`
                 );
               }
-
             } catch (syncError) {
               console.error(
                 `❌ FASE ${phase}: Erro ao salvar ${endpoint.name}:`,
@@ -414,7 +438,6 @@ export function ConfigurationSection({
 
       successCount += phaseSuccessCount;
       errorCount += phaseErrorCount;
-
 
       // Aguardar um pouco entre fases para não sobrecarregar o banco
       if (phase < phases[phases.length - 1]) {

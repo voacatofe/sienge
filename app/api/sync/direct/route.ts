@@ -234,15 +234,39 @@ async function executePrismaOperation(
   params: any
 ): Promise<any> {
   try {
-    syncLogger.debug(`Attempting to access model: ${model}`);
+    // Verificar se o Prisma está inicializado
+    if (!prisma) {
+      syncLogger.error('Prisma client is not initialized');
+      throw new Error('Prisma client is not initialized');
+    }
+
+    syncLogger.debug(`Attempting to access model: ${model}`, {
+      operation,
+      prismaKeys: Object.keys(prisma)
+        .filter(k => !k.startsWith('$') && !k.startsWith('_'))
+        .slice(0, 10),
+    });
+
     const delegate = (prisma as any)[model];
 
     if (!delegate) {
+      const availableModels = Object.keys(prisma).filter(
+        k => !k.startsWith('$') && !k.startsWith('_')
+      );
       syncLogger.error(
         `Model ${model} not found in Prisma client. Available models:`,
-        Object.keys(prisma)
+        availableModels
       );
-      throw new Error(`Model ${model} not found in Prisma client`);
+      throw new Error(
+        `Model ${model} not found in Prisma client. Available: ${availableModels.join(', ')}`
+      );
+    }
+
+    if (typeof delegate[operation] !== 'function') {
+      syncLogger.error(
+        `Operation ${operation} not available on model ${model}`
+      );
+      throw new Error(`Operation ${operation} not available on model ${model}`);
     }
 
     switch (operation) {
@@ -421,9 +445,20 @@ async function processItem(
 
       // Processar apropriações para accounts-statements
       if (endpoint === 'accounts-statements' && item.budgetCategories) {
+        syncLogger.info(
+          `Processing ${item.budgetCategories.length} appropriations for updated statement ${primaryKeyValue}`,
+          {
+            statementId: primaryKeyValue,
+            appropriationsCount: item.budgetCategories.length,
+            operation: 'update',
+          }
+        );
         await processAccountStatementAppropriation(
           primaryKeyValue,
           item.budgetCategories
+        );
+        syncLogger.info(
+          `Successfully processed appropriations for updated statement ${primaryKeyValue}`
         );
       }
 
@@ -436,9 +471,19 @@ async function processItem(
 
       // Processar apropriações para accounts-statements
       if (endpoint === 'accounts-statements' && item.budgetCategories) {
+        syncLogger.info(
+          `Processing ${item.budgetCategories.length} appropriations for statement ${primaryKeyValue}`,
+          {
+            statementId: primaryKeyValue,
+            appropriationsCount: item.budgetCategories.length,
+          }
+        );
         await processAccountStatementAppropriation(
           primaryKeyValue,
           item.budgetCategories
+        );
+        syncLogger.info(
+          `Successfully processed appropriations for statement ${primaryKeyValue}`
         );
       }
 

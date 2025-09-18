@@ -29,7 +29,10 @@
       "Bash(cat:*)",
       "Bash(npx prisma generate:*)",
       "Bash(npx tsx:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(npx tsc:*)",
+      "Bash(del \"C:\\Users\\darla\\OneDrive\\Documentos\\sienge\\app\\api\\test-models\\route.ts\")",
+      "Bash(node:*)"
     ],
     "deny": [],
     "ask": []

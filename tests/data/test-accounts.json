@@ -1,0 +1,35 @@
+{
+  "endpoint": "accounts-statements",
+  "data": [
+    {
+      "id": 2001,
+      "value": 1500.0,
+      "date": "2024-01-20",
+      "documentNumber": "TEST001",
+      "description": "Teste de Extrato",
+      "documentId": "DOC001",
+      "type": "Income",
+      "reconciliationDate": null,
+      "billId": null,
+      "installmentNumber": 1,
+      "statementOrigin": "TC",
+      "statementType": "Recebimento",
+      "statementTypeNotes": "Teste simples",
+      "budgetCategories": [
+        {
+          "percentage": 100,
+          "links": [
+            {
+              "href": "/api/v1/cost-centers/90115",
+              "rel": "cost-center"
+            },
+            {
+              "href": "/api/v1/payment-categories/101",
+              "rel": "payment-category"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

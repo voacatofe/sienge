@@ -17,6 +17,8 @@ const SYNC_ENDPOINTS = [
   '/sales-contracts',
   '/commissions',
   '/payment-categories',
+  '/cost-centers',
+  '/accounts-statements',
   '/carriers',
   '/indexers',
 ];
@@ -54,6 +56,7 @@ async function runDailySync() {
             '/accounts-receivable',
             '/accounts-payable',
             '/sales-contracts',
+            '/accounts-statements',
           ].includes(endpoint)
         ) {
           if (endpoint === '/customers') {
@@ -65,6 +68,9 @@ async function runDailySync() {
             params.append('issueAfter', dateFilter);
           } else if (endpoint === '/sales-contracts') {
             params.append('contractAfter', dateFilter);
+          } else if (endpoint === '/accounts-statements') {
+            params.append('startDate', dateFilter);
+            params.append('endDate', new Date().toISOString().split('T')[0]);
           }
         }
 
