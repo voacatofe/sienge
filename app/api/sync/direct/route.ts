@@ -23,6 +23,7 @@ interface SyncResult {
   inserted: number;
   updated: number;
   errors: number;
+  firstError?: string;
 }
 
 /**
@@ -72,6 +73,115 @@ async function validateForeignKeys(
     }
   }
 
+  // Validação para bills (títulos a pagar)
+  if (endpoint === 'bills') {
+    // Validar credorId
+    if (cleanedData.credorId) {
+      try {
+        const credorExists = await prisma.credor.findUnique({
+          where: { id: cleanedData.credorId },
+          select: { id: true },
+        });
+
+        if (!credorExists) {
+          syncLogger.warn(
+            `Creditor ${cleanedData.credorId} not found for bill ${cleanedData.id || 'unknown'}. Setting credorId to null.`
+          );
+          cleanedData.credorId = null;
+        }
+      } catch (error) {
+        syncLogger.error('Error validating creditor FK', error);
+        cleanedData.credorId = null;
+      }
+    }
+
+    // Validar devedorId (empresaId)
+    if (cleanedData.devedorId) {
+      try {
+        const empresaExists = await prisma.empresa.findUnique({
+          where: { idEmpresa: cleanedData.devedorId },
+          select: { idEmpresa: true },
+        });
+
+        if (!empresaExists) {
+          syncLogger.warn(
+            `Debtor/Company ${cleanedData.devedorId} not found for bill ${cleanedData.id || 'unknown'}. Setting devedorId to null.`
+          );
+          cleanedData.devedorId = null;
+        }
+      } catch (error) {
+        syncLogger.error('Error validating debtor FK', error);
+        cleanedData.devedorId = null;
+      }
+    }
+  }
+
+  // Validação para supply-contracts/all
+  if (endpoint === 'supply-contracts/all') {
+    // Validar fornecedorId
+    if (cleanedData.fornecedorId) {
+      try {
+        const fornecedorExists = await prisma.credor.findUnique({
+          where: { id: cleanedData.fornecedorId },
+          select: { id: true },
+        });
+
+        if (!fornecedorExists) {
+          syncLogger.warn(
+            `Supplier ${cleanedData.fornecedorId} not found for contract ${cleanedData.numeroContrato || 'unknown'}. Setting fornecedorId to null.`
+          );
+          cleanedData.fornecedorId = null;
+        }
+      } catch (error) {
+        syncLogger.error('Error validating supplier FK', error);
+        cleanedData.fornecedorId = null;
+      }
+    }
+
+    // Validar empresaId
+    if (cleanedData.empresaId) {
+      try {
+        const empresaExists = await prisma.empresa.findUnique({
+          where: { idEmpresa: cleanedData.empresaId },
+          select: { idEmpresa: true },
+        });
+
+        if (!empresaExists) {
+          syncLogger.warn(
+            `Company ${cleanedData.empresaId} not found for contract ${cleanedData.numeroContrato || 'unknown'}. Setting empresaId to null.`
+          );
+          cleanedData.empresaId = null;
+        }
+      } catch (error) {
+        syncLogger.error('Error validating company FK', error);
+        cleanedData.empresaId = null;
+      }
+    }
+  }
+
+  // Validação para accounts-statements (extrato de contas)
+  if (endpoint === 'accounts-statements') {
+    // Validar tituloId
+    if (cleanedData.tituloId) {
+      try {
+        const tituloExists = await prisma.tituloPagar.findUnique({
+          where: { id: cleanedData.tituloId },
+          select: { id: true },
+        });
+
+        if (!tituloExists) {
+          syncLogger.warn(
+            `Bill ${cleanedData.tituloId} not found for statement ${cleanedData.id || 'unknown'}. Setting tituloId to null.`
+          );
+          cleanedData.tituloId = null;
+        }
+      } catch (error) {
+        syncLogger.error('Error validating bill FK', error);
+        cleanedData.tituloId = null;
+      }
+    }
+  }
+
   return cleanedData;
 }
 
@@ -117,7 +227,10 @@ async function processItem(
   endpoint: string,
   item: any,
   mapping: any
-): Promise<'inserted' | 'updated' | 'error'> {
+): Promise<{
+  status: 'inserted' | 'updated' | 'error';
+  errorMessage?: string;
+}> {
   try {
     // Aplicar mapeamento de campos
     const mappedData: any = {};
@@ -178,17 +291,26 @@ async function processItem(
 
     if (existingRecord) {
       // Atualizar registro existente
+      // Criar cópia dos dados SEM a primary key para o UPDATE
+      const updateData: any = {};
+      for (const [key, value] of Object.entries(validatedData)) {
+        // Não incluir a primary key no data do update
+        if (key !== mapping.primaryKey && key !== 'id') {
+          updateData[key] = value;
+        }
+      }
+
       await executePrismaOperation(mapping.model, 'update', {
         where: whereClause,
-        data: validatedData,
+        data: updateData,
       });
-      return 'updated';
+      return { status: 'updated' };
     } else {
-      // Criar novo registro
+      // Criar novo registro - mantém todos os campos incluindo ID
       await executePrismaOperation(mapping.model, 'create', {
         data: validatedData,
       });
-      return 'inserted';
+      return { status: 'inserted' };
     }
   } catch (error) {
     const itemId = item[mapping.primaryKey] || item.id || 'unknown';
@@ -198,7 +320,12 @@ async function processItem(
       itemId,
     });
 
-    return 'error';
+    const errorMessage =
+      error instanceof Error
+        ? `Item ${itemId}: ${error.message}`
+        : `Item ${itemId}: Unknown error`;
+
+    return { status: 'error', errorMessage };
   }
 }
 
@@ -241,10 +368,14 @@ async function processGenericEndpoint(
 
     // Contar resultados
     batchResults.forEach(result => {
-      if (result === 'error') {
+      if (result.status === 'error') {
         results.errors++;
+        // Capturar primeiro erro para o log
+        if (!results.firstError && result.errorMessage) {
+          results.firstError = result.errorMessage;
+        }
       } else {
-        results[result]++;
+        results[result.status]++;
       }
     });
   }
@@ -324,6 +455,7 @@ export async function POST(request: NextRequest) {
         recordsUpdated: result.updated,
         recordsErrors: result.errors,
         status: result.errors > 0 ? 'completed_with_errors' : 'completed',
+        errorMessage: result.firstError || null,
       },
     });
 
