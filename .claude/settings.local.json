@@ -17,7 +17,8 @@
       "Bash(PGPASSWORD=kPnrGuFeJeuVprXzhhO2oLVE14f509KV psql:*)",
       "Bash(grep:*)",
       "Bash(python:*)",
-      "Bash(npx prisma migrate dev:*)"
+      "Bash(npx prisma migrate dev:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []
