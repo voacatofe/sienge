@@ -23,7 +23,8 @@
       "WebSearch",
       "Bash(npm run dev:*)",
       "Bash(npm run test:endpoints:*)",
-      "Bash(xargs:*)"
+      "Bash(xargs:*)",
+      "Bash(python:*)"
     ],
     "deny": [],
     "ask": []
