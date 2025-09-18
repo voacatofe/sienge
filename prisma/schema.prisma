@@ -70,6 +70,8 @@ model Empresa {
   clientes         Cliente[]
   titulosPagar     TituloPagar[]
   contratosSuprimento ContratoSuprimento[]
+  centrosCusto     CentroCusto[]
+  extratosContas   ExtratoContas[]
 
   @@index([nomeEmpresa])
   @@index([cnpj])
@@ -883,6 +885,17 @@ model ExtratoContas {
   tipoExtrato              String?   @map("tipo_extrato")
   observacoesExtrato       String?   @map("observacoes_extrato")
 
+  // Novos campos
+  empresaId                Int?      @map("empresa_id")
+  contaId                  Int?      @map("conta_id")
+  centroCustoId            Int?      @map("centro_custo_id")
+  planoFinanceiroId        String?   @map("plano_financeiro_id")
+  saldo                    Decimal?  @map("saldo") @db.Decimal(15, 2)
+  conciliado               Boolean   @default(false) @map("conciliado")
+  referencia               String?   @map("referencia")
+  beneficiario             String?   @map("beneficiario")
+  tags                     Json?     @map("tags")
+
   // Arrays como JSON
   categoriasOrcamentarias  Json?     @map("categorias_orcamentarias")
 
@@ -892,10 +905,17 @@ model ExtratoContas {
 
   // Relacionamentos
   titulo                   TituloPagar? @relation(fields: [tituloId], references: [id])
+  empresa                  Empresa?     @relation(fields: [empresaId], references: [idEmpresa])
+  centroCusto              CentroCusto? @relation(fields: [centroCustoId], references: [id])
+  planoFinanceiro          PlanoFinanceiro? @relation(fields: [planoFinanceiroId], references: [id])
+  apropriacoes             ExtratoApropriacao[]
 
   @@index([tituloId])
   @@index([data])
   @@index([tipo])
+  @@index([empresaId])
+  @@index([centroCustoId])
+  @@index([planoFinanceiroId])
   @@map("extrato_contas")
 }
 
@@ -941,4 +961,75 @@ model ContratoSuprimento {
   @@index([status])
   @@index([dataContrato])
   @@map("contratos_suprimento")
+}
+
+model CentroCusto {
+  id                       Int       @id @map("id")
+  nome                     String    @map("nome")
+  cnpj                     String?   @map("cnpj")
+  empresaId                Int?      @map("empresa_id")
+  ativo                    Boolean   @default(true) @map("ativo")
+
+  // Arrays como JSON
+  buildingSectors          Json?     @map("building_sectors")
+  availableAccounts        Json?     @map("available_accounts")
+
+  // Control fields
+  createdAt                DateTime  @default(now()) @map("created_at")
+  updatedAt                DateTime  @updatedAt @map("updated_at")
+
+  // Relacionamentos
+  empresa                  Empresa?  @relation(fields: [empresaId], references: [idEmpresa])
+  extratos                 ExtratoContas[]
+  apropriacoes             ExtratoApropriacao[]
+
+  @@index([nome])
+  @@index([empresaId])
+  @@index([ativo])
+  @@map("centro_custos")
+}
+
+model PlanoFinanceiro {
+  id                       String    @id @map("id")
+  nome                     String    @map("nome")
+  tipoConta                String?   @map("tipo_conta") // T ou R
+  flRedutora               String?   @map("fl_redutora") // S ou N
+  flAtiva                  String?   @map("fl_ativa") // S ou N
+  flAdiantamento           String?   @map("fl_adiantamento") // S ou N
+  flImposto                String?   @map("fl_imposto") // S ou N
+
+  // Control fields
+  createdAt                DateTime  @default(now()) @map("created_at")
+  updatedAt                DateTime  @updatedAt @map("updated_at")
+
+  // Relacionamentos
+  extratos                 ExtratoContas[]
+  apropriacoes             ExtratoApropriacao[]
+
+  @@index([nome])
+  @@index([flAtiva])
+  @@map("planos_financeiros")
+}
+
+model ExtratoApropriacao {
+  id                       Int       @id @default(autoincrement()) @map("id")
+  extratoContaId           Int       @map("extrato_conta_id")
+  centroCustoId            Int?      @map("centro_custo_id")
+  planoFinanceiroId        String?   @map("plano_financeiro_id")
+  percentual               Decimal?  @map("percentual") @db.Decimal(5, 2)
+  valorApropriado          Decimal?  @map("valor_apropriado") @db.Decimal(15, 2)
+
+  // Control fields
+  createdAt                DateTime  @default(now()) @map("created_at")
+  updatedAt                DateTime  @updatedAt @map("updated_at")
+
+  // Relacionamentos
+  extratoContas            ExtratoContas @relation(fields: [extratoContaId], references: [id])
+  centroCusto              CentroCusto?  @relation(fields: [centroCustoId], references: [id])
+  planoFinanceiro          PlanoFinanceiro? @relation(fields: [planoFinanceiroId], references: [id])
+
+  @@index([extratoContaId])
+  @@index([centroCustoId])
+  @@index([planoFinanceiroId])
+  @@map("extrato_apropriacoes")
 }

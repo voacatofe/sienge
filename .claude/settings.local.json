@@ -24,7 +24,12 @@
       "Bash(npm run dev:*)",
       "Bash(npm run test:endpoints:*)",
       "Bash(xargs:*)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(dir:*)",
+      "Bash(cat:*)",
+      "Bash(npx prisma generate:*)",
+      "Bash(npx tsx:*)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []

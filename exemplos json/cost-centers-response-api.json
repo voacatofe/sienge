@@ -1,0 +1,609 @@
+{
+  "resultSetMetadata": {
+    "count": 213,
+    "offset": 0,
+    "limit": 100
+  },
+  "results": [
+    {
+      "id": 90115,
+      "name": "Nova Sede (Clube) - PDV\t",
+      "cnpj": "",
+      "idCompany": 1
+    },
+    {
+      "id": 12104,
+      "name": "Terreno Luiz Voelker",
+      "cnpj": "",
+      "idCompany": 1
+    },
+    {
+      "id": 12103,
+      "name": "Construção Sede - Clube Três Figueiras",
+      "cnpj": "",
+      "idCompany": 1
+    },
+    {
+      "id": 12102,
+      "name": "Reforma da Sede - Migração das Equipes",
+      "cnpj": "",
+      "idCompany": 1
+    },
+    {
+      "id": 12101,
+      "name": "Nova Sede (Clube) - PDV",
+      "cnpj": "",
+      "idCompany": 1
+    },
+    {
+      "id": 11607,
+      "name": "TI",
+      "cnpj": "",
+      "idCompany": 1
+    },
+    {
+      "id": 11606,
+      "name": "Administrativo",
+      "cnpj": "",
+      "idCompany": 1
+    },
+    {
+      "id": 11605,
+      "name": "Controladoria & Contabilidade",
+      "cnpj": "",
+      "idCompany": 1
+    },
+    {
+      "id": 11604,
+      "name": "Juridico",
+      "cnpj": "",
+      "idCompany": 1
+    },
+    {
+      "id": 11603,
+      "name": "Captação de recursos",
+      "cnpj": "",
+      "idCompany": 1
+    },
+    {
+      "id": 11602,
+      "name": "Financeiro",
+      "cnpj": "",
+      "idCompany": 1
+    },
+    {
+      "id": 11601,
+      "name": "RH & DP",
+      "cnpj": "",
+      "idCompany": 1
+    },
+    {
+      "id": 11504,
+      "name": "Gestão do Cliente",
+      "cnpj": "",
+      "idCompany": 1
+    },
+    {
+      "id": 11503,
+      "name": "Marketing",
+      "cnpj": "",
+      "idCompany": 1
+    },
+    {
+      "id": 11502,
+      "name": "Secretaria de Vendas",
+      "cnpj": "",
+      "idCompany": 1
+    },
+    {
+      "id": 11501,
+      "name": "Comercial",
+      "cnpj": "",
+      "idCompany": 1
+    },
+    {
+      "id": 11405,
+      "name": "Segurança do Trabalho",
+      "cnpj": "",
+      "idCompany": 1
+    },
+    {
+      "id": 11404,
+      "name": "Qualidade",
+      "cnpj": "",
+      "idCompany": 1
+    },
+    {
+      "id": 11403,
+      "name": "Assistência Técnica",
+      "cnpj": "",
+      "idCompany": 1
+    },
+    {
+      "id": 11402,
+      "name": "Suprimentos",
+      "cnpj": "",
+      "idCompany": 1
+    },
+    {
+      "id": 11401,
+      "name": "Planejamento & Orçamento",
+      "cnpj": "",
+      "idCompany": 1
+    },
+    {
+      "id": 11302,
+      "name": "Projetos",
+      "cnpj": "",
+      "idCompany": 1
+    },
+    {
+      "id": 11301,
+      "name": "Incorporação & Novos Negócios",
+      "cnpj": "",
+      "idCompany": 1
+    },
+    {
+      "id": 11201,
+      "name": "RH & DP - OBRAS",
+      "cnpj": "",
+      "idCompany": 1
+    },
+    {
+      "id": 11101,
+      "name": "Diretoria",
+      "cnpj": "",
+      "idCompany": 1
+    },
+    {
+      "id": 10116,
+      "name": "Terreno - Visconde do Herval",
+      "cnpj": "",
+      "idCompany": 1
+    },
+    {
+      "id": 10115,
+      "name": "Terreno Barbedo",
+      "cnpj": "",
+      "idCompany": 1
+    },
+    {
+      "id": 10114,
+      "name": "Terreno Bastian",
+      "cnpj": "",
+      "idCompany": 1
+    },
+    {
+      "id": 10113,
+      "name": "Terreno Demétrio Ribeiro",
+      "cnpj": "",
+      "idCompany": 1
+    },
+    {
+      "id": 10112,
+      "name": "Terreno Washington Luiz",
+      "cnpj": "",
+      "idCompany": 1
+    },
+    {
+      "id": 10111,
+      "name": "Câncio Gomes",
+      "cnpj": "",
+      "idCompany": 1
+    },
+    {
+      "id": 10110,
+      "name": "Gonçalves Dias",
+      "cnpj": "",
+      "idCompany": 1
+    },
+    {
+      "id": 10109,
+      "name": "Terreno - Morumbi",
+      "cnpj": "",
+      "idCompany": 1
+    },
+    {
+      "id": 10108,
+      "name": "Terreno - Rua Tocantins - Cond Victória Town casa 16",
+      "cnpj": "",
+      "idCompany": 1
+    },
+    {
+      "id": 10107,
+      "name": "Terreno - Rua Praça Assunção 04",
+      "cnpj": "",
+      "idCompany": 1
+    },
+    {
+      "id": 10105,
+      "name": "Terreno - Loureiro",
+      "cnpj": "",
+      "idCompany": 1
+    },
+    {
+      "id": 10104,
+      "name": "Terreno - LUIZ VOELKER",
+      "cnpj": "",
+      "idCompany": 1
+    },
+    {
+      "id": 10103,
+      "name": "Terreno - Carlos Huber 2",
+      "cnpj": "",
+      "idCompany": 1
+    },
+    {
+      "id": 10102,
+      "name": "Terreno - Carlos Huber 1",
+      "cnpj": "",
+      "idCompany": 1
+    },
+    {
+      "id": 10101,
+      "name": "Terreno - CLUBE TRÊS FIGUEIRAS",
+      "cnpj": "",
+      "idCompany": 1
+    },
+    {
+      "id": 10100,
+      "name": "Estudos Preliminares e Novos Negócios",
+      "cnpj": "",
+      "idCompany": 1
+    },
+    {
+      "id": 10000,
+      "name": "Administrativo",
+      "cnpj": "",
+      "idCompany": 1
+    },
+    {
+      "id": 7320,
+      "name": "PRESS - 4D Complex",
+      "cnpj": "",
+      "idCompany": 7
+    },
+    {
+      "id": 7222,
+      "name": "ADMINISTRAÇÃO DE OBRA - 4D Complex - FASE II",
+      "cnpj": "",
+      "idCompany": 7
+    },
+    {
+      "id": 7221,
+      "name": "ASSISTÊNCIA TÉCNICA - 4D Complex - FASE II",
+      "cnpj": "",
+      "idCompany": 7
+    },
+    {
+      "id": 7220,
+      "name": "OBRA - 4D Complex - FASE II",
+      "cnpj": "",
+      "idCompany": 7
+    },
+    {
+      "id": 7216,
+      "name": "ADMINISTRATIVO - 4D Complex - FASE II",
+      "cnpj": "",
+      "idCompany": 7
+    },
+    {
+      "id": 7215,
+      "name": "COMERCIAL - 4D Complex - FASE II",
+      "cnpj": "",
+      "idCompany": 7
+    },
+    {
+      "id": 7214,
+      "name": "FINANCEIRO - 4D Complex - FASE II",
+      "cnpj": "",
+      "idCompany": 7
+    },
+    {
+      "id": 7212,
+      "name": "INCORPORAÇÃO E NOVOS NEGÓCIOS - 4D Complex - FASE II",
+      "cnpj": "",
+      "idCompany": 7
+    },
+    {
+      "id": 7211,
+      "name": "MARKETING - 4D Complex - FASE II",
+      "cnpj": "",
+      "idCompany": 7
+    },
+    {
+      "id": 7210,
+      "name": "SPE - 4D Complex (Estoque Comercial) - FASE II",
+      "cnpj": "",
+      "idCompany": 7
+    },
+    {
+      "id": 7130,
+      "name": "SPE - 4D Complex (Estoque Comercial) - GALPÃO",
+      "cnpj": "",
+      "idCompany": 7
+    },
+    {
+      "id": 7122,
+      "name": "ADMINISTRAÇÃO DE OBRA - 4D Complex - FASE I",
+      "cnpj": "",
+      "idCompany": 7
+    },
+    {
+      "id": 7121,
+      "name": "ASSISTÊNCIA TÉCNICA - 4D Complex - FASE I",
+      "cnpj": "",
+      "idCompany": 7
+    },
+    {
+      "id": 7120,
+      "name": "OBRA - 4D Complex - FASE I",
+      "cnpj": "",
+      "idCompany": 7
+    },
+    {
+      "id": 7117,
+      "name": "APTO DECORADO - 4D Complex - FASE I\t",
+      "cnpj": "",
+      "idCompany": 7
+    },
+    {
+      "id": 7116,
+      "name": "ADMINISTRATIVO - 4D Complex - FASE I",
+      "cnpj": "",
+      "idCompany": 7
+    },
+    {
+      "id": 7115,
+      "name": "COMERCIAL - 4D Complex - FASE I",
+      "cnpj": "",
+      "idCompany": 7
+    },
+    {
+      "id": 7114,
+      "name": "FINANCEIRO - 4D Complex - FASE I",
+      "cnpj": "",
+      "idCompany": 7
+    },
+    {
+      "id": 7112,
+      "name": "INCORPORAÇÃO E NOVOS NEGÓCIOS - 4D Complex - FASE I",
+      "cnpj": "",
+      "idCompany": 7
+    },
+    {
+      "id": 7111,
+      "name": "MARKETING - 4D Complex - FASE I",
+      "cnpj": "",
+      "idCompany": 7
+    },
+    {
+      "id": 7110,
+      "name": "SPE - 4D Complex (Estoque Comercial) - FASE I",
+      "cnpj": "",
+      "idCompany": 7
+    },
+    {
+      "id": 1522,
+      "name": "ADMINISTRAÇÃO DE OBRA - Barbedo",
+      "cnpj": "",
+      "idCompany": 15
+    },
+    {
+      "id": 1521,
+      "name": "ASSISTENCIA TECNICA - Barbedo",
+      "cnpj": "",
+      "idCompany": 15
+    },
+    {
+      "id": 1520,
+      "name": "OBRA - Barbedo",
+      "cnpj": "",
+      "idCompany": 15
+    },
+    {
+      "id": 1516,
+      "name": "ADMINISTRATIVO - Barbedo",
+      "cnpj": "",
+      "idCompany": 15
+    },
+    {
+      "id": 1515,
+      "name": "COMERCIAL - Barbedo",
+      "cnpj": "",
+      "idCompany": 15
+    },
+    {
+      "id": 1514,
+      "name": "FINANCEIRO - Barbedo",
+      "cnpj": "",
+      "idCompany": 15
+    },
+    {
+      "id": 1512,
+      "name": "INCORPORAÇÃO E NOVOS NEGÓCIOS - Barbedo",
+      "cnpj": "",
+      "idCompany": 15
+    },
+    {
+      "id": 1511,
+      "name": "MARKETING - Barbedo",
+      "cnpj": "",
+      "idCompany": 15
+    },
+    {
+      "id": 1510,
+      "name": "SPE - Barbedo (Estoque Comercial)\t",
+      "cnpj": "",
+      "idCompany": 15
+    },
+    {
+      "id": 1422,
+      "name": "ADMINISTRAÇÃO DE OBRA - Bastian",
+      "cnpj": "",
+      "idCompany": 14
+    },
+    {
+      "id": 1421,
+      "name": "ASSISTENCIA TECNICA - Bastian",
+      "cnpj": "",
+      "idCompany": 14
+    },
+    {
+      "id": 1420,
+      "name": "OBRA - Bastian",
+      "cnpj": "",
+      "idCompany": 14
+    },
+    {
+      "id": 1416,
+      "name": "ADMINISTRATIVO - Bastian",
+      "cnpj": "",
+      "idCompany": 14
+    },
+    {
+      "id": 1415,
+      "name": "COMERCIAL - Bastian",
+      "cnpj": "",
+      "idCompany": 14
+    },
+    {
+      "id": 1414,
+      "name": "FINANCEIRO - Bastian",
+      "cnpj": "",
+      "idCompany": 14
+    },
+    {
+      "id": 1412,
+      "name": "INCORPORAÇÃO E NOVOS NEGÓCIOS - Bastian",
+      "cnpj": "",
+      "idCompany": 14
+    },
+    {
+      "id": 1411,
+      "name": "MARKETING - Bastian",
+      "cnpj": "",
+      "idCompany": 14
+    },
+    {
+      "id": 1410,
+      "name": "SPE - Bastian (Estoque Comercial)\t",
+      "cnpj": "",
+      "idCompany": 14
+    },
+    {
+      "id": 1322,
+      "name": "ADMINISTRAÇÃO DE OBRA - Demétrio Ribeiro",
+      "cnpj": "",
+      "idCompany": 13
+    },
+    {
+      "id": 1321,
+      "name": "ASSISTENCIA TECNICA - Demétrio Ribeiro",
+      "cnpj": "",
+      "idCompany": 13
+    },
+    {
+      "id": 1320,
+      "name": "OBRA - Demétrio Ribeiro",
+      "cnpj": "",
+      "idCompany": 13
+    },
+    {
+      "id": 1316,
+      "name": "ADMINISTRATIVO - Demétrio Ribeiro",
+      "cnpj": "",
+      "idCompany": 13
+    },
+    {
+      "id": 1315,
+      "name": "COMERCIAL - Demétrio Ribeiro",
+      "cnpj": "",
+      "idCompany": 13
+    },
+    {
+      "id": 1314,
+      "name": "FINANCEIRO - Demétrio Ribeiro",
+      "cnpj": "",
+      "idCompany": 13
+    },
+    {
+      "id": 1312,
+      "name": "INCORPORAÇÃO E NOVOS NEGÓCIOS - Demétrio Ribeiro\t",
+      "cnpj": "",
+      "idCompany": 13
+    },
+    {
+      "id": 1311,
+      "name": "MARKETING - Demétrio Ribeiro",
+      "cnpj": "",
+      "idCompany": 13
+    },
+    {
+      "id": 1310,
+      "name": "SPE - Demétrio Ribeiro (Estoque Comercial)",
+      "cnpj": "",
+      "idCompany": 13
+    },
+    {
+      "id": 1222,
+      "name": "ADMINISTRAÇÃO DE OBRA - Caiz Downton Sunset",
+      "cnpj": "",
+      "idCompany": 12
+    },
+    {
+      "id": 1221,
+      "name": "ASSISTÊNCIA TÉCNICA - Caiz Downton Sunset\t",
+      "cnpj": "",
+      "idCompany": 12
+    },
+    {
+      "id": 1220,
+      "name": "OBRA - Caiz Downton Sunset",
+      "cnpj": "",
+      "idCompany": 12
+    },
+    {
+      "id": 1216,
+      "name": "ADMINISTRATIVO - Caiz Downton Sunset",
+      "cnpj": "",
+      "idCompany": 12
+    },
+    {
+      "id": 1215,
+      "name": "COMERCIAL - Caiz Downton Sunset",
+      "cnpj": "",
+      "idCompany": 12
+    },
+    {
+      "id": 1214,
+      "name": "FINANCEIRO - Caiz Downton Sunset",
+      "cnpj": "",
+      "idCompany": 12
+    },
+    {
+      "id": 1212,
+      "name": "INCORPORAÇÃO E NOVOS NEGÓCIOS - Caiz Downton Sunset",
+      "cnpj": "",
+      "idCompany": 12
+    },
+    {
+      "id": 1211,
+      "name": "MARKETING - Caiz Downton Sunset",
+      "cnpj": "",
+      "idCompany": 12
+    },
+    {
+      "id": 1210,
+      "name": "SPE - Caiz Downton Sunset (Estoque Comercial)",
+      "cnpj": "",
+      "idCompany": 12
+    },
+    {
+      "id": 1122,
+      "name": "ADMINISTRAÇÃO DE OBRA - Menino Deus",
+      "cnpj": "",
+      "idCompany": 11
+    }
+  ]
+}

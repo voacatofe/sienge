@@ -1,0 +1,116 @@
+{
+  "resultSetMetadata": {
+    "count": 3,
+    "offset": 0,
+    "limit": 100
+  },
+  "results": [
+    {
+      "id": 10001,
+      "value": 5000.0,
+      "date": "2024-01-15",
+      "documentNumber": "NF2024-001",
+      "description": "Pagamento de Fornecedor - Material de Constru��o",
+      "documentId": "NFE",
+      "type": "Expense",
+      "reconciliationDate": "2024-01-16",
+      "billId": 501,
+      "installmentNumber": 1,
+      "statementOrigin": "CP",
+      "statementType": "Pagamento",
+      "statementTypeNotes": "Pagamento referente a compra de materiais",
+      "budgetCategories": [
+        {
+          "percentage": 70.0,
+          "links": [
+            {
+              "href": "https://api.sienge.com.br/cliente/public/api/v1/cost-centers/90115",
+              "rel": "cost-center"
+            },
+            {
+              "href": "https://api.sienge.com.br/cliente/public/api/v1/payment-categories/201",
+              "rel": "payment-category"
+            }
+          ]
+        },
+        {
+          "percentage": 30.0,
+          "links": [
+            {
+              "href": "https://api.sienge.com.br/cliente/public/api/v1/cost-centers/12104",
+              "rel": "cost-center"
+            },
+            {
+              "href": "https://api.sienge.com.br/cliente/public/api/v1/payment-categories/202",
+              "rel": "payment-category"
+            }
+          ]
+        }
+      ],
+      "links": [
+        {
+          "href": "https://api.sienge.com.br/cliente/public/api/v1/accounts-statements/10001",
+          "rel": "self"
+        }
+      ]
+    },
+    {
+      "id": 10002,
+      "value": 15000.0,
+      "date": "2024-01-20",
+      "documentNumber": "REC2024-002",
+      "description": "Recebimento de Cliente - Parcela Contrato",
+      "documentId": "REC",
+      "type": "Income",
+      "reconciliationDate": null,
+      "billId": 502,
+      "installmentNumber": 2,
+      "statementOrigin": "CR",
+      "statementType": "Recebimento",
+      "statementTypeNotes": "Recebimento parcela 2/10",
+      "budgetCategories": [
+        {
+          "percentage": 100.0,
+          "links": [
+            {
+              "href": "https://api.sienge.com.br/cliente/public/api/v1/cost-centers/90115",
+              "rel": "cost-center"
+            },
+            {
+              "href": "https://api.sienge.com.br/cliente/public/api/v1/payment-categories/101",
+              "rel": "payment-category"
+            }
+          ]
+        }
+      ],
+      "links": [
+        {
+          "href": "https://api.sienge.com.br/cliente/public/api/v1/accounts-statements/10002",
+          "rel": "self"
+        }
+      ]
+    },
+    {
+      "id": 10003,
+      "value": 2500.0,
+      "date": "2024-01-25",
+      "documentNumber": "DESP2024-003",
+      "description": "Despesa Administrativa",
+      "documentId": "DESP",
+      "type": "Expense",
+      "reconciliationDate": "2024-01-25",
+      "billId": null,
+      "installmentNumber": null,
+      "statementOrigin": "BC",
+      "statementType": "Despesa",
+      "statementTypeNotes": "Despesas gerais administrativas",
+      "budgetCategories": [],
+      "links": [
+        {
+          "href": "https://api.sienge.com.br/cliente/public/api/v1/accounts-statements/10003",
+          "rel": "self"
+        }
+      ]
+    }
+  ]
+}

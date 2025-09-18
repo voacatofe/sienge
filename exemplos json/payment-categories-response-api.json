@@ -1,0 +1,4340 @@
+[
+  {
+    "id": "101",
+    "name": "RECEITA DE UNIDADES IMOBILIÁRIAS",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10199",
+    "name": "(-) Cancelamento de Contrato de Venda",
+    "tpConta": "R",
+    "flRedutora": "S",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "290",
+    "name": "IMPOSTOS RETIDOS DE FORNECEDORES",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "102",
+    "name": "RECEITA DE UNIDADES IMOBILIÁRIAS COM PARCEIROS",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10201",
+    "name": "Receita de unidade imob. não exclusiva da SPE",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2",
+    "name": "S A Í D A S  /  C U S T O S  /  D E S P",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10602",
+    "name": "Acréscimos de Moratórios Ativos",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108010199",
+    "name": "(-) Devolução Aporte ABF EMP. IMOB. LTD",
+    "tpConta": "M",
+    "flRedutora": "S",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "22126",
+    "name": "Construção Sede - Clube Três Figueiras (PDV)",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21013",
+    "name": "Lindeiros",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108010101",
+    "name": "ABF Empreendimentos Imobiliarios Ltda",
+    "tpConta": "M",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "1080102",
+    "name": "COMPRA/VENDA COTAS - ABF EMP. IMOB. LTDA.",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108010299",
+    "name": "(-) Vendas de Cotas ABF EMP. IMOB. LTDA.",
+    "tpConta": "M",
+    "flRedutora": "S",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108010201",
+    "name": "Compra de Cotas ABF EMP. IMOB. LTDA.",
+    "tpConta": "M",
+    "flRedutora": "N",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "1080202",
+    "name": "COMPRA/VENDA COTAS - FRH PARTICIPAÇÕES E EMP. LTDA",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108020299",
+    "name": "(-) Vendas de Cotas FRH PARTICIPAÇÕES E EMP. LTDA.",
+    "tpConta": "M",
+    "flRedutora": "S",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108020201",
+    "name": "Compra de Cotas FRH PARTICIPAÇÕES E EMP. LTDA.",
+    "tpConta": "M",
+    "flRedutora": "N",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108030199",
+    "name": "(-) Devolução Aporte GARCIA PARTICIPAÇÕES",
+    "tpConta": "M",
+    "flRedutora": "S",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108030101",
+    "name": "Aporte GARCIA PARTICIPAÇÕES IMOB. LTDA.",
+    "tpConta": "M",
+    "flRedutora": "N",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "1080302",
+    "name": "COMPRA/VENDA COTAS -GARCIA PARTICIPAÇÕES IMOB LTDA",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108030299",
+    "name": "(-) Vendas de Cotas GARCIA PARTICIPAÇÕES IMOB LTDA",
+    "tpConta": "M",
+    "flRedutora": "S",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108030201",
+    "name": "Compra de Cotas GARCIA PARTICIPAÇÕES IMOB. LTDA.",
+    "tpConta": "M",
+    "flRedutora": "N",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "203",
+    "name": "NÃO USAR - DESPESAS FINANCEIRAS",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108040101",
+    "name": "Aporte LPS PARTICIPAÇÕES LTDA.",
+    "tpConta": "M",
+    "flRedutora": "N",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "1080402",
+    "name": "COMPRA/VENDA COTAS - LPS PARTICIPAÇÕES LTDA.",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108040299",
+    "name": "(-) Vendas de Cotas LPS PARTICIPAÇÕES LTDA.",
+    "tpConta": "M",
+    "flRedutora": "S",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108040201",
+    "name": "Compra de Cotas LPS PARTICIPAÇÕES LTDA.",
+    "tpConta": "M",
+    "flRedutora": "N",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108050199",
+    "name": "(-) Devolução Aporte  INC. C H SENIOR",
+    "tpConta": "M",
+    "flRedutora": "S",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108050101",
+    "name": "Aporte INC. C H SENIOR",
+    "tpConta": "M",
+    "flRedutora": "N",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "1080502",
+    "name": "COMPRA/VENDA COTAS - INC. C H SENIOR RES. LTDA",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108050299",
+    "name": "(-) Vendas de Cotas INC. C H SENIOR",
+    "tpConta": "M",
+    "flRedutora": "S",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108050201",
+    "name": "Compra de Cotas INC. C H SENIOR",
+    "tpConta": "M",
+    "flRedutora": "N",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108060199",
+    "name": "(-) Devolução Aporte INCORPORADORA BALDUINO",
+    "tpConta": "M",
+    "flRedutora": "S",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108060101",
+    "name": "Aporte INCORPORADORA BALDUINO",
+    "tpConta": "M",
+    "flRedutora": "N",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "1080602",
+    "name": "COMPRA/VENDA COTAS - INCORPORADORA BALDUINO",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108060299",
+    "name": "(-) Vendas de Cotas INCORPORADORA BALDUINO",
+    "tpConta": "M",
+    "flRedutora": "S",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10101",
+    "name": "Receita de Incorporação de Imóveis",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "202",
+    "name": "NÃO USAR DESPESAS ADMINISTRATIVAS",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108060201",
+    "name": "Compra de Cotas INCORPORADORA BALDUINO",
+    "tpConta": "M",
+    "flRedutora": "N",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108070199",
+    "name": "(-) Devolução Aporte investidor ODILON BARBOSA",
+    "tpConta": "M",
+    "flRedutora": "S",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108070101",
+    "name": "Aporte Investidor ODILON BARBOSA",
+    "tpConta": "M",
+    "flRedutora": "N",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "1080702",
+    "name": "COMPRA/VENDA COTAS - INVESTIDOR ODILON BARBOSA",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108070299",
+    "name": "(-) Vendas de Cotas INVESTIDOR ODILON BARBOSA",
+    "tpConta": "M",
+    "flRedutora": "S",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108070201",
+    "name": "Compra de Cotas INVESTIDOR ODILON BARBOSA",
+    "tpConta": "M",
+    "flRedutora": "N",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "20202",
+    "name": "NÃO USAR DESPESAS GERAIS",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "1080103",
+    "name": "APORTE TERRENO  ABF EMP. IMOB. LTDA",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108010301",
+    "name": "Aporte Terreno ABF EMP. IMOB. LTDA",
+    "tpConta": "M",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "1080203",
+    "name": "APORTE TERRENO FRH PARTICIPAÇÕES E EMP. LTDA",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "1080303",
+    "name": "APORTE TERRENO GARCIA PARTICIPAÇÕES IMOB. LTDA.",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108030301",
+    "name": "Aporte Terreno GARCIA PARTICIPAÇÕES IMOB. LTDA.",
+    "tpConta": "M",
+    "flRedutora": "N",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "1080403",
+    "name": "APORTE TERRENO LPS PARTICIPAÇÕES LTDA.",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108040301",
+    "name": "Aporte Terreno LPS PARTICIPAÇÕES LTDA.",
+    "tpConta": "M",
+    "flRedutora": "N",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "1080703",
+    "name": "APORTE INVESTIDOR ODILON BARBOSA",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "29001",
+    "name": "RETENÇÃO DE INSS",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108070301",
+    "name": "Aporte Terreno Investidor ODILON BARBOSA",
+    "tpConta": "M",
+    "flRedutora": "N",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "22118",
+    "name": "Eventos para clientes",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108030302",
+    "name": "(-) Devolução Aporte Terreno GARCIA PARTICIPAÇÕES",
+    "tpConta": "M",
+    "flRedutora": "S",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "106",
+    "name": "RECEITA FINANCEIRA",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10601",
+    "name": "Receita de Aplicações Financeiras",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10603",
+    "name": "Juros Ativos",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108070302",
+    "name": "(-) Devolução Aporte Terreno Invest ODILON BARBOSA",
+    "tpConta": "M",
+    "flRedutora": "S",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2900101",
+    "name": "(-) Retenção de INSS",
+    "tpConta": "R",
+    "flRedutora": "S",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2900102",
+    "name": "Recolhimento de INSS",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2900199",
+    "name": "(-) Reembolso de INSS Retido",
+    "tpConta": "R",
+    "flRedutora": "S",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10202",
+    "name": "(-) Repasse de valor de unidade imob. p/ parceiros",
+    "tpConta": "R",
+    "flRedutora": "S",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "29002",
+    "name": "RETENÇÃO DE ISS",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2900201",
+    "name": "(-) Retenção de ISS",
+    "tpConta": "R",
+    "flRedutora": "S",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2900202",
+    "name": "Recolhimento de ISS",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10198",
+    "name": "(-) Descontos Concedidos Incorporação",
+    "tpConta": "R",
+    "flRedutora": "S",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2900299",
+    "name": "(-) Reembolso de ISS Retido",
+    "tpConta": "R",
+    "flRedutora": "S",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "29003",
+    "name": "RETENÇÃO DE IR",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2900301",
+    "name": "(-) Retenção de IR",
+    "tpConta": "R",
+    "flRedutora": "S",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2900302",
+    "name": "Recolhimento Retençao IR",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2900399",
+    "name": "(-) Reembolso de IR Retido",
+    "tpConta": "R",
+    "flRedutora": "S",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21909",
+    "name": "RET",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108040302",
+    "name": "(-) Devolução Aporte Terren LPS PARTICIPAÇÕES LTDA",
+    "tpConta": "M",
+    "flRedutora": "S",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108010302",
+    "name": "(-) Devolução Aporte Terreno ABF EMP. IMOB. LTD",
+    "tpConta": "M",
+    "flRedutora": "S",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "29004",
+    "name": "RETENÇÃO DE PIS, COFINS E CSLL",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2900401",
+    "name": "(-) Retenção de PIS, COFINS e CSLL",
+    "tpConta": "R",
+    "flRedutora": "S",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150213",
+    "name": "Intercambistas",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21709",
+    "name": "Ajuda de Custo (Equipe de Corretagem) - Sênior",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21908",
+    "name": "INSS (sobre faturamento/receita)",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2900402",
+    "name": "Recolhimento de PIS, COFINS e CSLL",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2900499",
+    "name": "(-) Reembolso de PIS, COFINS e CSLL Redidos",
+    "tpConta": "R",
+    "flRedutora": "S",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "29005",
+    "name": "RETENÇÃO DE CAUÇÃO, PERMUTA E SINAL",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2900501",
+    "name": "(-) Retenção de Caução, Permuta e Sinal",
+    "tpConta": "R",
+    "flRedutora": "S",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108020101",
+    "name": "Aporte FRH PARTICIPAÇÕES E EMP. LTDA",
+    "tpConta": "M",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2900502",
+    "name": "Recolhimento de Caução, Permuta e Sinal",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150220",
+    "name": "ENCARGOS SOCIAIS",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2900599",
+    "name": "(-) Reembolso de Caução, Permuta e Sinal",
+    "tpConta": "R",
+    "flRedutora": "S",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10102",
+    "name": "Receita de Imóveis de Dação",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "11001",
+    "name": "Receitas Não Operacionais",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "20308",
+    "name": "NÃO USAR Cartão de Crédito",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2020224",
+    "name": "NÃO USAR Pequenas despesas",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2020226",
+    "name": "NÃO USAR Diversos",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "291",
+    "name": "PROJEÇÃO DE CUSTO",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "29101",
+    "name": "Projeção de Custo",
+    "tpConta": "M",
+    "flRedutora": "N",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "29102",
+    "name": "Saldo Atual (Banco + Aplicação) +",
+    "tpConta": "M",
+    "flRedutora": "S",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "29103",
+    "name": "Saldo Atual  (Banco + Aplicação) -",
+    "tpConta": "M",
+    "flRedutora": "N",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "20309",
+    "name": "NÃO USAR Estornos",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10104",
+    "name": "Personalização Tailor Made",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10702",
+    "name": "FINANCIAMENTOS",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10203",
+    "name": "(-) Despesas de unids imob. não exclusiva da SPE",
+    "tpConta": "R",
+    "flRedutora": "S",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2020298",
+    "name": "NÃOUSAR (-) Abatimento de Despesas Eduardo Laranja",
+    "tpConta": "R",
+    "flRedutora": "S",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "210",
+    "name": "CUSTO DE OBRAS",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21001",
+    "name": "Materiais Aplicados - Obra",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10890",
+    "name": "APORTES  E EMPRÉSTIMOS DOS SÓCIOS (GERAL)",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21005",
+    "name": "Projetos - Obra",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21003",
+    "name": "Serviços de Terceiros e Empreiteiros - Obra",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21002",
+    "name": "Fretes e Carretos - Obra",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "211",
+    "name": "TAILOR MADE",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21101",
+    "name": "Custos com Tailor Made (personalização unidades)",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "212",
+    "name": "ASSISTÊNCIA TÉCNICA PÓS OBRA",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21299",
+    "name": "(-) Redutora Despesas Manutenção Pós Obra",
+    "tpConta": "R",
+    "flRedutora": "S",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21201",
+    "name": "Despesas com manutenção Pós Obra",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21199",
+    "name": "(-) Redutora Custos com Tailor Made",
+    "tpConta": "R",
+    "flRedutora": "S",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21099",
+    "name": "(-) Redutora Custos de Obra",
+    "tpConta": "R",
+    "flRedutora": "S",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21399",
+    "name": "(-) Redutora Taxa de ADM e Incorporação de Obra",
+    "tpConta": "R",
+    "flRedutora": "S",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "214",
+    "name": "CUSTO COM INCORPORAÇÃO E NOVOS NEGÓCIOS",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21401",
+    "name": "CUSTO COM INCORPORAÇÃO",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2140103",
+    "name": "Honorários advocatícios para incorporação",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2140102",
+    "name": "Consultorias e assessoria para incorporação",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2140101",
+    "name": "Levantamentos e estudos técnicos para incorporação",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2140107",
+    "name": "Manutenção de Terreno Incorporação",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2140109",
+    "name": "Contrapartidas Incorporação",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2140108",
+    "name": "Aquisição de índices construtivos Incorporação",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21402",
+    "name": "NOVOS NEGÓCIOS",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2140299",
+    "name": "(-) Redutora Novos Negócios",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2140205",
+    "name": "Segurança Terreno (até início obra) N. Negócios",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2140203",
+    "name": "Aquisição de terrenos N. Negócios",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2140202",
+    "name": "Consultorias N. Negócios  (Jurídico, etc.)",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2140201",
+    "name": "Estudos Preliminares  Novos Negócios",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "215",
+    "name": "DESPESAS ADMINISTRATIVAS",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21501",
+    "name": "DESPESAS GERAIS",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150107",
+    "name": "Material de expediente/escritório",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150106",
+    "name": "Limpeza e conservação do escritório",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150105",
+    "name": "Cópias, plotagens e similares",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150104",
+    "name": "Correios, malotes e postagens",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150103",
+    "name": "Conduções, estacionamentos e pedágios",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150102",
+    "name": "Cartórios, certidões e taxas administrativas",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150101",
+    "name": "Assinatura jornais e revistas",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150113",
+    "name": "Locação equipamentos e veículos - ADM",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "107",
+    "name": "EMPRÉSTIMOS E FINANCIAMENTOS",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150111",
+    "name": "Multas / Licenciamento de veículos / IPVA",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150110",
+    "name": "Viagens, alimentação e estadias",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150109",
+    "name": "Transportes e motoboys",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150108",
+    "name": "Suprimentos de copa e cozinha",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150121",
+    "name": "Serviços de TI",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150120",
+    "name": "Telefones convencional /celular / Internet",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150119",
+    "name": "Seguros - (bens móveis e imóveis - vida)",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150118",
+    "name": "Segurança e vigilância",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150117",
+    "name": "Manutenção Predial - Sede",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150116",
+    "name": "Agua e esgoto",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150115",
+    "name": "Energia Elétrica - Luz",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2140110",
+    "name": "Lindeiros Incorporação",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150114",
+    "name": "Locação de imóveis",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150129",
+    "name": "CREA",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150128",
+    "name": "Brindes e confraternizações - Funcionários",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10701",
+    "name": "EMPRÉSTIMOS",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10106",
+    "name": "Seguro",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21007",
+    "name": "Adiantamentos à Fornecedores de Obras",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2140106",
+    "name": "Projeto Stand de Vendas (Incorporação)",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150126",
+    "name": "Softwares (manutenção)",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150124",
+    "name": "IPTU",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150123",
+    "name": "Contribuição Sindical e Confederativa",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150122",
+    "name": "Combustíveis e Manutenção Veículos",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21502",
+    "name": "DESPESAS COM PESSOAL",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150299",
+    "name": "(-) Redutora Despesas com Pessoal",
+    "tpConta": "R",
+    "flRedutora": "S",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "22106",
+    "name": "Impressos / Folders / Books / Flyers",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "213",
+    "name": "TAXA DE ADMINISTRAÇÃO E INCORPORAÇÃO DE OBRA",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21301",
+    "name": "Taxa ADM - Gestão da Incorporação (NF)",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21302",
+    "name": "Taxa ADM - Gestão de Vendas (NF)",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21303",
+    "name": "Taxa ADM - Gestão de Engenharia (NF)",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21304",
+    "name": "Taxa ADM - Gestão Tailor Made (NF)",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150211",
+    "name": "Honorários Prestadores de Serviços Pessoa Jurídica",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150210",
+    "name": "Estagiários",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150209",
+    "name": "Benefícios",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150208",
+    "name": "Recrutamento e seleção",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150206",
+    "name": "Admissões, rescisões e indenizações",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150205",
+    "name": "Treinamentos",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150204",
+    "name": "Férias",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150203",
+    "name": "Vale Transporte",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150202",
+    "name": "Vale alimentação",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150201",
+    "name": "Salários e ordenados",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "215022099",
+    "name": "(-) Redutora de Encargos Sociais",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "215022004",
+    "name": "Encargos Sociais IR Folha",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "215022003",
+    "name": "Encargos Sociais INSS",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "215022002",
+    "name": "Encargos Sociais FGTS",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "215022001",
+    "name": "Encargos Sociais Contribuição Sindical",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150221",
+    "name": "HONORÁRIOS - COLABORADORES - ADM",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "215022107",
+    "name": "Honorários - Jurídicos",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "215022104",
+    "name": "Honorários - Comercial",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "215022103",
+    "name": "Honorários - ADM/Financeiro",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "215022102",
+    "name": "Honorários - Marketing",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "215022101",
+    "name": "Honorários - Novos negócios/Incorporação",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21503",
+    "name": "ASSESSORIAS ADMINISTRATIVAS",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150399",
+    "name": "(-) Redutora de Assessorias Administrativas",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150303",
+    "name": "Honorários assessoria jurídica (Santos Silveiro)",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150302",
+    "name": "Honorários e consultorias organizacionais - ADM",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150130",
+    "name": "Custas Judiciais",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "216",
+    "name": "IMOBILIZADO",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21601",
+    "name": "Computadores e periféricos",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21699",
+    "name": "(-) Redutora de Imobilizado",
+    "tpConta": "R",
+    "flRedutora": "S",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21607",
+    "name": "Eletrodomésticos e eletroeletrônicos",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21606",
+    "name": "Marcas e Patentes",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21605",
+    "name": "Máquinas e equipamentos",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21604",
+    "name": "Veículos",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21602",
+    "name": "Móveis e utensílios",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "217",
+    "name": "DESPESAS COMERCIAIS",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21702",
+    "name": "Brindes - Comerciais",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21701",
+    "name": "Comissões de Venda",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21799",
+    "name": "(-) Redutora de Despesas Comerciais",
+    "tpConta": "R",
+    "flRedutora": "S",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21708",
+    "name": "Despesas com Imóveis de Dação",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21706",
+    "name": "Recepção Plantão de Vendas",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21705",
+    "name": "Premiação Interna",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21703",
+    "name": "Premiações Corretores",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "218",
+    "name": "DESPESAS FINANCEIRAS",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21899",
+    "name": "(-) Redutora Despesas Financeiras",
+    "tpConta": "R",
+    "flRedutora": "S",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21805",
+    "name": "IRRF s/rendimento aplic. financeira",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21804",
+    "name": "IOF",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21803",
+    "name": "Taxas e tarifas bancárias",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21802",
+    "name": "Multa e juros moratórios",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21801",
+    "name": "Juros sobre empréstimos",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "219",
+    "name": "IMPOSTOS SOBRE RECEITAS E LUCROS",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21901",
+    "name": "Cofins (sobre faturamento/receitas)",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21999",
+    "name": "(-) Redutora de Impostos Sobre Receitas",
+    "tpConta": "R",
+    "flRedutora": "S",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21906",
+    "name": "Pis, Cofins e CSLL (sobre faturamento/receitas)",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21905",
+    "name": "Pis (sobre faturamento/receitas)",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21904",
+    "name": "ISSQN (sobre faturamento/receitas)",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21903",
+    "name": "IRPJ (sobre faturamento/receitas)",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21902",
+    "name": "CSLL (sobre faturamento/receitas)",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "220",
+    "name": "DISTRIBUIÇÃO DE LUCROS",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "22001",
+    "name": "Distribuição de Lucros - Sócios",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "1070199",
+    "name": "(-) Amortização de Empréstimos",
+    "tpConta": "M",
+    "flRedutora": "S",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "1070101",
+    "name": "Empréstimos entrada",
+    "tpConta": "M",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108",
+    "name": "CONTROLE DE PARTICIPAÇÕES DE SÓCIOS INVESTIDORES",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10801",
+    "name": "RECEBIMENTO DE APORTE SPE'S",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "1080101",
+    "name": "RECEBIMENTO DE APORTE SPE'S",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10802",
+    "name": "PARTICIPAÇÕES - FRH PARTICIPAÇÕES E EMP. LTDA.",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "1080201",
+    "name": "APORTE - FRH PARTICIPAÇÕES E EMP. LTDA.",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10803",
+    "name": "PARTICIPAÇÕES - GARCIA PARTICIPAÇÕES IMOB. LTDA.",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "1080301",
+    "name": "APORTE - GARCIA PARTICIPAÇÕES IMOB. LTDA.",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10804",
+    "name": "PARTICIPAÇÕES - LPS PARTICIPAÇÕES LTDA.",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "1080401",
+    "name": "APORTE - LPS PARTICIPAÇÕES LTDA.",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10805",
+    "name": "PARTICIPAÇÕES - INC. C H SENIOR RES. LTDA",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "1080501",
+    "name": "APORTE - INC. C H SENIOR",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21907",
+    "name": "Afetação",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10806",
+    "name": "PARTICIPAÇÕES - INCORPORADORA BALDUINO SPE LTDA",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "1080601",
+    "name": "APORTE - INCORPORADORA BALDUINO SPE LTDA",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "109",
+    "name": "APORTE CAPITAL SOCIAL",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10999",
+    "name": "(-) Redutora Aporte Capital Social",
+    "tpConta": "R",
+    "flRedutora": "S",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10901",
+    "name": "Aporte Capital Social",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10807",
+    "name": "PARTICIPAÇÕES - ODILON BARBOSA",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "1080701",
+    "name": "APORTE - INVESTIDOR ODILON BARBOSA",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21012",
+    "name": "Estagiário de Obra",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "215022106",
+    "name": "Honorários - Tailor Made",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150304",
+    "name": "Honorários consultoria RH",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21603",
+    "name": "Ferramentas",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21704",
+    "name": "Meta Executiva Imobiliárias",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21011",
+    "name": "Técnico em Segurança do Trabalho - Obra",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21010",
+    "name": "Administrativo de Obra",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21009",
+    "name": "Mestre de Obra",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21008",
+    "name": "Coordenador de Obra",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "215022108",
+    "name": "Administração de Obra (construtora contratada)",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "1089099",
+    "name": "(-) Devolução Aportes e Empréstimos dos Sócios (Ge",
+    "tpConta": "M",
+    "flRedutora": "S",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "1089001",
+    "name": "Aportes  e Empréstimos dos Sócios (Geral)",
+    "tpConta": "M",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150212",
+    "name": "Farmácia e medicamentos",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "110",
+    "name": "RECEITAS NÃO OPERACIONAIS",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "221",
+    "name": "MARKETING",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "22105",
+    "name": "Impressos Com. Visual (Outdoor, Banner, Adesivos)",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "22104",
+    "name": "Doações",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "22103",
+    "name": "Assessoria de Imprensa",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "22102",
+    "name": "Consultoria em Marketing",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "22109",
+    "name": "Eventos",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "22108",
+    "name": "Mídia Rádio / TV",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "22107",
+    "name": "Sites, Portais e Programas TI",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "22115",
+    "name": "Agencia de comunicação",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "22114",
+    "name": "Mídias - Impressa",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "22113",
+    "name": "Mídias - Digital",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "22112",
+    "name": "Patrocínios",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "22111",
+    "name": "Maquetes",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "22110",
+    "name": "Estrutura PDV",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "22120",
+    "name": "Brindes clientes",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "22117",
+    "name": "Impulsionamento ABF institucional",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21711",
+    "name": "Eventos imobiliárias / corretores",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "22199",
+    "name": "(-) Redutora de Despesas de Marketing",
+    "tpConta": "R",
+    "flRedutora": "S",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "22125",
+    "name": "Ação de Marketing",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "22124",
+    "name": "Tapume",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "22123",
+    "name": "Vídeos",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10108",
+    "name": "Recebimento de Valor Indevido",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10197",
+    "name": "(-) Devolução do Recebimento de Valor Indevido",
+    "tpConta": "R",
+    "flRedutora": "S",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10109",
+    "name": "Receita de Incorporação de Imóveis - ABF",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10110",
+    "name": "Receita de Incorporação de Imóveis - FRH",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10111",
+    "name": "Receita de Incorporação de Imóveis - KONSTROY",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "22003",
+    "name": "DISTRIBUIÇÃO DE LUCROS SÓCIOS",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2200301",
+    "name": "EF F Empreendimentos",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2200302",
+    "name": "XCG Participações",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2200303",
+    "name": "JL Incorporações",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2200304",
+    "name": "LGPOA Participações",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2200305",
+    "name": "Arviman Participações",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2200306",
+    "name": "Konstroy Adm. de Imóveis",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2200307",
+    "name": "FRH Participações",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2200308",
+    "name": "ABF Developments",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21710",
+    "name": "Impulsionamento imobiliárias",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21713",
+    "name": "Ações imobiliárias / corretores",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21714",
+    "name": "Café imobiliárias / corretores",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10113",
+    "name": "Recebimento Valores de Terceiros - K Giro Inicial",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10196",
+    "name": "(-) Repasse Valores de Terceiros - K Giro Inicial",
+    "tpConta": "R",
+    "flRedutora": "S",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150132",
+    "name": "Uniformes e EPI's",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150133",
+    "name": "Manutenção de Equipamentos",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21608",
+    "name": "Softwares (licenças)",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150136",
+    "name": "Condomínio - Unidades em Estoque",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150137",
+    "name": "Material de Higiene e Limpeza",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150138",
+    "name": "Despesas com Alimentação - ALBAN",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10604",
+    "name": "Descontos Obtidos",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "22127",
+    "name": "Apartamento Decorado",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "280",
+    "name": "PAGAMENTO DE APORTE SPE'S",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "28002",
+    "name": "Incorporadora Carlos Huber 200 Spe Ltda",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "28003",
+    "name": "Incorporadora Balduino Spe Ltda",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "28004",
+    "name": "Incorporadora Carlos Huber Senior Residence Spe L",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10114",
+    "name": "Receita de Incorporação de Imóveis - FOOD HALL",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "105",
+    "name": "REPASSE DE VALORES",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10501",
+    "name": "Cessão de Creditos a repassar",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10502",
+    "name": "(-) Repasse de Cessão de Creditos",
+    "tpConta": "R",
+    "flRedutora": "S",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21014",
+    "name": "Seguro Risco de Engenharia",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108010105",
+    "name": "Incorporadora Alfa Spe Ltda",
+    "tpConta": "M",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108010110",
+    "name": "Incorporadora Gonçalves Dias Spe Ltda",
+    "tpConta": "M",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108010173",
+    "name": "(-) Devolução Aporte INCORPORADORA BALDUINO SPE LT",
+    "tpConta": "M",
+    "flRedutora": "S",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "28010",
+    "name": "Incorporadora Gonçalves Dias Spe Ltda",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "28005",
+    "name": "Incorporadora Alfa Spe Ltda",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "28006",
+    "name": "Incorporadora Moinhos Senior Residence Spe Ltda",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "28007",
+    "name": "Incorporadora Almirante Tamandare Spe Ltda",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "28008",
+    "name": "Incorporadora Barbosa Gonçalves Spe Ltda",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "28009",
+    "name": "Spe Voluntários Empreendimentos Imobiliários Ltda",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "28011",
+    "name": "Incorporadora Magno Menino Deus Spe Ltda",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108010102",
+    "name": "Incorporadora Carlos Huber 200 Spe Ltda",
+    "tpConta": "M",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108010103",
+    "name": "Incorporadora Balduino Spe Ltda",
+    "tpConta": "M",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108010104",
+    "name": "Incorporadora Carlos Huber Senior Residence Spe L",
+    "tpConta": "M",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10112",
+    "name": "Receita de Taxa de Cessão de Direitos",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150135",
+    "name": "Estudos e Projetos - ADM",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "215022109",
+    "name": "Honorários - Jurídico",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21707",
+    "name": "Material de Mídia",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21712",
+    "name": "Brindes imobiliárias / corretores",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21715",
+    "name": "Almoço imobiliárias",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21807",
+    "name": "Juros de cartão de crédito",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "22101",
+    "name": "Mídias",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "22122",
+    "name": "Pesquisas",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108010106",
+    "name": "Incorporadora Moinhos Senior Residence Spe Ltda",
+    "tpConta": "M",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108010107",
+    "name": "Incorporadora Almirante Tamandare Spe Ltda",
+    "tpConta": "M",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108010108",
+    "name": "Incorporadora Barbosa Gonçalves Spe Ltda",
+    "tpConta": "M",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108010109",
+    "name": "Spe Voluntários Empreendimentos Imobiliários Ltda",
+    "tpConta": "M",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108010111",
+    "name": "Incorporadora Magno Menino Deus SPE Ltda",
+    "tpConta": "M",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21015",
+    "name": "Vigia Noturno e Finais de Semana/Feriados",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2200309",
+    "name": "Leonardo Petry",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2200310",
+    "name": "LPS Participações",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21798",
+    "name": "Controle de comissões",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "28081",
+    "name": "Aporte FRH PARTICIPAÇÕES E EMP. LTDA",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108010180",
+    "name": "Aporte FRH PARTICIPAÇÕES E EMP. LTDA",
+    "tpConta": "M",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108010179",
+    "name": "Aporte LGPOA PARTICIPAÇÕES LTDA",
+    "tpConta": "M",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21305",
+    "name": "Taxa Adm - Gestão de Distratos (NF)",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108010178",
+    "name": "Aporte RS EMPREENDIMENTOS S/A",
+    "tpConta": "M",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21898",
+    "name": "Mutuos e Emprestimos",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21016",
+    "name": "Anotação de Responsabilidade Técnica - ART / RRT",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21017",
+    "name": "Agua e esgoto",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21018",
+    "name": "Consumo de Energia",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "28082",
+    "name": "Aporte LPS PARTICIPACOES LTDA.",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2140113",
+    "name": "ITBI",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2140206",
+    "name": "Intermediação do Terreno N. Negócios",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2140204",
+    "name": "Taxas do Terreno N. Negócios",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2140114",
+    "name": "Taxa CVM",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21019",
+    "name": "Taxas, Alvarás, Licenças e Certidões de Obra",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108010177",
+    "name": "Aporte LPS PARTICIPAÇÕES LTDA.",
+    "tpConta": "M",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "22002",
+    "name": "(-) Redutora de Distribuição de Lucros - Sócios",
+    "tpConta": "R",
+    "flRedutora": "S",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150134",
+    "name": "Periféricos não Imobilizados",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108020302",
+    "name": "(-) Devolução Aporte Terreno  FRH PARTICIPAÇÕES",
+    "tpConta": "M",
+    "flRedutora": "S",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150199",
+    "name": "(-) Redutora Despesas Gerais",
+    "tpConta": "R",
+    "flRedutora": "S",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150112",
+    "name": "Manutenção de Veículos",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2140104",
+    "name": "Lançamento Incorporação (Maquete, vídeo, etc.)",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21998",
+    "name": "Parcelamento de Tributos Federais",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "1070201",
+    "name": "Financiamentos Entrada",
+    "tpConta": "M",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "1070299",
+    "name": "(-) Amortização Financiamento",
+    "tpConta": "M",
+    "flRedutora": "S",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21806",
+    "name": "Juros Financiamento",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10105",
+    "name": "Receita de Móveis Vendidos - Sede ABF",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10107",
+    "name": "Anulação de Receita de Móveis Vendidos - Sede ABF",
+    "tpConta": "R",
+    "flRedutora": "S",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10204",
+    "name": "Anulação despesas unids imob não exclusiva da SPE",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10699",
+    "name": "(-) Anulação de Receitas Financeiras",
+    "tpConta": "R",
+    "flRedutora": "S",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "215022199",
+    "name": "(-) Redutora Honorários Colaboradores - ADM",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150139",
+    "name": "Despesas Pre-operacionais Condomínio",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21897",
+    "name": "Bloqueio Judicial",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108010112",
+    "name": "Incorporadora Washington Luiz SPE Ltda",
+    "tpConta": "M",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "28012",
+    "name": "Incorporadora Washington Luiz SPE Ltda",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150127",
+    "name": "Relações Institucionais",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "22128",
+    "name": "Segurança",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2140112",
+    "name": "Projetos - Incorporação",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150125",
+    "name": "Tabelionato e registro de imóveis",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21020",
+    "name": "IPTU",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108010182",
+    "name": "Aporte MAURÍCIO LUTZKY",
+    "tpConta": "M",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108010183",
+    "name": "Aporte XCG PARTICIPAÇÕES E CONSULTORIA LTDA",
+    "tpConta": "M",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "28083",
+    "name": "RS Empreendimentos SA",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108010184",
+    "name": "Aporte FILIPE ANTONIO FARACO GALLAS GONÇALVES",
+    "tpConta": "M",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108010176",
+    "name": "Aporte W. LUIZ LTDA.",
+    "tpConta": "M",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "215022110",
+    "name": "Honorários - Engenharia - Assistência Técnica",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "215022105",
+    "name": "Honorários - Engenharia",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "215022115",
+    "name": "Honorários - Engenharia - Qualidade",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "215022116",
+    "name": "Honorários - Engenharia - Suprimentos",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "215022111",
+    "name": "Honorários - Engenharia - Consultoria",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "215022112",
+    "name": "Honorários - Engenharia - Obra",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "215022113",
+    "name": "Honorários - Engenharia - Planejamento",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "215022114",
+    "name": "Honorários - Engenharia - Projetos",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "215022117",
+    "name": "Honorários - Engenharia - Orçamento",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2200311",
+    "name": "RS Empreendimentos",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108010113",
+    "name": "Aporte ABF Empreendimentos Imobiliarios Ltda",
+    "tpConta": "M",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21808",
+    "name": "IRRF s/profissional liberal",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "215022118",
+    "name": "Honorários - Engenharia - FFE",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108040199",
+    "name": "(-) Devolução Aporte LPS PARTICIPAÇÕES LTDA.",
+    "tpConta": "M",
+    "flRedutora": "S",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10115",
+    "name": "Receita de Transf. Potencial Construtivo",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2140115",
+    "name": "Gentileza Urbana - Incorporação",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108020301",
+    "name": "Aporte Terreno FRH PARTICIPAÇÕES E EMP. LTDA",
+    "tpConta": "M",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21716",
+    "name": "Gestão Comissão Equipe Interna",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10205",
+    "name": "Rec. de unid. imob. não exclusiva da SPE - BRUSKI",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10206",
+    "name": "Rec. de unid. imob. não exclusiva da SPE - EFRAIM",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10207",
+    "name": "Rec. de unid. imob. não exclusiva da SPE - WIN PAR",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10208",
+    "name": "Rec. de unid. imob. não exclusiva da SPE - FRH",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10209",
+    "name": "Rec. de unid. imob. não exclusiva da SPE - JANAINA",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10211",
+    "name": "Rec.unid. imob. não exclusiva SPE - LGPOA E SÓCIOS",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10212",
+    "name": "Rec.unid. imob. não exclusiva SPE - JOSÉ CASSIO",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10301",
+    "name": "Receita de Gestão de Incorporação (Com NF)",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10302",
+    "name": "Receita de Gestão de Vendas (Com NF)",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10303",
+    "name": "Receita de Gestão de Engenharia (Com NF)",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10304",
+    "name": "Receita de Gestão de Tailor Made (Com NF)",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10305",
+    "name": "Receita de Gestão de Distratos (Com NF)",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10309",
+    "name": "(-) Descontos Concedidos Serviços (Com NF)",
+    "tpConta": "R",
+    "flRedutora": "S",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "104",
+    "name": "RECEITA DE SERVIÇOS (FEE)",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10401",
+    "name": "Receita de Gestão de Incorporação (FEE)",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10402",
+    "name": "Receita de Gestão de Vendas (FEE)",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10403",
+    "name": "Receita de Gestão de Engenharia (FEE)",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10405",
+    "name": "Receita de Gestão de Distratos (FEE)",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "1",
+    "name": "E N T R A D A S  /  R E C E I T A S",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "103",
+    "name": "RECEITA DE SERVIÇOS (COM NOTA FISCAL)",
+    "tpConta": "T",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21311",
+    "name": "TAXA ADM - GESTÃO DA INCORPORAÇÃO (FEE)",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21312",
+    "name": "TAXA ADM - GESTÃO DE VENDAS (FEE)",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21313",
+    "name": "TAXA ADM - GESTÃO DE ENGENHARIA (FEE)",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21315",
+    "name": "TAXA ADM - GESTÃO DE DISTRATOS (FEE)",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "28001",
+    "name": "Sócio ABF: Envio de recursos para SPEs",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2140116",
+    "name": "Comissionamento/Intermediação",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2140199",
+    "name": "(-) Redutora Custos com Incorporação",
+    "tpConta": "R",
+    "flRedutora": "S",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21896",
+    "name": "(-) Redutora - Bloqueio Judicial",
+    "tpConta": "R",
+    "flRedutora": "S",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150216",
+    "name": "Plano de saúde - PJ",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150215",
+    "name": "Plano de saúde - CLT",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10213",
+    "name": "Rec.unid. imob. não exclusiva SPE - LPS",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10214",
+    "name": "Rec.unid. imob. não exclusiva SPE - SERGIO AGUIAR",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10215",
+    "name": "Rec.unid. imob. não exclusiva SPE - ODILON",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108010185",
+    "name": "(-) Devolução Aporte FRH",
+    "tpConta": "M",
+    "flRedutora": "S",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108020303",
+    "name": "Aporte Terreno HBG PARTICIPAÇÕES SOCIETÁRIAS E ADM",
+    "tpConta": "M",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108020304",
+    "name": "Aporte Terreno DIEGO TEIXEIRA MACAGNAN",
+    "tpConta": "M",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "28013",
+    "name": "Incorporadora Bastian SPE Ltda",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150305",
+    "name": "Honorários assessoria jurídica (Freire e Saraiva)",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150301",
+    "name": "Honorários de Contabilidade e Auditoria",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150306",
+    "name": "Honorários assessoria jurídica",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150140",
+    "name": "Publicações Oficiais e Societárias",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150141",
+    "name": "Acordos Judiciais e Extrajudiciais",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2140105",
+    "name": "Legalização Incorporação (Registros e taxas)",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150131",
+    "name": "Ações Judiciais",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150207",
+    "name": "Reclamatórias trabalhistas",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10406",
+    "name": "Receita de Gestão de Marketing (FFE)",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21316",
+    "name": "TAXA ADM - GESTÃO DE MARKETING (FFE)",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150142",
+    "name": "Laudos, Vistorias e Ocupacional",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2200312",
+    "name": "Ione Verba",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "215022198",
+    "name": "Participação nos Resultados",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "215022197",
+    "name": "Bônus por Atingimento de Metas",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2150143",
+    "name": "Despesas com Mobilidade por Aplicativo",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10216",
+    "name": "Rec.unid. imob. não exclusiva SPE - MARCELO CAPELO",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10218",
+    "name": "Rec.unid. imob. não exclusiva SPE - ELTON SPODE",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "10217",
+    "name": "Rec.unid. imob. não exclusiva SPE - MARCELO BERGAM",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108020199",
+    "name": "(-) Devolução Aporte  FRH PARTICIPAÇÕES",
+    "tpConta": "M",
+    "flRedutora": "S",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108010304",
+    "name": "(-) Aporte Investidor ABF",
+    "tpConta": "M",
+    "flRedutora": "S",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108010303",
+    "name": "Aporte Investidor ABF",
+    "tpConta": "M",
+    "flRedutora": "S",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108010181",
+    "name": "(-) Devolução Aporte RS EMPREEND.",
+    "tpConta": "M",
+    "flRedutora": "S",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21317",
+    "name": "TAXA ADM - GESTÃO DE RECEBIVEIS",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "2140111",
+    "name": "IPTU - Incorporação",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "N",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "21004",
+    "name": "Locação de equipamentos",
+    "tpConta": "R",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  },
+  {
+    "id": "108020305",
+    "name": "Aporte Terreno EF&F EMPREENDIMENTOS IMOBILIÁRIOS L",
+    "tpConta": "M",
+    "flRedutora": "N",
+    "flAtiva": "S",
+    "flAdiantamento": "N",
+    "flImposto": "N"
+  }
+]

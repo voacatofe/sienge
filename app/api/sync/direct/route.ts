@@ -180,6 +180,46 @@ async function validateForeignKeys(
         cleanedData.tituloId = null;
       }
     }
+
+    // Validar empresaId
+    if (cleanedData.empresaId) {
+      try {
+        const empresaExists = await prisma.empresa.findUnique({
+          where: { idEmpresa: cleanedData.empresaId },
+          select: { idEmpresa: true },
+        });
+
+        if (!empresaExists) {
+          syncLogger.warn(
+            `Company ${cleanedData.empresaId} not found for statement ${cleanedData.id || 'unknown'}. Setting empresaId to null.`
+          );
+          cleanedData.empresaId = null;
+        }
+      } catch (error) {
+        syncLogger.error('Error validating company FK', error);
+        cleanedData.empresaId = null;
+      }
+    }
+  }
+
+  // Validação para cost-centers (centro de custos)
+  if (endpoint === 'cost-centers' && cleanedData.empresaId) {
+    try {
+      const empresaExists = await prisma.empresa.findUnique({
+        where: { idEmpresa: cleanedData.empresaId },
+        select: { idEmpresa: true },
+      });
+
+      if (!empresaExists) {
+        syncLogger.warn(
+          `Company ${cleanedData.empresaId} not found for cost center ${cleanedData.id || 'unknown'}. Setting empresaId to null.`
+        );
+        cleanedData.empresaId = null;
+      }
+    } catch (error) {
+      syncLogger.error('Error validating company FK for cost center', error);
+      cleanedData.empresaId = null;
+    }
   }
 
   return cleanedData;
@@ -194,9 +234,14 @@ async function executePrismaOperation(
   params: any
 ): Promise<any> {
   try {
+    syncLogger.debug(`Attempting to access model: ${model}`);
     const delegate = (prisma as any)[model];
 
     if (!delegate) {
+      syncLogger.error(
+        `Model ${model} not found in Prisma client. Available models:`,
+        Object.keys(prisma)
+      );
       throw new Error(`Model ${model} not found in Prisma client`);
     }
 
@@ -217,6 +262,73 @@ async function executePrismaOperation(
       params
     );
     throw error;
+  }
+}
+
+/**
+ * Extrai ID de um href
+ */
+function extractIdFromHref(href: string | undefined): string | number | null {
+  if (!href) return null;
+  // Extrai o último segmento do URL como ID
+  const segments = href.split('/');
+  const id = segments[segments.length - 1];
+  // Tenta converter para número se possível, senão retorna como string
+  const numId = Number(id);
+  return isNaN(numId) ? id : numId;
+}
+
+/**
+ * Processa apropriações orçamentárias para accounts-statements
+ */
+async function processAccountStatementAppropriation(
+  extratoId: number,
+  budgetCategories: any[]
+): Promise<void> {
+  if (!budgetCategories || !Array.isArray(budgetCategories)) return;
+
+  for (const category of budgetCategories) {
+    if (!category.links || !Array.isArray(category.links)) continue;
+
+    let centroCustoId: number | null = null;
+    let planoFinanceiroId: string | null = null;
+
+    // Extrair IDs dos links
+    for (const link of category.links) {
+      if (link.rel === 'cost-center') {
+        const id = extractIdFromHref(link.href);
+        if (id && typeof id === 'number') {
+          centroCustoId = id;
+        }
+      } else if (link.rel === 'payment-category') {
+        const id = extractIdFromHref(link.href);
+        if (id) {
+          planoFinanceiroId = String(id);
+        }
+      }
+    }
+
+    // Criar registro de apropriação se tiver pelo menos um dos IDs
+    if (centroCustoId || planoFinanceiroId) {
+      try {
+        await prisma.extratoApropriacao.create({
+          data: {
+            extratoContaId: extratoId,
+            centroCustoId: centroCustoId,
+            planoFinanceiroId: planoFinanceiroId,
+            percentual: category.percentage
+              ? parseFloat(category.percentage)
+              : null,
+            // valorApropriado será calculado posteriormente se necessário
+          },
+        });
+      } catch (error) {
+        syncLogger.warn(
+          `Failed to create appropriation for extrato ${extratoId}`,
+          error
+        );
+      }
+    }
   }
 }
 
@@ -280,6 +392,8 @@ async function processItem(
       id: primaryKeyValue,
       model: mapping.model,
       operation: 'upsert',
+      cleanedDataKeys: Object.keys(cleanedData),
+      validatedDataKeys: Object.keys(validatedData),
     });
 
     // Verificar se registro existe
@@ -304,12 +418,30 @@ async function processItem(
         where: whereClause,
         data: updateData,
       });
+
+      // Processar apropriações para accounts-statements
+      if (endpoint === 'accounts-statements' && item.budgetCategories) {
+        await processAccountStatementAppropriation(
+          primaryKeyValue,
+          item.budgetCategories
+        );
+      }
+
       return { status: 'updated' };
     } else {
       // Criar novo registro - mantém todos os campos incluindo ID
-      await executePrismaOperation(mapping.model, 'create', {
+      const created = await executePrismaOperation(mapping.model, 'create', {
         data: validatedData,
       });
+
+      // Processar apropriações para accounts-statements
+      if (endpoint === 'accounts-statements' && item.budgetCategories) {
+        await processAccountStatementAppropriation(
+          primaryKeyValue,
+          item.budgetCategories
+        );
+      }
+
       return { status: 'inserted' };
     }
   } catch (error) {

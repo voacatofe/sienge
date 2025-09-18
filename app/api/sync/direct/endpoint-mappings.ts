@@ -582,37 +582,86 @@ export const ENDPOINT_MAPPINGS: Record<string, EndpointMapping> = {
     primaryKey: 'id',
     fieldMapping: {
       id: 'id',
-      companyId: 'empresaId',
-      accountId: 'contaId',
-      date: {
-        field: 'dataMovimento',
-        transform: (val: any) => (val ? new Date(val) : null),
-      },
-      description: 'descricao',
-      documentNumber: 'numeroDocumento',
       value: {
         field: 'valor',
         transform: (val: any) => (val ? parseFloat(val) : 0),
       },
-      movementType: 'tipoMovimento',
-      category: 'categoria',
-      costCenterId: 'centroCustoId',
-      balance: {
-        field: 'saldo',
-        transform: (val: any) => (val ? parseFloat(val) : 0),
+      date: {
+        field: 'data',
+        transform: (val: any) => (val ? new Date(val) : null),
       },
-      isReconciled: { field: 'conciliado', transform: (val: any) => !!val },
-      reference: 'referencia',
-      payee: 'beneficiario',
-      tags: {
+      documentNumber: 'numeroDocumento',
+      description: 'descricao',
+      documentId: 'documentoId',
+      type: 'tipo', // Income/Expense
+      reconciliationDate: {
+        field: 'dataReconciliacao',
+        transform: (val: any) => (val ? new Date(val) : null),
+      },
+      billId: 'tituloId',
+      installmentNumber: 'numeroParcela',
+      statementOrigin: 'origemExtrato',
+      statementType: 'tipoExtrato',
+      statementTypeNotes: 'observacoesExtrato',
+      // Campos relacionados com apropriações orçamentárias
+      budgetCategories: {
+        field: 'categoriasOrcamentarias',
+        transform: (val: any) => val || [],
+      },
+      // Links serão processados separadamente para criar registros em extrato_apropriacoes
+      links: {
         field: 'tags',
         transform: (val: any) => val || [],
       },
       createdAt: {
-        field: 'dataCriacao',
+        field: 'createdAt',
         transform: (val: any) => (val ? new Date(val) : new Date()),
       },
-      updatedAt: { field: 'dataAtualizacao', transform: () => new Date() },
+      updatedAt: { field: 'updatedAt', transform: () => new Date() },
+    },
+  },
+
+  'cost-centers': {
+    model: 'centroCusto',
+    primaryKey: 'id',
+    fieldMapping: {
+      id: 'id',
+      name: 'nome',
+      cnpj: 'cnpj',
+      idCompany: 'empresaId',
+      // Arrays opcionais que podem vir em detalhes
+      buildingSectors: {
+        field: 'buildingSectors',
+        transform: (val: any) => val || null,
+      },
+      availables: {
+        field: 'availableAccounts',
+        transform: (val: any) => val || null,
+      },
+      createdAt: {
+        field: 'createdAt',
+        transform: (val: any) => (val ? new Date(val) : new Date()),
+      },
+      updatedAt: { field: 'updatedAt', transform: () => new Date() },
+    },
+  },
+
+  'payment-categories': {
+    model: 'planoFinanceiro',
+    primaryKey: 'id',
+    fieldMapping: {
+      id: 'id',
+      name: 'nome',
+      tpConta: 'tipoConta',
+      flRedutora: 'flRedutora',
+      flAtiva: 'flAtiva',
+      flAdiantamento: 'flAdiantamento',
+      flImposto: 'flImposto',
+      createdAt: {
+        field: 'createdAt',
+        transform: (val: any) => (val ? new Date(val) : new Date()),
+      },
+      updatedAt: { field: 'updatedAt', transform: () => new Date() },
     },
   },
 
