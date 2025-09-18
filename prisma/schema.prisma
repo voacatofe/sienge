@@ -348,15 +348,52 @@ model Unidade {
   inscricaoImobiliaria  String?  @map("inscricaoImobiliaria")
   dataCadastro          DateTime @default(now()) @map("dataCadastro")
   dataAtualizacao       DateTime? @map("dataAtualizacao")
+  scheduledDeliveryDate DateTime? @map("scheduledDeliveryDate")
+
+  // Campos derivados dos child units
+  totalUnidadesFilhas   Int?     @default(0) @map("total_unidades_filhas")
+  principalUnidadeFilha String?  @map("principal_unidade_filha")
+  principalUnidadeFilhaId Int?   @map("principal_unidade_filha_id")
+
+  // Campos derivados dos groupings
+  totalAgrupamentos     Int?     @default(0) @map("total_agrupamentos")
+  agrupamentoPrincipal  String?  @map("agrupamento_principal")
+  tipoAgrupamentoPrincipal String? @map("tipo_agrupamento_principal")
+
+  // Campos derivados dos special values
+  totalValoresEspeciais Int?     @default(0) @map("total_valores_especiais")
+  valorEspecialTotal    Decimal? @default(0) @map("valor_especial_total")
+  tipoValorEspecialPrincipal String? @map("tipo_valor_especial_principal")
+
+  // Campos derivados dos links
+  totalLinks            Int?     @default(0) @map("total_links")
+  linkPrincipalTipo     String?  @map("link_principal_tipo")
+  linkPrincipalUrl      String?  @map("link_principal_url")
+
+  // Novos campos JSON da API Sienge
+  childUnits            Json?    @map("childunits")
+  groupings             Json?    @map("groupings")
+  specialValues         Json?    @map("specialvalues")
+  links                 Json?    @map("links")
 
   // Relacionamentos
   empreendimento        Empreendimento? @relation(fields: [idEmpreendimento], references: [id])
   contrato              ContratoVenda? @relation(fields: [idContrato], references: [id])
 
+  // Relacionamentos com tabelas auxiliares
+  unidadesFilhas        UnidadeFilha[]
+  agrupamentos          UnidadeAgrupamento[]
+  valoresEspeciais      UnidadeValorEspecial[]
+  linksRelacionados     UnidadeLink[]
+
   @@index([nome])
   @@index([idEmpreendimento])
   @@index([idContrato])
   @@index([estoqueComercial])
+  @@index([totalUnidadesFilhas])
+  @@index([totalAgrupamentos])
+  @@index([totalValoresEspeciais])
+  @@index([agrupamentoPrincipal])
   @@map("unidades")
 }
 
@@ -629,4 +666,111 @@ model ClienteRendaFamiliar {
   @@unique([clienteId, ordemRenda], name: "uk_cliente_renda_ordem")
   @@index([clienteId])
   @@map("cliente_renda_familiar")
+}
+
+// ============================================
+// TABELAS AUXILIARES DE UNIDADES
+// ============================================
+
+model UnidadeFilha {
+  id                Int      @id @default(autoincrement())
+  unidadePaiId      Int      @map("unidade_pai_id")
+  ordemFilha        Int      @map("ordem_filha")
+
+  // Child unit details
+  unidadeFilhaId    Int?     @map("unidade_filha_id")
+  nomeUnidadeFilha  String?  @map("nome_unidade_filha")
+  tipoUnidadeFilha  String?  @map("tipo_unidade_filha")
+  areaUnidadeFilha  Decimal? @map("area_unidade_filha")
+  statusUnidadeFilha String? @map("status_unidade_filha")
+
+  // Control fields
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @default(now()) @map("updated_at")
+
+  // Relacionamentos
+  unidadePai        Unidade  @relation(fields: [unidadePaiId], references: [id], onDelete: Cascade)
+
+  @@unique([unidadePaiId, ordemFilha], name: "uk_unidade_filha_ordem")
+  @@index([unidadePaiId])
+  @@index([unidadeFilhaId])
+  @@map("unidade_filhas")
+}
+
+model UnidadeAgrupamento {
+  id                  Int      @id @default(autoincrement())
+  unidadeId           Int      @map("unidade_id")
+  ordemAgrupamento    Int      @map("ordem_agrupamento")
+
+  // Grouping details
+  tipoAgrupamento     String?  @map("tipo_agrupamento")
+  nomeAgrupamento     String?  @map("nome_agrupamento")
+  descricaoAgrupamento String? @map("descricao_agrupamento")
+  codigoAgrupamento   String?  @map("codigo_agrupamento")
+  nivelHierarquia     Int?     @map("nivel_hierarquia")
+
+  // Control fields
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @default(now()) @map("updated_at")
+
+  // Relacionamentos
+  unidade             Unidade  @relation(fields: [unidadeId], references: [id], onDelete: Cascade)
+
+  @@unique([unidadeId, ordemAgrupamento], name: "uk_unidade_agrupamento_ordem")
+  @@index([unidadeId])
+  @@index([tipoAgrupamento])
+  @@map("unidade_agrupamentos")
+}
+
+model UnidadeValorEspecial {
+  id              Int      @id @default(autoincrement())
+  unidadeId       Int      @map("unidade_id")
+  ordemValor      Int      @map("ordem_valor")
+
+  // Special value details
+  tipoValor       String?  @map("tipo_valor")
+  nomeValor       String?  @map("nome_valor")
+  valorMonetario  Decimal? @map("valor_monetario")
+  moeda           String?  @default("BRL") @map("moeda")
+  descricaoValor  String?  @map("descricao_valor")
+  dataReferencia  DateTime? @map("data_referencia")
+  statusValor     String?  @map("status_valor")
+
+  // Control fields
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @default(now()) @map("updated_at")
+
+  // Relacionamentos
+  unidade         Unidade  @relation(fields: [unidadeId], references: [id], onDelete: Cascade)
+
+  @@unique([unidadeId, ordemValor], name: "uk_unidade_valor_ordem")
+  @@index([unidadeId])
+  @@index([tipoValor])
+  @@index([valorMonetario])
+  @@map("unidade_valores_especiais")
+}
+
+model UnidadeLink {
+  id            Int      @id @default(autoincrement())
+  unidadeId     Int      @map("unidade_id")
+  ordemLink     Int      @map("ordem_link")
+
+  // Link details
+  rel           String?  @map("rel")
+  href          String?  @map("href")
+  tipoLink      String?  @map("tipo_link")
+  descricaoLink String?  @map("descricao_link")
+  ativo         Boolean? @default(true) @map("ativo")
+
+  // Control fields
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @default(now()) @map("updated_at")
+
+  // Relacionamentos
+  unidade       Unidade  @relation(fields: [unidadeId], references: [id], onDelete: Cascade)
+
+  @@unique([unidadeId, ordemLink], name: "uk_unidade_link_ordem")
+  @@index([unidadeId])
+  @@index([rel])
+  @@map("unidade_links")
 }

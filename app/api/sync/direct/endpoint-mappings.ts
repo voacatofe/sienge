@@ -372,7 +372,7 @@ export const ENDPOINT_MAPPINGS: Record<string, EndpointMapping> = {
       },
       indexerId: {
         field: 'idIndexador',
-        transform: (val: any) => (val === 0 ? 1 : val || 1), // Tratar 0 como válido, usar 1 como default
+        transform: (val: any) => (val !== undefined && val !== null ? val : 1), // Aceitar 0 como válido, usar 1 como default apenas para null/undefined
       },
       name: 'nome',
       propertyType: 'tipoImovel',
@@ -386,7 +386,7 @@ export const ENDPOINT_MAPPINGS: Record<string, EndpointMapping> = {
         transform: (val: any) => (val ? new Date(val) : null),
       },
       scheduledDeliveryDate: {
-        field: 'dataEntrega', // Mapear para mesmo campo por ora, ou criar nova coluna se necessário
+        field: 'scheduledDeliveryDate', // Campo separado para evitar conflitos
         transform: (val: any) => (val ? new Date(val) : null),
       },
       privateArea: {
@@ -447,6 +447,24 @@ export const ENDPOINT_MAPPINGS: Record<string, EndpointMapping> = {
       updatedAt: {
         field: 'dataAtualizacao',
         transform: () => new Date(),
+      },
+
+      // Novos campos JSON arrays da API Sienge
+      childUnits: {
+        field: 'childUnits',
+        transform: (val: any) => val || [],
+      },
+      groupings: {
+        field: 'groupings',
+        transform: (val: any) => val || [],
+      },
+      specialValues: {
+        field: 'specialValues',
+        transform: (val: any) => val || [],
+      },
+      links: {
+        field: 'links',
+        transform: (val: any) => val || [],
       },
     },
   },
