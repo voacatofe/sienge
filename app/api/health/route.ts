@@ -2,6 +2,7 @@ import { apiSuccess, apiError, withErrorHandler } from '@/lib/api-response';
 import { checkDBHealth } from '@/lib/prisma-singleton';
 import { logger } from '@/lib/logger';
 import { siengeApiClient } from '@/lib/sienge-api-client';
+import { formatSaoPauloDateTime } from '@/lib/date-helper';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -37,7 +38,9 @@ interface HealthStatus {
 /**
  * Verifica conectividade real com a API Sienge
  */
-async function checkSiengeAPI(): Promise<HealthStatus['services']['sienge_api']> {
+async function checkSiengeAPI(): Promise<
+  HealthStatus['services']['sienge_api']
+> {
   const startTime = Date.now();
 
   try {
@@ -118,7 +121,7 @@ export async function GET() {
 
     const health: HealthStatus = {
       status: overallStatus,
-      timestamp: new Date().toISOString(),
+      timestamp: formatSaoPauloDateTime(new Date()),
       uptime: Math.round(process.uptime()),
       services: {
         database: dbStatus,

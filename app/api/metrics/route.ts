@@ -1,5 +1,6 @@
 import { apiSuccess, apiError, withErrorHandler } from '@/lib/api-response';
 import { createContextLogger } from '@/lib/logger';
+import { formatSaoPauloDateTime } from '@/lib/date-helper';
 
 const metricsLogger = createContextLogger('METRICS');
 
@@ -47,7 +48,8 @@ function getSystemMetrics(): SystemMetrics {
   const seconds = Math.floor(uptime % 60);
 
   const cpuUsage = process.cpuUsage();
-  const cpuPercent = (cpuUsage.user + cpuUsage.system) / 1000000 / uptime * 100;
+  const cpuPercent =
+    ((cpuUsage.user + cpuUsage.system) / 1000000 / uptime) * 100;
 
   return {
     memory: {
@@ -57,22 +59,22 @@ function getSystemMetrics(): SystemMetrics {
       heap: {
         used: `${Math.round(memUsage.heapUsed / 1024 / 1024)}MB`,
         total: `${Math.round(memUsage.heapTotal / 1024 / 1024)}MB`,
-      }
+      },
     },
     uptime: {
       seconds: Math.round(uptime),
-      formatted: `${hours}h ${minutes}m ${seconds}s`
+      formatted: `${hours}h ${minutes}m ${seconds}s`,
     },
     performance: {
       cpuUsage: Math.round(cpuPercent * 100) / 100,
-      loadAverage: require('os').loadavg()
+      loadAverage: require('os').loadavg(),
     },
     process: {
       pid: process.pid,
       nodeVersion: process.version,
       platform: process.platform,
-      arch: process.arch
-    }
+      arch: process.arch,
+    },
   };
 }
 
@@ -89,24 +91,24 @@ export async function GET() {
     const apiMetrics = {
       message: 'API metrics migrated to centralized logging system',
       available: false,
-      note: 'Check application logs for detailed API metrics'
+      note: 'Check application logs for detailed API metrics',
     };
 
     const metrics = {
       system: systemMetrics,
       api: apiMetrics,
-      timestamp: new Date().toISOString(),
+      timestamp: formatSaoPauloDateTime(new Date()),
       environment: {
         nodeEnv: process.env.NODE_ENV || 'unknown',
         runtime: 'nodejs',
-        version: process.version
-      }
+        version: process.version,
+      },
     };
 
     metricsLogger.info('Metrics collected successfully', {
       memoryUsage: systemMetrics.memory.percentage,
       uptime: systemMetrics.uptime.seconds,
-      hasApiMetrics: !!apiMetrics
+      hasApiMetrics: !!apiMetrics,
     });
 
     return apiSuccess(
@@ -115,8 +117,8 @@ export async function GET() {
       {
         performance: {
           collectionTime: Date.now() - Date.now(), // Will be minimal
-          dataPoints: Object.keys(metrics).length
-        }
+          dataPoints: Object.keys(metrics).length,
+        },
       },
       'short' // Cache por 1 minuto
     );
@@ -140,7 +142,9 @@ export async function DELETE() {
     metricsLogger.info('Clearing metrics (development only)');
 
     // Métricas migradas para sistema centralizado - não há cache para limpar
-    metricsLogger.info('Metrics clear requested - using centralized logging (no cache to clear)');
+    metricsLogger.info(
+      'Metrics clear requested - using centralized logging (no cache to clear)'
+    );
 
     return apiSuccess(
       { cleared: true },
@@ -159,8 +163,8 @@ export async function OPTIONS() {
       description: 'Métricas do sistema e API',
       usage: {
         get: 'GET /api/metrics - Obter métricas atuais',
-        delete: 'DELETE /api/metrics - Limpar métricas (dev only)'
-      }
+        delete: 'DELETE /api/metrics - Limpar métricas (dev only)',
+      },
     },
     'Métodos disponíveis para métricas'
   );

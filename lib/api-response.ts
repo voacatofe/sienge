@@ -4,6 +4,7 @@
  */
 
 import { NextResponse } from 'next/server';
+import { formatSaoPauloDateTime } from '@/lib/date-helper';
 
 // Interface genérica para respostas de sucesso
 export interface ApiResponse<T = any> {
@@ -60,7 +61,7 @@ export function apiSuccess<T>(
     data,
     message,
     metadata,
-    timestamp: new Date().toISOString(),
+    timestamp: formatSaoPauloDateTime(new Date()),
   };
 
   return NextResponse.json(response, {
@@ -82,9 +83,10 @@ export function apiError(
   details?: any
 ): NextResponse<ApiErrorResponse> {
   // Sanitizar mensagem de erro para não expor detalhes internos
-  const sanitizedMessage = process.env.NODE_ENV === 'production'
-    ? message.replace(/\b(?:at\s+.*?:\d+:\d+|\/.*?\/.*?\.js:\d+:\d+)\b/g, '')
-    : message;
+  const sanitizedMessage =
+    process.env.NODE_ENV === 'production'
+      ? message.replace(/\b(?:at\s+.*?:\d+:\d+|\/.*?\/.*?\.js:\d+:\d+)\b/g, '')
+      : message;
 
   const response: ApiErrorResponse = {
     success: false,
@@ -92,7 +94,7 @@ export function apiError(
     message: sanitizedMessage,
     details: process.env.NODE_ENV === 'development' ? details : undefined,
     statusCode,
-    timestamp: new Date().toISOString(),
+    timestamp: formatSaoPauloDateTime(new Date()),
   };
 
   return NextResponse.json(response, {
@@ -164,7 +166,9 @@ export function validateRequiredParams<T extends Record<string, any>>(
 /**
  * Cria resposta para endpoints não implementados
  */
-export function apiNotImplemented(endpoint: string): NextResponse<ApiErrorResponse> {
+export function apiNotImplemented(
+  endpoint: string
+): NextResponse<ApiErrorResponse> {
   return apiError(
     'NOT_IMPLEMENTED',
     `O endpoint ${endpoint} ainda não foi implementado`,
@@ -175,7 +179,10 @@ export function apiNotImplemented(endpoint: string): NextResponse<ApiErrorRespon
 /**
  * Cria resposta para métodos HTTP não permitidos
  */
-export function apiMethodNotAllowed(method: string, allowed: string[]): NextResponse<ApiErrorResponse> {
+export function apiMethodNotAllowed(
+  method: string,
+  allowed: string[]
+): NextResponse<ApiErrorResponse> {
   return apiError(
     'METHOD_NOT_ALLOWED',
     `Método ${method} não permitido. Use: ${allowed.join(', ')}`,
@@ -186,14 +193,16 @@ export function apiMethodNotAllowed(method: string, allowed: string[]): NextResp
 /**
  * Cria resposta para rate limiting
  */
-export function apiRateLimited(retryAfter: number = 60): NextResponse<ApiErrorResponse> {
+export function apiRateLimited(
+  retryAfter: number = 60
+): NextResponse<ApiErrorResponse> {
   return NextResponse.json(
     {
       success: false,
       error: 'RATE_LIMITED',
       message: 'Muitas requisições. Tente novamente mais tarde.',
       statusCode: 429,
-      timestamp: new Date().toISOString(),
+      timestamp: formatSaoPauloDateTime(new Date()),
     },
     {
       status: 429,
@@ -202,7 +211,9 @@ export function apiRateLimited(retryAfter: number = 60): NextResponse<ApiErrorRe
         'Retry-After': retryAfter.toString(),
         'X-RateLimit-Limit': '100',
         'X-RateLimit-Remaining': '0',
-        'X-RateLimit-Reset': new Date(Date.now() + retryAfter * 1000).toISOString(),
+        'X-RateLimit-Reset': formatSaoPauloDateTime(
+          new Date(Date.now() + retryAfter * 1000)
+        ),
       },
     }
   );
