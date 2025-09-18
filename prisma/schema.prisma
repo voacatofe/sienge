@@ -127,9 +127,41 @@ model Cliente {
   activityId              Int?     @map("activityId")
   activityDescription     String?  @map("activityDescription")
 
+  // Campos derivados dos telefones
+  telefonePrincipal       String?  @map("telefone_principal")
+  telefonePrincipalTipo   String?  @map("telefone_principal_tipo")
+  totalTelefones          Int?     @default(0) @map("total_telefones")
+
+  // Campos derivados dos endereços
+  enderecoPrincipal       String?  @map("endereco_principal")
+  cidadePrincipal         String?  @map("cidade_principal")
+  estadoPrincipal         String?  @map("estado_principal")
+  cepPrincipal            String?  @map("cep_principal")
+  totalEnderecos          Int?     @default(0) @map("total_enderecos")
+
+  // Campos derivados do cônjuge
+  temConjuge              Boolean? @default(false) @map("tem_conjuge")
+  nomeConjuge             String?  @map("nome_conjuge")
+  cpfConjuge              String?  @map("cpf_conjuge")
+
   // Campos JSON para telefones e endereços
   phones                  Json?    @map("phones")
   addresses               Json?    @map("addresses")
+
+  // Novos campos JSON da API Sienge
+  procurators             Json?    @map("procurators")
+  contacts                Json?    @map("contacts")
+  subTypes                Json?    @map("subTypes")
+  spouse                  Json?    @map("spouse")
+  familyIncome            Json?    @map("familyIncome")
+
+  // Relacionamentos
+  telefones               ClienteTelefone[]
+  enderecos               ClienteEndereco[]
+  procuradores            ClienteProcurador[]
+  contatos                ClienteContato[]
+  subtipos                ClienteSubtipo[]
+  rendaFamiliar           ClienteRendaFamiliar[]
 
   // Relacionamentos
   empresa                  Empresa? @relation(fields: [idEmpresa], references: [idEmpresa])
@@ -141,6 +173,10 @@ model Cliente {
   @@index([nomeCompleto, ativo])
   @@index([idEmpresa, ativo])
   @@index([dataAtualizacao])
+  @@index([telefonePrincipal])
+  @@index([cidadePrincipal])
+  @@index([estadoPrincipal])
+  @@index([temConjuge])
   @@map("clientes")
 }
 
@@ -181,21 +217,19 @@ model ContratoVenda {
   containsRemadeInstallments Boolean? @map("containsRemadeInstallments")
   specialClause         String?  @map("specialClause")
 
-  // Campos adicionais baseados na API
-  installmentPlan       String?  @map("installmentPlan")
-  paymentMethod         String?  @map("paymentMethod")
-  contractStatus        String?  @map("contractStatus")
-  totalInstallments     Int?     @map("totalInstallments")
-  paidInstallments      Int?     @map("paidInstallments")
-  remainingBalance      Decimal? @map("remainingBalance")
-  lastPaymentDate       DateTime? @map("lastPaymentDate")
-  nextPaymentDate       DateTime? @map("nextPaymentDate")
-  contractType          String?  @map("contractType")
-  salesRepresentative   String?  @map("salesRepresentative")
-  observations          String?  @map("observations")
+  // Campos adicionais baseados na API (datas importantes do Sienge)
+  dataCriacaoSienge           DateTime? @map("data_criacao_sienge")
+  dataUltimaAtualizacaoSienge DateTime? @map("data_ultima_atualizacao_sienge")
 
   // Dados de clientes do contrato (JSON)
   salesContractCustomers Json?   @map("salesContractCustomers")
+
+  // Campos derivados dos clientes (extraídos do JSON para facilitar análises)
+  clientePrincipalNome        String? @map("cliente_principal_nome")
+  clientePrincipalId          Int?    @map("cliente_principal_id")
+  totalClientes              Int?    @map("total_clientes")
+  clientePrincipalParticipacao Decimal? @map("cliente_principal_participacao")
+  tipoContratoCliente        String? @map("tipo_contrato_cliente")
 
   // Dados de unidades do contrato (JSON)
   salesContractUnits     Json?   @map("salesContractUnits")
@@ -203,11 +237,31 @@ model ContratoVenda {
   // Dados de condições de pagamento (JSON)
   paymentConditions      Json?   @map("paymentConditions")
 
+  // Campos derivados das condições de pagamento (extraídos do JSON para facilitar análises)
+  valorTotalContrato         Decimal? @map("valor_total_contrato")
+  valorTotalPago            Decimal? @map("valor_total_pago")
+  saldoDevedorTotal         Decimal? @map("saldo_devedor_total")
+  totalCondicoesPagamento   Int?     @map("total_condicoes_pagamento")
+  totalParcelasContrato     Int?     @map("total_parcelas_contrato")
+  parcelasPagasContrato     Int?     @map("parcelas_pagas_contrato")
+  formaPagamentoPrincipal   String?  @map("forma_pagamento_principal")
+  indexadorPrincipal        String?  @map("indexador_principal")
+  temFinanciamento          Boolean? @map("tem_financiamento")
+  percentualPago            Decimal? @map("percentual_pago")
+
   // Dados de corretores (JSON)
   brokers                Json?   @map("brokers")
 
   // Dados de comissões (JSON)
   linkedCommissions      Json?   @map("linkedCommissions")
+
+  // Campos derivados das comissões (extraídos do JSON para facilitar análises)
+  temComissao                      Boolean? @map("tem_comissao")
+  idContratoComissao               Int?     @map("id_contrato_comissao")
+  totalComissoes                   Int?     @map("total_comissoes")
+  valorTotalComissao               Decimal? @map("valor_total_comissao")
+  faixaValorComissao               String?  @map("faixa_valor_comissao")
+  percentualComissaoSobreContrato  Decimal? @map("percentual_comissao_sobre_contrato")
 
   // Links para recursos relacionados (JSON)
   links                  Json?   @map("links")
@@ -219,6 +273,9 @@ model ContratoVenda {
   // Relacionamentos
   empreendimento         Empreendimento? @relation(fields: [enterpriseId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   unidades               Unidade[]
+  contratoClientes       ContratoCliente[]
+  contratoUnidades       ContratoUnidade[]
+  contratoCondicoesPagamento ContratoCondicaoPagamento[]
 
   @@index([number])
   @@index([situation])
@@ -313,4 +370,263 @@ model Webhook {
 
   @@index([url])
   @@map("webhooks")
+}
+
+model ContratoCliente {
+  id                     Int      @id @default(autoincrement()) @map("id")
+  contratoId             Int      @map("contrato_id")
+  clienteSiengeId        Int      @map("cliente_sienge_id")
+  nome                   String   @map("nome")
+  isMain                 Boolean  @default(false) @map("is_main")
+  isSpouse               Boolean  @default(false) @map("is_spouse")
+  participacaoPercentual Decimal? @map("participacao_percentual")
+  ordemNoContrato        Int      @default(1) @map("ordem_no_contrato")
+  createdAt              DateTime @default(now()) @map("created_at")
+  updatedAt              DateTime @default(now()) @map("updated_at")
+
+  // Relacionamentos
+  contrato               ContratoVenda @relation(fields: [contratoId], references: [id], onDelete: Cascade)
+
+  @@unique([contratoId, clienteSiengeId, ordemNoContrato], name: "uk_contrato_cliente_ordem")
+  @@index([contratoId])
+  @@index([clienteSiengeId])
+  @@index([isMain])
+  @@index([nome])
+  @@map("contrato_clientes")
+}
+
+model ContratoUnidade {
+  id                     Int      @id @default(autoincrement()) @map("id")
+  contratoId             Int      @map("contrato_id")
+  unidadeSiengeId        Int      @map("unidade_sienge_id")
+  nome                   String   @map("nome")
+  isMain                 Boolean  @default(false) @map("is_main")
+  participacaoPercentual Decimal? @map("participacao_percentual")
+  tipoUnidade            String?  @map("tipo_unidade")
+  createdAt              DateTime @default(now()) @map("created_at")
+  updatedAt              DateTime @default(now()) @map("updated_at")
+
+  // Relacionamentos
+  contrato               ContratoVenda @relation(fields: [contratoId], references: [id], onDelete: Cascade)
+
+  @@unique([contratoId, unidadeSiengeId], name: "uk_contrato_unidade")
+  @@index([contratoId])
+  @@index([unidadeSiengeId])
+  @@index([isMain])
+  @@index([nome])
+  @@index([tipoUnidade])
+  @@map("contrato_unidades")
+}
+
+model ContratoCondicaoPagamento {
+  id                     Int      @id @default(autoincrement()) @map("id")
+  contratoId             Int      @map("contrato_id")
+  ordemCondicao          Int      @map("ordem_condicao")
+
+  // Identificação da condição
+  tipoCondicaoId         String?  @map("tipo_condicao_id")
+  tipoCondicaoNome       String?  @map("tipo_condicao_nome")
+  sequenceId             Int?     @map("sequence_id")
+  orderNumber            Int?     @map("order_number")
+
+  // Indexação
+  indexadorId            Int?     @map("indexador_id")
+  indexadorNome          String?  @map("indexador_nome")
+
+  // Valores financeiros
+  valorTotal             Decimal? @map("valor_total")
+  valorPago              Decimal? @map("valor_pago")
+  saldoDevedor           Decimal? @map("saldo_devedor")
+  valorTotalJuros        Decimal? @map("valor_total_juros")
+
+  // Parcelas
+  numeroParcelas         Int?     @map("numero_parcelas")
+  parcelasAbertas        Int?     @map("parcelas_abertas")
+
+  // Datas
+  dataPrimeiroPagamento  DateTime? @map("data_primeiro_pagamento")
+  dataBase               DateTime? @map("data_base")
+  dataBaseJuros          DateTime? @map("data_base_juros")
+
+  // Juros e condições
+  percentualJuros        Decimal? @map("percentual_juros")
+  tipoJuros              String?  @map("tipo_juros")
+  periodoCarenciaMeses   Int?     @map("periodo_carencia_meses")
+
+  // Status
+  status                 String?  @map("status")
+  statusCondicao         String?  @map("status_condicao")
+  pagoAntesAditivo       Boolean? @map("pago_antes_aditivo")
+
+  // Portador
+  portadorId             Int?     @map("portador_id")
+  portadorNome           String?  @map("portador_nome")
+
+  // Controle
+  createdAt              DateTime @default(now()) @map("created_at")
+  updatedAt              DateTime @default(now()) @map("updated_at")
+
+  // Relacionamentos
+  contrato               ContratoVenda @relation(fields: [contratoId], references: [id], onDelete: Cascade)
+
+  @@unique([contratoId, ordemCondicao], name: "uk_contrato_condicao_ordem")
+  @@index([contratoId])
+  @@index([tipoCondicaoId])
+  @@index([indexadorNome])
+  @@index([statusCondicao])
+  @@index([valorTotal])
+  @@index([saldoDevedor])
+  @@map("contrato_condicoes_pagamento")
+}
+
+// ============================================
+// TABELAS AUXILIARES DE CLIENTES
+// ============================================
+
+model ClienteTelefone {
+  id              Int      @id @default(autoincrement())
+  clienteId       Int      @map("cliente_id")
+  ordemTelefone   Int      @map("ordem_telefone")
+
+  // Phone details
+  tipo            String?  @map("tipo")
+  numero          String?  @map("numero")
+  codigoPais      String?  @map("codigo_pais")
+  principal       Boolean? @default(false) @map("principal")
+  observacao      String?  @map("observacao")
+
+  // Control fields
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @default(now()) @map("updated_at")
+
+  // Relacionamentos
+  cliente         Cliente  @relation(fields: [clienteId], references: [idCliente], onDelete: Cascade)
+
+  @@unique([clienteId, ordemTelefone], name: "uk_cliente_telefone_ordem")
+  @@index([clienteId])
+  @@index([principal])
+  @@map("cliente_telefones")
+}
+
+model ClienteEndereco {
+  id                      Int      @id @default(autoincrement())
+  clienteId               Int      @map("cliente_id")
+  ordemEndereco           Int      @map("ordem_endereco")
+
+  // Address details
+  tipo                    String?  @map("tipo")
+  logradouro              String?  @map("logradouro")
+  numero                  String?  @map("numero")
+  complemento             String?  @map("complemento")
+  bairro                  String?  @map("bairro")
+  cidade                  String?  @map("cidade")
+  estado                  String?  @map("estado")
+  cep                     String?  @map("cep")
+  codigoCidade            Int?     @map("codigo_cidade")
+  enderecoCorrespondencia Boolean? @default(false) @map("endereco_correspondencia")
+
+  // Control fields
+  createdAt               DateTime @default(now()) @map("created_at")
+  updatedAt               DateTime @default(now()) @map("updated_at")
+
+  // Relacionamentos
+  cliente                 Cliente  @relation(fields: [clienteId], references: [idCliente], onDelete: Cascade)
+
+  @@unique([clienteId, ordemEndereco], name: "uk_cliente_endereco_ordem")
+  @@index([clienteId])
+  @@index([enderecoCorrespondencia])
+  @@index([cidade])
+  @@index([estado])
+  @@map("cliente_enderecos")
+}
+
+model ClienteProcurador {
+  id                Int      @id @default(autoincrement())
+  clienteId         Int      @map("cliente_id")
+  ordemProcurador   Int      @map("ordem_procurador")
+
+  // Procurator details
+  nome              String?  @map("nome")
+  cpf               String?  @map("cpf")
+  tipo              String?  @map("tipo")
+  observacao        String?  @map("observacao")
+
+  // Control fields
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @default(now()) @map("updated_at")
+
+  // Relacionamentos
+  cliente           Cliente  @relation(fields: [clienteId], references: [idCliente], onDelete: Cascade)
+
+  @@unique([clienteId, ordemProcurador], name: "uk_cliente_procurador_ordem")
+  @@index([clienteId])
+  @@map("cliente_procuradores")
+}
+
+model ClienteContato {
+  id            Int      @id @default(autoincrement())
+  clienteId     Int      @map("cliente_id")
+  ordemContato  Int      @map("ordem_contato")
+
+  // Contact details
+  nome          String?  @map("nome")
+  telefone      String?  @map("telefone")
+  email         String?  @map("email")
+  tipo          String?  @map("tipo")
+  observacao    String?  @map("observacao")
+
+  // Control fields
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @default(now()) @map("updated_at")
+
+  // Relacionamentos
+  cliente       Cliente  @relation(fields: [clienteId], references: [idCliente], onDelete: Cascade)
+
+  @@unique([clienteId, ordemContato], name: "uk_cliente_contato_ordem")
+  @@index([clienteId])
+  @@map("cliente_contatos")
+}
+
+model ClienteSubtipo {
+  id            Int      @id @default(autoincrement())
+  clienteId     Int      @map("cliente_id")
+  ordemSubtipo  Int      @map("ordem_subtipo")
+
+  // Subtype details
+  subtipo       String?  @map("subtipo")
+  descricao     String?  @map("descricao")
+
+  // Control fields
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @default(now()) @map("updated_at")
+
+  // Relacionamentos
+  cliente       Cliente  @relation(fields: [clienteId], references: [idCliente], onDelete: Cascade)
+
+  @@unique([clienteId, ordemSubtipo], name: "uk_cliente_subtipo_ordem")
+  @@index([clienteId])
+  @@map("cliente_subtipos")
+}
+
+model ClienteRendaFamiliar {
+  id            Int      @id @default(autoincrement())
+  clienteId     Int      @map("cliente_id")
+  ordemRenda    Int      @map("ordem_renda")
+
+  // Family income details
+  nomeParente   String?  @map("nome_parente")
+  parentesco    String?  @map("parentesco")
+  valorRenda    Decimal? @map("valor_renda")
+  observacao    String?  @map("observacao")
+
+  // Control fields
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @default(now()) @map("updated_at")
+
+  // Relacionamentos
+  cliente       Cliente  @relation(fields: [clienteId], references: [idCliente], onDelete: Cascade)
+
+  @@unique([clienteId, ordemRenda], name: "uk_cliente_renda_ordem")
+  @@index([clienteId])
+  @@map("cliente_renda_familiar")
 }

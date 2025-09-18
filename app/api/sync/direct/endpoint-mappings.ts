@@ -19,13 +19,16 @@ export const ENDPOINT_MAPPINGS: Record<string, EndpointMapping> = {
     fieldMapping: {
       id: 'idCliente',
       name: 'nomeCompleto',
-      cpfCnpj: {
+      cpf: {
         field: 'cpfCnpj',
         transform: (val: any) =>
           val === undefined || val === null || val === '' ? null : val,
       },
-      cpf: 'cpfCnpj',
-      cnpj: 'cpfCnpj',
+      cnpj: {
+        field: 'cpfCnpj',
+        transform: (val: any) =>
+          val === undefined || val === null || val === '' ? null : val,
+      },
       email: 'email',
       active: { field: 'ativo', transform: (val: any) => val !== false },
       createdAt: {
@@ -34,13 +37,13 @@ export const ENDPOINT_MAPPINGS: Record<string, EndpointMapping> = {
       },
       updatedAt: { field: 'dataAtualizacao', transform: () => new Date() },
       socialName: 'nomeSocial',
-      rg: 'rg',
+      numberIdentityCard: 'rg',
       birthDate: {
         field: 'dataNascimento',
         transform: (val: any) => (val ? new Date(val) : null),
       },
       nationality: 'nacionalidade',
-      maritalStatus: 'estadoCivilStr',
+      civilStatus: 'estadoCivilStr',
       profession: 'profissaoStr',
       foreigner: 'foreigner',
       sex: 'sex',
@@ -86,6 +89,28 @@ export const ENDPOINT_MAPPINGS: Record<string, EndpointMapping> = {
       personType: 'personType',
       activityId: 'activityId',
       activityDescription: 'activityDescription',
+
+      // Novos campos da API Sienge
+      procurators: {
+        field: 'procurators',
+        transform: (val: any) => val || [],
+      },
+      contacts: {
+        field: 'contacts',
+        transform: (val: any) => val || [],
+      },
+      subTypes: {
+        field: 'subTypes',
+        transform: (val: any) => val || [],
+      },
+      spouse: {
+        field: 'spouse',
+        transform: (val: any) => val || null,
+      },
+      familyIncome: {
+        field: 'familyIncome',
+        transform: (val: any) => val || [],
+      },
 
       // Campos extras para processamento posterior dos telefones e endereços
       // Estes não vão diretamente para a tabela Cliente, mas são usados para criar registros relacionados
@@ -290,6 +315,14 @@ export const ENDPOINT_MAPPINGS: Record<string, EndpointMapping> = {
         transform: (val: any) => val || null,
       },
       links: { field: 'links', transform: (val: any) => val || null },
+      creationDate: {
+        field: 'data_criacao_sienge',
+        transform: (val: any) => (val ? new Date(val) : null),
+      },
+      lastUpdateDate: {
+        field: 'data_ultima_atualizacao_sienge',
+        transform: (val: any) => (val ? new Date(val) : null),
+      },
       createdAt: {
         field: 'dataCadastro',
         transform: (val: any) => (val ? new Date(val) : new Date()),

@@ -57,10 +57,10 @@ WITH base_dados AS (
     -- 📋 CONTRATOS (group='Contratos')
     -- =====================================
     COALESCE(cv.value, 0) as valor_contrato,
-    COALESCE(cv.situation, cv."contractStatus", 'Não informado') as status_contrato,
+    COALESCE(cv.situation, 'Não informado') as status_contrato,
     COALESCE(cv."contractType", 'Padrão') as tipo_contrato,
     cv.number as numero_contrato,
-    CASE WHEN LOWER(COALESCE(cv.situation, cv."contractStatus", '')) IN ('ativo', 'assinado', 'vigente')
+    CASE WHEN LOWER(COALESCE(cv.situation, '')) IN ('emitido', 'autorizado', 'ativo', 'assinado', 'vigente')
          THEN true ELSE false END as contratos_ativos,
     CASE WHEN cv."keysDeliveredAt" IS NOT NULL THEN true ELSE false END as chaves_entregues,
     CASE WHEN cv."contractDate" IS NOT NULL THEN true ELSE false END as contratos_assinados,
@@ -139,7 +139,7 @@ WITH base_dados AS (
     -- =====================================
     -- ✅ CONVERSÕES (group='Conversoes')
     -- =====================================
-    CASE WHEN LOWER(COALESCE(cv.situation, cv."contractStatus", '')) IN ('cancelado', 'rescindido')
+    CASE WHEN LOWER(COALESCE(cv.situation, '')) IN ('cancelado', 'rescindido')
          THEN true ELSE false END as contratos_cancelados,
     false as titulos_pagos,
     false as titulos_vencidos
