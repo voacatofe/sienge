@@ -271,7 +271,7 @@ export async function POST(request: NextRequest) {
         }
       );
     }
-  });
+  }, 'DW_REFRESH_POST');
 }
 
 /**
@@ -337,7 +337,7 @@ export async function GET(request: NextRequest) {
         }
       );
     }
-  });
+  }, 'DW_REFRESH_GET');
 }
 
 /**

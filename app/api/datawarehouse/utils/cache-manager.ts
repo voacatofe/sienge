@@ -176,7 +176,7 @@ export class CacheManager {
       const regex = typeof pattern === 'string' ? new RegExp(pattern) : pattern;
       let invalidated = 0;
 
-      for (const [key, entry] of this.cache.entries()) {
+      for (const [key, entry] of Array.from(this.cache.entries())) {
         if (regex.test(key)) {
           this.cache.delete(key);
           this.stats.totalSize -= entry.size;
@@ -323,7 +323,7 @@ export class CacheManager {
     let oldestKey: string | null = null;
     let oldestTime = Date.now();
 
-    for (const [key, entry] of this.cache.entries()) {
+    for (const [key, entry] of Array.from(this.cache.entries())) {
       if (entry.timestamp < oldestTime) {
         oldestTime = entry.timestamp;
         oldestKey = key;
@@ -344,7 +344,7 @@ export class CacheManager {
       const before = this.cache.size;
       let cleaned = 0;
 
-      for (const [key, entry] of this.cache.entries()) {
+      for (const [key, entry] of Array.from(this.cache.entries())) {
         if (this.isExpired(entry)) {
           this.cache.delete(key);
           this.stats.totalSize -= entry.size;
@@ -395,7 +395,3 @@ export const cacheManager = CacheManager.getInstance({
   defaultTtl: 10 * 60 * 1000, // 10 minutos para dados analíticos
   cleanupInterval: 2 * 60 * 1000, // Limpeza a cada 2 minutos
 });
-
-// Exportar classe e tipos
-export { CacheManager };
-export type { CacheEntry, CacheStats, CacheConfig };

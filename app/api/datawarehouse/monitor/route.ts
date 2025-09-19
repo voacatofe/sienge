@@ -117,7 +117,7 @@ export async function GET(request: NextRequest) {
         }
       );
     }
-  });
+  }, 'DW_MONITOR_GET');
 }
 
 /**
@@ -197,5 +197,5 @@ export async function POST(request: NextRequest) {
         }
       );
     }
-  });
+  }, 'DW_MONITOR_POST');
 }

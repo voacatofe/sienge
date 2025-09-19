@@ -406,6 +406,3 @@ export class GoldQueryBuilder {
 
 // Exportar instância singleton
 export const goldQueryBuilder = GoldQueryBuilder.getInstance();
-
-// Exportar tipos para uso externo
-export type { GoldQueryFilter, GoldQueryOptions, GoldQueryResult };
