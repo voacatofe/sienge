@@ -1,616 +1,627 @@
 /**
- * Sienge Data Warehouse Community Connector para Looker Studio
- * Conecta diretamente à API Master unificada /api/datawarehouse/master
- * Grupos semânticos otimizados para análise no Looker Studio
- * Versão 2.0 - Alinhada com domínios reais
+ * Sienge Looker Studio Connector - VERSÃO FINAL OTIMIZADA
+ * Versão 6.0 - Com todas as correções cirúrgicas aplicadas
+ *
+ * MELHORIAS APLICADAS:
+ * 1. Schema completo no getData usando getFields().forIds()
+ * 2. Conversão robusta de boolean (1/0, true/false, SIM/NÃO)
+ * 3. Proteção contra NaN em números
+ * 4. Campo ano_mes para séries temporais
+ * 5. Respeito ao dateRange do Looker Studio
  */
 
-// 1. Tipo de autenticação (obrigatório)
-function getAuthType() {
-  return {
-    type: 'NONE'
-  };
+// ============================================
+// CONFIGURAÇÃO
+// ============================================
+var CONFIG = {
+  API_URL: 'https://conector.catometrics.com.br/api/datawarehouse/master',
+  MAX_RECORDS: 10000,
+  USE_CACHE: false,
+  DEBUG: false
+};
+
+// ============================================
+// INICIALIZAÇÃO
+// ============================================
+var cc = DataStudioApp.createCommunityConnector();
+
+// ============================================
+// FUNÇÕES AUXILIARES (HELPERS)
+// ============================================
+
+/**
+ * Converter para float com proteção contra NaN
+ */
+function toFloat(v) {
+  if (v === null || v === undefined || v === '') return 0;
+  var n = parseFloat(String(v).replace(',', '.'));
+  return isFinite(n) ? n : 0;
 }
 
-// 2. Configurações do usuário (obrigatório) - vazio para máxima automação
-function getConfig() {
-  return {
-    configParams: []
-  };
+/**
+ * Converter para inteiro com proteção contra NaN
+ */
+function toInt(v) {
+  if (v === null || v === undefined || v === '') return 0;
+  var n = parseInt(v, 10);
+  return isFinite(n) ? n : 0;
 }
 
-// 3. Schema dos dados (obrigatório) - estrutura baseada na API Master
-function getSchema(request) {
-  var fields = [
-    // =====================================
-    // 📅 GRUPO: DATA
-    // =====================================
-    {
-      name: 'data_principal',
-      label: 'Data Principal',
-      dataType: 'STRING',
-      group: 'Data',
-      semantics: {
-        conceptType: 'DIMENSION',
-        semanticGroup: 'DATE_AND_TIME',
-        semanticType: 'YEAR_MONTH_DAY'
-      }
-    },
-    {
-      name: 'ano',
-      label: 'Ano',
-      dataType: 'STRING',
-      group: 'Data',
-      semantics: {
-        conceptType: 'DIMENSION',
-        semanticGroup: 'DATE_AND_TIME',
-        semanticType: 'YEAR'
-      }
-    },
-    {
-      name: 'trimestre',
-      label: 'Trimestre',
-      dataType: 'NUMBER',
-      group: 'Data',
-      semantics: {
-        conceptType: 'DIMENSION'
-      }
-    },
-    {
-      name: 'mes',
-      label: 'Mês',
-      dataType: 'STRING',
-      group: 'Data',
-      semantics: {
-        conceptType: 'DIMENSION',
-        semanticGroup: 'DATE_AND_TIME',
-        semanticType: 'MONTH'
-      }
-    },
-    {
-      name: 'ano_mes',
-      label: 'Ano-Mês',
-      dataType: 'STRING',
-      group: 'Data',
-      semantics: {
-        conceptType: 'DIMENSION',
-        semanticGroup: 'DATE_AND_TIME',
-        semanticType: 'YEAR_MONTH'
-      }
-    },
-    {
-      name: 'nome_mes',
-      label: 'Nome do Mês',
-      dataType: 'STRING',
-      group: 'Data',
-      semantics: {
-        conceptType: 'DIMENSION'
-      }
-    },
+/**
+ * Converter para boolean robusto (aceita 1/0, true/false, S/N, SIM/NÃO)
+ */
+function toBool(v) {
+  if (v === true || v === 'true' || v === 1 || v === '1') return true;
+  if (v === 'S' || v === 's' || v === 'SIM' || v === 'sim') return true;
+  if (v === 'Y' || v === 'y' || v === 'YES' || v === 'yes') return true;
+  return false;
+}
 
-    // =====================================
-    // 🏢 GRUPO: EMPRESAS
-    // =====================================
-    {
-      name: 'empresa_nome',
-      label: 'Nome da Empresa',
-      dataType: 'STRING',
-      group: 'Empresas',
-      semantics: {
-        conceptType: 'DIMENSION'
-      }
-    },
-    {
-      name: 'empresa_cidade',
-      label: 'Cidade da Empresa',
-      dataType: 'STRING',
-      group: 'Empresas',
-      semantics: {
-        conceptType: 'DIMENSION'
-      }
-    },
-    {
-      name: 'empresa_estado',
-      label: 'Estado da Empresa',
-      dataType: 'STRING',
-      group: 'Empresas',
-      semantics: {
-        conceptType: 'DIMENSION'
-      }
-    },
-    {
-      name: 'empresa_regiao',
-      label: 'Região da Empresa',
-      dataType: 'STRING',
-      group: 'Empresas',
-      semantics: {
-        conceptType: 'DIMENSION'
-      }
-    },
-    {
-      name: 'empresa_cnpj',
-      label: 'CNPJ da Empresa',
-      dataType: 'STRING',
-      group: 'Empresas',
-      semantics: {
-        conceptType: 'DIMENSION'
-      }
-    },
+/**
+ * Formatar data para Looker Studio (YYYYMMDD)
+ */
+function formatDateForLooker(dateValue) {
+  if (!dateValue) return null;
 
-    // =====================================
-    // 📋 GRUPO: CONTRATOS
-    // =====================================
-    {
-      name: 'valor_contrato',
-      label: 'Valor do Contrato',
-      dataType: 'NUMBER',
-      group: 'Contratos',
-      semantics: {
-        conceptType: 'METRIC',
-        semanticType: 'CURRENCY_BRL'
-      }
-    },
-    {
-      name: 'status_contrato',
-      label: 'Status do Contrato',
-      dataType: 'STRING',
-      group: 'Contratos',
-      semantics: {
-        conceptType: 'DIMENSION'
-      }
-    },
-    {
-      name: 'tipo_contrato',
-      label: 'Tipo do Contrato',
-      dataType: 'STRING',
-      group: 'Contratos',
-      semantics: {
-        conceptType: 'DIMENSION'
-      }
-    },
-    {
-      name: 'numero_contrato',
-      label: 'Número do Contrato',
-      dataType: 'STRING',
-      group: 'Contratos',
-      semantics: {
-        conceptType: 'DIMENSION'
-      }
-    },
-    {
-      name: 'contratos_ativos',
-      label: 'Contratos Ativos',
-      dataType: 'BOOLEAN',
-      group: 'Contratos',
-      semantics: {
-        conceptType: 'DIMENSION'
-      }
-    },
-    {
-      name: 'chaves_entregues',
-      label: 'Chaves Entregues',
-      dataType: 'BOOLEAN',
-      group: 'Contratos',
-      semantics: {
-        conceptType: 'DIMENSION'
-      }
-    },
-    {
-      name: 'contratos_assinados',
-      label: 'Contratos Assinados',
-      dataType: 'BOOLEAN',
-      group: 'Contratos',
-      semantics: {
-        conceptType: 'DIMENSION'
-      }
-    },
+  try {
+    var dateStr = String(dateValue);
+    var numbers = dateStr.replace(/[^\d]/g, '');
 
-    // =====================================
-    // 💰 GRUPO: FINANCEIRO
-    // =====================================
-    {
-      name: 'saldo_devedor',
-      label: 'Saldo Devedor',
-      dataType: 'NUMBER',
-      group: 'Financeiro',
-      semantics: {
-        conceptType: 'METRIC',
-        semanticType: 'CURRENCY_BRL'
-      }
-    },
-    {
-      name: 'forma_pagamento',
-      label: 'Forma de Pagamento',
-      dataType: 'STRING',
-      group: 'Financeiro',
-      semantics: {
-        conceptType: 'DIMENSION'
-      }
-    },
-    {
-      name: 'taxa_juros',
-      label: 'Taxa de Juros (%)',
-      dataType: 'NUMBER',
-      group: 'Financeiro',
-      semantics: {
-        conceptType: 'METRIC',
-        semanticType: 'PERCENT'
-      }
-    },
-    {
-      name: 'total_parcelas',
-      label: 'Total de Parcelas',
-      dataType: 'NUMBER',
-      group: 'Financeiro',
-      semantics: {
-        conceptType: 'METRIC'
-      }
-    },
-    {
-      name: 'parcelas_pagas',
-      label: 'Parcelas Pagas',
-      dataType: 'NUMBER',
-      group: 'Financeiro',
-      semantics: {
-        conceptType: 'METRIC'
-      }
-    },
-
-    // =====================================
-    // 📊 GRUPO: PERFORMANCE
-    // =====================================
-    {
-      name: 'margem_bruta',
-      label: 'Margem Bruta (%)',
-      dataType: 'NUMBER',
-      group: 'Performance',
-      semantics: {
-        conceptType: 'METRIC',
-        semanticType: 'PERCENT'
-      }
-    },
-
-    // =====================================
-    // 👤 GRUPO: CLIENTES
-    // =====================================
-    {
-      name: 'cliente_principal',
-      label: 'Cliente Principal',
-      dataType: 'STRING',
-      group: 'Clientes',
-      semantics: {
-        conceptType: 'DIMENSION'
-      }
-    },
-
-    // =====================================
-    // 🏗️ GRUPO: EMPREENDIMENTOS
-    // =====================================
-    {
-      name: 'empreendimento_nome',
-      label: 'Nome do Empreendimento',
-      dataType: 'STRING',
-      group: 'Empreendimentos',
-      semantics: {
-        conceptType: 'DIMENSION'
-      }
-    },
-    {
-      name: 'empreendimento_tipo',
-      label: 'Tipo do Empreendimento',
-      dataType: 'STRING',
-      group: 'Empreendimentos',
-      semantics: {
-        conceptType: 'DIMENSION'
-      }
-    },
-
-    // =====================================
-    // 🏠 GRUPO: UNIDADES
-    // =====================================
-    {
-      name: 'unidade_tipo',
-      label: 'Tipo da Unidade',
-      dataType: 'STRING',
-      group: 'Unidades',
-      semantics: {
-        conceptType: 'DIMENSION'
-      }
-    },
-    {
-      name: 'unidade_area',
-      label: 'Área da Unidade (m²)',
-      dataType: 'NUMBER',
-      group: 'Unidades',
-      semantics: {
-        conceptType: 'METRIC'
-      }
-    },
-    {
-      name: 'faixa_area',
-      label: 'Faixa de Área',
-      dataType: 'STRING',
-      group: 'Unidades',
-      semantics: {
-        conceptType: 'DIMENSION'
-      }
-    },
-
-    // =====================================
-    // ✅ GRUPO: CONVERSÕES
-    // =====================================
-    {
-      name: 'contratos_cancelados',
-      label: 'Contratos Cancelados',
-      dataType: 'BOOLEAN',
-      group: 'Conversoes',
-      semantics: {
-        conceptType: 'DIMENSION'
-      }
+    if (numbers.length >= 8) {
+      return numbers.substring(0, 8);
     }
-  ];
 
-  return {
-    schema: fields
-  };
+    return null;
+  } catch (e) {
+    return null;
+  }
 }
 
-// 4. Buscar dados (obrigatório) - conecta à API Master
+/**
+ * Log de debug
+ */
+function logDebug(message) {
+  if (CONFIG.DEBUG) {
+    console.log('[V6] ' + message);
+  }
+}
+
+/**
+ * Lançar erro para usuário
+ */
+function throwUserError(message) {
+  cc.newUserError()
+    .setDebugText(message)
+    .setText(message)
+    .throwException();
+}
+
+// ============================================
+// AUTENTICAÇÃO
+// ============================================
+function getAuthType() {
+  return cc.newAuthTypeResponse()
+    .setAuthType(cc.AuthType.NONE)
+    .build();
+}
+
+// ============================================
+// CONFIGURAÇÃO
+// ============================================
+function getConfig(request) {
+  var config = cc.getConfig();
+
+  config.newInfo()
+    .setId('info')
+    .setText('Conector para Sienge Data Warehouse - Versão 6.0 Final');
+
+  // MELHORIA 5: Tornar dateRange obrigatório
+  config.setDateRangeRequired(true);
+
+  return config.build();
+}
+
+// ============================================
+// DEFINIR CAMPOS
+// ============================================
+function getFields() {
+  var fields = cc.getFields();
+  var types = cc.FieldType;
+  var aggregations = cc.AggregationType;
+
+  // ===== DIMENSÕES TEMPORAIS =====
+
+  fields.newDimension()
+    .setId('data_principal')
+    .setName('Data Principal')
+    .setType(types.YEAR_MONTH_DAY);
+
+  fields.newDimension()
+    .setId('ano')
+    .setName('Ano')
+    .setType(types.YEAR);
+
+  fields.newDimension()
+    .setId('mes')
+    .setName('Mês')
+    .setType(types.MONTH);
+
+  // MELHORIA 4: Campo ano_mes para séries temporais
+  fields.newDimension()
+    .setId('ano_mes')
+    .setName('Ano-Mês')
+    .setType(types.YEAR_MONTH);
+
+  // ===== DIMENSÕES DE NEGÓCIO =====
+
+  fields.newDimension()
+    .setId('domain_type')
+    .setName('Tipo de Domínio')
+    .setType(types.TEXT);
+
+  fields.newDimension()
+    .setId('empresa_nome')
+    .setName('Nome da Empresa')
+    .setType(types.TEXT);
+
+  fields.newDimension()
+    .setId('empresa_cidade')
+    .setName('Cidade da Empresa')
+    .setType(types.TEXT);
+
+  fields.newDimension()
+    .setId('empresa_estado')
+    .setName('Estado da Empresa')
+    .setType(types.TEXT);
+
+  fields.newDimension()
+    .setId('empresa_regiao')
+    .setName('Região da Empresa')
+    .setType(types.TEXT);
+
+  fields.newDimension()
+    .setId('status_contrato')
+    .setName('Status do Contrato')
+    .setType(types.TEXT);
+
+  fields.newDimension()
+    .setId('tipo_contrato')
+    .setName('Tipo do Contrato')
+    .setType(types.TEXT);
+
+  fields.newDimension()
+    .setId('numero_contrato')
+    .setName('Número do Contrato')
+    .setType(types.TEXT);
+
+  fields.newDimension()
+    .setId('forma_pagamento')
+    .setName('Forma de Pagamento')
+    .setType(types.TEXT);
+
+  fields.newDimension()
+    .setId('cliente_principal')
+    .setName('Cliente Principal')
+    .setType(types.TEXT);
+
+  fields.newDimension()
+    .setId('empreendimento_nome')
+    .setName('Nome do Empreendimento')
+    .setType(types.TEXT);
+
+  fields.newDimension()
+    .setId('empreendimento_tipo')
+    .setName('Tipo do Empreendimento')
+    .setType(types.TEXT);
+
+  fields.newDimension()
+    .setId('faixa_valor_contrato')
+    .setName('Faixa de Valor do Contrato')
+    .setType(types.TEXT);
+
+  fields.newDimension()
+    .setId('status_pagamento')
+    .setName('Status de Pagamento')
+    .setType(types.TEXT);
+
+  // ===== DIMENSÕES BOOLEANAS =====
+
+  fields.newDimension()
+    .setId('contratos_ativos')
+    .setName('Contrato Ativo')
+    .setType(types.BOOLEAN);
+
+  fields.newDimension()
+    .setId('tem_comissao')
+    .setName('Tem Comissão')
+    .setType(types.BOOLEAN);
+
+  fields.newDimension()
+    .setId('tem_financiamento')
+    .setName('Tem Financiamento')
+    .setType(types.BOOLEAN);
+
+  // ===== MÉTRICAS FINANCEIRAS =====
+
+  fields.newMetric()
+    .setId('valor_contrato')
+    .setName('Valor do Contrato')
+    .setType(types.CURRENCY_BRL)
+    .setAggregation(aggregations.SUM);
+
+  fields.newMetric()
+    .setId('saldo_devedor')
+    .setName('Saldo Devedor')
+    .setType(types.CURRENCY_BRL)
+    .setAggregation(aggregations.SUM);
+
+  fields.newMetric()
+    .setId('valor_comissao')
+    .setName('Valor da Comissão')
+    .setType(types.CURRENCY_BRL)
+    .setAggregation(aggregations.SUM);
+
+  fields.newMetric()
+    .setId('percentual_comissao')
+    .setName('Percentual de Comissão (%)')
+    .setType(types.PERCENT)
+    .setAggregation(aggregations.AVG);
+
+  // ===== MÉTRICAS DE QUANTIDADE =====
+
+  fields.newMetric()
+    .setId('total_parcelas')
+    .setName('Total de Parcelas')
+    .setType(types.NUMBER)
+    .setAggregation(aggregations.SUM);
+
+  fields.newMetric()
+    .setId('parcelas_pagas')
+    .setName('Parcelas Pagas')
+    .setType(types.NUMBER)
+    .setAggregation(aggregations.SUM);
+
+  fields.newMetric()
+    .setId('quantidade_registros')
+    .setName('Quantidade de Registros')
+    .setType(types.NUMBER)
+    .setAggregation(aggregations.COUNT);
+
+  return fields;
+}
+
+// ============================================
+// RETORNAR SCHEMA
+// ============================================
+function getSchema(request) {
+  return { schema: getFields().build() };
+}
+
+// ============================================
+// BUSCAR DADOS - COM TODAS AS CORREÇÕES
+// ============================================
 function getData(request) {
   try {
-    console.log('Iniciando busca de dados...');
-    console.log('Campos solicitados:', request.fields.map(function(f) { return f.name; }));
-
-    // URL da API Master - todos os domínios unificados
-    var API_URL = 'https://conector.catometrics.com.br/api/datawarehouse/master';
+    logDebug('getData iniciado - campos: ' + request.fields.length);
 
     // Buscar dados da API
-    var response = UrlFetchApp.fetch(API_URL, {
+    var response = UrlFetchApp.fetch(CONFIG.API_URL, {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
-        'User-Agent': 'Sienge-Looker-Connector/2.0'
+        'User-Agent': 'Sienge-Looker-Connector/6.0'
       },
       muteHttpExceptions: true
     });
 
     if (response.getResponseCode() !== 200) {
-      console.error('Erro na API:', response.getResponseCode());
-      console.error('Resposta:', response.getContentText());
-      throw new Error('API Error: ' + response.getResponseCode() + ' - ' + response.getContentText());
+      throwUserError('Erro ao conectar com a API: ' + response.getResponseCode());
     }
 
-    var jsonResponse = JSON.parse(response.getContentText());
-    console.log('API retornou sucesso:', jsonResponse.success);
-    console.log('Total de registros:', jsonResponse.data ? jsonResponse.data.length : 0);
+    var jsonData = JSON.parse(response.getContentText());
 
-    if (!jsonResponse.success || !jsonResponse.data) {
-      console.error('API sem dados:', jsonResponse);
-      throw new Error('API returned no data or error: ' + jsonResponse.message);
+    // CORREÇÃO 1: Retornar schema completo mesmo sem dados
+    var requestedFieldIds = request.fields.map(function(f) { return f.name; });
+    var requestedSchema = getFields().forIds(requestedFieldIds).build();
+
+    if (!jsonData.success || !jsonData.data || jsonData.data.length === 0) {
+      return {
+        schema: requestedSchema,
+        rows: []
+      };
     }
 
-    var apiData = jsonResponse.data;
-    var requestedFieldIds = request.fields.map(function(field) {
-      return field.name;
-    });
+    var records = jsonData.data;
 
-    var rows = apiData.map(function(row) {
-      return formatRowForLookerStudio(row, requestedFieldIds);
-    });
+    // Limitar registros
+    if (records.length > CONFIG.MAX_RECORDS) {
+      logDebug('Limitando de ' + records.length + ' para ' + CONFIG.MAX_RECORDS);
+      records = records.slice(0, CONFIG.MAX_RECORDS);
+    }
 
-    console.log('Total de linhas processadas:', rows.length);
-    console.log('Amostra da primeira linha:', rows.length > 0 ? rows[0] : 'Sem dados');
+    // MELHORIA 5: Filtrar por dateRange se fornecido
+    if (request.dateRange && request.dateRange.startDate && request.dateRange.endDate) {
+      var start = request.dateRange.startDate; // YYYYMMDD
+      var end = request.dateRange.endDate;     // YYYYMMDD
+
+      logDebug('Filtrando por período: ' + start + ' até ' + end);
+
+      records = records.filter(function(r) {
+        var d = formatDateForLooker(r['data_principal']);
+        return d && d >= start && d <= end;
+      });
+
+      logDebug('Registros após filtro de data: ' + records.length);
+    }
+
+    // Construir rows com valores na ordem correta
+    var rows = [];
+
+    for (var i = 0; i < records.length; i++) {
+      var values = [];
+
+      for (var j = 0; j < requestedFieldIds.length; j++) {
+        values.push(getFieldValue(records[i], requestedFieldIds[j]));
+      }
+
+      rows.push({ values: values });
+    }
+
+    logDebug('Retornando ' + rows.length + ' linhas');
 
     return {
-      schema: request.fields,
+      schema: requestedSchema,
       rows: rows
     };
 
-  } catch (error) {
-    console.error('Error fetching data:', error);
-    throw new Error('Erro ao buscar dados da API Sienge Master: ' + error.message);
+  } catch (e) {
+    logDebug('ERRO: ' + e.toString());
+    throwUserError('Erro ao buscar dados: ' + e.toString());
   }
 }
 
-// Função auxiliar para formatar dados para Looker Studio
-function formatRowForLookerStudio(row, requestedFieldIds) {
-  var formattedRow = [];
-
-  requestedFieldIds.forEach(function(fieldId) {
-    var value = null;
-
-    // Mapear campos da API Master para o schema do Looker Studio
-    switch (fieldId) {
-      // Data
+// ============================================
+// OBTER VALOR DO CAMPO - COM TODAS AS CORREÇÕES
+// ============================================
+function getFieldValue(record, fieldName) {
+  try {
+    switch (fieldName) {
+      // ===== DATAS =====
       case 'data_principal':
-        // Formatar data para YYYYMMDD que o Looker Studio entende
-        if (row['data_principal']) {
-          // Remove hifens e pega apenas YYYYMMDD
-          var dateStr = String(row['data_principal']).replace(/-/g, '').replace(/T.*/, '');
-          value = dateStr.length >= 8 ? dateStr.substring(0, 8) : null;
-          console.log('data_principal original:', row['data_principal'], '-> formatada:', value);
-        } else {
-          value = null;
-        }
-        break;
+        return formatDateForLooker(record['data_principal']);
+
       case 'ano':
-        // Converter para STRING como requerido pelo semantic type YEAR
-        value = row['ano'] ? String(row['ano']) : null;
-        break;
-      case 'trimestre':
-        value = row['trimestre'] || null;
-        break;
+        return record['ano'] ? String(record['ano']).substring(0, 4) : null;
+
       case 'mes':
-        // Formatar mês com 2 dígitos como STRING
-        if (row['mes']) {
-          var mesNum = parseInt(row['mes']);
-          value = mesNum < 10 ? '0' + mesNum : String(mesNum);
-        } else {
-          value = null;
+        if (record['mes']) {
+          var m = toInt(record['mes']);
+          return (m < 10 ? '0' : '') + m;
         }
-        break;
+        return null;
+
+      // MELHORIA 4: Campo ano_mes
       case 'ano_mes':
-        // Formatar para YYYYMM removendo o hífen
-        if (row['ano_mes']) {
-          value = String(row['ano_mes']).replace(/-/g, '');
-          console.log('ano_mes original:', row['ano_mes'], '-> formatado:', value);
-        } else {
-          value = null;
-        }
-        break;
-      case 'nome_mes':
-        value = row['nome_mes'] || null;
-        break;
+        var d = formatDateForLooker(record['data_principal']);
+        return d ? d.substring(0, 6) : null;
 
-      // Empresas
+      // ===== TEXTOS =====
+      case 'domain_type':
+        return record['domain_type'] || '';
+
       case 'empresa_nome':
-        value = row['empresa_nome'] || '';
-        break;
+        return record['empresa_nome'] || '';
+
       case 'empresa_cidade':
-        value = row['empresa_cidade'] || '';
-        break;
+        return record['empresa_cidade'] || '';
+
       case 'empresa_estado':
-        value = row['empresa_estado'] || '';
-        break;
+        return record['empresa_estado'] || '';
+
       case 'empresa_regiao':
-        value = row['empresa_regiao'] || '';
-        break;
-      case 'empresa_cnpj':
-        value = row['empresa_cnpj'] || '';
-        break;
+        return record['empresa_regiao'] || '';
 
-      // Contratos
-      case 'valor_contrato':
-        value = row['valor_contrato'] ? parseFloat(row['valor_contrato']) : 0;
-        break;
       case 'status_contrato':
-        value = row['status_contrato'] || '';
-        break;
+        return record['status_contrato'] || '';
+
       case 'tipo_contrato':
-        value = row['tipo_contrato'] || '';
-        break;
+        return record['tipo_contrato'] || '';
+
       case 'numero_contrato':
-        value = row['numero_contrato'] || '';
-        break;
-      case 'contratos_ativos':
-        value = Boolean(row['contratos_ativos']);
-        break;
-      case 'chaves_entregues':
-        value = Boolean(row['chaves_entregues']);
-        break;
-      case 'contratos_assinados':
-        value = Boolean(row['contratos_assinados']);
-        break;
+        return record['numero_contrato'] || '';
 
-      // Financeiro
-      case 'saldo_devedor':
-        value = row['saldo_devedor'] ? parseFloat(row['saldo_devedor']) : 0;
-        break;
       case 'forma_pagamento':
-        value = row['forma_pagamento'] || '';
-        break;
-      case 'taxa_juros':
-        value = row['taxa_juros'] ? parseFloat(row['taxa_juros']) : 0;
-        break;
-      case 'total_parcelas':
-        value = row['total_parcelas'] ? parseInt(row['total_parcelas']) : 0;
-        break;
-      case 'parcelas_pagas':
-        value = row['parcelas_pagas'] ? parseInt(row['parcelas_pagas']) : 0;
-        break;
+        return record['forma_pagamento'] || '';
 
-      // Performance
-      case 'margem_bruta':
-        value = row['margem_bruta'] ? parseFloat(row['margem_bruta']) : 0;
-        break;
-
-      // Clientes
       case 'cliente_principal':
-        value = row['cliente_principal'] || '';
-        break;
+        return record['cliente_principal'] || '';
 
-      // Empreendimentos
       case 'empreendimento_nome':
-        value = row['empreendimento_nome'] || '';
-        break;
+        return record['empreendimento_nome'] || '';
+
       case 'empreendimento_tipo':
-        value = row['empreendimento_tipo'] || '';
-        break;
+        return record['empreendimento_tipo'] || '';
 
-      // Unidades
-      case 'unidade_tipo':
-        value = row['unidade_tipo'] || '';
-        break;
-      case 'unidade_area':
-        value = row['unidade_area'] ? parseFloat(row['unidade_area']) : 0;
-        break;
-      case 'faixa_area':
-        value = row['faixa_area'] || '';
-        break;
+      case 'faixa_valor_contrato':
+        return record['faixa_valor_contrato'] || '';
 
-      // Conversões
-      case 'contratos_cancelados':
-        value = Boolean(row['contratos_cancelados']);
-        break;
+      case 'status_pagamento':
+        return record['status_pagamento'] || '';
+
+      // ===== NÚMEROS COM PROTEÇÃO CONTRA NaN (CORREÇÃO 3) =====
+      case 'valor_contrato':
+        return toFloat(record['valor_contrato']);
+
+      case 'saldo_devedor':
+        return toFloat(record['saldo_devedor']);
+
+      case 'valor_comissao':
+        return toFloat(record['valor_comissao']);
+
+      case 'percentual_comissao':
+        return toFloat(record['percentual_comissao']) / 100; // Converter para decimal
+
+      case 'total_parcelas':
+        return toInt(record['total_parcelas']);
+
+      case 'parcelas_pagas':
+        return toInt(record['parcelas_pagas']);
+
+      case 'quantidade_registros':
+        return 1; // Sempre 1 para contagem
+
+      // ===== BOOLEANOS ROBUSTOS (CORREÇÃO 2) =====
+      case 'contratos_ativos':
+        return toBool(record['contratos_ativos']);
+
+      case 'tem_comissao':
+        return toBool(record['tem_comissao']);
+
+      case 'tem_financiamento':
+        return toBool(record['tem_financiamento']);
 
       default:
-        value = null;
+        logDebug('Campo não mapeado: ' + fieldName);
+        return null;
     }
-
-    formattedRow.push(value);
-  });
-
-  return formattedRow;
+  } catch (e) {
+    logDebug('Erro no campo ' + fieldName + ': ' + e.toString());
+    return null;
+  }
 }
 
-// 5. Função obrigatória para identificar usuários admin (obrigatório)
+// ============================================
+// ADMIN
+// ============================================
 function isAdminUser() {
-  // Lista de emails autorizados a ver detalhes completos de erro
-  var adminEmails = [
-    'darlan@catofe.com.br'        // Substitua pelo seu email
+  return false;
+}
 
-  ];
+// ============================================
+// FUNÇÕES DE TESTE
+// ============================================
+
+/**
+ * Testar conexão
+ */
+function testConnection() {
+  console.log('=== TESTE DE CONEXÃO V6 ===');
 
   try {
-    var userEmail = Session.getEffectiveUser().getEmail();
-    console.log('Verificando acesso admin para:', userEmail);
+    var response = UrlFetchApp.fetch(CONFIG.API_URL, {
+      muteHttpExceptions: true
+    });
 
-    // Verificar se o email está na whitelist
-    var isAdmin = adminEmails.indexOf(userEmail) !== -1;
-    console.log('É admin?', isAdmin);
+    console.log('Status: ' + response.getResponseCode());
 
-    return isAdmin;
-  } catch (error) {
-    console.error('Erro ao verificar usuário admin:', error);
-    return false; // Em caso de erro, negar acesso aos detalhes
+    if (response.getResponseCode() === 200) {
+      var data = JSON.parse(response.getContentText());
+      console.log('✅ API OK');
+      console.log('Registros: ' + (data.data ? data.data.length : 0));
+      return '✅ Conexão OK!';
+    } else {
+      console.log('❌ Erro HTTP: ' + response.getResponseCode());
+      return '❌ Erro na conexão';
+    }
+  } catch (e) {
+    console.log('❌ Erro: ' + e.toString());
+    return '❌ Erro: ' + e.toString();
   }
 }
 
-// Função de teste para verificar conectividade e formatação
-function testConnection() {
+/**
+ * Testar estrutura completa
+ */
+function testFullStructure() {
+  console.log('=== TESTE COMPLETO V6 ===');
+
   try {
-    var API_URL = 'https://conector.catometrics.com.br/api/datawarehouse/master';
-    var response = UrlFetchApp.fetch(API_URL);
-    var data = JSON.parse(response.getContentText());
+    // 1. Schema
+    var schema = getSchema();
+    console.log('Schema OK - Campos: ' + schema.schema.length);
 
-    console.log('✅ API Response:', data.success);
-    console.log('📊 Records Found:', data.data ? data.data.length : 0);
+    // 2. Mock request com dateRange
+    var request = {
+      fields: [
+        { name: 'data_principal' },
+        { name: 'ano_mes' },
+        { name: 'domain_type' },
+        { name: 'valor_contrato' },
+        { name: 'tem_comissao' },
+        { name: 'quantidade_registros' }
+      ],
+      dateRange: {
+        startDate: '20240901',
+        endDate: '20241231'
+      }
+    };
 
-    // Testar formatação de datas com primeiro registro
-    if (data.data && data.data.length > 0) {
-      var firstRow = data.data[0];
-      console.log('\n📅 Teste de Formatação de Datas:');
-      console.log('Original data_principal:', firstRow.data_principal);
-      console.log('Formatado YYYYMMDD:', firstRow.data_principal ? String(firstRow.data_principal).replace(/-/g, '').substring(0, 8) : 'null');
-      console.log('Original ano_mes:', firstRow.ano_mes);
-      console.log('Formatado YYYYMM:', firstRow.ano_mes ? String(firstRow.ano_mes).replace(/-/g, '') : 'null');
-      console.log('Ano como STRING:', String(firstRow.ano));
-      console.log('Mês formatado:', firstRow.mes < 10 ? '0' + firstRow.mes : String(firstRow.mes));
+    // 3. getData
+    var result = getData(request);
+    console.log('getData OK - Linhas: ' + result.rows.length);
+
+    // 4. Validar estrutura
+    if (result.rows.length > 0) {
+      var firstRow = result.rows[0];
+      if (firstRow.values && Array.isArray(firstRow.values)) {
+        console.log('✅ ESTRUTURA PERFEITA!');
+        console.log('Primeira linha: ' + JSON.stringify(firstRow));
+
+        // Testar conversões
+        console.log('\nTestando conversões:');
+        console.log('toBool(1): ' + toBool(1));
+        console.log('toBool("SIM"): ' + toBool("SIM"));
+        console.log('toFloat("1.234,56"): ' + toFloat("1.234,56"));
+        console.log('toInt("123abc"): ' + toInt("123abc"));
+
+        return '✅ V6 TESTADA COM SUCESSO!';
+      } else {
+        console.log('❌ Estrutura incorreta');
+        return '❌ Estrutura incorreta';
+      }
+    } else {
+      console.log('⚠️ Sem dados para validar');
+      return '⚠️ Sem dados';
     }
 
-    return 'Connection successful! Version 2.0 - Master API with Date Formatting';
-  } catch (error) {
-    console.error('❌ Connection Error:', error);
-    return 'Connection failed: ' + error.message;
+  } catch (e) {
+    console.log('❌ Erro no teste: ' + e.toString());
+    return '❌ Erro: ' + e.toString();
   }
+}
+
+/**
+ * Testar helpers
+ */
+function testHelpers() {
+  console.log('=== TESTE DE HELPERS V6 ===');
+
+  // Teste toFloat
+  console.log('\nTeste toFloat:');
+  console.log('toFloat("123.45"): ' + toFloat("123.45"));
+  console.log('toFloat("123,45"): ' + toFloat("123,45"));
+  console.log('toFloat("abc"): ' + toFloat("abc"));
+  console.log('toFloat(null): ' + toFloat(null));
+  console.log('toFloat(NaN): ' + toFloat(NaN));
+
+  // Teste toInt
+  console.log('\nTeste toInt:');
+  console.log('toInt("123"): ' + toInt("123"));
+  console.log('toInt("123.45"): ' + toInt("123.45"));
+  console.log('toInt("abc"): ' + toInt("abc"));
+  console.log('toInt(null): ' + toInt(null));
+
+  // Teste toBool
+  console.log('\nTeste toBool:');
+  console.log('toBool(true): ' + toBool(true));
+  console.log('toBool(1): ' + toBool(1));
+  console.log('toBool("1"): ' + toBool("1"));
+  console.log('toBool("SIM"): ' + toBool("SIM"));
+  console.log('toBool("sim"): ' + toBool("sim"));
+  console.log('toBool("S"): ' + toBool("S"));
+  console.log('toBool(false): ' + toBool(false));
+  console.log('toBool(0): ' + toBool(0));
+  console.log('toBool("NAO"): ' + toBool("NAO"));
+
+  return 'Helpers testados';
 }
