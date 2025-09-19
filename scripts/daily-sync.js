@@ -38,7 +38,9 @@ async function runDailySync() {
   const results = [];
 
   try {
-    // Sincronizar cada endpoint
+    // FASE 1: Sincronizar dados Bronze (API Sienge)
+    console.log('\n📊 FASE 1: Sincronizando dados Bronze...');
+
     for (const endpoint of SYNC_ENDPOINTS) {
       try {
         console.log(`📡 Sincronizando ${endpoint}...`);
@@ -87,6 +89,7 @@ async function runDailySync() {
             ? result.data.length
             : 0;
           results.push({
+            phase: 'bronze',
             endpoint,
             success: true,
             records: recordCount,
@@ -95,6 +98,7 @@ async function runDailySync() {
           console.log(`✅ ${endpoint}: ${recordCount} registros`);
         } else {
           results.push({
+            phase: 'bronze',
             endpoint,
             success: false,
             error: `${response.status} ${response.statusText}`,
@@ -106,6 +110,7 @@ async function runDailySync() {
         }
       } catch (error) {
         results.push({
+          phase: 'bronze',
           endpoint,
           success: false,
           error: error.message,
@@ -118,17 +123,131 @@ async function runDailySync() {
       await new Promise(resolve => setTimeout(resolve, 1000));
     }
 
+    // FASE 2: Refresh do Data Warehouse (Silver e Gold)
+    if (totalErrors === 0 || totalSuccess > 0) {
+      console.log('\n🏗️ FASE 2: Atualizando Data Warehouse (Silver → Gold)...');
+
+      try {
+        const refreshResponse = await fetch(
+          `${APP_URL}/api/datawarehouse/refresh`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'User-Agent': 'Daily-Sync-Script/1.0',
+            },
+            body: JSON.stringify({
+              schema: 'all',
+              concurrent: true,
+              force: false,
+            }),
+          }
+        );
+
+        if (refreshResponse.ok) {
+          const refreshResult = await refreshResponse.json();
+          const summary = refreshResult.data.summary;
+
+          results.push({
+            phase: 'datawarehouse',
+            endpoint: 'refresh_all_views',
+            success: true,
+            records: summary.totalRecords,
+            duration: summary.duration,
+            details: `${summary.successful}/${summary.totalViews} views atualizadas`,
+          });
+
+          console.log(
+            `✅ Data Warehouse atualizado: ${summary.successful}/${summary.totalViews} views`
+          );
+          console.log(
+            `📊 Total de registros processados: ${summary.totalRecords.toLocaleString()}`
+          );
+          console.log(`⏱️ Duração do refresh: ${summary.duration}`);
+
+          if (summary.errors > 0) {
+            console.log(
+              `⚠️ ${summary.errors} views com erro - verifique os logs`
+            );
+          }
+        } else {
+          const errorText = await refreshResponse.text();
+          results.push({
+            phase: 'datawarehouse',
+            endpoint: 'refresh_all_views',
+            success: false,
+            error: `${refreshResponse.status} ${refreshResponse.statusText}: ${errorText}`,
+          });
+          totalErrors++;
+          console.log(
+            `❌ Erro no refresh do Data Warehouse: ${refreshResponse.status} ${refreshResponse.statusText}`
+          );
+        }
+      } catch (error) {
+        results.push({
+          phase: 'datawarehouse',
+          endpoint: 'refresh_all_views',
+          success: false,
+          error: error.message,
+        });
+        totalErrors++;
+        console.log(`💥 Erro no refresh do Data Warehouse: ${error.message}`);
+      }
+    } else {
+      console.log(
+        '\n⚠️ Pulando refresh do Data Warehouse devido a muitos erros na sincronização Bronze'
+      );
+    }
+
     const endTime = new Date();
     const duration = Math.round((endTime - startTime) / 1000);
 
+    // Contar resultados por fase
+    const bronzeResults = results.filter(r => r.phase === 'bronze');
+    const bronzeSuccess = bronzeResults.filter(r => r.success).length;
+    const bronzeErrors = bronzeResults.filter(r => !r.success).length;
+
+    const dwResults = results.filter(r => r.phase === 'datawarehouse');
+    const dwSuccess = dwResults.filter(r => r.success).length;
+    const dwErrors = dwResults.filter(r => !r.success).length;
+
     console.log(
-      `\n📊 [${endTime.toISOString()}] Sync concluído (${duration}s)`
+      `\n📊 [${endTime.toISOString()}] Sincronização completa finalizada (${duration}s)`
     );
-    console.log(`✅ Sucessos: ${totalSuccess}`);
-    console.log(`❌ Erros: ${totalErrors}`);
+    console.log(`\n📋 RESUMO POR FASE:`);
     console.log(
-      `📈 Taxa de sucesso: ${Math.round((totalSuccess / SYNC_ENDPOINTS.length) * 100)}%`
+      `   📦 Bronze (API): ${bronzeSuccess}✅ / ${bronzeErrors}❌ (${SYNC_ENDPOINTS.length} endpoints)`
     );
+    console.log(`   🏗️ Data Warehouse: ${dwSuccess}✅ / ${dwErrors}❌`);
+    console.log(`\n📈 TOTAIS:`);
+    console.log(`   ✅ Sucessos gerais: ${totalSuccess + dwSuccess}`);
+    console.log(`   ❌ Erros gerais: ${totalErrors}`);
+    console.log(`   ⏱️ Duração total: ${duration}s`);
+
+    const totalPhases = (bronzeSuccess > 0 ? 1 : 0) + (dwSuccess > 0 ? 1 : 0);
+    const maxPhases = 2;
+    console.log(`   📊 Fases concluídas: ${totalPhases}/${maxPhases}`);
+
+    // Detalhes dos registros processados
+    const totalBronzeRecords = bronzeResults.reduce(
+      (sum, r) => sum + (r.records || 0),
+      0
+    );
+    const totalDwRecords = dwResults.reduce(
+      (sum, r) => sum + (r.records || 0),
+      0
+    );
+
+    if (totalBronzeRecords > 0) {
+      console.log(
+        `   📊 Registros Bronze: ${totalBronzeRecords.toLocaleString()}`
+      );
+    }
+    if (totalDwRecords > 0) {
+      console.log(
+        `   📊 Registros Data Warehouse: ${totalDwRecords.toLocaleString()}`
+      );
+    }
   } catch (error) {
     const errorTime = new Date();
     const duration = Math.round((errorTime - startTime) / 1000);

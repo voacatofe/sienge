@@ -1,10 +1,12 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  schemas  = ["public", "bronze", "silver", "gold", "system"]
 }
 
 // ============================================
@@ -31,6 +33,7 @@ model ApiCredentials {
   @@index([isActive])
   @@index([subdomain, apiPasswordEncrypted], name: "idx_api_credentials_subdomain_encrypted")
   @@map("api_credentials")
+  @@schema("system")
 }
 
 model SyncLog {
@@ -51,6 +54,7 @@ model SyncLog {
   @@index([syncStartedAt])
   @@index([entityType, status])
   @@map("sync_logs")
+  @@schema("system")
 }
 
 // ============================================
@@ -86,6 +90,7 @@ model Empresa {
   @@index([ativo])
   @@index([dataCadastro])
   @@map("empresas")
+  @@schema("bronze")
 }
 
 model Cliente {
@@ -108,36 +113,9 @@ model Cliente {
   clientType               String?  @map("clientType")
   dataAtualizacao          DateTime? @map("dataAtualizacao")
   fatherName               String?  @map("fatherName")
-  internationalId          String?  @map("internationalId")
-  issueDateIdentityCard    DateTime? @map("issueDateIdentityCard")
-  issuingBody              String?  @map("issuingBody")
-  licenseIssueDate         DateTime? @map("licenseIssueDate")
-  licenseIssuingBody       String?  @map("licenseIssuingBody")
-  licenseNumber            String?  @map("licenseNumber")
-  mailingAddress           String?  @map("mailingAddress")
-  marriageDate             DateTime? @map("marriageDate")
-  matrimonialRegime        String?  @map("matrimonialRegime")
   motherName               String?  @map("motherName")
 
   // Campos adicionais da API Sienge
-
-  // Campos adicionais da API Sienge (pessoa jurídica)
-  cityRegistrationNumber   String?  @map("cityRegistrationNumber")
-  cnaeNumber              String?  @map("cnaeNumber")
-  contactName             String?  @map("contactName")
-  creaNumber              String?  @map("creaNumber")
-  establishmentDate       DateTime? @map("establishmentDate")
-  fantasyName             String?  @map("fantasyName")
-  note                    String?  @map("note")
-  site                    String?  @map("site")
-  shareCapital            Decimal? @map("shareCapital")
-  stateRegistrationNumber String?  @map("stateRegistrationNumber")
-  technicalManager        String?  @map("technicalManager")
-
-  // Campos gerais da API Sienge
-  personType              String?  @map("personType")
-  activityId              Int?     @map("activityId")
-  activityDescription     String?  @map("activityDescription")
 
   // Campos derivados dos telefones
   telefonePrincipal       String?  @map("telefone_principal")
@@ -190,6 +168,7 @@ model Cliente {
   @@index([estadoPrincipal])
   @@index([temConjuge])
   @@map("clientes")
+  @@schema("bronze")
 }
 
 model ContratoVenda {
@@ -299,6 +278,7 @@ model ContratoVenda {
   @@index([situation, contractDate])
   @@index([enterpriseId, situation])
   @@map("contratos_venda")
+  @@schema("bronze")
 }
 
 model Empreendimento {
@@ -328,6 +308,7 @@ model Empreendimento {
   @@index([tipo])
   @@index([idEmpresa])
   @@map("empreendimentos")
+  @@schema("bronze")
 }
 
 model Unidade {
@@ -407,6 +388,7 @@ model Unidade {
   @@index([totalValoresEspeciais])
   @@index([agrupamentoPrincipal])
   @@map("unidades")
+  @@schema("bronze")
 }
 
 model Webhook {
@@ -419,6 +401,7 @@ model Webhook {
 
   @@index([url])
   @@map("webhooks")
+  @@schema("bronze")
 }
 
 model ContratoCliente {
@@ -442,6 +425,7 @@ model ContratoCliente {
   @@index([isMain])
   @@index([nome])
   @@map("contrato_clientes")
+  @@schema("bronze")
 }
 
 model ContratoUnidade {
@@ -465,6 +449,7 @@ model ContratoUnidade {
   @@index([nome])
   @@index([tipoUnidade])
   @@map("contrato_unidades")
+  @@schema("bronze")
 }
 
 model ContratoCondicaoPagamento {
@@ -526,6 +511,7 @@ model ContratoCondicaoPagamento {
   @@index([valorTotal])
   @@index([saldoDevedor])
   @@map("contrato_condicoes_pagamento")
+  @@schema("bronze")
 }
 
 // ============================================
@@ -555,6 +541,7 @@ model ClienteTelefone {
   @@index([clienteId])
   @@index([principal])
   @@map("cliente_telefones")
+  @@schema("bronze")
 }
 
 model ClienteEndereco {
@@ -587,6 +574,7 @@ model ClienteEndereco {
   @@index([cidade])
   @@index([estado])
   @@map("cliente_enderecos")
+  @@schema("bronze")
 }
 
 model ClienteProcurador {
@@ -610,6 +598,7 @@ model ClienteProcurador {
   @@unique([clienteId, ordemProcurador], name: "uk_cliente_procurador_ordem")
   @@index([clienteId])
   @@map("cliente_procuradores")
+  @@schema("bronze")
 }
 
 model ClienteContato {
@@ -634,6 +623,7 @@ model ClienteContato {
   @@unique([clienteId, ordemContato], name: "uk_cliente_contato_ordem")
   @@index([clienteId])
   @@map("cliente_contatos")
+  @@schema("bronze")
 }
 
 model ClienteSubtipo {
@@ -655,6 +645,7 @@ model ClienteSubtipo {
   @@unique([clienteId, ordemSubtipo], name: "uk_cliente_subtipo_ordem")
   @@index([clienteId])
   @@map("cliente_subtipos")
+  @@schema("bronze")
 }
 
 model ClienteRendaFamiliar {
@@ -678,6 +669,7 @@ model ClienteRendaFamiliar {
   @@unique([clienteId, ordemRenda], name: "uk_cliente_renda_ordem")
   @@index([clienteId])
   @@map("cliente_renda_familiar")
+  @@schema("bronze")
 }
 
 // ============================================
@@ -707,6 +699,7 @@ model UnidadeFilha {
   @@index([unidadePaiId])
   @@index([unidadeFilhaId])
   @@map("unidade_filhas")
+  @@schema("bronze")
 }
 
 model UnidadeAgrupamento {
@@ -732,6 +725,7 @@ model UnidadeAgrupamento {
   @@index([unidadeId])
   @@index([tipoAgrupamento])
   @@map("unidade_agrupamentos")
+  @@schema("bronze")
 }
 
 model UnidadeValorEspecial {
@@ -760,6 +754,7 @@ model UnidadeValorEspecial {
   @@index([tipoValor])
   @@index([valorMonetario])
   @@map("unidade_valores_especiais")
+  @@schema("bronze")
 }
 
 model UnidadeLink {
@@ -785,6 +780,7 @@ model UnidadeLink {
   @@index([unidadeId])
   @@index([rel])
   @@map("unidade_links")
+  @@schema("bronze")
 }
 
 // ============================================
@@ -796,6 +792,7 @@ model Portador {
   nome  String @map("nome")
 
   @@map("portadores")
+  @@schema("bronze")
 }
 
 model Credor {
@@ -838,6 +835,7 @@ model Credor {
   @@index([cpf])
   @@index([ativo])
   @@map("credores")
+  @@schema("bronze")
 }
 
 model TituloPagar {
@@ -876,6 +874,7 @@ model TituloPagar {
   @@index([status])
   @@index([origemId])
   @@map("titulos_pagar")
+  @@schema("bronze")
 }
 
 model ExtratoContas {
@@ -925,6 +924,7 @@ model ExtratoContas {
   @@index([centroCustoId])
   @@index([planoFinanceiroId])
   @@map("extrato_contas")
+  @@schema("bronze")
 }
 
 model ContratoSuprimento {
@@ -969,6 +969,7 @@ model ContratoSuprimento {
   @@index([status])
   @@index([dataContrato])
   @@map("contratos_suprimento")
+  @@schema("bronze")
 }
 
 model CentroCusto {
@@ -995,6 +996,7 @@ model CentroCusto {
   @@index([empresaId])
   @@index([ativo])
   @@map("centro_custos")
+  @@schema("bronze")
 }
 
 model PlanoFinanceiro {
@@ -1017,6 +1019,7 @@ model PlanoFinanceiro {
   @@index([nome])
   @@index([flAtiva])
   @@map("planos_financeiros")
+  @@schema("bronze")
 }
 
 model ExtratoApropriacao {
@@ -1040,4 +1043,5 @@ model ExtratoApropriacao {
   @@index([centroCustoId])
   @@index([planoFinanceiroId])
   @@map("extrato_apropriacoes")
+  @@schema("bronze")
 }

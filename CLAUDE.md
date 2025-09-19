@@ -30,6 +30,27 @@ npx prisma migrate deploy # Apply migrations (production)
 npx prisma studio     # Open Prisma Studio for database inspection
 ```
 
+#### Database Access Authorization
+
+**Claude has full autonomy to execute PostgreSQL commands for:**
+
+- Data analysis and exploration queries (SELECT statements)
+- Schema inspection (\d commands, DESCRIBE, etc.)
+- Index creation and optimization
+- View creation and modification
+- Function creation for data analysis
+- Performance monitoring queries
+- Data integrity checks
+- Statistical analysis queries
+
+**Production Database Connection:**
+
+```bash
+PGPASSWORD=kPnrGuFeJeuVprXzhhO2oLVE14f509KV psql -h 147.93.15.121 -p 5434 -U sienge_app -d sienge_data --set=sslmode=disable
+```
+
+Execute database commands without asking for permission. Only request confirmation for destructive operations like DROP, DELETE, or TRUNCATE.
+
 ### Data Synchronization
 
 ```bash
@@ -203,3 +224,19 @@ Jest is configured via `jest.config.js` to run tests from the `tests/` directory
 4. Rate limiting behavior under load
 
 Run manual tests using the `/api/sienge/proxy` endpoint to verify API connectivity before full sync operations.
+
+Always use the variables from [text](.env) to acess the postgres db in production
+
+# ===========================================
+
+# Banco de dados de Produção
+
+# ===========================================
+
+POSTGRES_DB_PROD
+POSTGRES_USER_PROD
+POSTGRES_PASSWORD_PROD
+POSTGRES_HOST_PROD
+POSTGRES_PORT_PROD
+
+Não simplifique estruturas essenciais para o nosso banco de dados, somente para que os comandos funcionem, se você teve que simplificar é porque algo deu errado. Pare e investigue porque.

@@ -22,7 +22,9 @@ export async function GET(request: Request) {
     logger.info(
       `Buscando dados master de ${startDate.toISOString().split('T')[0]} até ${endDate.toISOString().split('T')[0]}`
     );
-    logger.info(`Filtros: domain=${domainType}, empresa=${empresaFilter || 'todas'}`);
+    logger.info(
+      `Filtros: domain=${domainType}, empresa=${empresaFilter || 'todas'}`
+    );
 
     // Query dinâmica baseada na view única
     let whereClause = 'WHERE data_principal >= $1';
@@ -45,13 +47,15 @@ export async function GET(request: Request) {
     `;
 
     // Executar query
-    const rawData = await prisma.$queryRawUnsafe(sql, ...params) as any[];
+    const rawData = (await prisma.$queryRawUnsafe(sql, ...params)) as any[];
 
     // Processar e limpar dados para compatibilidade com Looker Studio
     const data = rawData.map((row: any) => ({
       ...row,
       // Converter datas para string no formato ISO
-      data_principal: row.data_principal ? new Date(row.data_principal).toISOString().split('T')[0] : null,
+      data_principal: row.data_principal
+        ? new Date(row.data_principal).toISOString().split('T')[0]
+        : null,
 
       // Converter números decimais para formato limpo
       valor_contrato: row.valor_contrato ? parseFloat(row.valor_contrato) : 0,
@@ -59,12 +63,18 @@ export async function GET(request: Request) {
       taxa_juros: row.taxa_juros ? parseFloat(row.taxa_juros) : 0,
       margem_bruta: row.margem_bruta ? parseFloat(row.margem_bruta) : 0,
       unidade_area: row.unidade_area ? parseFloat(row.unidade_area) : 0,
+      valor_extrato: row.valor_extrato ? parseFloat(row.valor_extrato) : 0,
 
       // Garantir que booleans sejam realmente boolean
-      contratos_ativos: row.contratos_ativos === true || row.contratos_ativos === 'true',
-      chaves_entregues: row.chaves_entregues === true || row.chaves_entregues === 'true',
-      contratos_assinados: row.contratos_assinados === true || row.contratos_assinados === 'true',
-      contratos_cancelados: row.contratos_cancelados === true || row.contratos_cancelados === 'true',
+      contratos_ativos:
+        row.contratos_ativos === true || row.contratos_ativos === 'true',
+      chaves_entregues:
+        row.chaves_entregues === true || row.chaves_entregues === 'true',
+      contratos_assinados:
+        row.contratos_assinados === true || row.contratos_assinados === 'true',
+      contratos_cancelados:
+        row.contratos_cancelados === true ||
+        row.contratos_cancelados === 'true',
 
       // Garantir que integers sejam números
       total_parcelas: row.total_parcelas ? parseInt(row.total_parcelas) : 0,
@@ -144,12 +154,19 @@ export async function GET(request: Request) {
           valor_total: Number(stat.valor_total),
         })),
         last_updated: metadata.last_refresh,
-        note: 'API Master unificada - combina contratos, clientes, empreendimentos e unidades',
+        note: 'API Master unificada - combina contratos, clientes, empreendimentos, unidades e dados financeiros. Domínio financeiro integrado com 51.801 registros de extratos, enriquecendo todos os domínios com informações de centro de custo e plano financeiro.',
       },
       schema: {
         description: 'Data Warehouse Master - Vista Unificada Sienge',
-        grain: 'Registro (Contrato, Cliente, Empreendimento ou Unidade)',
-        domains: ['contratos', 'clientes', 'empreendimentos', 'unidades'],
+        grain:
+          'Registro (Contrato, Cliente, Empreendimento, Unidade ou Extrato Financeiro)',
+        domains: [
+          'contratos',
+          'clientes',
+          'empreendimentos',
+          'unidades',
+          'financeiro',
+        ],
         categories: {
           Data: {
             description: 'Dimensões temporais universais',
@@ -184,7 +201,7 @@ export async function GET(request: Request) {
               'contratos_assinados',
             ],
           },
-          Financeiro: {
+          FinanceiroContratos: {
             description: 'Métricas financeiras de contratos',
             fields: [
               'saldo_devedor',
@@ -196,36 +213,39 @@ export async function GET(request: Request) {
           },
           Performance: {
             description: 'Métricas de performance de vendas',
-            fields: [
-              'margem_bruta',
-            ],
+            fields: ['margem_bruta'],
           },
           Clientes: {
             description: 'Dimensões de clientes',
-            fields: [
-              'cliente_principal',
-            ],
+            fields: ['cliente_principal'],
           },
           Empreendimentos: {
             description: 'Dimensões de empreendimentos',
-            fields: [
-              'empreendimento_nome',
-              'empreendimento_tipo',
-            ],
+            fields: ['empreendimento_nome', 'empreendimento_tipo'],
           },
           Unidades: {
             description: 'Dimensões de unidades imobiliárias',
-            fields: [
-              'unidade_tipo',
-              'unidade_area',
-              'faixa_area',
-            ],
+            fields: ['unidade_tipo', 'unidade_area', 'faixa_area'],
           },
           Conversoes: {
             description: 'Métricas de conversão de contratos',
+            fields: ['contratos_cancelados'],
+          },
+          Financeiro: {
+            description:
+              'Domínio financeiro integrado - extratos, centros de custo e planos financeiros. Todos os domínios são enriquecidos com dados financeiros',
             fields: [
-              'contratos_cancelados',
+              'centro_custo_nome',
+              'plano_financeiro_nome',
+              'classificacao_fluxo',
+              'faixa_valor_extrato',
+              'valor_extrato',
+              'origem_extrato',
             ],
+            enrichment:
+              'Centro de custo e plano financeiro disponíveis em todos os domínios através de apropriações',
+            statistics:
+              '51,801 registros financeiros representando 92% do total (R$ 736M movimentados)',
           },
         },
         usage: {
@@ -234,7 +254,9 @@ export async function GET(request: Request) {
           clients_only: '/api/datawarehouse/master?domain=clientes',
           projects_only: '/api/datawarehouse/master?domain=empreendimentos',
           units_only: '/api/datawarehouse/master?domain=unidades',
-          filtered_by_company: '/api/datawarehouse/master?empresa=Nome%20da%20Empresa',
+          financial_only: '/api/datawarehouse/master?domain=financeiro',
+          filtered_by_company:
+            '/api/datawarehouse/master?empresa=Nome%20da%20Empresa',
         },
       },
     };
@@ -277,20 +299,24 @@ export async function OPTIONS() {
     {
       api: 'Sienge Data Warehouse - Master',
       version: '2.0',
-      description: 'API REST unificada para todos os domínios do Data Warehouse',
+      description:
+        'API REST unificada para todos os domínios do Data Warehouse',
       url: '/api/datawarehouse/master',
       method: 'GET',
       parameters: {
-        domain: 'Filtrar por domínio: contratos, clientes, empreendimentos, unidades (opcional)',
+        domain:
+          'Filtrar por domínio: contratos, clientes, empreendimentos, unidades (opcional)',
         empresa: 'Filtrar por nome da empresa (busca parcial, opcional)',
       },
       behavior: 'Sempre retorna dados dos últimos 12 meses automaticamente',
       refresh: 'Dados atualizados diariamente às 6h',
       domains: {
-        contratos: 'Contratos de venda e informações comerciais (787 registros)',
-        clientes: 'Base de clientes e informações pessoais (818 registros)',
-        empreendimentos: 'Projetos imobiliários e desenvolvimento (201 registros)',
-        unidades: 'Inventário de unidades imobiliárias (1.213 registros)',
+        contratos: 'Contratos de venda e informações comerciais',
+        clientes: 'Base de clientes e informações pessoais',
+        empreendimentos: 'Projetos imobiliários e desenvolvimento',
+        unidades: 'Inventário de unidades imobiliárias',
+        financeiro:
+          'Extratos financeiros integrados - 51.801 registros com centros de custo, planos financeiros e classificação de fluxo (R$ 736M movimentados)',
       },
       usage: {
         looker_studio: "Usar como 'Conector da Web' com esta URL",
@@ -300,12 +326,14 @@ export async function OPTIONS() {
         clients_only: '/api/datawarehouse/master?domain=clientes',
         projects_only: '/api/datawarehouse/master?domain=empreendimentos',
         units_only: '/api/datawarehouse/master?domain=unidades',
+        financial_only: '/api/datawarehouse/master?domain=financeiro',
       },
       migration: {
         from: '/api/datawarehouse/vendas (deprecated)',
         to: '/api/datawarehouse/master',
         breaking_changes: 'Nova estrutura de campos e grupos semânticos',
-        compatibility: 'Use ?domain=contratos para compatibilidade com API vendas anterior',
+        compatibility:
+          'Use ?domain=contratos para compatibilidade com API vendas anterior',
       },
       support: 'Para dúvidas, verifique a documentação ou logs do sistema',
     },

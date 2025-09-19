@@ -5,7 +5,7 @@ import { getSaoPauloNow } from '@/lib/date-helper';
 
 export interface FieldMapping {
   field?: string;
-  transform?: (value: any) => any;
+  transform?: (value: any, data?: any) => any;
 }
 
 export interface EndpointMapping {
@@ -19,81 +19,96 @@ export const ENDPOINT_MAPPINGS: Record<string, EndpointMapping> = {
     model: 'cliente',
     primaryKey: 'idCliente',
     fieldMapping: {
+      // Identificador principal
       id: 'idCliente',
-      name: 'nomeCompleto',
+
+      // Tipo de pessoa (PF/PJ)
+      personType: 'personType',
+
+      // Dados básicos
+      name: 'name', // Campo renomeado de nomeCompleto para name
+      tradingName: 'tradingName', // Nome fantasia para PJ
+      corporateName: 'corporateName', // Razão social para PJ
+      internalCode: 'internalCode',
+      socialName: 'nomeSocial',
+
+      // Documentos - CPF/CNPJ tratados separadamente
       cpf: {
         field: 'cpfCnpj',
-        transform: (val: any) =>
-          val === undefined || val === null || val === '' ? null : val,
+        transform: (val: any, data: any) => {
+          // Apenas preenche se for pessoa física
+          if (data.personType === 'PHYSICAL' && val) {
+            return val;
+          }
+          return null;
+        },
       },
       cnpj: {
-        field: 'cpfCnpj',
-        transform: (val: any) =>
-          val === undefined || val === null || val === '' ? null : val,
+        field: 'cnpj',
+        transform: (val: any, data: any) => {
+          // Campo específico para CNPJ (PJ)
+          if (data.personType === 'LEGAL' && val) {
+            return val;
+          }
+          // Se for PJ mas o CNPJ veio no campo cpf, usa ele
+          if (data.personType === 'LEGAL' && data.cpf) {
+            return data.cpf;
+          }
+          return null;
+        },
       },
+      rg: 'rg',
+
+      // Dados pessoais
       email: 'email',
-      active: { field: 'ativo', transform: (val: any) => val !== false },
-      createdAt: {
-        field: 'dataCadastro',
-        transform: (val: any) => (val ? new Date(val) : new Date()),
-      },
-      updatedAt: {
-        field: 'dataAtualizacao',
-        transform: () => getSaoPauloNow(),
-      },
-      socialName: 'nomeSocial',
-      numberIdentityCard: 'rg',
       birthDate: {
         field: 'dataNascimento',
         transform: (val: any) => (val ? new Date(val) : null),
       },
-      nationality: 'nacionalidade',
-      civilStatus: 'estadoCivilStr',
-      profession: 'profissaoStr',
-      foreigner: 'foreigner',
+      civilStatus: 'civilStatus',
       sex: 'sex',
+      profession: 'profession',
+      nationality: 'nacionalidade',
       birthPlace: 'birthPlace',
-      clientType: 'clientType',
-      fatherName: 'fatherName',
-      internationalId: 'internationalId',
-      issueDateIdentityCard: {
-        field: 'issueDateIdentityCard',
-        transform: (val: any) => (val ? new Date(val) : null),
+      foreigner: {
+        field: 'foreigner',
+        transform: (val: any) => val === true || val === 'true' || val === 'S',
       },
-      issuingBody: 'issuingBody',
-      licenseIssueDate: {
-        field: 'licenseIssueDate',
-        transform: (val: any) => (val ? new Date(val) : null),
-      },
-      licenseIssuingBody: 'licenseIssuingBody',
-      licenseNumber: 'licenseNumber',
-      mailingAddress: 'mailingAddress',
-      marriageDate: {
-        field: 'marriageDate',
-        transform: (val: any) => (val ? new Date(val) : null),
-      },
-      matrimonialRegime: 'matrimonialRegime',
       motherName: 'motherName',
-      cityRegistrationNumber: 'cityRegistrationNumber',
-      cnaeNumber: 'cnaeNumber',
-      contactName: 'contactName',
-      creaNumber: 'creaNumber',
-      establishmentDate: {
-        field: 'establishmentDate',
+      fatherName: 'fatherName',
+
+      // Campos de controle da API (mapeados para campos existentes)
+      createdAt: {
+        field: 'dataCadastro',
         transform: (val: any) => (val ? new Date(val) : null),
       },
-      fantasyName: 'fantasyName',
-      note: 'note',
-      site: 'site',
-      shareCapital: {
-        field: 'shareCapital',
-        transform: (val: any) => (val ? parseFloat(val) : null),
+      modifiedAt: {
+        field: 'dataAtualizacao',
+        transform: (val: any) => (val ? new Date(val) : null),
       },
-      stateRegistrationNumber: 'stateRegistrationNumber',
-      technicalManager: 'technicalManager',
-      personType: 'personType',
-      activityId: 'activityId',
-      activityDescription: 'activityDescription',
+
+      // Campos de documentos adicionais (apenas os que funcionam)
+      // Removidos campos que estavam 100% vazios
+
+      // Mapear fantasyName para tradingName existente
+      fantasyName: 'tradingName',
+
+      // Estado civil detalhado (objeto)
+      maritalStatus: {
+        field: 'maritalStatus',
+        transform: (val: any) => {
+          if (!val) return null;
+          // Estrutura: { weddingDate: string, patrimonyDivision: string }
+          return val;
+        },
+      },
+
+      // Campos de controle interno
+      active: { field: 'ativo', transform: (val: any) => val !== false },
+      updatedAt: {
+        field: 'dataAtualizacao',
+        transform: () => getSaoPauloNow(),
+      },
 
       // Novos campos da API Sienge
       procurators: {
@@ -203,24 +218,6 @@ export const ENDPOINT_MAPPINGS: Record<string, EndpointMapping> = {
       id: 'idEmpresa',
       name: 'nomeEmpresa',
       cnpj: 'cnpj',
-      stateRegistration: 'inscricaoEstadual',
-      cityRegistration: 'inscricaoMunicipal',
-      address: 'endereco',
-      city: 'cidade',
-      state: 'estado',
-      zipCode: 'cep',
-      phone: 'telefone',
-      email: 'email',
-      website: 'site',
-      active: { field: 'ativo', transform: (val: any) => val !== false },
-      createdAt: {
-        field: 'dataCadastro',
-        transform: (val: any) => (val ? new Date(val) : new Date()),
-      },
-      updatedAt: {
-        field: 'dataAtualizacao',
-        transform: () => getSaoPauloNow(),
-      },
     },
   },
 
@@ -367,6 +364,17 @@ export const ENDPOINT_MAPPINGS: Record<string, EndpointMapping> = {
       modifiedBy: 'modificadoPor',
       companyId: 'idEmpresa',
       companyName: 'nomeEmpresa',
+      // Campos que estavam faltando no mapeamento
+      costDatabaseId: {
+        field: 'idBaseCustos',
+        transform: (val: any) => (val ? parseInt(val) : null),
+      },
+      costDatabaseDescription: 'descricaoBaseCustos',
+      buildingTypeId: {
+        field: 'idTipoObra',
+        transform: (val: any) => (val ? parseInt(val) : null),
+      },
+      buildingTypeDescription: 'descricaoTipoObra',
     },
   },
 
