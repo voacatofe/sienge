@@ -128,6 +128,15 @@ function formatDateForLooker(dateValue) {
       return dateStr;
     }
 
+    // Se está em formato timestamp "YYYY-MM-DD HH:MM:SS" ou "YYYY-MM-DD"
+    var timestampMatch = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (timestampMatch) {
+      var year = timestampMatch[1];
+      var month = timestampMatch[2];
+      var day = timestampMatch[3];
+      return year + month + day;
+    }
+
     // Extrair números para tentar formar YYYYMMDD
     var numbers = dateStr.replace(/[^\d]/g, '');
     if (numbers.length >= 8) {
@@ -158,6 +167,52 @@ function formatDateForLooker(dateValue) {
     logDebug('Erro ao formatar data: ' + dateValue + ' - ' + e.toString(), 'formatDate');
     return null;
   }
+}
+
+/**
+ * Formatar ano para Looker Studio (YYYY)
+ */
+function formatYearForLooker(yearValue) {
+  if (!yearValue && yearValue !== 0) return null;
+
+  var year = parseInt(yearValue);
+  if (isNaN(year) || year < 1900 || year > 2100) return null;
+
+  return String(year);
+}
+
+/**
+ * Formatar mês para Looker Studio (MM)
+ */
+function formatMonthForLooker(monthValue) {
+  if (!monthValue && monthValue !== 0) return null;
+
+  var month = parseInt(monthValue);
+  if (isNaN(month) || month < 1 || month > 12) return null;
+
+  return month < 10 ? '0' + month : String(month);
+}
+
+/**
+ * Formatar ano_mês para Looker Studio (YYYYMM)
+ */
+function formatYearMonthForLooker(yearMonthValue) {
+  if (!yearMonthValue || yearMonthValue === '' || yearMonthValue === 'null') return null;
+
+  var yearMonthStr = String(yearMonthValue).trim();
+
+  // Se está no formato "YYYY-MM", remover o hífen
+  var hyphenMatch = yearMonthStr.match(/^(\d{4})-(\d{2})$/);
+  if (hyphenMatch) {
+    return hyphenMatch[1] + hyphenMatch[2];
+  }
+
+  // Se já está no formato YYYYMM
+  if (/^\d{6}$/.test(yearMonthStr)) {
+    return yearMonthStr;
+  }
+
+  return null;
 }
 
 /**
@@ -890,16 +945,11 @@ function getFieldValueFromRecord(record, fieldId, apiSource) {
       case 'data_principal':
         return formatDateForLooker(record.data_principal);
       case 'ano':
-        return record.ano ? String(record.ano) : null;
+        return formatYearForLooker(record.ano);
       case 'mes':
-        if (record.mes) {
-          var m = toSafeInt(record.mes);
-          return m < 10 ? '0' + m : String(m);
-        }
-        return null;
+        return formatMonthForLooker(record.mes);
       case 'ano_mes':
-        var d = formatDateForLooker(record.data_principal);
-        return d ? d.substring(0, 6) : null;
+        return formatYearMonthForLooker(record.ano_mes);
 
       // Campos de identificação
       case 'domain_type':
