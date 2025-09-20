@@ -1,0 +1,13 @@
+# Forçar line endings Unix (LF) para arquivos shell
+*.sh text eol=lf
+docker-entrypoint.sh text eol=lf
+
+# Arquivos de configuração Docker
+Dockerfile text eol=lf
+docker-compose*.yml text eol=lf
+
+# Scripts em geral
+scripts/* text eol=lf
+
+# Arquivos SQL
+*.sql text eol=lf

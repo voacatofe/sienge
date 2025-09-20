@@ -58,6 +58,8 @@ RUN adduser --system --uid 1001 nextjs
 
 # Copiar script de entrypoint SEGURO (como root) - ANTES de copiar scripts
 COPY scripts/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+# Converter line endings Windows (CRLF) para Unix (LF)
+RUN sed -i 's/\r$//' /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 # Copiar outros scripts necessários (mas não sobrescrever o entrypoint)
