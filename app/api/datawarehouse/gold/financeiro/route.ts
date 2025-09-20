@@ -27,7 +27,7 @@ export async function GET(request: Request) {
     const tipoMovimento = searchParams.get('tipo_movimento');
 
     // Parâmetros de agregação
-    const agruparPor = searchParams.get('agrupar_por') || 'mes'; // mes, trimestre, centro_custo, plano_financeiro
+    const agruparPor = searchParams.get('agrupar_por') || 'detalhado'; // Mudando padrão para detalhado
     const limit = parseInt(searchParams.get('limit') || '1000');
 
     // Construir WHERE dinâmico

@@ -16,7 +16,6 @@
       "Bash(PGPASSWORD=kPnrGuFeJeuVprXzhhO2oLVE14f509KV psql -h 147.93.15.121 -p 5434 -U sienge_app -d sienge_data --set=sslmode=disable -c \"\nALTER TABLE contratos_venda \nDROP COLUMN IF EXISTS \"\"installmentPlan\"\",\nDROP COLUMN IF EXISTS \"\"salesRepresentative\"\",\nDROP COLUMN IF EXISTS \"\"contractType\"\";\")",
       "Bash(PGPASSWORD=kPnrGuFeJeuVprXzhhO2oLVE14f509KV psql:*)",
       "Bash(export PGPASSWORD=kPnrGuFeJeuVprXzhhO2oLVE14f509KV psql:*)",
-      "Bash(export PGPASSWORD=kPnrGuFeJeuVprXzhhO2oLVE14f509KV psql*)",
       "Bash(grep:*)",
       "Bash(python:*)",
       "Bash(npx prisma migrate dev:*)",

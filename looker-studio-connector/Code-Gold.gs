@@ -29,10 +29,10 @@ var CONFIG = {
     financeiro: {
       endpoint: '/financeiro',
       name: 'Performance Financeira',
-      description: 'Análise avançada de fluxo de caixa, conciliação e indicadores financeiros',
-      default_aggregation: 'mes',
-      default_limit: 1000,
-      use_cases: 'Dashboards executivos, controle de caixa, análise de conciliação'
+      description: 'Dados detalhados de fluxo de caixa, conciliação e movimentações financeiras',
+      default_aggregation: null,
+      default_limit: 5000,
+      use_cases: 'Análise detalhada de transações, controle de caixa, conciliação bancária'
     },
     clientes: {
       endpoint: '/clientes',
@@ -123,35 +123,62 @@ function formatDateForLooker(dateValue) {
   try {
     var dateStr = String(dateValue).trim();
 
-    // Se já está no formato YYYYMMDD correto
+    // Se já está no formato YYYYMMDD correto (8 dígitos)
     if (/^\d{8}$/.test(dateStr)) {
-      return dateStr;
-    }
-
-    // Se está em formato timestamp "YYYY-MM-DD HH:MM:SS" ou "YYYY-MM-DD"
-    var timestampMatch = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})/);
-    if (timestampMatch) {
-      var year = timestampMatch[1];
-      var month = timestampMatch[2];
-      var day = timestampMatch[3];
-      return year + month + day;
-    }
-
-    // Extrair números para tentar formar YYYYMMDD
-    var numbers = dateStr.replace(/[^\d]/g, '');
-    if (numbers.length >= 8) {
-      var candidate = numbers.substring(0, 8);
-      // Validar se é uma data válida (ano >= 1900, mês 01-12, dia 01-31)
-      var year = parseInt(candidate.substring(0, 4));
-      var month = parseInt(candidate.substring(4, 6));
-      var day = parseInt(candidate.substring(6, 8));
+      // Validar se é uma data válida
+      var year = parseInt(dateStr.substring(0, 4));
+      var month = parseInt(dateStr.substring(4, 6));
+      var day = parseInt(dateStr.substring(6, 8));
 
       if (year >= 1900 && year <= 2100 && month >= 1 && month <= 12 && day >= 1 && day <= 31) {
-        return candidate;
+        return dateStr;
       }
     }
 
-    // Tentar parser como Date object
+    // PRIORIDADE: Formato YYYY-MM-DD (mais comum das APIs)
+    var dashMatch = dateStr.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+    if (dashMatch) {
+      var year = dashMatch[1];
+      var month = dashMatch[2];
+      var day = dashMatch[3];
+
+      // Adicionar zero à esquerda se necessário
+      if (month.length === 1) month = '0' + month;
+      if (day.length === 1) day = '0' + day;
+
+      // Validar valores
+      var yearNum = parseInt(year);
+      var monthNum = parseInt(month);
+      var dayNum = parseInt(day);
+
+      if (yearNum >= 1900 && yearNum <= 2100 && monthNum >= 1 && monthNum <= 12 && dayNum >= 1 && dayNum <= 31) {
+        return year + month + day;
+      }
+    }
+
+    // Formato DD/MM/YYYY ou DD-MM-YYYY ou DD/MM/YYYY com barra
+    var brMatch = dateStr.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+    if (brMatch) {
+      var day = brMatch[1];
+      var month = brMatch[2];
+      var year = brMatch[3];
+
+      // Converter para números para validação
+      var yearNum = parseInt(year, 10);
+      var monthNum = parseInt(month, 10);
+      var dayNum = parseInt(day, 10);
+
+      // Validar valores
+      if (yearNum >= 1900 && yearNum <= 2100 && monthNum >= 1 && monthNum <= 12 && dayNum >= 1 && dayNum <= 31) {
+        // Adicionar zero à esquerda se necessário APÓS validação
+        var monthFormatted = monthNum < 10 ? '0' + monthNum : String(monthNum);
+        var dayFormatted = dayNum < 10 ? '0' + dayNum : String(dayNum);
+
+        return String(yearNum) + monthFormatted + dayFormatted;
+      }
+    }
+
+    // Tentar parser como Date object (fallback)
     var date = new Date(dateStr);
     if (!isNaN(date.getTime()) && date.getFullYear() >= 1900) {
       var year = date.getFullYear();
@@ -187,9 +214,14 @@ function formatYearForLooker(yearValue) {
 function formatMonthForLooker(monthValue) {
   if (!monthValue && monthValue !== 0) return null;
 
-  var month = parseInt(monthValue);
+  // Converter para string e remover espaços
+  var monthStr = String(monthValue).trim();
+
+  // Converter para número
+  var month = parseInt(monthStr, 10);
   if (isNaN(month) || month < 1 || month > 12) return null;
 
+  // Sempre retornar com 2 dígitos
   return month < 10 ? '0' + month : String(month);
 }
 
@@ -201,17 +233,38 @@ function formatYearMonthForLooker(yearMonthValue) {
 
   var yearMonthStr = String(yearMonthValue).trim();
 
-  // Se está no formato "YYYY-MM", remover o hífen
-  var hyphenMatch = yearMonthStr.match(/^(\d{4})-(\d{2})$/);
-  if (hyphenMatch) {
-    return hyphenMatch[1] + hyphenMatch[2];
+  // Se está no formato "YYYY-MM" ou "YYYY-M", processar
+  if (yearMonthStr.includes('-')) {
+    var parts = yearMonthStr.split('-');
+    if (parts.length === 2) {
+      var year = parts[0];
+      var month = parts[1];
+
+      // Validar ano (deve ter 4 dígitos)
+      if (year.length === 4 && /^\d{4}$/.test(year)) {
+        // Converter mês para número e validar
+        var monthNum = parseInt(month, 10);
+        if (!isNaN(monthNum) && monthNum >= 1 && monthNum <= 12) {
+          // Adicionar zero à esquerda se necessário
+          var formattedMonth = monthNum < 10 ? '0' + monthNum : String(monthNum);
+          return year + formattedMonth;
+        }
+      }
+    }
   }
 
   // Se já está no formato YYYYMM
   if (/^\d{6}$/.test(yearMonthStr)) {
-    return yearMonthStr;
+    // Validar se é uma data válida
+    var year = parseInt(yearMonthStr.substring(0, 4));
+    var month = parseInt(yearMonthStr.substring(4, 6));
+
+    if (year >= 1900 && year <= 2100 && month >= 1 && month <= 12) {
+      return yearMonthStr;
+    }
   }
 
+  logDebug('Formato ano_mes inválido: ' + yearMonthValue, 'formatYearMonth');
   return null;
 }
 
@@ -387,99 +440,90 @@ function addCommonFields(fields, types) {
  * Campos específicos da API Financeiro
  */
 function addFinanceiroFields(fields, types, aggregations) {
-  // Valores essenciais
+  // Valores agregados essenciais
   fields.newMetric()
     .setId('entradas')
     .setName('Entradas')
     .setType(types.CURRENCY_BRL)
     .setAggregation(aggregations.SUM)
-    .setDescription('Total de valores de entrada');
+    .setDescription('Total de valores de entrada no período');
 
   fields.newMetric()
     .setId('saidas')
     .setName('Saídas')
     .setType(types.CURRENCY_BRL)
     .setAggregation(aggregations.SUM)
-    .setDescription('Total de valores de saída');
+    .setDescription('Total de valores de saída no período');
 
   fields.newMetric()
-    .setId('valor_extrato')
-    .setName('Valor Extrato')
+    .setId('valor_total_extrato')
+    .setName('Valor Total Extrato')
     .setType(types.CURRENCY_BRL)
     .setAggregation(aggregations.SUM)
-    .setDescription('Valor conforme extrato bancário');
+    .setDescription('Valor total movimentado no período');
 
-  // Contadores
+  // Contadores e estatísticas
   fields.newMetric()
     .setId('total_lancamentos')
     .setName('Total Lançamentos')
     .setType(types.NUMBER)
     .setAggregation(aggregations.SUM)
-    .setDescription('Quantidade total de lançamentos');
+    .setDescription('Quantidade total de lançamentos no período');
 
   fields.newMetric()
-    .setId('conciliados')
-    .setName('Conciliados')
+    .setId('documentos_unicos')
+    .setName('Documentos Únicos')
     .setType(types.NUMBER)
     .setAggregation(aggregations.SUM)
-    .setDescription('Lançamentos conciliados');
+    .setDescription('Quantidade de documentos únicos');
 
   fields.newMetric()
-    .setId('pendentes')
-    .setName('Pendentes')
+    .setId('valor_medio')
+    .setName('Valor Médio')
+    .setType(types.CURRENCY_BRL)
+    .setAggregation(aggregations.AVG)
+    .setDescription('Valor médio dos lançamentos');
+
+  fields.newMetric()
+    .setId('maior_valor')
+    .setName('Maior Valor')
+    .setType(types.CURRENCY_BRL)
+    .setAggregation(aggregations.MAX)
+    .setDescription('Maior valor do período');
+
+  fields.newMetric()
+    .setId('menor_valor')
+    .setName('Menor Valor')
+    .setType(types.CURRENCY_BRL)
+    .setAggregation(aggregations.MIN)
+    .setDescription('Menor valor do período');
+
+  fields.newMetric()
+    .setId('centros_custo_distintos')
+    .setName('Centros de Custo')
     .setType(types.NUMBER)
     .setAggregation(aggregations.SUM)
-    .setDescription('Lançamentos pendentes');
+    .setDescription('Quantidade de centros de custo distintos');
 
-  // Categorias organizacionais
-  fields.newDimension()
-    .setId('centro_custo_nome')
-    .setName('Centro de Custo')
-    .setType(types.TEXT)
-    .setDescription('Nome do centro de custo');
+  fields.newMetric()
+    .setId('score_medio_importancia')
+    .setName('Score Importância')
+    .setType(types.NUMBER)
+    .setAggregation(aggregations.AVG)
+    .setDescription('Score médio de importância financeira');
 
+  // Datas de período (agregado)
   fields.newDimension()
-    .setId('plano_financeiro_nome')
-    .setName('Plano Financeiro')
-    .setType(types.TEXT)
-    .setDescription('Nome do plano financeiro');
-
-  fields.newDimension()
-    .setId('status_conciliacao')
-    .setName('Status Conciliação')
-    .setType(types.TEXT)
-    .setDescription('Status da conciliação');
+    .setId('data_inicial')
+    .setName('Data Inicial')
+    .setType(types.YEAR_MONTH_DAY)
+    .setDescription('Data inicial do período agregado');
 
   fields.newDimension()
-    .setId('classificacao_fluxo')
-    .setName('Classificação Fluxo')
-    .setType(types.TEXT)
-    .setDescription('Classificação do fluxo');
-
-  fields.newDimension()
-    .setId('categoria_extrato')
-    .setName('Categoria Extrato')
-    .setType(types.TEXT)
-    .setDescription('Categoria do extrato');
-
-  fields.newDimension()
-    .setId('origem_extrato')
-    .setName('Origem Extrato')
-    .setType(types.TEXT)
-    .setDescription('Origem do extrato');
-
-  // Detalhamento básico
-  fields.newDimension()
-    .setId('beneficiario')
-    .setName('Beneficiário')
-    .setType(types.TEXT)
-    .setDescription('Beneficiário do lançamento');
-
-  fields.newDimension()
-    .setId('numero_documento')
-    .setName('Número Documento')
-    .setType(types.TEXT)
-    .setDescription('Número do documento');
+    .setId('data_final')
+    .setName('Data Final')
+    .setType(types.YEAR_MONTH_DAY)
+    .setDescription('Data final do período agregado');
 }
 
 /**
@@ -943,6 +987,10 @@ function getFieldValueFromRecord(record, fieldId, apiSource) {
     switch (fieldId) {
       // Campos temporais comuns
       case 'data_principal':
+        // API Financeiro não tem data_principal, usar data_inicial como fallback
+        if (apiSource === 'financeiro') {
+          return formatDateForLooker(record.data_inicial || record.data_final);
+        }
         return formatDateForLooker(record.data_principal);
       case 'ano':
         return formatYearForLooker(record.ano);
@@ -988,41 +1036,53 @@ function getApiSpecificFieldValue(record, fieldId, apiSource) {
 }
 
 /**
- * Campos específicos da API Financeiro
+ * Campos específicos da API Financeiro (dados agregados)
  */
 function getFinanceiroFieldValue(record, fieldId) {
   switch (fieldId) {
-    // Valores monetários
-    case 'valor_extrato':
-    case 'valor_apropriado':
+    // Valores monetários agregados
+    case 'valor_total_extrato':
+      return toSafeNumber(record.valor_total_extrato);
     case 'entradas':
+      return toSafeNumber(record.entradas);
     case 'saidas':
+      return toSafeNumber(record.saidas);
     case 'valor_medio':
-      return toSafeNumber(record[fieldId]);
+      return toSafeNumber(record.valor_medio);
+    case 'maior_valor':
+      return toSafeNumber(record.maior_valor);
+    case 'menor_valor':
+      return toSafeNumber(record.menor_valor);
+    case 'valor_medio_absoluto':
+      return toSafeNumber(record.valor_medio_absoluto);
 
-    // Contadores
+    // Contadores e estatísticas
     case 'total_lancamentos':
+      return toSafeInt(record.total_lancamentos);
     case 'documentos_unicos':
-    case 'conciliados':
-    case 'pendentes':
-      return toSafeInt(record[fieldId]);
+      return toSafeInt(record.documentos_unicos);
+    case 'centros_custo_distintos':
+      return toSafeInt(record.centros_custo_distintos);
+    case 'planos_financeiros_distintos':
+      return toSafeInt(record.planos_financeiros_distintos);
 
-    // Textos
-    case 'centro_custo_nome':
-    case 'plano_financeiro_nome':
-    case 'classificacao_fluxo':
-    case 'categoria_extrato':
-    case 'origem_extrato':
-    case 'status_conciliacao':
-    case 'numero_documento':
-    case 'beneficiario':
-    case 'descricao_extrato':
-      return record[fieldId] || '';
+    // Datas de período
+    case 'data_inicial':
+      return formatDateForLooker(record.data_inicial);
+    case 'data_final':
+      return formatDateForLooker(record.data_final);
 
     // Scores
-    case 'score_importancia_financeira':
     case 'score_medio_importancia':
-      return toSafeNumber(record[fieldId]);
+      return toSafeNumber(record.score_medio_importancia);
+
+    // Campos que podem vir como null
+    case 'valor_total_apropriado':
+      return toSafeNumber(record.valor_total_apropriado);
+    case 'conciliados':
+      return toSafeInt(record.conciliados);
+    case 'pendentes':
+      return toSafeInt(record.pendentes);
 
     default:
       return record[fieldId] || null;
