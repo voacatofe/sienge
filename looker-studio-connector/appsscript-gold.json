@@ -1,0 +1,27 @@
+{
+  "timeZone": "America/Sao_Paulo",
+  "dependencies": {
+    "enabledAdvancedServices": []
+  },
+  "exceptionLogging": "STACKDRIVER",
+  "runtimeVersion": "V8",
+  "dataStudio": {
+    "name": "Sienge Gold Connector v7.0",
+    "logoUrl": "https://conector.catometrics.com.br/logo.png",
+    "company": "Catométrics",
+    "companyUrl": "https://catometrics.com.br",
+    "addonUrl": "https://github.com/catometrics/sienge-connector",
+    "supportUrl": "mailto:suporte@catometrics.com.br",
+    "description": "🏆 Conector especializado para APIs Gold do Sienge Data Warehouse com performance 10x superior. Inclui 4 APIs especializadas: Performance Financeira (51K registros), Clientes 360°, Vendas & Contratos, Portfolio Imobiliário. Com cache inteligente, agregações pré-calculadas e 200+ campos especializados.",
+    "sources": ["SIENGE_GOLD"],
+    "authType": ["NONE"],
+    "feeType": ["FREE"],
+    "shortDescription": "APIs Gold Sienge com performance otimizada para Looker Studio",
+    "termsOfServiceUrl": "https://catometrics.com.br/termos",
+    "privacyPolicyUrl": "https://catometrics.com.br/privacidade"
+  },
+  "webapp": {
+    "access": "ANYONE_ANONYMOUS",
+    "executeAs": "USER_DEPLOYING"
+  }
+}
