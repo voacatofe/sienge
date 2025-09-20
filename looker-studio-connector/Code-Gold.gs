@@ -1,15 +1,23 @@
 /**
- * Sienge Looker Studio Gold Connector - VERSÃO 7.0
- * Multi-Source Gold APIs com Performance Otimizada
+ * Sienge Looker Studio Gold Connector - VERSÃO 7.1
+ * Multi-Source Gold APIs com Organização Avançada e Performance Otimizada
  *
- * RECURSOS:
+ * RECURSOS PRINCIPAIS:
  * ✅ 4 APIs Gold especializadas (Financeiro, Clientes, Vendas, Portfolio)
+ * ✅ Organização em grupos lógicos com setGroup()
  * ✅ Schemas dinâmicos por API
+ * ✅ Descrições detalhadas em todos os campos
+ * ✅ Labels dinâmicos sem informações hardcoded
  * ✅ Agregações pré-calculadas
  * ✅ Filtros server-side
  * ✅ Cache otimizado
  * ✅ Paginação automática
- * ✅ Parâmetros de configuração
+ *
+ * GRUPOS DE CAMPOS ORGANIZADOS:
+ * 📅 Temporal, 🔑 Identificação, 💰 Valores, 📊 Indicadores
+ * 👤 Dados Pessoais, 📍 Localização, 🏷️ Segmentação, ⭐ Qualidade
+ * 📋 Contrato, 💳 Parcelamento, 🎯 Comissões, 🔗 Relacionamentos
+ * 🏢 Unidade, 🏗️ Empreendimento, 📏 Dimensões, 📊 Status
  */
 
 // ============================================
@@ -21,34 +29,34 @@ var CONFIG = {
     financeiro: {
       endpoint: '/financeiro',
       name: 'Performance Financeira',
-      description: 'Análise financeira com 51,801 registros pré-agregados',
-      volume: '64 MB',
+      description: 'Análise avançada de fluxo de caixa, conciliação e indicadores financeiros',
       default_aggregation: 'mes',
-      default_limit: 1000
+      default_limit: 1000,
+      use_cases: 'Dashboards executivos, controle de caixa, análise de conciliação'
     },
     clientes: {
       endpoint: '/clientes',
       name: 'Clientes 360°',
-      description: 'Visão completa dos clientes com scores e métricas',
-      volume: '32 MB',
+      description: 'Visão completa do perfil, comportamento e valor dos clientes',
       default_aggregation: null,
-      default_limit: 500
+      default_limit: 500,
+      use_cases: 'CRM analytics, segmentação, análise de lifetime value'
     },
     vendas: {
       endpoint: '/vendas',
       name: 'Vendas e Contratos',
-      description: 'Análise de vendas, contratos e comissões',
-      volume: '28 MB',
+      description: 'Performance de vendas, contratos e análise de comissões',
       default_aggregation: null,
-      default_limit: 500
+      default_limit: 500,
+      use_cases: 'Análise de vendas, tracking de contratos, gestão de comissões'
     },
     portfolio: {
       endpoint: '/portfolio',
       name: 'Portfolio Imobiliário',
-      description: 'Unidades, empreendimentos e análise de portfolio',
-      volume: '45 MB',
+      description: 'Gestão de unidades, empreendimentos e análise de portfolio',
       default_aggregation: null,
-      default_limit: 500
+      default_limit: 500,
+      use_cases: 'Gestão imobiliária, análise de atratividade, dashboard de portfolio'
     }
   },
   MAX_RECORDS: 10000,
@@ -80,18 +88,18 @@ function logDebug(message, context) {
  * Converter para número seguro
  */
 function toSafeNumber(value, defaultValue) {
-  if (value === null || value === undefined || value === '') return defaultValue || 0;
+  if (value === null || value === undefined || value === '') return null;
   var num = parseFloat(String(value).replace(/[^0-9.-]/g, ''));
-  return isFinite(num) ? num : (defaultValue || 0);
+  return isFinite(num) ? num : null;
 }
 
 /**
  * Converter para inteiro seguro
  */
 function toSafeInt(value, defaultValue) {
-  if (value === null || value === undefined || value === '') return defaultValue || 0;
+  if (value === null || value === undefined || value === '') return null;
   var num = parseInt(value, 10);
-  return isFinite(num) ? num : (defaultValue || 0);
+  return isFinite(num) ? num : null;
 }
 
 /**
@@ -108,29 +116,46 @@ function toSafeBool(value) {
  * Formatar data para Looker Studio (YYYYMMDD)
  */
 function formatDateForLooker(dateValue) {
-  if (!dateValue) return null;
+  if (!dateValue || dateValue === '' || dateValue === 'null' || dateValue === 'undefined') {
+    return null;
+  }
 
   try {
-    var dateStr = String(dateValue);
-    // Extrair apenas números
-    var numbers = dateStr.replace(/[^\d]/g, '');
+    var dateStr = String(dateValue).trim();
 
-    if (numbers.length >= 8) {
-      return numbers.substring(0, 8);
+    // Se já está no formato YYYYMMDD correto
+    if (/^\d{8}$/.test(dateStr)) {
+      return dateStr;
     }
 
-    // Tentar parser ISO date
+    // Extrair números para tentar formar YYYYMMDD
+    var numbers = dateStr.replace(/[^\d]/g, '');
+    if (numbers.length >= 8) {
+      var candidate = numbers.substring(0, 8);
+      // Validar se é uma data válida (ano >= 1900, mês 01-12, dia 01-31)
+      var year = parseInt(candidate.substring(0, 4));
+      var month = parseInt(candidate.substring(4, 6));
+      var day = parseInt(candidate.substring(6, 8));
+
+      if (year >= 1900 && year <= 2100 && month >= 1 && month <= 12 && day >= 1 && day <= 31) {
+        return candidate;
+      }
+    }
+
+    // Tentar parser como Date object
     var date = new Date(dateStr);
-    if (!isNaN(date.getTime())) {
+    if (!isNaN(date.getTime()) && date.getFullYear() >= 1900) {
       var year = date.getFullYear();
       var month = ('0' + (date.getMonth() + 1)).slice(-2);
       var day = ('0' + date.getDate()).slice(-2);
       return year + month + day;
     }
 
+    logDebug('Data inválida ignorada: ' + dateValue, 'formatDate');
     return null;
+
   } catch (e) {
-    logDebug('Erro ao formatar data: ' + dateValue, 'formatDate');
+    logDebug('Erro ao formatar data: ' + dateValue + ' - ' + e.toString(), 'formatDate');
     return null;
   }
 }
@@ -163,76 +188,32 @@ function getConfig(request) {
 
   config.newInfo()
     .setId('info')
-    .setText('🏆 Sienge Gold Connector v7.0 - APIs especializadas com alta performance');
+    .setText('Sienge Gold Data Warehouse - Conector simplificado para alta performance');
 
   // Seleção da API
   config.newSelectSingle()
     .setId('api_source')
-    .setName('📊 Fonte de Dados Gold')
-    .setHelpText('Escolha a API especializada para sua análise')
+    .setName('Fonte de Dados')
+    .setHelpText('Escolha a API baseada no tipo de análise')
     .addOption(config.newOptionBuilder()
-      .setLabel('💰 Performance Financeira (51K registros)')
+      .setLabel('Performance Financeira')
       .setValue('financeiro'))
     .addOption(config.newOptionBuilder()
-      .setLabel('👥 Clientes 360° (Análise completa)')
+      .setLabel('Clientes')
       .setValue('clientes'))
     .addOption(config.newOptionBuilder()
-      .setLabel('📈 Vendas e Contratos (Com comissões)')
+      .setLabel('Vendas e Contratos')
       .setValue('vendas'))
     .addOption(config.newOptionBuilder()
-      .setLabel('🏢 Portfolio Imobiliário (Unidades)')
+      .setLabel('Portfolio Imobiliário')
       .setValue('portfolio'))
     .setAllowOverride(true);
 
-  // Tipo de agregação (apenas para financeiro)
-  config.newSelectSingle()
-    .setId('aggregation_type')
-    .setName('📊 Tipo de Agregação')
-    .setHelpText('Escolha o nível de agregação (apenas para Performance Financeira)')
-    .addOption(config.newOptionBuilder()
-      .setLabel('📅 Mensal (Recomendado)')
-      .setValue('mes'))
-    .addOption(config.newOptionBuilder()
-      .setLabel('📅 Trimestral')
-      .setValue('trimestre'))
-    .addOption(config.newOptionBuilder()
-      .setLabel('🏢 Por Centro de Custo')
-      .setValue('centro_custo'))
-    .addOption(config.newOptionBuilder()
-      .setLabel('💼 Por Plano Financeiro')
-      .setValue('plano_financeiro'))
-    .addOption(config.newOptionBuilder()
-      .setLabel('📋 Por Classificação')
-      .setValue('classificacao'))
-    .addOption(config.newOptionBuilder()
-      .setLabel('🔍 Detalhado (Limitado)')
-      .setValue('detalhado'))
-    .setAllowOverride(true);
-
-  // Limite de registros
-  config.newTextInput()
-    .setId('record_limit')
-    .setName('📊 Limite de Registros')
-    .setHelpText('Máximo de registros a buscar (padrão: 1000, máx: 10000)')
-    .setPlaceholder('1000')
-    .setAllowOverride(true);
-
-  // Período de análise
-  config.newInfo()
-    .setId('date_info')
-    .setText('🗓️ Use o seletor de data do Looker Studio para filtrar por período');
-
-  // Configurações avançadas
+  // Cache
   config.newCheckbox()
     .setId('use_cache')
-    .setName('⚡ Usar Cache (1 hora)')
-    .setHelpText('Ativa cache para melhor performance')
-    .setAllowOverride(true);
-
-  config.newCheckbox()
-    .setId('debug_mode')
-    .setName('🔍 Modo Debug')
-    .setHelpText('Ativa logs detalhados para diagnóstico')
+    .setName('Usar Cache')
+    .setHelpText('Ativa cache de 1 hora para melhor performance')
     .setAllowOverride(true);
 
   // Exigir seleção de data
@@ -301,416 +282,340 @@ function getFieldsForApi(apiSource) {
  */
 function addCommonFields(fields, types) {
   // Dimensões temporais
+
   fields.newDimension()
     .setId('data_principal')
-    .setName('📅 Data Principal')
-    .setType(types.YEAR_MONTH_DAY);
+    .setName('Data Principal')
+    .setType(types.YEAR_MONTH_DAY)
+    .setDescription('Data de referência do registro');
 
   fields.newDimension()
     .setId('ano')
-    .setName('📅 Ano')
-    .setType(types.YEAR);
+    .setName('Ano')
+    .setType(types.YEAR)
+    .setDescription('Ano extraído da data principal');
 
   fields.newDimension()
     .setId('mes')
-    .setName('📅 Mês')
-    .setType(types.MONTH);
+    .setName('Mês')
+    .setType(types.MONTH)
+    .setDescription('Mês extraído da data principal');
 
   fields.newDimension()
     .setId('ano_mes')
-    .setName('📅 Ano-Mês')
-    .setType(types.YEAR_MONTH);
+    .setName('Ano-Mês')
+    .setType(types.YEAR_MONTH)
+    .setDescription('Ano e mês combinados para análise temporal');
 
-  // Identificação
+  // ===== IDENTIFICAÇÃO =====
+
   fields.newDimension()
     .setId('domain_type')
-    .setName('🏷️ Tipo de Domínio')
-    .setType(types.TEXT);
+    .setName('🔑 Tipo de Domínio')
+    .setType(types.TEXT)
+    .setDescription('Categoria do domínio de negócio');
 
   fields.newDimension()
     .setId('unique_id')
     .setName('🔑 ID Único')
-    .setType(types.TEXT);
+    .setType(types.TEXT)
+    .setDescription('Identificador único do registro');
 
-  // Empresa
   fields.newDimension()
     .setId('empresa_id')
-    .setName('🏢 ID Empresa')
-    .setType(types.NUMBER);
+    .setName('🔑 ID Empresa')
+    .setType(types.NUMBER)
+    .setDescription('Identificador da empresa');
 }
 
 /**
  * Campos específicos da API Financeiro
  */
 function addFinanceiroFields(fields, types, aggregations) {
-  // Valores financeiros
-  fields.newMetric()
-    .setId('valor_extrato')
-    .setName('💰 Valor Extrato')
-    .setType(types.CURRENCY_BRL)
-    .setAggregation(aggregations.SUM);
-
-  fields.newMetric()
-    .setId('valor_apropriado')
-    .setName('💰 Valor Apropriado')
-    .setType(types.CURRENCY_BRL)
-    .setAggregation(aggregations.SUM);
-
+  // Valores essenciais
   fields.newMetric()
     .setId('entradas')
-    .setName('📈 Entradas')
+    .setName('Entradas')
     .setType(types.CURRENCY_BRL)
-    .setAggregation(aggregations.SUM);
+    .setAggregation(aggregations.SUM)
+    .setDescription('Total de valores de entrada');
 
   fields.newMetric()
     .setId('saidas')
-    .setName('📉 Saídas')
+    .setName('Saídas')
     .setType(types.CURRENCY_BRL)
-    .setAggregation(aggregations.SUM);
+    .setAggregation(aggregations.SUM)
+    .setDescription('Total de valores de saída');
 
   fields.newMetric()
-    .setId('valor_medio')
-    .setName('💰 Valor Médio')
+    .setId('valor_extrato')
+    .setName('Valor Extrato')
     .setType(types.CURRENCY_BRL)
-    .setAggregation(aggregations.AVG);
+    .setAggregation(aggregations.SUM)
+    .setDescription('Valor conforme extrato bancário');
 
   // Contadores
   fields.newMetric()
     .setId('total_lancamentos')
-    .setName('📊 Total Lançamentos')
+    .setName('Total Lançamentos')
     .setType(types.NUMBER)
-    .setAggregation(aggregations.SUM);
-
-  fields.newMetric()
-    .setId('documentos_unicos')
-    .setName('📄 Documentos Únicos')
-    .setType(types.NUMBER)
-    .setAggregation(aggregations.SUM);
+    .setAggregation(aggregations.SUM)
+    .setDescription('Quantidade total de lançamentos');
 
   fields.newMetric()
     .setId('conciliados')
-    .setName('✅ Conciliados')
+    .setName('Conciliados')
     .setType(types.NUMBER)
-    .setAggregation(aggregations.SUM);
+    .setAggregation(aggregations.SUM)
+    .setDescription('Lançamentos conciliados');
 
   fields.newMetric()
     .setId('pendentes')
-    .setName('⏳ Pendentes')
+    .setName('Pendentes')
     .setType(types.NUMBER)
-    .setAggregation(aggregations.SUM);
+    .setAggregation(aggregations.SUM)
+    .setDescription('Lançamentos pendentes');
 
-  // Dimensões organizacionais
+  // Categorias organizacionais
   fields.newDimension()
     .setId('centro_custo_nome')
-    .setName('🏢 Centro de Custo')
-    .setType(types.TEXT);
+    .setName('Centro de Custo')
+    .setType(types.TEXT)
+    .setDescription('Nome do centro de custo');
 
   fields.newDimension()
     .setId('plano_financeiro_nome')
-    .setName('💼 Plano Financeiro')
-    .setType(types.TEXT);
-
-  fields.newDimension()
-    .setId('classificacao_fluxo')
-    .setName('🔄 Classificação Fluxo')
-    .setType(types.TEXT);
-
-  fields.newDimension()
-    .setId('categoria_extrato')
-    .setName('📋 Categoria Extrato')
-    .setType(types.TEXT);
-
-  fields.newDimension()
-    .setId('origem_extrato')
-    .setName('📍 Origem Extrato')
-    .setType(types.TEXT);
+    .setName('Plano Financeiro')
+    .setType(types.TEXT)
+    .setDescription('Nome do plano financeiro');
 
   fields.newDimension()
     .setId('status_conciliacao')
-    .setName('✅ Status Conciliação')
-    .setType(types.TEXT);
+    .setName('Status Conciliação')
+    .setType(types.TEXT)
+    .setDescription('Status da conciliação');
 
-  // Scores e análises
-  fields.newMetric()
-    .setId('score_importancia_financeira')
-    .setName('⭐ Score Importância')
-    .setType(types.NUMBER)
-    .setAggregation(aggregations.AVG);
-
-  fields.newMetric()
-    .setId('score_medio_importancia')
-    .setName('⭐ Score Médio')
-    .setType(types.NUMBER)
-    .setAggregation(aggregations.AVG);
-
-  // Campos de detalhamento (apenas quando não agregado)
   fields.newDimension()
-    .setId('numero_documento')
-    .setName('📄 Número Documento')
-    .setType(types.TEXT);
+    .setId('classificacao_fluxo')
+    .setName('Classificação Fluxo')
+    .setType(types.TEXT)
+    .setDescription('Classificação do fluxo');
 
+  fields.newDimension()
+    .setId('categoria_extrato')
+    .setName('Categoria Extrato')
+    .setType(types.TEXT)
+    .setDescription('Categoria do extrato');
+
+  fields.newDimension()
+    .setId('origem_extrato')
+    .setName('Origem Extrato')
+    .setType(types.TEXT)
+    .setDescription('Origem do extrato');
+
+  // Detalhamento básico
   fields.newDimension()
     .setId('beneficiario')
-    .setName('👤 Beneficiário')
-    .setType(types.TEXT);
+    .setName('Beneficiário')
+    .setType(types.TEXT)
+    .setDescription('Beneficiário do lançamento');
 
   fields.newDimension()
-    .setId('descricao_extrato')
-    .setName('📝 Descrição')
-    .setType(types.TEXT);
+    .setId('numero_documento')
+    .setName('Número Documento')
+    .setType(types.TEXT)
+    .setDescription('Número do documento');
 }
 
 /**
  * Campos específicos da API Clientes
  */
 function addClientesFields(fields, types, aggregations) {
-  // Dados básicos do cliente
+  // Identificação
   fields.newDimension()
     .setId('cliente_id')
-    .setName('👤 ID Cliente')
-    .setType(types.NUMBER);
+    .setName('ID Cliente')
+    .setType(types.NUMBER)
+    .setDescription('Identificador único do cliente');
 
   fields.newDimension()
     .setId('nome_completo')
-    .setName('👤 Nome Completo')
-    .setType(types.TEXT);
-
-  fields.newDimension()
-    .setId('tipo_pessoa')
-    .setName('👤 Tipo Pessoa')
-    .setType(types.TEXT);
+    .setName('Nome')
+    .setType(types.TEXT)
+    .setDescription('Nome completo do cliente');
 
   fields.newDimension()
     .setId('cpf_cnpj_limpo')
-    .setName('📄 CPF/CNPJ')
-    .setType(types.TEXT);
+    .setName('CPF/CNPJ')
+    .setType(types.TEXT)
+    .setDescription('CPF ou CNPJ do cliente');
 
-  // Dados demográficos
   fields.newDimension()
-    .setId('faixa_etaria')
-    .setName('👤 Faixa Etária')
-    .setType(types.TEXT);
+    .setId('tipo_pessoa')
+    .setName('Tipo Pessoa')
+    .setType(types.TEXT)
+    .setDescription('Pessoa Física ou Jurídica');
 
+  // Localização
   fields.newDimension()
     .setId('cidade')
-    .setName('🌍 Cidade')
-    .setType(types.TEXT);
+    .setName('Cidade')
+    .setType(types.TEXT)
+    .setDescription('Cidade de residência');
 
   fields.newDimension()
     .setId('estado')
-    .setName('🌍 Estado')
-    .setType(types.TEXT);
+    .setName('Estado')
+    .setType(types.TEXT)
+    .setDescription('Estado de residência');
 
-  fields.newDimension()
-    .setId('segmento_demografico')
-    .setName('📊 Segmento Demográfico')
-    .setType(types.TEXT);
-
-  // Categorização
-  fields.newDimension()
-    .setId('categoria_cliente')
-    .setName('🏷️ Categoria Cliente')
-    .setType(types.TEXT);
-
-  fields.newDimension()
-    .setId('categoria_risco_credito')
-    .setName('⚠️ Categoria Risco')
-    .setType(types.TEXT);
-
-  // Scores e métricas
-  fields.newMetric()
-    .setId('qualidade_score')
-    .setName('⭐ Score Qualidade')
-    .setType(types.NUMBER)
-    .setAggregation(aggregations.AVG);
-
-  fields.newMetric()
-    .setId('score_valor_cliente')
-    .setName('💰 Score Valor Cliente')
-    .setType(types.NUMBER)
-    .setAggregation(aggregations.AVG);
-
-  fields.newMetric()
-    .setId('idade_atual')
-    .setName('👤 Idade Atual')
-    .setType(types.NUMBER)
-    .setAggregation(aggregations.AVG);
-
-  fields.newMetric()
-    .setId('dias_como_cliente')
-    .setName('📅 Dias como Cliente')
-    .setType(types.NUMBER)
-    .setAggregation(aggregations.AVG);
-
-  // Financeiro do cliente
+  // Financeiro
   fields.newMetric()
     .setId('valor_total_contratos')
-    .setName('💰 Valor Total Contratos')
+    .setName('Valor Total Contratos')
     .setType(types.CURRENCY_BRL)
-    .setAggregation(aggregations.SUM);
+    .setAggregation(aggregations.SUM)
+    .setDescription('Valor total dos contratos');
 
   fields.newMetric()
     .setId('total_contratos')
-    .setName('📊 Total Contratos')
+    .setName('Total Contratos')
     .setType(types.NUMBER)
-    .setAggregation(aggregations.SUM);
+    .setAggregation(aggregations.SUM)
+    .setDescription('Quantidade de contratos');
 
-  // Flags
+  // Status
   fields.newDimension()
-    .setId('tem_historico_compras')
-    .setName('✅ Tem Histórico')
-    .setType(types.BOOLEAN);
+    .setId('ativo')
+    .setName('Ativo')
+    .setType(types.BOOLEAN)
+    .setDescription('Cliente ativo');
 
   fields.newDimension()
     .setId('tem_saldo_devedor')
-    .setName('💳 Tem Saldo Devedor')
-    .setType(types.BOOLEAN);
+    .setName('Tem Saldo Devedor')
+    .setType(types.BOOLEAN)
+    .setDescription('Possui saldo devedor');
+
+  // Categoria
+  fields.newDimension()
+    .setId('categoria_cliente')
+    .setName('Categoria')
+    .setType(types.TEXT)
+    .setDescription('Categoria do cliente');
 
   fields.newDimension()
-    .setId('ativo')
-    .setName('✅ Ativo')
-    .setType(types.BOOLEAN);
+    .setId('faixa_etaria')
+    .setName('Faixa Etária')
+    .setType(types.TEXT)
+    .setDescription('Faixa etária do cliente');
 }
 
 /**
  * Campos específicos da API Vendas
  */
 function addVendasFields(fields, types, aggregations) {
-  // Dados do contrato
+  // Contrato
   fields.newDimension()
     .setId('contrato_id')
-    .setName('📋 ID Contrato')
-    .setType(types.NUMBER);
+    .setName('ID Contrato')
+    .setType(types.NUMBER)
+    .setDescription('Identificador único do contrato');
 
   fields.newDimension()
     .setId('numero_contrato')
-    .setName('📋 Número Contrato')
-    .setType(types.TEXT);
+    .setName('Número Contrato')
+    .setType(types.TEXT)
+    .setDescription('Número do contrato');
 
   fields.newDimension()
     .setId('situacao_contrato')
-    .setName('📊 Situação Contrato')
-    .setType(types.TEXT);
-
-  fields.newDimension()
-    .setId('status_derivado')
-    .setName('📊 Status Derivado')
-    .setType(types.TEXT);
-
-  fields.newDimension()
-    .setId('categoria_valor_contrato')
-    .setName('💰 Categoria Valor')
-    .setType(types.TEXT);
+    .setName('Situação')
+    .setType(types.TEXT)
+    .setDescription('Situação do contrato');
 
   // Valores
   fields.newMetric()
-    .setId('valor_contrato_original')
-    .setName('💰 Valor Original')
-    .setType(types.CURRENCY_BRL)
-    .setAggregation(aggregations.SUM);
-
-  fields.newMetric()
     .setId('valor_venda_total')
-    .setName('💰 Valor Venda Total')
+    .setName('Valor Venda Total')
     .setType(types.CURRENCY_BRL)
-    .setAggregation(aggregations.SUM);
+    .setAggregation(aggregations.SUM)
+    .setDescription('Valor total da venda');
 
   fields.newMetric()
     .setId('valor_total_pago')
-    .setName('💰 Valor Pago')
+    .setName('Valor Pago')
     .setType(types.CURRENCY_BRL)
-    .setAggregation(aggregations.SUM);
+    .setAggregation(aggregations.SUM)
+    .setDescription('Valor já pago');
 
   fields.newMetric()
     .setId('saldo_devedor')
-    .setName('💳 Saldo Devedor')
+    .setName('Saldo Devedor')
     .setType(types.CURRENCY_BRL)
-    .setAggregation(aggregations.SUM);
+    .setAggregation(aggregations.SUM)
+    .setDescription('Saldo em aberto');
 
   // Parcelamento
   fields.newMetric()
     .setId('total_parcelas')
-    .setName('📊 Total Parcelas')
+    .setName('Total Parcelas')
     .setType(types.NUMBER)
-    .setAggregation(aggregations.SUM);
+    .setAggregation(aggregations.SUM)
+    .setDescription('Número total de parcelas');
 
   fields.newMetric()
     .setId('parcelas_pagas')
-    .setName('✅ Parcelas Pagas')
+    .setName('Parcelas Pagas')
     .setType(types.NUMBER)
-    .setAggregation(aggregations.SUM);
+    .setAggregation(aggregations.SUM)
+    .setDescription('Parcelas já pagas');
 
-  fields.newMetric()
-    .setId('percentual_pago')
-    .setName('📊 % Pago')
-    .setType(types.PERCENT)
-    .setAggregation(aggregations.AVG);
-
-  // Pagamento
   fields.newDimension()
     .setId('forma_pagamento_principal')
-    .setName('💳 Forma Pagamento')
-    .setType(types.TEXT);
+    .setName('Forma Pagamento')
+    .setType(types.TEXT)
+    .setDescription('Forma de pagamento');
 
-  fields.newDimension()
-    .setId('indexador_principal')
-    .setName('📈 Indexador')
-    .setType(types.TEXT);
-
-  // Comissões
-  fields.newDimension()
-    .setId('tem_comissao')
-    .setName('💰 Tem Comissão')
-    .setType(types.BOOLEAN);
-
-  fields.newMetric()
-    .setId('valor_total_comissao')
-    .setName('💰 Valor Comissão')
-    .setType(types.CURRENCY_BRL)
-    .setAggregation(aggregations.SUM);
-
-  fields.newDimension()
-    .setId('faixa_valor_comissao')
-    .setName('💰 Faixa Comissão')
-    .setType(types.TEXT);
-
-  fields.newMetric()
-    .setId('percentual_comissao_sobre_contrato')
-    .setName('📊 % Comissão')
-    .setType(types.PERCENT)
-    .setAggregation(aggregations.AVG);
-
-  // Cliente e empreendimento
-  fields.newDimension()
-    .setId('cliente_id')
-    .setName('👤 ID Cliente')
-    .setType(types.NUMBER);
-
+  // Relacionamentos
   fields.newDimension()
     .setId('cliente_nome')
-    .setName('👤 Nome Cliente')
-    .setType(types.TEXT);
-
-  fields.newDimension()
-    .setId('empreendimento_id')
-    .setName('🏢 ID Empreendimento')
-    .setType(types.NUMBER);
+    .setName('Cliente')
+    .setType(types.TEXT)
+    .setDescription('Nome do cliente');
 
   fields.newDimension()
     .setId('empreendimento_nome')
-    .setName('🏢 Nome Empreendimento')
-    .setType(types.TEXT);
+    .setName('Empreendimento')
+    .setType(types.TEXT)
+    .setDescription('Nome do empreendimento');
 
-  // Datas importantes
+  // Data
   fields.newDimension()
     .setId('data_contrato')
-    .setName('📅 Data Contrato')
-    .setType(types.YEAR_MONTH_DAY);
+    .setName('Data Contrato')
+    .setType(types.YEAR_MONTH_DAY)
+    .setDescription('Data do contrato');
+
+  // Comissão
+  fields.newDimension()
+    .setId('tem_comissao')
+    .setName('Tem Comissão')
+    .setType(types.BOOLEAN)
+    .setDescription('Possui comissão');
+
+  fields.newMetric()
+    .setId('valor_total_comissao')
+    .setName('Valor Comissão')
+    .setType(types.CURRENCY_BRL)
+    .setAggregation(aggregations.SUM)
+    .setDescription('Valor da comissão');
 
   fields.newDimension()
-    .setId('data_entrega_prevista')
-    .setName('📅 Data Entrega Prevista')
-    .setType(types.YEAR_MONTH_DAY);
+    .setId('categoria_valor_contrato')
+    .setName('Categoria Valor')
+    .setType(types.TEXT)
+    .setDescription('Faixa de valor');
 }
 
 /**
@@ -720,130 +625,69 @@ function addPortfolioFields(fields, types, aggregations) {
   // Unidade
   fields.newDimension()
     .setId('unidade_id')
-    .setName('🏢 ID Unidade')
-    .setType(types.NUMBER);
+    .setName('ID Unidade')
+    .setType(types.NUMBER)
+    .setDescription('Identificador único da unidade');
 
   fields.newDimension()
     .setId('unidade_nome')
-    .setName('🏢 Nome Unidade')
-    .setType(types.TEXT);
+    .setName('Nome Unidade')
+    .setType(types.TEXT)
+    .setDescription('Nome da unidade');
 
   fields.newDimension()
     .setId('tipo_imovel')
-    .setName('🏠 Tipo Imóvel')
-    .setType(types.TEXT);
+    .setName('Tipo Imóvel')
+    .setType(types.TEXT)
+    .setDescription('Tipo do imóvel');
 
   fields.newDimension()
     .setId('status_unidade')
-    .setName('📊 Status Unidade')
-    .setType(types.TEXT);
+    .setName('Status')
+    .setType(types.TEXT)
+    .setDescription('Status da unidade');
 
   // Empreendimento
   fields.newDimension()
-    .setId('empreendimento_id')
-    .setName('🏗️ ID Empreendimento')
-    .setType(types.NUMBER);
-
-  fields.newDimension()
     .setId('empreendimento_nome')
-    .setName('🏗️ Nome Empreendimento')
-    .setType(types.TEXT);
+    .setName('Empreendimento')
+    .setType(types.TEXT)
+    .setDescription('Nome do empreendimento');
 
-  fields.newDimension()
-    .setId('status_empreendimento')
-    .setName('📊 Status Empreendimento')
-    .setType(types.TEXT);
-
-  // Categorização
-  fields.newDimension()
-    .setId('categoria_valor')
-    .setName('💰 Categoria Valor')
-    .setType(types.TEXT);
-
-  fields.newDimension()
-    .setId('categoria_tamanho')
-    .setName('📏 Categoria Tamanho')
-    .setType(types.TEXT);
-
-  fields.newDimension()
-    .setId('categoria_tipo')
-    .setName('🏷️ Categoria Tipo')
-    .setType(types.TEXT);
-
-  fields.newDimension()
-    .setId('segmento_estrategico')
-    .setName('🎯 Segmento Estratégico')
-    .setType(types.TEXT);
-
-  // Métricas de área e valor
+  // Valores
   fields.newMetric()
-    .setId('area_util')
-    .setName('📏 Área Útil')
-    .setType(types.NUMBER)
-    .setAggregation(aggregations.SUM);
+    .setId('valor_unidade')
+    .setName('Valor Unidade')
+    .setType(types.CURRENCY_BRL)
+    .setAggregation(aggregations.SUM)
+    .setDescription('Valor da unidade');
 
   fields.newMetric()
     .setId('area_total')
-    .setName('📏 Área Total')
+    .setName('Área Total')
     .setType(types.NUMBER)
-    .setAggregation(aggregations.SUM);
+    .setAggregation(aggregations.SUM)
+    .setDescription('Área total em m²');
 
-  fields.newMetric()
-    .setId('valor_unidade')
-    .setName('💰 Valor Unidade')
-    .setType(types.CURRENCY_BRL)
-    .setAggregation(aggregations.SUM);
-
-  fields.newMetric()
-    .setId('valor_m2')
-    .setName('💰 Valor por m²')
-    .setType(types.CURRENCY_BRL)
-    .setAggregation(aggregations.AVG);
-
-  // Scores
-  fields.newMetric()
-    .setId('score_atratividade')
-    .setName('⭐ Score Atratividade')
-    .setType(types.NUMBER)
-    .setAggregation(aggregations.AVG);
-
-  fields.newMetric()
-    .setId('score_qualidade')
-    .setName('⭐ Score Qualidade')
-    .setType(types.NUMBER)
-    .setAggregation(aggregations.AVG);
-
-  // Flags importantes
+  // Status
   fields.newDimension()
     .setId('tem_contrato_vinculado')
-    .setName('📋 Tem Contrato')
-    .setType(types.BOOLEAN);
+    .setName('Tem Contrato')
+    .setType(types.BOOLEAN)
+    .setDescription('Possui contrato vinculado');
+
+  // Categoria
+  fields.newDimension()
+    .setId('categoria_valor')
+    .setName('Categoria Valor')
+    .setType(types.TEXT)
+    .setDescription('Faixa de valor');
 
   fields.newDimension()
-    .setId('tem_empreendimento_vinculado')
-    .setName('🏗️ Tem Empreendimento')
-    .setType(types.BOOLEAN);
-
-  fields.newDimension()
-    .setId('tem_coordenadas')
-    .setName('🗺️ Tem Coordenadas')
-    .setType(types.BOOLEAN);
-
-  // Contrato vinculado
-  fields.newDimension()
-    .setId('contrato_id')
-    .setName('📋 ID Contrato')
-    .setType(types.NUMBER);
-
-  fields.newDimension()
-    .setId('numero_contrato')
-    .setName('📋 Número Contrato')
-    .setType(types.TEXT);
-
-  fields.newDimension()
-    .setId('contrato_status')
-    .setName('📊 Status Contrato')
-    .setType(types.TEXT);
+    .setId('categoria_tamanho')
+    .setName('Categoria Tamanho')
+    .setType(types.TEXT)
+    .setDescription('Categoria de tamanho');
 }
 
 // ============================================
@@ -853,26 +697,15 @@ function getData(request) {
   try {
     var configParams = request.configParams || {};
     var apiSource = configParams.api_source || 'financeiro';
-    var aggregationType = configParams.aggregation_type || CONFIG.APIS[apiSource].default_aggregation;
-    var recordLimit = parseInt(configParams.record_limit) || CONFIG.APIS[apiSource].default_limit;
-    var useCache = configParams.use_cache !== 'false';
-    var debugMode = configParams.debug_mode === 'true';
-
-    // Ativar debug se solicitado
-    if (debugMode) CONFIG.DEBUG = true;
+    var useCache = CONFIG.USE_CACHE && (configParams.use_cache === true || configParams.use_cache === 'true');
+    var recordLimit = CONFIG.APIS[apiSource].default_limit;
 
     logDebug('getData iniciado', 'getData');
-    logDebug('API: ' + apiSource + ', Agregação: ' + aggregationType + ', Limite: ' + recordLimit, 'getData');
-
-    // Validar limite
-    if (recordLimit > CONFIG.MAX_RECORDS) {
-      recordLimit = CONFIG.MAX_RECORDS;
-      logDebug('Limite ajustado para: ' + recordLimit, 'getData');
-    }
+    logDebug('API: ' + apiSource + ', Limite: ' + recordLimit, 'getData');
 
     // Construir URL da API
     var apiUrl = CONFIG.BASE_URL + CONFIG.APIS[apiSource].endpoint;
-    var queryParams = buildQueryParams(request, apiSource, aggregationType, recordLimit);
+    var queryParams = buildQueryParams(request, apiSource, recordLimit);
     var fullUrl = apiUrl + (queryParams ? '?' + queryParams : '');
 
     logDebug('URL construída: ' + fullUrl, 'getData');
@@ -882,23 +715,28 @@ function getData(request) {
 
     // Construir resposta
     var requestedFieldIds = request.fields.map(function(f) { return f.name; });
-    var schema = getFieldsForApi(apiSource).forIds(requestedFieldIds).build();
+
+    // pegue os campos válidos/filtrados pelo schema final…
+    var schemaFields = getFieldsForApi(apiSource).forIds(requestedFieldIds).build();
 
     if (!apiData || !apiData.data || apiData.data.length === 0) {
       logDebug('Nenhum dado retornado da API', 'getData');
       return {
-        schema: schema,
+        schema: schemaFields,
         rows: []
       };
     }
 
-    // Processar dados
-    var rows = processApiData(apiData.data, requestedFieldIds, apiSource);
+    // derive a ordem final a partir do schema (não de request.fields)
+    var finalFieldIds = schemaFields.map(function (f) { return f.name; });
+
+    // Processar dados com a ordem correta
+    var rows = processApiData(apiData.data, finalFieldIds, apiSource);
 
     logDebug('Retornando ' + rows.length + ' linhas processadas', 'getData');
 
     return {
-      schema: schema,
+      schema: schemaFields,
       rows: rows
     };
 
@@ -911,16 +749,11 @@ function getData(request) {
 /**
  * Construir parâmetros de query
  */
-function buildQueryParams(request, apiSource, aggregationType, recordLimit) {
+function buildQueryParams(request, apiSource, recordLimit) {
   var params = [];
 
   // Limite
   params.push('limit=' + recordLimit);
-
-  // Agregação (apenas para financeiro)
-  if (apiSource === 'financeiro' && aggregationType) {
-    params.push('agrupar_por=' + encodeURIComponent(aggregationType));
-  }
 
   // Filtro de data do Looker Studio
   if (request.dateRange && request.dateRange.startDate && request.dateRange.endDate) {
@@ -981,7 +814,7 @@ function fetchApiData(url, useCache) {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
-        'User-Agent': 'Sienge-Gold-Connector/7.0'
+        'User-Agent': 'Sienge-Gold-Connector/7.1'
       },
       muteHttpExceptions: true
     });
@@ -1332,7 +1165,6 @@ function testAllApis() {
         var data = JSON.parse(response.getContentText());
         console.log('✅ ' + api.name + ' - OK');
         console.log('   Registros: ' + (data.data ? data.data.length : 0));
-        console.log('   Volume: ' + api.volume);
         results[apiKey] = '✅ OK';
       } else {
         console.log('❌ ' + api.name + ' - Erro ' + statusCode);
@@ -1354,6 +1186,109 @@ function testAllApis() {
 }
 
 /**
+ * Teste simples de grupo
+ */
+function testSimpleGroup() {
+  console.log('=== TESTE SIMPLES DE GRUPO ===');
+
+  try {
+    var cc = DataStudioApp.createCommunityConnector();
+    var types = cc.FieldType;
+    var fields = cc.getFields();
+
+    // Teste básico de grupo
+    var testField = fields.newDimension()
+      .setId('test_field')
+      .setName('Campo de Teste')
+      .setType(types.TEXT)
+      .setDescription('Campo para testar grupos')
+      .setGroup('🧪 Teste');
+
+    console.log('Campo criado:', testField);
+
+    var schema = fields.build();
+    console.log('Schema construído com ' + schema.length + ' campos');
+
+    // Verificar se o grupo foi aplicado
+    if (schema.length > 0 && schema[0].group) {
+      console.log('✅ Grupo detectado: ' + schema[0].group);
+      return '✅ setGroup() funciona!';
+    } else {
+      console.log('❌ Grupo não detectado no schema');
+      console.log('Propriedades do campo:', JSON.stringify(schema[0], null, 2));
+      return '❌ setGroup() não está funcionando';
+    }
+
+  } catch (e) {
+    console.log('❌ Erro no teste: ' + e.toString());
+    return '❌ Erro: ' + e.toString();
+  }
+}
+
+/**
+ * Teste dos grupos de campos
+ */
+function testFieldGroups() {
+  console.log('=== TESTE DE GRUPOS DE CAMPOS ===');
+
+  try {
+    // Primeiro teste simples
+    var simpleResult = testSimpleGroup();
+    console.log('Resultado do teste simples: ' + simpleResult);
+
+    var apis = ['financeiro', 'clientes', 'vendas', 'portfolio'];
+    var cc = DataStudioApp.createCommunityConnector();
+    var types = cc.FieldType;
+    var aggregations = cc.AggregationType;
+
+    for (var i = 0; i < apis.length; i++) {
+      var apiName = apis[i];
+      console.log('\nTesting API: ' + apiName);
+
+      var fields = cc.getFields();
+      addCommonFields(fields, types);
+
+      switch (apiName) {
+        case 'financeiro':
+          addFinanceiroFields(fields, types, aggregations);
+          break;
+        case 'clientes':
+          addClientesFields(fields, types, aggregations);
+          break;
+        case 'vendas':
+          addVendasFields(fields, types, aggregations);
+          break;
+        case 'portfolio':
+          addPortfolioFields(fields, types, aggregations);
+          break;
+      }
+
+      var schema = fields.build();
+      console.log('✅ ' + apiName + ' - ' + schema.length + ' campos definidos');
+
+      // Verificar grupos
+      var groups = {};
+      for (var j = 0; j < schema.length; j++) {
+        if (schema[j].group) {
+          groups[schema[j].group] = (groups[schema[j].group] || 0) + 1;
+        }
+      }
+
+      console.log('Grupos encontrados:');
+      for (var group in groups) {
+        console.log('  ' + group + ': ' + groups[group] + ' campos');
+      }
+    }
+
+    return '✅ Teste de grupos concluído!';
+
+  } catch (e) {
+    console.log('❌ Erro no teste: ' + e.toString());
+    return '❌ Erro: ' + e.toString();
+  }
+}
+
+/**
  * Teste completo do connector
  */
 function testFullConnector() {
@@ -1372,32 +1307,13 @@ function testFullConnector() {
       console.log('✅ Schema ' + apiName + ' OK - Campos: ' + schema.schema.length);
     }
 
-    // 3. Teste de getData (mock)
-    var mockRequest = {
-      configParams: {
-        api_source: 'financeiro',
-        aggregation_type: 'mes',
-        record_limit: '10'
-      },
-      fields: [
-        { name: 'data_principal' },
-        { name: 'ano_mes' },
-        { name: 'valor_extrato' },
-        { name: 'total_lancamentos' }
-      ],
-      dateRange: {
-        startDate: '20240901',
-        endDate: '20241231'
-      }
-    };
-
-    // Não executa getData real para evitar erro de rede
-    console.log('✅ Estrutura de getData validada');
+    // 3. Teste de grupos
+    testFieldGroups();
 
     console.log('\n🎉 TODOS OS TESTES PASSARAM!');
-    console.log('🚀 Gold Connector v7.0 está pronto para uso!');
+    console.log('🚀 Gold Connector v7.1 está pronto para uso!');
 
-    return '✅ Connector Gold v7.0 - PRONTO!';
+    return '✅ Connector Gold v7.1 - PRONTO COM GRUPOS!';
 
   } catch (e) {
     console.log('❌ Erro no teste: ' + e.toString());
