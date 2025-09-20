@@ -6,7 +6,7 @@ ARG NODE_ENV=production
 ARG BUILD_TARGET=production
 
 # Instalar dependências necessárias para o Alpine
-RUN apk add --no-cache libc6-compat curl bash netcat-openbsd
+RUN apk add --no-cache libc6-compat curl bash netcat-openbsd postgresql-client
 
 # Definir diretório de trabalho
 WORKDIR /app
