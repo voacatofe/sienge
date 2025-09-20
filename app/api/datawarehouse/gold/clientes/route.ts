@@ -15,7 +15,7 @@ export async function GET(request: Request) {
     const clienteId = searchParams.get('cliente_id');
     const nomeCliente = searchParams.get('nome_cliente');
     const documento = searchParams.get('documento');
-    const tipoePessoa = searchParams.get('tipo_pessoa');
+    const tipoPessoa = searchParams.get('tipo_pessoa');
     const cidade = searchParams.get('cidade');
     const estado = searchParams.get('estado');
     const faixaEtaria = searchParams.get('faixa_etaria');
@@ -26,7 +26,7 @@ export async function GET(request: Request) {
     const qualidadeMinima = searchParams.get('qualidade_minima');
     const valorMinimoContratos = searchParams.get('valor_minimo_contratos');
     const valorMaximoContratos = searchParams.get('valor_maximo_contratos');
-    const segmentodemografico = searchParams.get('segmento_demografico');
+    const segmentoDemografico = searchParams.get('segmento_demografico');
 
     // Parâmetros de ordenação e limite
     const orderBy = searchParams.get('order_by') || 'score_valor_cliente';
@@ -52,9 +52,9 @@ export async function GET(request: Request) {
       params.push(documento.replace(/\D/g, ''));
     }
 
-    if (tipoePessoa) {
+    if (tipoPessoa) {
       whereClause += ` AND tipo_pessoa = $${params.length + 1}`;
-      params.push(tipoePessoa);
+      params.push(tipoPessoa);
     }
 
     if (cidade) {
@@ -107,9 +107,9 @@ export async function GET(request: Request) {
       params.push(parseFloat(valorMaximoContratos));
     }
 
-    if (segmentodemografico) {
+    if (segmentoDemografico) {
       whereClause += ` AND segmento_demografico = $${params.length + 1}`;
-      params.push(segmentodemografico);
+      params.push(segmentoDemografico);
     }
 
     logger.info('Buscando dados gold.clientes_360', {
@@ -117,7 +117,7 @@ export async function GET(request: Request) {
         clienteId,
         nomeCliente,
         documento,
-        tipoePessoa,
+        tipoPessoa,
         cidade,
         estado,
         faixaEtaria,
@@ -447,7 +447,7 @@ export async function GET(request: Request) {
           cliente_id: clienteId,
           nome_cliente: nomeCliente,
           documento: documento,
-          tipo_pessoa: tipoePessoa,
+          tipo_pessoa: tipoPessoa,
           cidade: cidade,
           estado: estado,
           faixa_etaria: faixaEtaria,
@@ -460,7 +460,7 @@ export async function GET(request: Request) {
             valorMinimoContratos || valorMaximoContratos
               ? `${valorMinimoContratos || 0} - ${valorMaximoContratos || '∞'}`
               : null,
-          segmento_demografico: segmentodemografico,
+          segmento_demografico: segmentoDemografico,
           limit: limit,
         },
         estatisticas: {

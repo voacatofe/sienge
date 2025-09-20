@@ -13,6 +13,8 @@ services:
       - '${DB_PORT_EXTERNAL:-5433}:5432'
     volumes:
       - postgres-dev-data:/var/lib/postgresql/data
+      # Mapear scripts SQL de inicialização para preservar estruturas customizadas
+      - ./sql/init:/docker-entrypoint-initdb.d
     networks:
       - sienge-dev-network
     healthcheck:

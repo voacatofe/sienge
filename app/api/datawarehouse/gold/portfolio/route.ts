@@ -21,7 +21,7 @@ export async function GET(request: Request) {
     const contratoId = searchParams.get('contrato_id');
     const numeroContrato = searchParams.get('numero_contrato');
     const statusUnidade = searchParams.get('status_unidade');
-    const statusContrato = searchParams.get('status_contrato');
+    const statusContrato = searchParams.get('contrato_status');
     const statusEmpreendimento = searchParams.get('status_empreendimento');
     const categoriaValor = searchParams.get('categoria_valor');
     const categoriaTamanho = searchParams.get('categoria_tamanho');
@@ -422,7 +422,7 @@ export async function GET(request: Request) {
           'contrato_id',
           'numero_contrato',
           'status_unidade',
-          'status_contrato',
+          'contrato_status',
           'status_empreendimento',
           'categoria_valor',
           'categoria_tamanho',
@@ -512,7 +512,7 @@ export async function OPTIONS() {
         // Filtros de status
         status_unidade:
           'Status da unidade (Vendida, Disponível, etc.) - opcional',
-        status_contrato: 'Status do contrato - opcional',
+        contrato_status: 'Status do contrato - opcional',
         status_empreendimento: 'Status do empreendimento - opcional',
         status_entrega: 'Status de entrega - opcional',
 

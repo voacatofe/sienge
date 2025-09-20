@@ -56,12 +56,15 @@ RUN npm install -g prisma@latest
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Copiar script de entrypoint (como root) - ANTES de copiar scripts
+# Copiar script de entrypoint SEGURO (como root) - ANTES de copiar scripts
 COPY scripts/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 # Copiar outros scripts necessários (mas não sobrescrever o entrypoint)
 COPY --from=builder /app/scripts ./scripts
+
+# Copiar scripts SQL de inicialização
+COPY --from=builder /app/sql ./sql
 
 # Criar diretório de logs com permissões corretas para subdiretórios
 RUN mkdir -p logs logs/sync-errors && chown -R nextjs:nodejs logs && chmod -R 755 logs

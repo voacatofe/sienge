@@ -14,7 +14,7 @@ export async function GET(request: Request) {
     // Parâmetros de filtro
     const dataInicio = searchParams.get('data_inicio');
     const dataFim = searchParams.get('data_fim');
-    const statusContrato = searchParams.get('status_contrato');
+    const statusContrato = searchParams.get('status_derivado');
     const empresaId = searchParams.get('empresa_id');
     const empreendimentoId = searchParams.get('empreendimento_id');
     const clienteId = searchParams.get('cliente_id');
@@ -337,7 +337,7 @@ export async function GET(request: Request) {
         filtros_aplicados: {
           data_inicio: dataInicio,
           data_fim: dataFim,
-          status_contrato: statusContrato,
+          status_derivado: statusContrato,
           empresa_id: empresaId,
           empreendimento_id: empreendimentoId,
           cliente_id: clienteId,
@@ -393,7 +393,7 @@ export async function GET(request: Request) {
         filtros_disponiveis: [
           'data_inicio',
           'data_fim',
-          'status_contrato',
+          'status_derivado',
           'empresa_id',
           'empreendimento_id',
           'cliente_id',
@@ -450,7 +450,7 @@ export async function OPTIONS() {
       parametros: {
         data_inicio: 'Data início (YYYY-MM-DD) - opcional',
         data_fim: 'Data fim (YYYY-MM-DD) - opcional',
-        status_contrato:
+        status_derivado:
           'Status do contrato (Em Andamento, Cancelado, etc) - opcional',
         empresa_id: 'ID da empresa - opcional',
         empreendimento_id: 'ID do empreendimento - opcional',
@@ -463,7 +463,7 @@ export async function OPTIONS() {
       exemplos: {
         todos_contratos: '/api/datawarehouse/gold/vendas',
         contratos_ativos:
-          '/api/datawarehouse/gold/vendas?status_contrato=Em Andamento',
+          '/api/datawarehouse/gold/vendas?status_derivado=Em Andamento',
         periodo_especifico:
           '/api/datawarehouse/gold/vendas?data_inicio=2024-01-01&data_fim=2024-12-31',
         com_comissao: '/api/datawarehouse/gold/vendas?tem_comissao=true',
